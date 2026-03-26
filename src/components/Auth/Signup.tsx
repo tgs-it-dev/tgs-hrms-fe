@@ -841,7 +841,8 @@ const Signup: React.FC = () => {
                       >
                         I agree to all the{' '}
                         <Link
-                          href='#'
+                          component={RouterLink}
+                          to='/terms'
                           sx={{
                             color: 'var(--primary-dark-color)',
                             textDecoration: 'none',
@@ -853,7 +854,8 @@ const Signup: React.FC = () => {
                         </Link>
                         and{' '}
                         <Link
-                          href='#'
+                          component={RouterLink}
+                          to='/privacy-policy'
                           sx={{
                             color: 'var(--primary-dark-color)',
                             textDecoration: 'none',
