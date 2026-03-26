@@ -58,6 +58,9 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
         borderRadius: { xs: '16px', sm: '24px' },
         px: { xs: 2, sm: 3.5 },
         py: { xs: 2, sm: 0 },
+        '& .MuiDialogTitle-root': {
+          pb: 0,
+        },
       }}
     >
       <Box sx={{ mx: -2 }}>
