@@ -1512,7 +1512,12 @@ const RequestManagement: React.FC = () => {
         value: selectedRequest.remarks || '',
         onChange: () => { },
         component: selectedRequest.remarks ? (
-          <Typography variant='body2'>{selectedRequest.remarks}</Typography>
+          <Typography
+            variant='body2'
+            sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+          >
+            {selectedRequest.remarks}
+          </Typography>
         ) : (
           <Typography variant='body2' color='text.secondary'>
             No remarks
@@ -1565,7 +1570,10 @@ const RequestManagement: React.FC = () => {
             {selectedRequest.rejectionReason &&
               selectedRequest.rejectionReason.trim() !== '' && (
                 <Alert severity='error' sx={{ mt: 1 }}>
-                  <Typography variant='body2'>
+                  <Typography
+                    variant='body2'
+                    sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                  >
                     <strong>Rejection Reason:</strong>{' '}
                     {selectedRequest.rejectionReason}
                   </Typography>

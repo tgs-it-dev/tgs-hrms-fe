@@ -23,12 +23,13 @@ import type { Team, TeamMember } from '../../api/teamApi';
 import { teamApiService } from '../../api/teamApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
-import { isAdmin } from '../../utils/auth';
+import { isAdmin, isManager } from '../../utils/auth';
 import TeamMemberList from './TeamMemberList';
 import AppButton from '../common/AppButton';
 import { useNavigate } from 'react-router-dom';
 import AppCard from '../common/AppCard';
 import AppDropdown from '../common/AppDropdown';
+import AvailableEmployees from './AvailableEmployees';
 
 interface MyTeamsProps {
   teams: Team[];
@@ -40,11 +41,6 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
-  const [availableEmployees, setAvailableEmployees] = useState<TeamMember[]>(
-    []
-  );
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
   const { language } = useLanguage();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -115,49 +111,9 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
     setShowMemberDialog(true);
   };
 
-  // Load available employees when dialog opens
-
-  useEffect(() => {
-    const loadAvailableEmployees = async () => {
-      if (showAddMemberDialog) {
-        try {
-          setLoadingEmployees(true);
-          const response = await teamApiService.getAvailableEmployees(1, 25);
-          setAvailableEmployees(response.items || []);
-        } catch {
-          showError(new Error('Failed to load available employees.'));
-        } finally {
-          setLoadingEmployees(false);
-        }
-      }
-    };
-
-    loadAvailableEmployees();
-  }, [showAddMemberDialog]);
-
   const handleAddMember = (team: Team) => {
     setSelectedTeam(team);
     setShowAddMemberDialog(true);
-  };
-
-  const handleAddMemberSubmit = async () => {
-    if (!selectedTeam || !selectedEmployeeId) return;
-
-    try {
-      // Call the actual API to add member to team
-      await teamApiService.addMemberToTeam(selectedTeam.id, selectedEmployeeId);
-
-      setShowAddMemberDialog(false);
-      setSelectedEmployeeId('');
-
-      // Show success message
-      showSuccess(lang.memberAdded);
-
-      // Trigger auto-render for other components
-      window.dispatchEvent(new CustomEvent('teamUpdated'));
-    } catch {
-      snackbar.error('Failed to add member to team. Please try again.');
-    }
   };
 
   if (teams.length === 0) {
@@ -188,7 +144,7 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
           gridTemplateColumns: {
             xs: '1fr',
             sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
+            md: 'repeat(2, 1fr)',
           },
           gap: 3,
         }}
@@ -300,7 +256,7 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
                 >
                   {lang.viewMembers}
                 </AppButton>
-                {isAdmin() && (
+                {(isAdmin() || isManager()) && (
                   <AppButton
                     variant='outlined'
                     variantType='secondary'
@@ -363,57 +319,21 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
       <Dialog
         open={showAddMemberDialog}
         onClose={() => setShowAddMemberDialog(false)}
-        maxWidth='sm'
+        maxWidth='md'
         fullWidth
       >
         <DialogTitle sx={{ color: theme.palette.text.primary }}>
-          {lang.addMemberToTeam}
+          {selectedTeam?.name} - {lang.addMemberToTeam}
         </DialogTitle>
         <DialogContent>
-          <AppDropdown
-            label={lang.selectEmployee}
-            value={selectedEmployeeId || 'all'}
-            onChange={e => setSelectedEmployeeId(String(e.target.value || ''))}
-            disabled={loadingEmployees}
-            containerSx={{ mt: 2, width: '100%' }}
-            options={[
-              {
-                value: 'all',
-                label: loadingEmployees
-                  ? 'Loading employees...'
-                  : lang.selectEmployee,
-              },
-              ...availableEmployees.map(employee => ({
-                value: employee.id,
-                label: `${
-                  employee.user
-                    ? `${employee.user.first_name || ''} ${employee.user.last_name || ''}`
-                    : 'Unknown User'
-                } - ${employee.designation?.title || 'N/A'}`,
-              })),
-            ]}
-          />
-          <AppButton
-            variant='outlined'
-            variantType='secondary'
-            size='small'
-            text={'View Tasks'}
-            onClick={() => navigate(`/dashboard/teams/tasks/${team.id}`)}
-            sx={{
-              flex: 1,
-              borderColor: '#3083DC',
-              color: '#3083DC',
-              backgroundColor: 'transparent',
-              fontSize: { xs: '0.75rem', sm: '0.875rem' },
-              py: { xs: 0.75, sm: 1 },
-              px: { xs: 1, sm: 1.5 },
-              minWidth: 0,
-              '&:hover': {
-                borderColor: '#3083DC',
-                backgroundColor: 'rgba(48, 131, 220, 0.1)',
-              },
-            }}
-          />
+          {selectedTeam && (
+            <AvailableEmployees
+              darkMode={darkMode}
+              teamId={selectedTeam.id}
+              teamName={selectedTeam.name}
+              teamDescription={selectedTeam.description}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <AppButton
@@ -422,14 +342,6 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
             variant='outlined'
           >
             {lang.cancel}
-          </AppButton>
-          <AppButton
-            onClick={handleAddMemberSubmit}
-            variant='contained'
-            variantType='primary'
-            disabled={!selectedEmployeeId}
-          >
-            {lang.add}
           </AppButton>
         </DialogActions>
       </Dialog>
