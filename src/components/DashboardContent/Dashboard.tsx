@@ -507,7 +507,10 @@ const Dashboard: React.FC = () => {
                     backgroundColor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
                     borderRadius: '6px',
-                    // '&:hover': { backgroundColor: theme.palette.primary.dark },
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                    },
                   }}
                 >
                   <DownloadIcon />
@@ -1161,7 +1164,7 @@ const Dashboard: React.FC = () => {
                     minHeight: 180,
                   }}
                 >
-                  <ResponsiveContainer width='100%' height='100%'>
+                  <ResponsiveContainer width='100%' height='91%'>
                     <PieChart
                       margin={{ top: 0, right: 0, bottom: 20, left: 0 }}
                     >
@@ -1174,6 +1177,8 @@ const Dashboard: React.FC = () => {
                         paddingAngle={3}
                         stroke='none'
                         strokeWidth={0}
+                        startAngle={50}
+                        endAngle={450}
                         label={({ percent }) =>
                           `${(percent * 100).toFixed(0)}%`
                         }

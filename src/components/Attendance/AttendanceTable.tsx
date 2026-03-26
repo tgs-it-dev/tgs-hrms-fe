@@ -2730,6 +2730,35 @@ const AttendanceTable = () => {
             >
               Clear Filters
             </AppButton>
+
+            <Tooltip title='Export Team Attendance'>
+              <IconButton
+                color='primary'
+                onClick={() => {
+                  const params: Record<string, string> = {};
+                  if (teamStartDate) params.startDate = teamStartDate;
+                  if (teamEndDate) params.endDate = teamEndDate;
+
+                  exportCSV(
+                    '/attendance/export/team',
+                    'attendance-team.csv',
+                    token || '',
+                    params
+                  );
+                }}
+                sx={{
+                  backgroundColor: '#3083DC',
+                  borderRadius: '6px',
+                  padding: '6px',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: '#3083DC',
+                  },
+                }}
+              >
+                <FileDownloadIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
 
           <AppTable>

@@ -41,6 +41,7 @@ export interface AssetRequest {
   subcategoryId?: string;
   subcategoryName?: string;
   remarks?: string;
+  managerRemarks?: string;
   status: RequestStatus;
   requestedDate: string;
   processedDate?: string;

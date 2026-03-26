@@ -29,10 +29,9 @@ export const CompanyProvider: React.FC<{ children: ReactNode }> = ({
       const details = await companyApi.getCompanyDetails();
       setCompanyDetails(details);
       const tenantId = details.tenant_id;
-      if (tenantId) {
+      setCompanyLogo(details.logo_url);
         const logoUrl = await companyApi.getCompanyLogo(tenantId);
         setCompanyLogo(logoUrl);
-      }
     } catch {
       // Leave company context empty on failure; UI can handle missing branding
     }

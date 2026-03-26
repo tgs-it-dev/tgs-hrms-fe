@@ -1,4 +1,4 @@
-import { Box, Typography, CircularProgress, useTheme } from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import { useOutletContext } from 'react-router-dom';
@@ -112,6 +112,9 @@ const TenantGrowthChart: React.FC = () => {
   const departmentsData = tenantGrowthData.map(d => d.departments);
   const designationsData = tenantGrowthData.map(d => d.designations);
 
+  const selectedTenantName =
+    tenants.find(t => t.id === selectedTenant)?.name || '';
+
   const series = [
     { name: 'Employees', data: employeesData },
     { name: 'Departments', data: departmentsData },
@@ -222,26 +225,35 @@ const TenantGrowthChart: React.FC = () => {
               '& .MuiOutlinedInput-root': { minHeight: '48px' },
             }}
           />
-          <AppDropdown
-            label='Tenant'
-            value={selectedTenant}
-            onChange={e => setSelectedTenant(e.target.value as string)}
-            options={tenants.map(t => ({ value: t.id, label: t.name }))}
-            containerSx={{ minWidth: 160 }}
-            sx={{
-              width: { xs: '100%', sm: 120 },
-              '& .MuiOutlinedInput-root': {
-                minHeight: '48px',
-                color: theme.palette.text.primary,
-                '& fieldset': {
-                  borderColor: theme.palette.divider,
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.divider,
-                },
-              },
-            }}
-          />
+          <Tooltip
+            title={selectedTenantName || ''}
+            placement='top'
+            arrow
+            disableInteractive
+          >
+            <Box>
+              <AppDropdown
+                label='Tenant'
+                value={selectedTenant}
+                onChange={e => setSelectedTenant(e.target.value as string)}
+                options={tenants.map(t => ({ value: t.id, label: t.name }))}
+                containerSx={{ minWidth: 160 }}
+                sx={{
+                  width: { xs: '100%', sm: 120 },
+                  '& .MuiOutlinedInput-root': {
+                    minHeight: '48px',
+                    color: theme.palette.text.primary,
+                    '& fieldset': {
+                      borderColor: theme.palette.divider,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.divider,
+                    },
+                  },
+                }}
+              />
+            </Box>
+          </Tooltip>
         </Box>
       </Box>
 

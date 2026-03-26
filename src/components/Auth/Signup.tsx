@@ -43,7 +43,7 @@ const Signup: React.FC = () => {
     useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [, setSuccess] = useState<string | null>(null);
-  const { snackbar, showSuccess, closeSnackbar } = useErrorHandler();
+  const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -262,6 +262,25 @@ const Signup: React.FC = () => {
         };
         message?: string;
       };
+
+      // Network or unexpected errors: show global snackbar, not field errors
+      if (!error.response) {
+        showError(
+          lang === 'ar'
+            ? 'حدث خطأ في الشبكة. يرجى التحقق من اتصالك ثم حاول مرة أخرى.'
+            : 'Network error. Please check your connection and try again.'
+        );
+        setError(null);
+        setFieldErrors({
+          first_name: '',
+          last_name: '',
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: '',
+        });
+        return;
+      }
 
       // Clear all field errors and general error first
       setError(null);
@@ -822,7 +841,8 @@ const Signup: React.FC = () => {
                       >
                         I agree to all the{' '}
                         <Link
-                          href='#'
+                          component={RouterLink}
+                          to='/terms'
                           sx={{
                             color: 'var(--primary-dark-color)',
                             textDecoration: 'none',
@@ -834,7 +854,8 @@ const Signup: React.FC = () => {
                         </Link>
                         and{' '}
                         <Link
-                          href='#'
+                          component={RouterLink}
+                          to='/privacy-policy'
                           sx={{
                             color: 'var(--primary-dark-color)',
                             textDecoration: 'none',
@@ -933,6 +954,7 @@ const Signup: React.FC = () => {
           message={snackbar.message}
           severity={snackbar.severity}
           onClose={closeSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         />
       </Box>
     </Box>

@@ -61,6 +61,10 @@ import {
   isMenuVisibleForRole,
 } from '../../utils/permissions';
 import { isSystemAdmin as roleIsSystemAdmin } from '../../utils/roleUtils';
+import {
+  useFeatureToggles,
+  type FeatureKey,
+} from '../../context/FeatureToggleContext';
 
 const labels = {
   en: {
@@ -360,6 +364,20 @@ const searchableRoutes: SearchResult[] = [
   { label: 'Modals', path: 'modals', category: 'UI Components', type: 'route' },
 ];
 
+const categoryToFeature: Partial<Record<string, FeatureKey>> = {
+  Payroll: 'payroll',
+  Assets: 'assets',
+  Attendance: 'attendance',
+  Benefits: 'benefits',
+  Performance: 'performance',
+  Recruitment: 'recruitment',
+  'Leave Analytics': 'leaveAnalytics',
+  Projects: 'projects',
+  Announcements: 'announcements',
+  Accounts: 'accounts',
+  App: 'app',
+};
+
 interface NavbarProps {
   darkMode: boolean;
   onToggleSidebar: () => void;
@@ -587,6 +605,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const lang = labels[language];
   const { user, clearUser } = useUser();
   const { updateProfilePicture } = useProfilePicture();
+  const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
     if (!user) return '';
 
@@ -841,6 +860,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
       return searchableRoutes
         .filter(route => isRouteAllowed(route)) // Filter by permissions first
+        .filter(route => {
+          const featureKey = categoryToFeature[route.category];
+          if (!featureKey) return true;
+          return isFeatureEnabled(featureKey);
+        })
         .map(route => {
           // Collect all searchable text from the route
           const label = (route.label || '').toLowerCase();
@@ -937,7 +961,7 @@ const Navbar: React.FC<NavbarProps> = ({
         .slice(0, 5)
         .map(({ route }) => route);
     },
-    [isRouteAllowed]
+    [isRouteAllowed, isFeatureEnabled]
   );
 
   React.useEffect(() => {
@@ -1493,36 +1517,10 @@ const Navbar: React.FC<NavbarProps> = ({
               {language === 'en' ? 'EN' : 'عربي'}
             </Button>
 
-            {/* Team Members Avatar */}
-            <Box
-              sx={{
-                display: { xs: 'none', md: 'block' },
-              }}
-            >
+            {/* Team Members Avatar - same on mobile and desktop */}
+            <Box>
               <TeamMembersAvatar maxAvatars={2} darkMode={darkMode} />
             </Box>
-
-            {/* Mobile Team Members Button */}
-            <IconButton
-              onClick={handleOpenTeamMembersModal}
-              sx={{
-                display: { xs: 'flex', md: 'none' },
-                backgroundColor: {
-                  xs: 'transparent',
-                  md: 'var(--primary-color)',
-                },
-                borderRadius: 'var(--border-radius-lg)',
-                p: { xs: 0.75, md: 1 },
-              }}
-              aria-label='Open team members modal'
-            >
-              <GroupOutlinedIcon
-                sx={{
-                  color: theme.palette.text.primary,
-                  fontSize: { xs: '18px', md: '24px' },
-                }}
-              />
-            </IconButton>
 
             <Paper
               elevation={0}

@@ -58,23 +58,23 @@ interface ApiAssetRequestExtended extends ApiAssetRequest {
   subcategory_id?: string | null;
   subcategory_name?: string;
   category?:
-  | string
-  | {
-    id?: string;
-    name?: string;
-    description?: string | null;
-    icon?: string | null;
-  };
+    | string
+    | {
+        id?: string;
+        name?: string;
+        description?: string | null;
+        icon?: string | null;
+      };
   subcategory?:
-  | string
-  | {
-    name?: string;
-    title?: string;
-    subcategory_name?: string;
-    subcategoryName?: string;
-    display_name?: string;
-    label?: string;
-  };
+    | string
+    | {
+        name?: string;
+        title?: string;
+        subcategory_name?: string;
+        subcategoryName?: string;
+        display_name?: string;
+        label?: string;
+      };
   subcategoryId?: string;
   subcategoryName?: string;
   rejection_reason?: string | null;
@@ -387,6 +387,12 @@ const AssetRequests: React.FC = () => {
           subcategoryName = apiRequest.subcategoryName;
         }
 
+        // Get latest manager comment (if any) from API comments array
+        const latestManagerRemark =
+          Array.isArray(apiRequest.comments) && apiRequest.comments.length > 0
+            ? apiRequest.comments[apiRequest.comments.length - 1]?.comment
+            : undefined;
+
         return {
           id: apiRequest.id,
           employeeId: apiRequest.requested_by,
@@ -394,9 +400,9 @@ const AssetRequests: React.FC = () => {
             apiRequest.requestedByName ||
             (apiRequest.requestedByUser
               ? apiRequest.requestedByUser.name ||
-              // @ts-expect-error - handling backend response with first_name/last_name
-              `${apiRequest.requestedByUser.first_name || ''} ${apiRequest.requestedByUser.last_name || ''}`.trim() ||
-              apiRequest.requestedByUser.email
+                // @ts-expect-error - handling backend response with first_name/last_name
+                `${apiRequest.requestedByUser.first_name || ''} ${apiRequest.requestedByUser.last_name || ''}`.trim() ||
+                apiRequest.requestedByUser.email
               : `User ${apiRequest.requested_by}`),
           category: {
             id: categoryId,
@@ -409,6 +415,7 @@ const AssetRequests: React.FC = () => {
           subcategoryId: subcategoryId || undefined,
           subcategoryName: subcategoryName || undefined,
           remarks: apiRequest.remarks,
+          managerRemarks: latestManagerRemark,
           status: normalizeRequestStatus(apiRequest.status),
           requestedDate: apiRequest.requested_date,
           processedDate: apiRequest.approved_date || undefined,
@@ -898,8 +905,12 @@ const AssetRequests: React.FC = () => {
     );
   }
 
-  const renderRequestRow = (request: AssetRequest) => (
-    <TableRow key={request.id} hover>
+  const renderRequestRow = (request: AssetRequest) => {
+    const managerRemark =
+      request.managerRemarks || requestComments[request.id] || '';
+
+    return (
+      <TableRow key={request.id} hover>
       {viewMode === 'team_requests' && (
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -958,10 +969,12 @@ const AssetRequests: React.FC = () => {
       </TableCell>
       {viewMode === 'team_requests' && roleIsManager() && (
         <TableCell align='center'>
-          {requestComments[request.id] && (
-            <Typography variant='body2' color='text.primary'>
-              {requestComments[request.id]}
-            </Typography>
+          {managerRemark && (
+            <Tooltip title={managerRemark} arrow>
+              <Typography variant='body2' color='text.primary'>
+                {managerRemark}
+              </Typography>
+            </Tooltip>
           )}
         </TableCell>
       )}
@@ -969,13 +982,13 @@ const AssetRequests: React.FC = () => {
         {viewMode === 'team_requests' &&
           roleIsManager() &&
           request.status === 'pending' &&
-          !requestComments[request.id] && (
+          !managerRemark && (
             <Button
               onClick={() => handleOpenCommentModal(request)}
               size='small'
               variant='text'
               color='primary'
-              sx={{ textTransform: 'none', whiteSpace: 'nowrap', mr: 1 }}
+              sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
             >
               Add Remark
             </Button>
@@ -1006,8 +1019,9 @@ const AssetRequests: React.FC = () => {
           </IconButton>
         )}
       </TableCell>
-    </TableRow>
-  );
+      </TableRow>
+    );
+  };
 
   const theme = useTheme();
 

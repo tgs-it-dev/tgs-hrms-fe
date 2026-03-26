@@ -1084,6 +1084,12 @@ const AssetInventory: React.FC = () => {
                 boxShadow: 'none',
                 px: { xs: 1, sm: 1.25 },
                 py: { xs: 0.6, sm: 0.8 },
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: 'var(--primary-dark-color)',
+                  border: '1px solid var(--primary-dark-color)',
+                  boxShadow: 'none',
+                },
                 '& .MuiButton-startIcon': {
                   marginRight: { xs: 0.5, sm: 0.75 },
                   '& > *:nth-of-type(1)': {

@@ -18,6 +18,14 @@ export interface LeaveType {
   description?: string;
 }
 
+export interface CreateLeaveTypeRequest {
+  name: string;
+  description?: string;
+  maxDaysPerYear: number;
+  carryForward: boolean;
+  isPaid: boolean;
+}
+
 export interface LeaveTypeListResponse {
   items: LeaveType[];
   total?: number;
@@ -578,6 +586,16 @@ class LeaveApiService {
     })();
 
     return res;
+  }
+
+  async createLeaveType(
+    data: CreateLeaveTypeRequest
+  ): Promise<LeaveType> {
+    const response = await axiosInstance.post<LeaveType>(
+      '/leave-types',
+      data
+    );
+    return response.data;
   }
 
   async getLeaveTypes(

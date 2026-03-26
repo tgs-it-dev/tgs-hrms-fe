@@ -62,6 +62,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'performance',
     'payroll',
     'recruitment',
+    'feature-management',
   ],
   'network-admin': [
     'dashboard',
@@ -132,6 +133,10 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
   { key: 'performance', patterns: ['performance'] },
   { key: 'payroll', patterns: ['payroll'] },
   { key: 'recruitment', patterns: ['recruitment'] },
+  {
+    key: 'feature-management',
+    patterns: ['feature management', 'feature-management'],
+  },
 ];
 
 const getMenuKey = (label: string) => {
@@ -363,6 +368,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'payroll-reports',
     'benefit-report',
     'job-requisitions',
+    'feature-management',
   ],
   'network-admin': [
     '',
