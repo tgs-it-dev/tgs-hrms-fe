@@ -1,5 +1,4 @@
 // Consolidated Type Exports - Single Source of Truth
-export * from './asset';
 export * from './availability';
 export * from './benefits';
 export * from './chart';
