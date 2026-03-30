@@ -8,7 +8,6 @@ import React, {
 
 type FeatureKey =
   | 'payroll'
-  | 'assets'
   | 'attendance'
   | 'benefits'
   | 'performance'
@@ -32,7 +31,6 @@ const STORAGE_KEY = 'feature-toggles';
 
 const defaultFeatures: FeatureState = {
   payroll: true,
-  assets: true,
   attendance: true,
   benefits: true,
   performance: true,

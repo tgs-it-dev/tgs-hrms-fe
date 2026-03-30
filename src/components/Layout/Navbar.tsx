@@ -124,7 +124,6 @@ interface SearchResult {
   type:
     | 'route'
     | 'employee'
-    | 'asset'
     | 'team'
     | 'department'
     | 'designation'
@@ -134,7 +133,6 @@ interface SearchResult {
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'asset-request'
     | 'attendance'
     | 'payroll';
   id?: string;
@@ -214,30 +212,6 @@ const searchableRoutes: SearchResult[] = [
     label: 'Team Management',
     path: 'teams',
     category: 'Teams',
-    type: 'route',
-  },
-  {
-    label: 'Asset Inventory',
-    path: 'assets',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Asset Requests',
-    path: 'assets/requests',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Request Management',
-    path: 'assets/request-management',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Assets Overview',
-    path: 'assets/system-admin',
-    category: 'Assets',
     type: 'route',
   },
   {
@@ -366,7 +340,6 @@ const searchableRoutes: SearchResult[] = [
 
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
   Payroll: 'payroll',
-  Assets: 'assets',
   Attendance: 'attendance',
   Benefits: 'benefits',
   Performance: 'performance',
@@ -573,7 +546,6 @@ const Navbar: React.FC<NavbarProps> = ({
   const dataCacheRef = React.useRef<{
     employees: unknown[] | null;
     teams: Team[] | null;
-    assets: unknown[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
     benefits: unknown[] | null;
@@ -584,7 +556,6 @@ const Navbar: React.FC<NavbarProps> = ({
   }>({
     employees: null,
     teams: null,
-    assets: null,
     departments: null,
     designations: null,
     benefits: null,
@@ -666,18 +637,6 @@ const Navbar: React.FC<NavbarProps> = ({
       return false;
     }
     return isMenuVisibleForRole('teams', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchAssets = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('assets', currentUserRole);
   }, [currentUserRole]);
 
   const canSearchDepartments = React.useCallback((): boolean => {
@@ -1061,15 +1020,6 @@ const Navbar: React.FC<NavbarProps> = ({
         },
         replace: false,
       });
-    } else if (result.type === 'asset' && result.id) {
-      navigate('/dashboard/assets', {
-        state: {
-          assetId: result.id,
-          viewAsset: true,
-          fromSearch: true,
-        },
-        replace: false,
-      });
     } else if (result.type === 'department' && result.id) {
       navigate('/dashboard/departments', {
         state: {
@@ -1114,15 +1064,6 @@ const Navbar: React.FC<NavbarProps> = ({
       navigate('/dashboard/tenant', {
         state: {
           tenantId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'asset-request' && result.id) {
-      navigate('/dashboard/assets/requests', {
-        state: {
-          requestId: result.id,
-          viewRequest: true,
           fromSearch: true,
         },
         replace: false,
@@ -1202,7 +1143,6 @@ const Navbar: React.FC<NavbarProps> = ({
       if (now - cacheRef.cacheTime > CACHE_DURATION) {
         cacheRef.employees = null;
         cacheRef.teams = null;
-        cacheRef.assets = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
         cacheRef.benefits = null;
@@ -1217,7 +1157,6 @@ const Navbar: React.FC<NavbarProps> = ({
       // Clear cache on unmount
       cacheRef.employees = null;
       cacheRef.teams = null;
-      cacheRef.assets = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
       cacheRef.benefits = null;

@@ -239,17 +239,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Assets',
-    icon: Icons.assets,
-    iconFill: Icons.assetsFill,
-    subItems: [
-      { label: 'Asset Inventory', path: 'assets' },
-      { label: 'Asset Requests', path: 'assets/requests' },
-      { label: 'Management', path: 'assets/request-management' },
-      { label: 'Assets Overview', path: 'assets/system-admin' },
-    ],
-  },
-  {
     label: 'Attendance',
     icon: Icons.attendance,
     iconFill: Icons.attendanceFill,
@@ -350,7 +339,6 @@ const menuItems: MenuItem[] = [
 
 const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
   Payroll: 'payroll',
-  Assets: 'assets',
   Attendance: 'attendance',
   'Leave Analytics': 'leaveAnalytics',
   Benefits: 'benefits',

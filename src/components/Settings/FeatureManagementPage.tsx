@@ -30,12 +30,6 @@ const featureDefinitions: {
       'Run payroll, manage employee salaries, and view payroll reports.',
   },
   {
-    key: 'assets',
-    label: 'Assets',
-    description:
-      'Manage company assets, inventory, requests, and system-wide asset visibility.',
-  },
-  {
     key: 'attendance',
     label: 'Attendance & Leaves',
     description:
