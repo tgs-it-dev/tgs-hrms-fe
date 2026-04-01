@@ -1,28 +1,5 @@
 import axiosInstance from './axiosInstance';
 
-export type Benefit = {
-  id: string;
-  employeeId: string;
-  benefitId: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  assignedBy: string;
-  tenant_id: string;
-  createdAt: string;
-  benefit: {
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    eligibilityCriteria: string;
-    status: string;
-    tenant_id: string;
-    createdBy: string;
-    createdAt: string;
-  };
-};
-
 export type SystemEmployee = {
   id: string;
   name: string;
@@ -39,7 +16,6 @@ export type SystemEmployee = {
 };
 
 export type SystemEmployeeDetails = SystemEmployee & {
-  benefits: Benefit[];
   kpis: EmployeePerformance[];
   promotions: EmployeePromotion[];
   performanceReviews: EmployeePerformanceReview[];

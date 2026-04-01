@@ -114,14 +114,6 @@ const TeamManager = lazy(() => import('./components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('./components/Teams/TeamList'));
 const TeamTasks = lazy(() => import('./components/TaskManagement/TeamTasks'));
 const MyTasks = lazy(() => import('./components/TaskManagement/MyTasks'));
-const BenefitList = lazy(() => import('./components/Benefits/BenefitList'));
-const EmployeeBenefits = lazy(
-  () => import('./components/Benefits/EmployeeBenefits')
-);
-const BenefitDetails = lazy(
-  () => import('./components/Employee/BenefitDetails')
-);
-const BenefitReport = lazy(() => import('./components/Benefits/BenefitReport'));
 const TenantBasedEmployeeManager = lazy(
   () => import('./components/Employee/TenantBasedEmployeeManager')
 );
@@ -329,14 +321,6 @@ function App() {
                   />
                   <Route path='terms' element={<TermsOfServicePage />} />
                   <Route path='privacy-policy' element={<PrivacyPolicyPage />} />
-                  <Route path='benefits-list' element={<BenefitList />} />
-                  <Route
-                    path='employee-benefit'
-                    element={<EmployeeBenefits />}
-                  />
-                  <Route path='benefit-details' element={<BenefitDetails />} />
-                  <Route path='benefit-report' element={<BenefitReport />} />
-
                   <Route
                     path='performance-dashboard'
                     element={<PerformanceDashboard />}
