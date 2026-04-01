@@ -168,7 +168,6 @@ const EmployeeBenefits: React.FC = () => {
         const resp = await employeeBenefitApi.getEmployeesWithBenefits({
           page: pageNum,
           limit: ITEMS_PER_PAGE,
-          status: statusFilter === 'all' ? undefined : statusFilter,
         });
 
       // Handle both array and paginated response
@@ -300,19 +299,25 @@ const EmployeeBenefits: React.FC = () => {
   };
 
   const filteredEmployees = employees
-    .map(emp => ({
-      ...emp,
-      benefits:
+    .map(emp => {
+      const benefitsArray = Array.isArray(emp.benefits) ? emp.benefits : [];
+
+      const filteredBenefits =
         selectedStatus === 'all'
-          ? emp.benefits
-          : emp.benefits.filter(b => {
+          ? benefitsArray
+          : benefitsArray.filter(b => {
               const effectiveStatus =
                 b.status === 'inactive'
                   ? 'inactive'
                   : b.statusOfAssignment || b.status || '';
               return effectiveStatus === selectedStatus;
-            }),
-    }))
+            });
+
+      return {
+        ...emp,
+        benefits: filteredBenefits,
+      };
+    })
     .filter(emp => selectedStatus === 'all' || emp.benefits.length > 0);
 
   // Reset to page 1 when status filter changes

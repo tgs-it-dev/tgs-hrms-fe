@@ -88,22 +88,11 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
   useEffect(() => {
     if (open && employee) {
       setLoadingImages(true);
-      const API_BASE_URL = env.apiBaseUrl;
-      const toAbsoluteUrl = (path?: string | null) => {
-        if (!path) return '';
-        const trimmed = path.trim();
-        const isAbsolute = /^https?:\/\//i.test(trimmed);
-        const base = API_BASE_URL.replace(/\/$/, '');
-        const url = isAbsolute
-          ? trimmed
-          : `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-        return `${url}?t=${Date.now()}`;
-      };
 
       try {
-        const profileUrl = toAbsoluteUrl(employee.profile_picture);
-        const cnicFrontUrl = toAbsoluteUrl(employee.cnic_picture);
-        const cnicBackUrl = toAbsoluteUrl(employee.cnic_back_picture);
+        const profileUrl = (employee.profile_picture) ?? '';
+        const cnicFrontUrl = (employee.cnic_picture) ?? '';
+        const cnicBackUrl = (employee.cnic_back_picture) ?? '';
 
         setProfileImage(profileUrl);
         setCnicFrontImage(cnicFrontUrl);
@@ -379,6 +368,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                         <img
                           src={cnicFrontImage}
                           alt='CNIC Front'
+                          loading={'lazy'}
                           style={{
                             maxWidth: '100%',
                             maxHeight: '300px',

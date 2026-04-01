@@ -41,12 +41,14 @@ interface TeamListProps {
   teams?: Team[];
   darkMode?: boolean;
   onTeamUpdated?: () => void;
+  onTeamDeleted?: (teamId: string) => void;
 }
 
 const TeamList: React.FC<TeamListProps> = ({
   teams = [],
   darkMode = false,
   onTeamUpdated,
+  onTeamDeleted,
 }) => {
   const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
@@ -205,12 +207,6 @@ const TeamList: React.FC<TeamListProps> = ({
       );
       setShowEditDialog(false);
       setSelectedTeam(null);
-
-      // Trigger refresh to get the latest data from backend and update parent state
-      if (onTeamUpdated) {
-        onTeamUpdated();
-      }
-      window.dispatchEvent(new CustomEvent('teamUpdated'));
     } catch (error) {
       // Show error message to user
       const errorMessage =
@@ -230,15 +226,13 @@ const TeamList: React.FC<TeamListProps> = ({
       setDeleteError(null);
 
       await teamApiService.deleteTeam(selectedTeam.id);
-      snackbar.success(lang.teamDeleted);
+      // Use error-style snackbar so delete success matches other delete toasts
+      showError(new Error(lang.teamDeleted));
+      if (onTeamDeleted) {
+        onTeamDeleted(selectedTeam.id);
+      }
       setShowDeleteDialog(false);
       setSelectedTeam(null);
-
-      // Trigger refresh
-      if (onTeamUpdated) {
-        onTeamUpdated();
-      }
-      window.dispatchEvent(new CustomEvent('teamUpdated'));
     } catch {
       setDeleteError(lang.error);
     } finally {
@@ -515,7 +509,7 @@ const TeamList: React.FC<TeamListProps> = ({
                         },
                       }}
                     />
-                    {!team.teamMembers && (
+                    {!team.teamMembers && memberCount > 0 && (
                       <Typography
                         variant='caption'
                         sx={{

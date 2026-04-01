@@ -242,7 +242,11 @@ const PayrollReports: React.FC = () => {
       },
       xaxis: { labels: { formatter: val => formatCurrency(val) } },
       dataLabels: { enabled: false },
-      tooltip: { y: { formatter: val => formatCurrency(val) } },
+      tooltip: {
+        y: { formatter: val => formatCurrency(val) },
+        offsetX: 80,
+        offsetY: 0,
+      },
     };
   }, [statistics, textColor]);
 
@@ -340,7 +344,7 @@ const PayrollReports: React.FC = () => {
               )}
             </Paper>
 
-            <Paper sx={{ p: 2, boxShadow: 'none' }}>
+            <Paper sx={{ p: 2, boxShadow: 'none', overflow: 'visible' }}>
               <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                 Department Comparison
               </Typography>
@@ -349,8 +353,24 @@ const PayrollReports: React.FC = () => {
                   No department data
                 </Alert>
               ) : (
-                <Box sx={{ width: '100%', overflowX: 'auto', p: 0 }}>
-                  <Box sx={{ minWidth: { xs: 520, sm: 0 }, p: 0 }}>
+                <Box
+                  sx={{
+                    width: '100%',
+                    overflowX: 'auto',
+                    overflowY: 'visible',
+                    p: 0,
+                    pt: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      minWidth: { xs: 520, sm: 0 },
+                      p: 0,
+                      overflow: 'visible',
+                      '& .apexcharts-inner': { overflow: 'visible !important' },
+                      '& .apexcharts-tooltip': { overflow: 'visible' },
+                    }}
+                  >
                     <Chart
                       options={departmentOptions}
                       series={departmentSeries}

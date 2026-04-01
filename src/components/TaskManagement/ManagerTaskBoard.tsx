@@ -564,7 +564,11 @@ export default function ManagerTaskBoard() {
       description: task.description,
       assignedTo: task.assignedTo,
       teamId: task.teamId,
-      deadline: task.deadline ?? undefined,
+      // Normalize deadline into YYYY-MM-DD for the date input field
+      deadline:
+        task.deadline && typeof task.deadline === 'string'
+          ? String(task.deadline).slice(0, 10)
+          : undefined,
     });
     setIsEditDialogOpen(true);
   };
@@ -694,8 +698,8 @@ export default function ManagerTaskBoard() {
           display: 'grid',
           gridTemplateColumns: {
             xs: '1fr',
-            sm: 'repeat(3, 1fr)',
-            md: 'repeat(3, 1fr)',
+            sm: 'repeat(4, 1fr)',
+            md: 'repeat(4, 1fr)',
           },
           gap: 2,
           mb: 3,
@@ -708,6 +712,16 @@ export default function ManagerTaskBoard() {
             </Typography>
             <Typography variant='h4' fontWeight={600}>
               {filteredTasks.length}
+            </Typography>
+          </AppCard>
+        </Box>
+        <Box>
+          <AppCard compact>
+            <Typography variant='body2' color='text.secondary'>
+              Pending
+            </Typography>
+            <Typography variant='h4' fontWeight={600} color='info.main'>
+              {filteredTasks.filter(t => t.status === 'Pending').length}
             </Typography>
           </AppCard>
         </Box>
@@ -1201,7 +1215,12 @@ export default function ManagerTaskBoard() {
             >
               {shownTaskDetailTasks.map(t => (
                 <AppCard key={t.id} sx={{ height: '100%' }}>
-                  <Box display='flex' flexDirection='column' gap={1}>
+                  <Box
+                    display='flex'
+                    flexDirection='column'
+                    gap={1}
+                    sx={{ height: '100%' }}
+                  >
                     <Box
                       display='flex'
                       justifyContent='space-between'
@@ -1245,46 +1264,50 @@ export default function ManagerTaskBoard() {
                       {formatDate(t.createdAt)}
                     </Typography>
 
-                    {/* Footer actions: edit/delete shown below the card content (managers only for their teams) */}
+                    {/* Footer actions: edit/delete shown at the bottom of the card (managers only for their teams) */}
                     {isManager && visibleTeamIds.includes(t.teamId) && (
                       <Box
-                        mt={1}
                         display='flex'
                         justifyContent='flex-end'
                         gap={1}
+                        sx={{ mt: 'auto' }}
                       >
-                        <IconButton
-                          size='small'
-                          onClick={() => openEditDialog(t)}
-                          aria-label={`edit-${t.id}`}
-                          sx={{ p: { xs: 0.5, sm: 1 } }}
-                        >
-                          <Box
-                            component='img'
-                            src={Icons.edit}
-                            alt='Edit'
-                            sx={{
-                              width: { xs: 16, sm: 20 },
-                              height: { xs: 16, sm: 20 },
-                            }}
-                          />
-                        </IconButton>
-                        <IconButton
-                          size='small'
-                          onClick={() => handleDeleteTask(t.id)}
-                          aria-label={`delete-${t.id}`}
-                          sx={{ p: { xs: 0.5, sm: 1 } }}
-                        >
-                          <Box
-                            component='img'
-                            src={Icons.delete}
-                            alt='Delete'
-                            sx={{
-                              width: { xs: 16, sm: 20 },
-                              height: { xs: 16, sm: 20 },
-                            }}
-                          />
-                        </IconButton>
+                        <Tooltip title='Edit' arrow>
+                          <IconButton
+                            size='small'
+                            onClick={() => openEditDialog(t)}
+                            aria-label={`edit-${t.id}`}
+                            sx={{ p: { xs: 0.5, sm: 1 } }}
+                          >
+                            <Box
+                              component='img'
+                              src={Icons.edit}
+                              alt='Edit'
+                              sx={{
+                                width: { xs: 16, sm: 20 },
+                                height: { xs: 16, sm: 20 },
+                              }}
+                            />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title='Delete' arrow>
+                          <IconButton
+                            size='small'
+                            onClick={() => handleDeleteTask(t.id)}
+                            aria-label={`delete-${t.id}`}
+                            sx={{ p: { xs: 0.5, sm: 1 } }}
+                          >
+                            <Box
+                              component='img'
+                              src={Icons.delete}
+                              alt='Delete'
+                              sx={{
+                                width: { xs: 16, sm: 20 },
+                                height: { xs: 16, sm: 20 },
+                              }}
+                            />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     )}
                   </Box>

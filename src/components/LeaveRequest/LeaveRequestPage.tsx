@@ -3,6 +3,9 @@ import LeaveForm from './LeaveForm';
 import LeaveHistory from './LeaveHistory';
 import LeaveApprovalDialog from './LeaveApprovalDialog';
 import { leaveApi } from '../../api/leaveApi';
+import LeaveTypeFormModal, {
+  type LeaveTypeFormValues,
+} from './LeaveTypeFormModal';
 import type { Leave } from '../../type/levetypes';
 import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
 import { normalizeRole } from '../../utils/permissions';
@@ -55,6 +58,8 @@ const LeaveRequestPage = () => {
   const [employees, setEmployees] = useState<
     { id: string; userId: string; name: string }[]
   >([]);
+  const [leaveTypeModalOpen, setLeaveTypeModalOpen] = useState(false);
+  const [savingLeaveType, setSavingLeaveType] = useState(false);
 
   // Currently selected leave (used for dialogs like manager response)
   const selectedLeave = selectedId
@@ -349,6 +354,22 @@ const LeaveRequestPage = () => {
         return axiosError.response.data.message;
     }
     return '';
+  };
+
+  const handleCreateLeaveType = async (values: LeaveTypeFormValues) => {
+    try {
+      setSavingLeaveType(true);
+      await leaveApi.createLeaveType(values);
+      showSuccess('Leave type created successfully!');
+      setLeaveTypeModalOpen(false);
+      await fetchLeaveTypes();
+    } catch (error: unknown) {
+      showError(
+        getErrorMessage(error) || 'Failed to create leave type'
+      );
+    } finally {
+      setSavingLeaveType(false);
+    }
   };
 
   // Handle apply leave (called after successful API in form)
@@ -706,6 +727,25 @@ const LeaveRequestPage = () => {
               >
                 Leave History
               </AppButton>
+
+              {['admin', 'hr-admin', 'system-admin', 'network-admin', 'oe-admin'].includes(
+                role
+              ) && (
+                <AppButton
+                  variant='contained'
+                  variantType='secondary'
+                  onClick={() => setLeaveTypeModalOpen(true)}
+                  sx={{
+                    borderRadius: '20px',
+                    width: { xs: '100%', sm: 'auto' },
+                    backgroundColor: 'transparent',
+                    color: '#fff',
+                    borderColor: '#fff',
+                  }}
+                >
+                  Create Leave Type
+                </AppButton>
+              )}
             </Stack>
           )}
         </Toolbar>
@@ -955,6 +995,13 @@ const LeaveRequestPage = () => {
           </AppButton>
         </DialogActions>
       </Dialog>
+
+      <LeaveTypeFormModal
+        open={leaveTypeModalOpen}
+        onClose={() => setLeaveTypeModalOpen(false)}
+        onSubmit={handleCreateLeaveType}
+        isSubmitting={savingLeaveType}
+      />
 
       <ErrorSnackbar
         open={snackbar.open}

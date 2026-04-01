@@ -102,8 +102,10 @@ const BenefitFormModal: React.FC<BenefitFormModalProps> = ({
   }, [benefit]);
 
   useEffect(() => {
-    return reset(initialValues);
-  }, [initialValues, reset]);
+    if (open) {
+      reset(initialValues);
+    }
+  }, [initialValues, open, reset]);
 
   const watchedValues = watch();
 

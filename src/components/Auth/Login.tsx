@@ -270,11 +270,6 @@ const Login: React.FC = () => {
 
     try {
       const authPayload = await authApi.login({ email, password });
-      persistAuthSession(authPayload);
-
-      if (authPayload.user) {
-        updateUser(authPayload.user as unknown as UserProfile);
-      }
 
       if (rememberMe) {
         localStorage.setItem(
@@ -283,6 +278,31 @@ const Login: React.FC = () => {
         );
       } else {
         localStorage.removeItem('rememberedLogin');
+      }
+
+      if (authPayload.signupSessionId) {
+        localStorage.setItem('signupSessionId', authPayload.signupSessionId);
+        try {
+          sessionStorage.setItem(
+            'pendingSignupCredentials',
+            JSON.stringify({
+              email,
+              password,
+            })
+          );
+        } catch {
+          // Ignore storage errors
+        }
+        setTimeout(() => {
+          navigate('/signup/company-details');
+        }, 2000);
+        return;
+      }
+
+      persistAuthSession(authPayload);
+
+      if (authPayload.user) {
+        updateUser(authPayload.user as unknown as UserProfile);
       }
 
       const role =
@@ -306,7 +326,18 @@ const Login: React.FC = () => {
         };
         message?: string;
       };
-      const data = error?.response?.data ?? null;
+      if (!error.response) {
+        showError(
+          lang === 'ar'
+            ? 'حدث خطأ في الشبكة. يرجى التحقق من اتصالك ثم حاول مرة أخرى.'
+            : 'Network error. Please check your connection and try again.'
+        );
+        setEmailError('');
+        setPasswordError('');
+        return;
+      }
+
+      const data = error.response?.data ?? null;
 
       // Clear previous errors
       setEmailError('');
@@ -347,18 +378,6 @@ const Login: React.FC = () => {
       } else if (data?.message) {
         // Use API message as-is; route to email for "missing fields" type, else by content
         const msg = String(data.message);
-        const lower = msg.toLowerCase();
-        const isEmailRelated =
-          lower.includes('email') ||
-          lower.includes('e-mail') ||
-          lower.includes('missing');
-        if (isEmailRelated) {
-          setEmailError(msg);
-        } else {
-          setPasswordError(getPasswordErrorFromApi(msg));
-        }
-      } else if (error.message) {
-        const msg = String(error.message);
         const lower = msg.toLowerCase();
         const isEmailRelated =
           lower.includes('email') ||
@@ -753,6 +772,7 @@ const Login: React.FC = () => {
           message={snackbar.message}
           severity={snackbar.severity}
           onClose={closeSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         />
       </Box>
     </Box>

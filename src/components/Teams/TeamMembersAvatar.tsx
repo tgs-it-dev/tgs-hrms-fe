@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Stack,
-  Tooltip,
   Box,
   Typography,
   Chip,
@@ -17,13 +16,13 @@ import {
   TextField,
   InputAdornment,
   useTheme,
+  SvgIcon,
 } from '@mui/material';
 import UserAvatar from '../common/UserAvatar';
 import { Avatar } from '@mui/material';
 import {
   Group as GroupIcon,
   Close as CloseIcon,
-  Search as SearchIcon,
 } from '@mui/icons-material';
 import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
@@ -36,6 +35,19 @@ interface AdminTeamMember extends TeamMember {
   };
 }
 import { getUserRole, isAdmin } from '../../utils/auth';
+
+const CustomSearchIcon = (props: any) => (
+  <SvgIcon
+    {...props}
+    viewBox='0 0 17 17'
+    sx={{ fontSize: 18, ...props.sx }}
+  >
+    <path
+      d='M16.0845 15.2001L12.1727 11.2891C13.3065 9.92798 13.8719 8.18211 13.7512 6.41472C13.6305 4.64733 12.8331 2.9945 11.5249 1.80006C10.2166 0.605618 8.49824 -0.038471 6.7272 0.00177892C4.95615 0.0420288 3.2688 0.763519 2.01616 2.01616C0.763519 3.2688 0.0420288 4.95615 0.00177892 6.7272C-0.038471 8.49824 0.605618 10.2166 1.80006 11.5249C2.9945 12.8331 4.64733 13.6305 6.41472 13.7512C8.18211 13.8719 9.92798 13.3065 11.2891 12.1727L15.2001 16.0845C15.2582 16.1425 15.3271 16.1886 15.403 16.22C15.4788 16.2514 15.5601 16.2676 15.6423 16.2676C15.7244 16.2676 15.8057 16.2514 15.8816 16.22C15.9575 16.1886 16.0264 16.1425 16.0845 16.0845C16.1425 16.0264 16.1886 15.9575 16.22 15.8816C16.2514 15.8057 16.2676 15.7244 16.2676 15.6423C16.2676 15.5601 16.2514 15.4788 16.22 15.403C16.1886 15.3271 16.1425 15.2582 16.0845 15.2001ZM1.26727 6.89227C1.26727 5.77975 1.59717 4.69221 2.21525 3.76719C2.83333 2.84216 3.71184 2.12119 4.73967 1.69545C5.76751 1.2697 6.89851 1.15831 7.98965 1.37535C9.0808 1.59239 10.0831 2.12812 10.8697 2.91479C11.6564 3.70146 12.1921 4.70374 12.4092 5.79489C12.6262 6.88603 12.5148 8.01703 12.0891 9.04486C11.6634 10.0727 10.9424 10.9512 10.0174 11.5693C9.09233 12.1874 8.00479 12.5173 6.89227 12.5173C5.40093 12.5156 3.97115 11.9225 2.91662 10.8679C1.86209 9.81339 1.26892 8.3836 1.26727 6.89227Z'
+      fill='#888888'
+    />
+  </SvgIcon>
+);
 import { useLanguage } from '../../hooks/useLanguage';
 
 interface TeamMembersAvatarProps {
@@ -86,48 +98,6 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
   };
 
   const lang = labels[language];
-
-  // Shared tooltip style to match Figma speech-bubble
-  const sharedTooltipProps = {
-    arrow: true,
-    placement: 'top' as const,
-    componentsProps: {
-      tooltip: {
-        sx: {
-          bgcolor: '#ffffff',
-          color: '#6b6b6b',
-          border: '1px solid #e6e6e6',
-          borderRadius: '8px',
-          fontSize: '13px',
-          px: 2,
-          py: 1,
-          boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
-          maxWidth: 'none',
-          whiteSpace: 'nowrap',
-          textAlign: 'center',
-          '& .MuiTooltip-arrow': {
-            left: '50%',
-            transform: 'translateX(-50%)',
-            color: '#ffffff',
-            '&:before': {
-              border: '1px solid #e6e6e6',
-              boxShadow: 'none',
-              backgroundClip: 'padding-box',
-            },
-          },
-        },
-      },
-      arrow: {
-        sx: { left: '50%', transform: 'translateX(-50%)' },
-      },
-    },
-    PopperProps: {
-      modifiers: [
-        { name: 'offset', options: { offset: [0, 12] } },
-        { name: 'flip', enabled: false },
-      ],
-    },
-  };
 
   // Generate from name
   const generateInitials = (firstName: string, lastName: string): string => {
@@ -198,138 +168,35 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
   }, []);
 
   // Render admin team member avatar with team info in tooltip
-  const renderAdminAvatar = (member: AdminTeamMember) => {
+  const renderAdminAvatar = (member: AdminTeamMember, canOpenDialog = false) => {
     try {
       // Add null checks to prevent errors
       if (!member?.user || !member.user.first_name || !member.user.last_name) {
         return null;
       }
 
-      const fullName = `${member.user.first_name} ${member.user.last_name}`;
-
       return (
-        <Tooltip
+        <UserAvatar
           key={member.id}
-          {...sharedTooltipProps}
-          title={
-            <Box sx={{ p: 1 }}>
-              <Typography
-                variant='subtitle2'
-                sx={{ fontWeight: 600, color: 'inherit' }}
-              >
-                {fullName}
-              </Typography>
-              <Typography variant='caption' sx={{ color: 'inherit' }}>
-                {member.user.email || 'N/A'}
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                <Chip
-                  label={member.designation?.title || 'N/A'}
-                  size='small'
-                  sx={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    fontSize: '0.7rem',
-                    height: '20px',
-                  }}
-                />
-              </Box>
-              <Typography
-                variant='caption'
-                sx={{
-                  color: 'inherit',
-                  display: 'block',
-                  mt: 0.5,
-                }}
-              >
-                {lang.team}: {member.team?.name || 'N/A'}
-              </Typography>
-              <Typography
-                variant='caption'
-                sx={{
-                  color: 'inherit',
-                  display: 'block',
-                  mt: 0.5,
-                }}
-              >
-                {lang.department}:{' '}
-                {(() => {
-                  const designationTitle = member.designation?.title;
-                  let departmentName = member.department?.name;
-
-                  if (!departmentName && designationTitle) {
-                    const designationToDepartment: { [key: string]: string } = {
-                      'Frontend Web Developer': 'Information Technology',
-                      'Backend .Net Developer': 'Information Technology',
-                      'UI/UX Designer': 'Information Technology',
-                      'QA Engineer': 'Information Technology',
-                      'DevOps Engineer': 'Information Technology',
-                      'HR Manager': 'Human Resources',
-                      'HR Specialist': 'Human Resources',
-                      'Financial Analyst': 'Finance & Accounting',
-                      Accountant: 'Finance & Accounting',
-                      'Marketing Manager': 'Marketing & Sales',
-                      'Sales Representative': 'Marketing & Sales',
-                      'Operations Manager': 'Operations & Logistics',
-                    };
-
-                    departmentName =
-                      designationToDepartment[designationTitle] ||
-                      'Information Technology';
-                  }
-
-                  return departmentName || 'Information Technology';
-                })()}
-              </Typography>
-            </Box>
-          }
-          arrow
-          placement='bottom'
-          componentsProps={{
-            tooltip: {
-              sx: {
-                bgcolor: '#ffffff',
-                color: '#6b6b6b',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                border: '1px solid #e6e6e6',
-                borderRadius: '8px',
-                fontSize: '13px',
-                px: 1.5,
-                py: 0.75,
-                maxWidth: 'none',
-                whiteSpace: 'nowrap',
-                textAlign: 'center',
-              },
-            },
-            arrow: {
-              sx: {
-                color: theme,
-                '&:before': { boxShadow: 'none', border: 'none' },
-              },
+          user={{
+            id: member.user.id,
+            first_name: member.user.first_name,
+            last_name: member.user.last_name,
+            profile_pic: member.user.profile_pic,
+          }}
+          size={38}
+          clickable={true}
+          onClick={canOpenDialog ? () => setShowAllMembersDialog(true) : undefined}
+          sx={{
+            border: '2px solid white',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              border: '2px solid #000',
             },
           }}
-          PopperProps={{ modifiers: [{ name: 'flip', enabled: false }] }}
-        >
-          <UserAvatar
-            user={{
-              id: member.user.id,
-              first_name: member.user.first_name,
-              last_name: member.user.last_name,
-              profile_pic: member.user.profile_pic,
-            }}
-            size={38}
-            clickable={true}
-            sx={{
-              border: '2px solid white',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease-in-out',
-              '&:hover': {
-                transform: 'scale(1.05)',
-                border: '2px solid #000',
-              },
-            }}
-          />
-        </Tooltip>
+        />
       );
     } catch {
       return null;
@@ -337,7 +204,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
   };
 
   // Render avatar with tooltip
-  const renderAvatar = (member: TeamMember) => {
+  const renderAvatar = (member: TeamMember, canOpenDialog = false) => {
     try {
       // Add null checks to prevent errors
       if (!member?.user || !member.user.first_name || !member.user.last_name) {
@@ -347,120 +214,28 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
       // Generate initials and avatar color for styling
       generateInitials(member.user.first_name, member.user.last_name);
       generateAvatarColor(member.user.first_name);
-      const fullName = `${member.user.first_name} ${member.user.last_name}`;
-
       return (
-        <Tooltip
+        <UserAvatar
           key={member.id}
-          {...sharedTooltipProps}
-          title={
-            <Box sx={{ p: 1 }}>
-              <Typography
-                variant='subtitle2'
-                sx={{ fontWeight: 600, color: 'inherit' }}
-              >
-                {fullName}
-              </Typography>
-              <Typography variant='caption' sx={{ color: 'inherit' }}>
-                {member.user.email || 'N/A'}
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                <Chip
-                  label={member.designation?.title || 'N/A'}
-                  size='small'
-                  sx={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    fontSize: '0.7rem',
-                    height: '20px',
-                  }}
-                />
-              </Box>
-              <Typography
-                variant='caption'
-                sx={{
-                  color: 'inherit',
-                  display: 'block',
-                  mt: 0.5,
-                }}
-              >
-                {lang.department}:{' '}
-                {(() => {
-                  const designationTitle = member.designation?.title;
-                  let departmentName = member.department?.name;
-
-                  if (!departmentName && designationTitle) {
-                    const designationToDepartment: { [key: string]: string } = {
-                      'Frontend Web Developer': 'Information Technology',
-                      'Backend .Net Developer': 'Information Technology',
-                      'UI/UX Designer': 'Information Technology',
-                      'QA Engineer': 'Information Technology',
-                      'DevOps Engineer': 'Information Technology',
-                      'HR Manager': 'Human Resources',
-                      'HR Specialist': 'Human Resources',
-                      'Financial Analyst': 'Finance & Accounting',
-                      Accountant: 'Finance & Accounting',
-                      'Marketing Manager': 'Marketing & Sales',
-                      'Sales Representative': 'Marketing & Sales',
-                      'Operations Manager': 'Operations & Logistics',
-                    };
-
-                    departmentName =
-                      designationToDepartment[designationTitle] ||
-                      'Information Technology';
-                  }
-
-                  return departmentName || 'Information Technology';
-                })()}
-              </Typography>
-            </Box>
-          }
-          arrow
-          placement='bottom'
-          componentsProps={{
-            tooltip: {
-              sx: {
-                bgcolor: '#ffffff',
-                color: '#6b6b6b',
-                border: '1px solid #e6e6e6',
-                borderRadius: '8px',
-                fontSize: '13px',
-                px: 1.5,
-                py: 0.75,
-                maxWidth: 'none',
-                whiteSpace: 'nowrap',
-                textAlign: 'center',
-              },
-            },
-            arrow: {
-              sx: {
-                color: theme.palette.text.primary,
-                '&:before': { boxShadow: 'none', border: 'none' },
-              },
+          user={{
+            id: member.user.id,
+            first_name: member.user.first_name,
+            last_name: member.user.last_name,
+            profile_pic: member.user.profile_pic,
+          }}
+          size={38}
+          clickable={true}
+          onClick={canOpenDialog ? () => setShowAllMembersDialog(true) : undefined}
+          sx={{
+            border: '2px solid white',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              border: '2px solid #000',
             },
           }}
-          PopperProps={{ modifiers: [{ name: 'flip', enabled: false }] }}
-        >
-          <UserAvatar
-            user={{
-              id: member.user.id,
-              first_name: member.user.first_name,
-              last_name: member.user.last_name,
-              profile_pic: member.user.profile_pic,
-            }}
-            size={38}
-            clickable={true}
-            sx={{
-              border: '2px solid white',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease-in-out',
-              '&:hover': {
-                transform: 'scale(1.05)',
-                border: '2px solid #000',
-              },
-            }}
-          />
-        </Tooltip>
+        />
       );
     } catch {
       return null;
@@ -502,7 +277,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
           <Stack
             direction='row'
             spacing={-1}
-            sx={{ display: { xs: 'none', md: 'flex' } }}
+            sx={{ display: 'flex' }}
           >
             <Avatar
               sx={{
@@ -534,64 +309,35 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
         <Stack
           direction='row'
           spacing={-1}
-          sx={{ display: { xs: 'none', md: 'flex' }, borderRadius: '16px' }}
+          sx={{ display: 'flex', borderRadius: '16px' }}
         >
-          {displayMembers.map(member => renderAvatar(member)).filter(Boolean)}
+          {displayMembers
+            .map(member => renderAvatar(member, remainingCount === 0))
+            .filter(Boolean)}
 
           {remainingCount > 0 && (
-            <Tooltip
-              title={lang.viewAllTeamMembers.replace(
-                '{count}',
-                String(totalCount)
-              )}
-              {...sharedTooltipProps}
-              placement='bottom'
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    ...sharedTooltipProps.componentsProps.tooltip.sx,
-                    // position arrow at bottom-left corner
-                    '& .MuiTooltip-arrow': {
-                      left: 12,
-                      transform: 'none',
-                      color: theme.palette.text.primary,
-                      '&:before': {
-                        boxShadow: 'none',
-                        border: '1px solid #e6e6e6',
-                        backgroundClip: 'padding-box',
-                      },
-                    },
-                  },
-                },
-                arrow: {
-                  sx: { left: 12, transform: 'none' },
+            <Avatar
+              onClick={() => setShowAllMembersDialog(true)}
+              sx={{
+                width: 38,
+                height: 38,
+                backgroundColor: '#3083DC',
+                color: theme.palette.common.white,
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '2px solid white',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  backgroundColor: '#2669b8',
+                  transform: 'scale(1.05)',
+                  border: '2px solid #000',
+                  boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
                 },
               }}
-              PopperProps={{ modifiers: [{ name: 'flip', enabled: false }] }}
             >
-              <Avatar
-                onClick={() => setShowAllMembersDialog(true)}
-                sx={{
-                  width: 38,
-                  height: 38,
-                  backgroundColor: 'var(--primary-light-color)',
-                  color: theme.palette.common.white,
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  border: '2px solid white',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    backgroundColor: 'var(--primary-dark-color)',
-                    transform: 'scale(1.05)',
-                    border: '2px solid #000',
-                    boxShadow: '0 4px 12px rgba(36, 98, 165, 0.3)',
-                  },
-                }}
-              >
-                +{remainingCount}
-              </Avatar>
-            </Tooltip>
+              +{remainingCount}
+            </Avatar>
           )}
         </Stack>
 
@@ -620,8 +366,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              // borderBottom: `1px solid ${darkMode ? '#444' : '#e0e0e0'}`,
-              pb: 2,
+              p: '16px 15px',
             }}
           >
             <Typography variant='h6' sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
@@ -662,7 +407,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 setShowAllMembersDialog(false);
                 setSearchQuery('');
               }}
-              sx={{ color: theme.palette.text.secondary }}
+              sx={{ color: theme.palette.text.secondary, p: 0 }}
             >
               <CloseIcon />
             </IconButton>
@@ -682,28 +427,34 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
-                      <SearchIcon sx={{ color: theme.palette.text.secondary }} />
+                      <CustomSearchIcon />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: darkMode ? '#2d2d2d' : '#f8f8f8',
+                    backgroundColor: darkMode ? '#1f1f1f' : '#F8F8F8',
                     color: theme.palette.text.primary,
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     '& fieldset': {
-                      borderColor: darkMode ? '#555' : '#bdbdbd',
+                      borderColor: darkMode ? '#555' : '#BDBDBD',
+                      borderWidth: 1,
                     },
                     '&:hover fieldset': {
-                      borderColor: darkMode ? '#777' : '#ccc',
+                      borderColor: darkMode ? '#777' : '#b5b5b5',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#484c7f',
+                      borderColor: '#a0a0a0',
+                      boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
                   },
+                  '& .MuiInputBase-input': {
+                    padding: '9px 0px',
+                    fontSize: '0.9rem',
+                  },
                   '& .MuiInputBase-input::placeholder': {
-                    color: theme.palette.text.secondary,
+                    color: 'var(--Dark-Grey, #888888)',
                     opacity: 1,
                   },
                 }}
@@ -751,10 +502,12 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 <List
                   sx={{
                     p: 0,
+                    px: 2,
                     maxHeight: '320px',
-                    overflow: 'auto',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
                     '&::-webkit-scrollbar': {
-                      width: '1px',
+                      width: '6px',
                     },
                     '&::-webkit-scrollbar-track': {
                       background: 'transparent',
@@ -766,7 +519,6 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                         background: '#9e9e9e',
                       },
                     },
-                    // Firefox
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#bdbdbd transparent',
                   }}
@@ -775,9 +527,10 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     <ListItem
                       key={member.id}
                       sx={{
-                        borderBottom: `2px solid ${darkMode ? '#888888' : '#888888'}`,
+                        borderBottom:
+                          '0.5px solid var(--Light-Grey, #DCDCDC)',
                         py: 1.5,
-                        px: 2,
+                        px: 0,
                         '&:last-child': { borderBottom: 'none' },
                       }}
                     >
@@ -794,13 +547,15 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                         />
                       </ListItemAvatar>
                       <ListItemText
+                        sx={{ minWidth: 0 }}
                         primary={
                           <Typography
                             variant='subtitle1'
                             sx={{
                               fontWeight: 600,
                               color: theme.palette.text.primary,
-                              mb: 0.25,
+                              mb: 0,
+                              lineHeight: '18px',
                             }}
                           >
                             {member.user?.first_name} {member.user?.last_name}
@@ -823,6 +578,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                 display: 'flex',
                                 gap: 0.75,
                                 flexWrap: 'wrap',
+                                maxWidth: '100%',
                                 mt: 0.5,
                               }}
                             >
@@ -831,11 +587,17 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.department.name}
                                   size='small'
                                   sx={{
-                                    backgroundColor: '#e0e0e0',
-                                    color: '#666',
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '999px',
+                                    border: `0.5px solid ${
+                                      darkMode ? '#555' : '#BDBDBD'
+                                    }`,
+                                    color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,
-                                    fontWeight: 400,
+                                    fontWeight: 500,
+                                    px: 2,
+                                    py: 0.5,
                                   }}
                                 />
                               )}
@@ -845,10 +607,13 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   size='small'
                                   sx={{
                                     backgroundColor: '#6155F5',
-                                    color: 'white',
+                                    color: '#ffffff',
+                                    borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
-                                    fontWeight: 400,
+                                    fontWeight: 500,
+                                    px: 2,
+                                    py: 0.5,
                                   }}
                                 />
                               )}
@@ -881,7 +646,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
           <Stack
             direction='row'
             spacing={-1}
-            sx={{ display: { xs: 'none', md: 'flex' } }}
+            sx={{ display: 'flex' }}
           >
             <Avatar
               sx={{
@@ -913,65 +678,35 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
         <Stack
           direction='row'
           spacing={-1}
-          sx={{ display: { xs: 'none', md: 'flex' }, borderRadius: '16px' }}
+          sx={{ display: 'flex', borderRadius: '16px' }}
         >
           {displayMembers
-            .map(member => renderAdminAvatar(member))
+            .map(member => renderAdminAvatar(member, remainingCount === 0))
             .filter(Boolean)}
 
           {remainingCount > 0 && (
-            <Tooltip
-              title={lang.viewAllTeamMembers.replace(
-                '{count}',
-                String(totalCount)
-              )}
-              {...sharedTooltipProps}
-              placement='bottom'
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    ...sharedTooltipProps.componentsProps.tooltip.sx,
-                    '& .MuiTooltip-arrow': {
-                      left: 12,
-                      transform: 'none',
-                      color: theme.palette.text.primary,
-                      '&:before': {
-                        boxShadow: 'none',
-                        border: '1px solid #e6e6e6',
-                        backgroundClip: 'padding-box',
-                      },
-                    },
-                  },
-                },
-                arrow: {
-                  sx: { left: 12, transform: 'none' },
+            <Avatar
+              onClick={() => setShowAllMembersDialog(true)}
+              sx={{
+                width: 38,
+                height: 38,
+                backgroundColor: '#3083DC',
+                color: theme.palette.common.white,
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '2px solid white',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  backgroundColor: '#2669b8',
+                  transform: 'scale(1.05)',
+                  border: '2px solid #000',
+                  boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
                 },
               }}
-              PopperProps={{ modifiers: [{ name: 'flip', enabled: false }] }}
             >
-              <Avatar
-                onClick={() => setShowAllMembersDialog(true)}
-                sx={{
-                  width: 38,
-                  height: 38,
-                  backgroundColor: 'var(--primary-light-color)',
-                   color: darkMode ? '#ffffff' : '#ffffff',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  border: '2px solid white',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    backgroundColor: 'var(--primary-dark-color)',
-                    transform: 'scale(1.05)',
-                    border: '2px solid #000',
-                    boxShadow: '0 4px 12px rgba(36, 98, 165, 0.3)',
-                  },
-                }}
-              >
-                +{remainingCount}
-              </Avatar>
-            </Tooltip>
+              +{remainingCount}
+            </Avatar>
           )}
         </Stack>
 
@@ -986,7 +721,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               color: theme.palette.text.primary,
               borderRadius: '24px',
               width: '100%',
-              maxWidth: '420px',
+              maxWidth: '527px',
             },
           }}
           sx={{
@@ -1000,8 +735,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              // borderBottom: `1px solid ${darkMode ? '#444' : '#e0e0e0'}`,
-              pb: 2,
+              p: '16px 15px',
             }}
           >
             <Typography variant='h6' sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
@@ -1044,7 +778,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 setShowAllMembersDialog(false);
                 setSearchQuery('');
               }}
-              sx={{ color: theme.palette.text.secondary }}
+              sx={{ color: theme.palette.text.secondary, p: 0 }}
             >
               <CloseIcon />
             </IconButton>
@@ -1073,28 +807,34 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
-                      <SearchIcon sx={{ color: theme.palette.text.secondary }} />
+                      <CustomSearchIcon />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: darkMode ? '#2d2d2d' : '#f8f8f8',
+                    backgroundColor: darkMode ? '#1f1f1f' : '#F8F8F8',
                     color: theme.palette.text.primary,
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     '& fieldset': {
-                      borderColor: darkMode ? '#555' : '#bdbdbd',
+                      borderColor: darkMode ? '#555' : '#BDBDBD',
+                      borderWidth: 1,
                     },
                     '&:hover fieldset': {
-                      borderColor: darkMode ? '#777' : '#ccc',
+                      borderColor: darkMode ? '#777' : '#b5b5b5',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#484c7f',
+                      borderColor: '#a0a0a0',
+                      boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
                   },
+                  '& .MuiInputBase-input': {
+                    padding: '10px 14px',
+                    fontSize: '0.9rem',
+                  },
                   '& .MuiInputBase-input::placeholder': {
-                    color: theme.palette.text.secondary,
+                    color: 'var(--Dark-Grey, #888888)',
                     opacity: 1,
                   },
                 }}
@@ -1144,10 +884,12 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 <List
                   sx={{
                     p: 0,
+                    px: 2,
                     maxHeight: '320px',
-                    overflow: 'auto',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
                     '&::-webkit-scrollbar': {
-                      width: '8px',
+                      width: '6px',
                     },
                     '&::-webkit-scrollbar-track': {
                       background: 'transparent',
@@ -1159,7 +901,6 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                         background: '#9e9e9e',
                       },
                     },
-                    // Firefox
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#bdbdbd transparent',
                   }}
@@ -1168,9 +909,10 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     <ListItem
                       key={member.id}
                       sx={{
-                        borderBottom: `1px solid ${darkMode ? '#444' : '#dcdcdc'}`,
+                        borderBottom:
+                          '0.5px solid var(--Light-Grey, #DCDCDC)',
                         py: 1.5,
-                        px: 2,
+                        px: 0,
                         '&:last-child': { borderBottom: 'none' },
                       }}
                     >
@@ -1187,6 +929,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                         />
                       </ListItemAvatar>
                       <ListItemText
+                        sx={{ minWidth: 0 }}
                         primary={
                           <Typography
                             variant='subtitle1'
@@ -1216,6 +959,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                 display: 'flex',
                                 gap: 0.75,
                                 flexWrap: 'wrap',
+                                maxWidth: '100%',
                                 mt: 0.5,
                               }}
                             >
@@ -1224,11 +968,17 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.department.name}
                                   size='small'
                                   sx={{
-                                    backgroundColor: '#e0e0e0',
-                                    color: '#666',
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '999px',
+                                    border: `0.5px solid ${
+                                      darkMode ? '#555' : '#BDBDBD'
+                                    }`,
+                                    color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,
-                                    fontWeight: 400,
+                                    fontWeight: 500,
+                                    px: "10px",
+                                    py: "16px",
                                   }}
                                 />
                               )}
@@ -1237,11 +987,14 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.designation.title}
                                   size='small'
                                   sx={{
-                                    backgroundColor: '#6054f4',
-                                    color: 'white',
+                                    backgroundColor: '#6155F5',
+                                    color: '#ffffff',
+                                    borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
-                                    fontWeight: 400,
+                                    fontWeight: 500,
+                                    px: "10px",
+                                    py: "16px",
                                   }}
                                 />
                               )}
@@ -1250,11 +1003,14 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.team.name}
                                   size='small'
                                   sx={{
-                                    backgroundColor: '#008b95',
-                                    color: 'white',
+                                    backgroundColor: '#008C95',
+                                    color: '#ffffff',
+                                    borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
-                                    fontWeight: 400,
+                                    fontWeight: 500,
+                                    px: "10px",
+                                    py: "16px",
                                   }}
                                 />
                               )}
@@ -1280,7 +1036,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
         <Stack
           direction='row'
           spacing={-1}
-          sx={{ display: { xs: 'none', md: 'flex' } }}
+          sx={{ display: 'flex' }}
         >
           <Avatar
             sx={{
@@ -1311,7 +1067,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
         <Stack
           direction='row'
           spacing={-1}
-          sx={{ display: { xs: 'none', md: 'flex' } }}
+          sx={{ display: 'flex' }}
         >
           <Avatar
             sx={{

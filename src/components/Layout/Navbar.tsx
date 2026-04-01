@@ -61,6 +61,10 @@ import {
   isMenuVisibleForRole,
 } from '../../utils/permissions';
 import { isSystemAdmin as roleIsSystemAdmin } from '../../utils/roleUtils';
+import {
+  useFeatureToggles,
+  type FeatureKey,
+} from '../../context/FeatureToggleContext';
 
 const labels = {
   en: {
@@ -120,7 +124,6 @@ interface SearchResult {
   type:
     | 'route'
     | 'employee'
-    | 'asset'
     | 'team'
     | 'department'
     | 'designation'
@@ -130,7 +133,6 @@ interface SearchResult {
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'asset-request'
     | 'attendance'
     | 'payroll';
   id?: string;
@@ -210,30 +212,6 @@ const searchableRoutes: SearchResult[] = [
     label: 'Team Management',
     path: 'teams',
     category: 'Teams',
-    type: 'route',
-  },
-  {
-    label: 'Asset Inventory',
-    path: 'assets',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Asset Requests',
-    path: 'assets/requests',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Request Management',
-    path: 'assets/request-management',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Assets Overview',
-    path: 'assets/system-admin',
-    category: 'Assets',
     type: 'route',
   },
   {
@@ -359,6 +337,19 @@ const searchableRoutes: SearchResult[] = [
   { label: 'Cards', path: 'cards', category: 'UI Components', type: 'route' },
   { label: 'Modals', path: 'modals', category: 'UI Components', type: 'route' },
 ];
+
+const categoryToFeature: Partial<Record<string, FeatureKey>> = {
+  Payroll: 'payroll',
+  Attendance: 'attendance',
+  Benefits: 'benefits',
+  Performance: 'performance',
+  Recruitment: 'recruitment',
+  'Leave Analytics': 'leaveAnalytics',
+  Projects: 'projects',
+  Announcements: 'announcements',
+  Accounts: 'accounts',
+  App: 'app',
+};
 
 interface NavbarProps {
   darkMode: boolean;
@@ -555,7 +546,6 @@ const Navbar: React.FC<NavbarProps> = ({
   const dataCacheRef = React.useRef<{
     employees: unknown[] | null;
     teams: Team[] | null;
-    assets: unknown[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
     benefits: unknown[] | null;
@@ -566,7 +556,6 @@ const Navbar: React.FC<NavbarProps> = ({
   }>({
     employees: null,
     teams: null,
-    assets: null,
     departments: null,
     designations: null,
     benefits: null,
@@ -587,6 +576,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const lang = labels[language];
   const { user, clearUser } = useUser();
   const { updateProfilePicture } = useProfilePicture();
+  const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
     if (!user) return '';
 
@@ -647,18 +637,6 @@ const Navbar: React.FC<NavbarProps> = ({
       return false;
     }
     return isMenuVisibleForRole('teams', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchAssets = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('assets', currentUserRole);
   }, [currentUserRole]);
 
   const canSearchDepartments = React.useCallback((): boolean => {
@@ -841,6 +819,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
       return searchableRoutes
         .filter(route => isRouteAllowed(route)) // Filter by permissions first
+        .filter(route => {
+          const featureKey = categoryToFeature[route.category];
+          if (!featureKey) return true;
+          return isFeatureEnabled(featureKey);
+        })
         .map(route => {
           // Collect all searchable text from the route
           const label = (route.label || '').toLowerCase();
@@ -937,7 +920,7 @@ const Navbar: React.FC<NavbarProps> = ({
         .slice(0, 5)
         .map(({ route }) => route);
     },
-    [isRouteAllowed]
+    [isRouteAllowed, isFeatureEnabled]
   );
 
   React.useEffect(() => {
@@ -1037,15 +1020,6 @@ const Navbar: React.FC<NavbarProps> = ({
         },
         replace: false,
       });
-    } else if (result.type === 'asset' && result.id) {
-      navigate('/dashboard/assets', {
-        state: {
-          assetId: result.id,
-          viewAsset: true,
-          fromSearch: true,
-        },
-        replace: false,
-      });
     } else if (result.type === 'department' && result.id) {
       navigate('/dashboard/departments', {
         state: {
@@ -1090,15 +1064,6 @@ const Navbar: React.FC<NavbarProps> = ({
       navigate('/dashboard/tenant', {
         state: {
           tenantId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'asset-request' && result.id) {
-      navigate('/dashboard/assets/requests', {
-        state: {
-          requestId: result.id,
-          viewRequest: true,
           fromSearch: true,
         },
         replace: false,
@@ -1178,7 +1143,6 @@ const Navbar: React.FC<NavbarProps> = ({
       if (now - cacheRef.cacheTime > CACHE_DURATION) {
         cacheRef.employees = null;
         cacheRef.teams = null;
-        cacheRef.assets = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
         cacheRef.benefits = null;
@@ -1193,7 +1157,6 @@ const Navbar: React.FC<NavbarProps> = ({
       // Clear cache on unmount
       cacheRef.employees = null;
       cacheRef.teams = null;
-      cacheRef.assets = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
       cacheRef.benefits = null;
@@ -1493,36 +1456,10 @@ const Navbar: React.FC<NavbarProps> = ({
               {language === 'en' ? 'EN' : 'عربي'}
             </Button>
 
-            {/* Team Members Avatar */}
-            <Box
-              sx={{
-                display: { xs: 'none', md: 'block' },
-              }}
-            >
+            {/* Team Members Avatar - same on mobile and desktop */}
+            <Box>
               <TeamMembersAvatar maxAvatars={2} darkMode={darkMode} />
             </Box>
-
-            {/* Mobile Team Members Button */}
-            <IconButton
-              onClick={handleOpenTeamMembersModal}
-              sx={{
-                display: { xs: 'flex', md: 'none' },
-                backgroundColor: {
-                  xs: 'transparent',
-                  md: 'var(--primary-color)',
-                },
-                borderRadius: 'var(--border-radius-lg)',
-                p: { xs: 0.75, md: 1 },
-              }}
-              aria-label='Open team members modal'
-            >
-              <GroupOutlinedIcon
-                sx={{
-                  color: theme.palette.text.primary,
-                  fontSize: { xs: '18px', md: '24px' },
-                }}
-              />
-            </IconButton>
 
             <Paper
               elevation={0}
