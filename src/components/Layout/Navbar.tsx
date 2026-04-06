@@ -127,7 +127,6 @@ interface SearchResult {
     | 'team'
     | 'department'
     | 'designation'
-    | 'benefit'
     | 'leave'
     | 'policy'
     | 'holiday'
@@ -251,30 +250,6 @@ const searchableRoutes: SearchResult[] = [
     type: 'route',
   },
   {
-    label: 'Benefits List',
-    path: 'benefits-list',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Employee Benefits',
-    path: 'employee-benefit',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefit Details',
-    path: 'benefit-details',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefits Report',
-    path: 'benefit-report',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
     label: 'Employee Performance',
     path: 'performance-dashboard',
     category: 'Performance',
@@ -341,7 +316,6 @@ const searchableRoutes: SearchResult[] = [
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
   Payroll: 'payroll',
   Attendance: 'attendance',
-  Benefits: 'benefits',
   Performance: 'performance',
   Recruitment: 'recruitment',
   'Leave Analytics': 'leaveAnalytics',
@@ -548,7 +522,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: Team[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
-    benefits: unknown[] | null;
     leaves: unknown[] | null;
     policies: unknown[] | null;
     tenants: unknown[] | null;
@@ -558,7 +531,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: null,
     departments: null,
     designations: null,
-    benefits: null,
     leaves: null,
     policies: null,
     tenants: null,
@@ -649,18 +621,6 @@ const Navbar: React.FC<NavbarProps> = ({
       return false;
     }
     return isMenuVisibleForRole('department', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchBenefits = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('benefits', currentUserRole);
   }, [currentUserRole]);
 
   const canSearchLeaves = React.useCallback((): boolean => {
@@ -1036,14 +996,6 @@ const Navbar: React.FC<NavbarProps> = ({
         },
         replace: false,
       });
-    } else if (result.type === 'benefit' && result.id) {
-      navigate('/dashboard/benefits-list', {
-        state: {
-          benefitId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
     } else if (result.type === 'leave' && result.id) {
       navigate('/dashboard/leaves', {
         state: {
@@ -1145,7 +1097,6 @@ const Navbar: React.FC<NavbarProps> = ({
         cacheRef.teams = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
-        cacheRef.benefits = null;
         cacheRef.leaves = null;
         cacheRef.policies = null;
         cacheRef.tenants = null;
@@ -1159,7 +1110,6 @@ const Navbar: React.FC<NavbarProps> = ({
       cacheRef.teams = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
-      cacheRef.benefits = null;
       cacheRef.leaves = null;
       cacheRef.policies = null;
       cacheRef.tenants = null;
