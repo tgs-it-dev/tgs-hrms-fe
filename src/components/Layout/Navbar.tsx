@@ -12,8 +12,6 @@ import {
   isManager,
   isEmployee,
   isNetworkAdmin,
-  isAdmin,
-  isHRAdmin,
 } from '../../utils/roleUtils';
 
 import {
@@ -47,15 +45,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { Icons } from '../../assets/icons';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
 import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import EventIcon from '@mui/icons-material/Event';
-import DescriptionIcon from '@mui/icons-material/Description';
 import {
   isDashboardPathAllowedForRole,
   isMenuVisibleForRole,
@@ -120,19 +112,15 @@ interface SearchResult {
   type:
     | 'route'
     | 'employee'
-    | 'asset'
     | 'team'
     | 'department'
     | 'designation'
-    | 'benefit'
     | 'leave'
     | 'policy'
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'asset-request'
     | 'attendance'
-    | 'payroll';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -213,30 +201,6 @@ const searchableRoutes: SearchResult[] = [
     type: 'route',
   },
   {
-    label: 'Asset Inventory',
-    path: 'assets',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Asset Requests',
-    path: 'assets/requests',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Request Management',
-    path: 'assets/request-management',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
-    label: 'Assets Overview',
-    path: 'assets/system-admin',
-    category: 'Assets',
-    type: 'route',
-  },
-  {
     label: 'Attendance',
     path: 'AttendanceCheck',
     category: 'Attendance',
@@ -273,30 +237,6 @@ const searchableRoutes: SearchResult[] = [
     type: 'route',
   },
   {
-    label: 'Benefits List',
-    path: 'benefits-list',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Employee Benefits',
-    path: 'employee-benefit',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefit Details',
-    path: 'benefit-details',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefits Report',
-    path: 'benefit-report',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
     label: 'Employee Performance',
     path: 'performance-dashboard',
     category: 'Performance',
@@ -304,31 +244,6 @@ const searchableRoutes: SearchResult[] = [
   },
   { label: 'Invoice', path: 'invoice', category: 'Accounts', type: 'route' },
   { label: 'Payments', path: 'payments', category: 'Accounts', type: 'route' },
-  {
-    label: 'Payroll Configuration',
-    path: 'payroll-configuration',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Employee Salary',
-    path: 'employee-salary',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Records',
-    path: 'payroll-records',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Reports',
-    path: 'payroll-reports',
-    category: 'Payroll',
-    type: 'route',
-  },
-  { label: 'My Salary', path: 'my-salary', category: 'Payroll', type: 'route' },
   { label: 'Audit Logs', path: 'audit-logs', category: 'Audit', type: 'route' },
   { label: 'Settings', path: 'settings', category: 'Settings', type: 'route' },
   {
@@ -555,10 +470,8 @@ const Navbar: React.FC<NavbarProps> = ({
   const dataCacheRef = React.useRef<{
     employees: unknown[] | null;
     teams: Team[] | null;
-    assets: unknown[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
-    benefits: unknown[] | null;
     leaves: unknown[] | null;
     policies: unknown[] | null;
     tenants: unknown[] | null;
@@ -566,10 +479,8 @@ const Navbar: React.FC<NavbarProps> = ({
   }>({
     employees: null,
     teams: null,
-    assets: null,
     departments: null,
     designations: null,
-    benefits: null,
     leaves: null,
     policies: null,
     tenants: null,
@@ -649,18 +560,6 @@ const Navbar: React.FC<NavbarProps> = ({
     return isMenuVisibleForRole('teams', currentUserRole);
   }, [currentUserRole]);
 
-  const canSearchAssets = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('assets', currentUserRole);
-  }, [currentUserRole]);
-
   const canSearchDepartments = React.useCallback((): boolean => {
     // If no role, deny access
     if (
@@ -671,18 +570,6 @@ const Navbar: React.FC<NavbarProps> = ({
       return false;
     }
     return isMenuVisibleForRole('department', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchBenefits = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('benefits', currentUserRole);
   }, [currentUserRole]);
 
   const canSearchLeaves = React.useCallback((): boolean => {
@@ -1037,15 +924,6 @@ const Navbar: React.FC<NavbarProps> = ({
         },
         replace: false,
       });
-    } else if (result.type === 'asset' && result.id) {
-      navigate('/dashboard/assets', {
-        state: {
-          assetId: result.id,
-          viewAsset: true,
-          fromSearch: true,
-        },
-        replace: false,
-      });
     } else if (result.type === 'department' && result.id) {
       navigate('/dashboard/departments', {
         state: {
@@ -1058,14 +936,6 @@ const Navbar: React.FC<NavbarProps> = ({
       navigate('/dashboard/Designations', {
         state: {
           designationId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'benefit' && result.id) {
-      navigate('/dashboard/benefits-list', {
-        state: {
-          benefitId: result.id,
           fromSearch: true,
         },
         replace: false,
@@ -1094,28 +964,10 @@ const Navbar: React.FC<NavbarProps> = ({
         },
         replace: false,
       });
-    } else if (result.type === 'asset-request' && result.id) {
-      navigate('/dashboard/assets/requests', {
-        state: {
-          requestId: result.id,
-          viewRequest: true,
-          fromSearch: true,
-        },
-        replace: false,
-      });
     } else if (result.type === 'attendance' && result.id) {
       navigate('/dashboard/AttendanceCheck', {
         state: {
           attendanceId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'payroll' && result.id) {
-      navigate('/dashboard/payroll-records', {
-        state: {
-          payrollId: result.id,
-          viewPayroll: true,
           fromSearch: true,
         },
         replace: false,
@@ -1178,10 +1030,8 @@ const Navbar: React.FC<NavbarProps> = ({
       if (now - cacheRef.cacheTime > CACHE_DURATION) {
         cacheRef.employees = null;
         cacheRef.teams = null;
-        cacheRef.assets = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
-        cacheRef.benefits = null;
         cacheRef.leaves = null;
         cacheRef.policies = null;
         cacheRef.tenants = null;
@@ -1193,10 +1043,8 @@ const Navbar: React.FC<NavbarProps> = ({
       // Clear cache on unmount
       cacheRef.employees = null;
       cacheRef.teams = null;
-      cacheRef.assets = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
-      cacheRef.benefits = null;
       cacheRef.leaves = null;
       cacheRef.policies = null;
       cacheRef.tenants = null;

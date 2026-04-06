@@ -16,17 +16,12 @@ export const Icons = {
   teams: '/teams.svg',
   teamsFill: '/teams-fill.svg',
 
-  assets: '/assets.svg',
-  assetsFill: '/assets-fill.svg',
 
   attendance: '/attendance.svg',
   attendanceFill: '/attendance-fill.svg',
 
   leaveAnalytics: '/leaveAnalytics.svg',
   leaveAnalyticsFill: '/leaveAnalytics-fill.svg',
-
-  benefits: '/benefits.svg',
-  benefitsFill: '/benefits-fill.svg',
 
   payroll: '/payroll.svg',
   payrollFill: '/payroll-fill.svg',

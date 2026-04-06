@@ -1,28 +1,4 @@
 import axiosInstance from './axiosInstance';
-
-export type Benefit = {
-  id: string;
-  employeeId: string;
-  benefitId: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  assignedBy: string;
-  tenant_id: string;
-  createdAt: string;
-  benefit: {
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    eligibilityCriteria: string;
-    status: string;
-    tenant_id: string;
-    createdBy: string;
-    createdAt: string;
-  };
-};
-
 export type SystemEmployee = {
   id: string;
   name: string;
@@ -39,7 +15,6 @@ export type SystemEmployee = {
 };
 
 export type SystemEmployeeDetails = SystemEmployee & {
-  benefits: Benefit[];
   kpis: EmployeePerformance[];
   promotions: EmployeePromotion[];
   performanceReviews: EmployeePerformanceReview[];
@@ -73,18 +48,6 @@ export type EmployeeLeave = {
   remarks: string | null;
   createdAt: string;
   updatedAt: string;
-};
-
-export type EmployeeAsset = {
-  id: string;
-  name: string;
-  category: string;
-  subcategory_id: string;
-  status: string;
-  assigned_to: string;
-  purchase_date: string;
-  tenant_id: string;
-  created_at: string;
 };
 
 export interface EmployeePerformance {
@@ -201,13 +164,6 @@ class SystemEmployeeApiService {
   ): Promise<EmployeePerformance[]> {
     const res = await axiosInstance.get<EmployeePerformance[]>(
       `${BASE}/${id}/performance`
-    );
-    return res.data || [];
-  }
-
-  async getSystemEmployeeAssets(id: string): Promise<EmployeeAsset[]> {
-    const res = await axiosInstance.get<EmployeeAsset[]>(
-      `${BASE}/${id}/assets`
     );
     return res.data || [];
   }

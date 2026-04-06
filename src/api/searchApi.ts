@@ -14,22 +14,14 @@ export interface SearchResponse {
   results: {
     employees?: SearchResultItem[];
     leaves?: SearchResultItem[];
-    assets?: SearchResultItem[];
-    assetRequests?: SearchResultItem[];
     teams?: SearchResultItem[];
     attendance?: SearchResultItem[];
-    benefits?: SearchResultItem[];
-    payroll?: SearchResultItem[];
   };
   counts: {
     employees?: number;
     leaves?: number;
-    assets?: number;
-    assetRequests?: number;
     teams?: number;
     attendance?: number;
-    benefits?: number;
-    payroll?: number;
   };
 }
 

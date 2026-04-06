@@ -1,7 +1,5 @@
 // Consolidated Type Exports - Single Source of Truth
-export * from './asset';
 export * from './availability';
-export * from './benefits';
 export * from './chart';
 export * from './context';
 export * from './interview';
@@ -151,12 +149,6 @@ export const mockDesignations: MockDesignation[] = [
     id: 7,
     title: 'Training Coordinator',
     titleAr: 'منسق التدريب',
-    departmentId: 1,
-  },
-  {
-    id: 8,
-    title: 'Payroll Specialist',
-    titleAr: 'أخصائي الرواتب',
     departmentId: 1,
   },
   {

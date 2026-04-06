@@ -235,17 +235,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Assets',
-    icon: Icons.assets,
-    iconFill: Icons.assetsFill,
-    subItems: [
-      { label: 'Asset Inventory', path: 'assets' },
-      { label: 'Asset Requests', path: 'assets/requests' },
-      { label: 'Management', path: 'assets/request-management' },
-      { label: 'Assets Overview', path: 'assets/system-admin' },
-    ],
-  },
-  {
     label: 'Attendance',
     icon: Icons.attendance,
     iconFill: Icons.attendanceFill,
@@ -267,17 +256,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Benefits',
-    icon: Icons.benefits,
-    iconFill: Icons.benefitsFill,
-    subItems: [
-      { label: 'Benefits List', path: 'benefits-list' },
-      { label: 'Employee Benefits', path: 'employee-benefit' },
-      { label: 'Benefit Details', path: 'benefit-details' },
-      { label: 'Benefits Report', path: 'benefit-report' },
-    ],
-  },
-  {
     label: 'Performance',
     icon: <Insights />,
     subItems: [
@@ -290,25 +268,6 @@ const menuItems: MenuItem[] = [
     subItems: [
       { label: 'Invoice', path: 'invoice' },
       { label: 'Payments', path: 'payments' },
-    ],
-  },
-  {
-    label: 'Payroll',
-    icon: Icons.payroll,
-    iconFill: Icons.payrollFill,
-    subItems: [
-      { label: 'Payroll Configuration', path: 'payroll-configuration' },
-      { label: 'Employee Salary', path: 'employee-salary' },
-      { label: 'Payroll Records', path: 'payroll-records' },
-      { label: 'Payroll Reports', path: 'payroll-reports' },
-      { label: 'My Salary', path: 'my-salary' },
-    ],
-  },
-  {
-    label: 'Recruitment',
-    icon: <BusinessCenter />,
-    subItems: [
-      { label: 'Job Requisitions', path: 'job-requisitions' },
     ],
   },
   {

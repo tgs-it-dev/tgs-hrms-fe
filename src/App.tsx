@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import RouteErrorBoundary from './components/common/RouteErrorBoundary';
-import NotificationToast from './components/AssetManagement/NotificationToast';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
 import { ProfilePictureProvider } from './context/ProfilePictureContext';
@@ -108,26 +107,6 @@ const TeamManager = lazy(() => import('./components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('./components/Teams/TeamList'));
 const TeamTasks = lazy(() => import('./components/TaskManagement/TeamTasks'));
 const MyTasks = lazy(() => import('./components/TaskManagement/MyTasks'));
-const AssetInventory = lazy(
-  () => import('./components/AssetManagement/AssetInventory')
-);
-const AssetRequests = lazy(
-  () => import('./components/AssetManagement/AssetRequests')
-);
-const RequestManagement = lazy(
-  () => import('./components/AssetManagement/RequestManagement')
-);
-const SystemAdminAssets = lazy(
-  () => import('./components/AssetManagement/SystemAdminAssets')
-);
-const BenefitList = lazy(() => import('./components/Benefits/BenefitList'));
-const EmployeeBenefits = lazy(
-  () => import('./components/Benefits/EmployeeBenefits')
-);
-const BenefitDetails = lazy(
-  () => import('./components/Employee/BenefitDetails')
-);
-const BenefitReport = lazy(() => import('./components/Benefits/BenefitReport'));
 const TenantBasedEmployeeManager = lazy(
   () => import('./components/Employee/TenantBasedEmployeeManager')
 );
@@ -138,19 +117,6 @@ const AnnouncementsPage = lazy(
 const PerformanceDashboard = lazy(
   () => import('./components/Performance/PerformanceManager')
 );
-const PayrollConfiguration = lazy(
-  () => import('./components/Payroll/PayrollConfiguration')
-);
-const EmployeeSalaryPage = lazy(
-  () => import('./components/Payroll/EmployeeSalary')
-);
-const PayrollRecords = lazy(
-  () => import('./components/Payroll/PayrollRecords')
-);
-const MySalary = lazy(() => import('./components/Payroll/MySalary'));
-const PayrollReports = lazy(
-  () => import('./components/Payroll/PayrollReports')
-);
 const GeofencingManagement = lazy(
   () => import('./components/Geofencing/GeofencingManagement'));
 const ManagerTaskBoard = lazy(
@@ -158,9 +124,6 @@ const ManagerTaskBoard = lazy(
 );
 const EmployeeTasks = lazy(
   () => import('./components/TaskManagement/EmployeeTasks')
-);
-const JobRequisitionManager = lazy(
-  () => import('./components/JobRequisition/JobRequisitionManager')
 );
 
 function App() {
@@ -308,59 +271,19 @@ function App() {
                     }
                   />
                   <Route path='settings' element={<SettingsPage />} />
-                  <Route path='assets' element={<AssetInventory />} />
-                  <Route path='assets/inventory' element={<AssetInventory />} />
-                  <Route path='assets/requests' element={<AssetRequests />} />
-                  <Route
-                    path='assets/request-management'
-                    element={<RequestManagement />}
-                  />
-                  <Route
-                    path='assets/system-admin'
-                    element={<SystemAdminAssets />}
-                  />
-                  <Route path='benefits-list' element={<BenefitList />} />
-                  <Route
-                    path='employee-benefit'
-                    element={<EmployeeBenefits />}
-                  />
-                  <Route path='benefit-details' element={<BenefitDetails />} />
-                  <Route path='benefit-report' element={<BenefitReport />} />
-
                   <Route
                     path='performance-dashboard'
                     element={<PerformanceDashboard />}
                   />
                   <Route path='audit-logs' element={<AuditLogs />} />
                   <Route path='announcements' element={<AnnouncementsPage />} />
-
-                  <Route
-                    path='payroll-configuration'
-                    element={<PayrollConfiguration />}
-                  />
-                  <Route path='payroll-records' element={<PayrollRecords />} />
-                  <Route path='payroll-reports' element={<PayrollReports />} />
-                  <Route
-                    path='employee-salary'
-                    element={<EmployeeSalaryPage />}
-                  />
-                  <Route path='my-salary' element={<MySalary />} />
                   <Route path='geofencing' element={<GeofencingManagement />} />
-                  <Route
-                    path='job-requisitions'
-                    element={
-                      <RouteErrorBoundary>
-                        <JobRequisitionManager />
-                      </RouteErrorBoundary>
-                    }
-                  />
                 </Route>
                 <Route path='/company-details' element={<CompanyDetails />} />
                 <Route path='*' element={<Error404 />} />
                 </Routes>
               </Suspense>
             </Router>
-            <NotificationToast />
           </ProfilePictureProvider>
         </UserProvider>
       </LanguageProvider>

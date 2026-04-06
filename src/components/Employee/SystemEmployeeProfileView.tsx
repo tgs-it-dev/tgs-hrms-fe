@@ -23,10 +23,8 @@ import {
 import { Work, Business, Email, Star, Close } from '@mui/icons-material';
 import systemEmployeeApiService, {
   type EmployeeLeave,
-  type EmployeeAsset,
   type SystemEmployeeDetails,
   type EmployeePerformance,
-  type Benefit,
 } from '../../api/systemEmployeeApi';
 import { leaveApi, type LeaveType } from '../../api/leaveApi';
 import UserAvatar from '../common/UserAvatar';
@@ -48,15 +46,12 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
   const theme = useTheme();
   const [profile, setProfile] = useState<SystemEmployeeDetails | null>(null);
   const [leaves, setLeaves] = useState<EmployeeLeave[]>([]);
-  const [assets, setAssets] = useState<EmployeeAsset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<EmployeePerformance | null>(
     null
   );
   const [openKpiDialog, setOpenKpiDialog] = useState(false);
-  const [openBenefitDialog, setOpenBenefitDialog] = useState(false);
-  const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
   const [leaveTypes, setLeaveTypes] = useState<Record<string, string>>({});
 
   // Fetch leave types when modal opens
@@ -101,15 +96,12 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
         setProfile(profileRes);
 
         // Note: All system employee API endpoints (leaves, assets, performance) use employee ID, not user ID
-        const [leavesRes, assetsRes, performanceRes] = await Promise.all([
+        const [leavesRes, performanceRes] = await Promise.all([
           systemEmployeeApiService.getSystemEmployeeLeaves(employeeId),
-          systemEmployeeApiService.getSystemEmployeeAssets(employeeId),
           systemEmployeeApiService.getSystemEmployeePerformance(employeeId),
         ]);
 
         setLeaves(leavesRes);
-        setAssets(assetsRes);
-
         setProfile(prev => (prev ? { ...prev, kpis: performanceRes } : null));
       } catch (e: unknown) {
         setError((e as Error)?.message || 'Failed to load employee data');
@@ -284,275 +276,6 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
                   )}
                 </TableBody>
               </AppTable>
-            </Paper>
-
-            <Paper
-              elevation={1}
-              sx={{ borderRadius: 3, p: 2, boxShadow: 'none' }}
-            >
-              <Typography
-                variant='h6'
-                fontWeight={600}
-                gutterBottom
-                color='var(--primary-dark-color)'
-              >
-                Assigned Assets
-              </Typography>
-              <AppTable>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Asset Name</TableCell>
-                    <TableCell>Category</TableCell>
-                    <TableCell>Status</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {assets.length ? (
-                    assets.map((asset, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{asset.name}</TableCell>
-                        <TableCell>{asset.category}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={asset.status}
-                            size='small'
-                            sx={{
-                              bgcolor:
-                                asset.status.toLowerCase() === 'assigned'
-                                  ? 'success.main'
-                                  : 'error.main',
-                              color: '#fff',
-                              fontWeight: 600,
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align='center'>
-                        No assets assigned
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </AppTable>
-            </Paper>
-
-            <Paper
-              elevation={1}
-              sx={{ borderRadius: 3, p: 2, boxShadow: 'none' }}
-            >
-              <Typography
-                variant='h6'
-                fontWeight={600}
-                gutterBottom
-                color='var(--primary-dark-color)'
-              >
-                Assigned Benefits
-              </Typography>
-
-              {profile.benefits?.length ? (
-                <Box
-                  display='grid'
-                  gridTemplateColumns={{
-                    xs: '1fr',
-                    sm: '1fr 1fr',
-                    md: '1fr 1fr 1fr',
-                  }}
-                  gap={2}
-                >
-                  {profile.benefits.map((b, idx) => (
-                    <Paper
-                      key={idx}
-                      elevation={3}
-                      sx={{
-                        p: 2.5,
-                        borderRadius: 3,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1.5,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                      }}
-                    >
-                      <Typography variant='h6' fontWeight={600}>
-                        {b.benefit.name}
-                      </Typography>
-
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                      >
-                        <Typography variant='subtitle2' color='text.secondary'>
-                          Type:
-                        </Typography>
-                        <Chip
-                          label={b.benefit.type}
-                          color='primary'
-                          size='small'
-                          variant='outlined'
-                        />
-                      </Box>
-
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                      >
-                        <Typography variant='subtitle2' color='text.secondary'>
-                          Status:
-                        </Typography>
-                        <Chip
-                          label={b.status}
-                          color={
-                            b.status.toLowerCase() === 'active'
-                              ? 'success'
-                              : b.status.toLowerCase() === 'pending'
-                                ? 'warning'
-                                : 'default'
-                          }
-                          size='small'
-                        />
-                      </Box>
-
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                      >
-                        <Typography variant='subtitle2' color='text.secondary'>
-                          Eligibility:
-                        </Typography>
-                        <Typography variant='body2'>
-                          {b.benefit.eligibilityCriteria}
-                        </Typography>
-                      </Box>
-
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                      >
-                        <Typography variant='subtitle2' color='text.secondary'>
-                          Duration:
-                        </Typography>
-                        <Typography variant='body2'>
-                          {new Date(b.startDate).toLocaleDateString()} -{' '}
-                          {new Date(b.endDate).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-
-                      <Box
-                        mt={1.5}
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='space-between'
-                      >
-                        <Typography variant='caption' color='text.secondary'>
-                          Assigned on{' '}
-                          {new Date(b.createdAt).toLocaleDateString()}
-                        </Typography>
-
-                        <Button
-                          variant='text'
-                          size='small'
-                          color='primary'
-                          sx={{ color: 'var(--primary-dark-color)' }}
-                          onClick={() => {
-                            setSelectedBenefit(b);
-                            setOpenBenefitDialog(true);
-                          }}
-                        >
-                          <VisibilityIcon />
-                        </Button>
-                      </Box>
-                    </Paper>
-                  ))}
-                </Box>
-              ) : (
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                  align='center'
-                  mt={1}
-                >
-                  No benefits assigned
-                </Typography>
-              )}
-
-              <Dialog
-                open={openBenefitDialog}
-                onClose={() => setOpenBenefitDialog(false)}
-                maxWidth='sm'
-                fullWidth
-              >
-                <DialogTitle>Benefit Details</DialogTitle>
-                <DialogContent dividers>
-                  {selectedBenefit ? (
-                    <>
-                      <Typography variant='h6' fontWeight={600} gutterBottom>
-                        {selectedBenefit.benefit.name}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        gutterBottom
-                      >
-                        Type: {selectedBenefit.benefit.type}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        gutterBottom
-                      >
-                        Eligibility:{' '}
-                        {selectedBenefit.benefit.eligibilityCriteria}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        gutterBottom
-                      >
-                        Status: {selectedBenefit.status}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        gutterBottom
-                      >
-                        Start Date:{' '}
-                        {new Date(
-                          selectedBenefit.startDate
-                        ).toLocaleDateString()}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        gutterBottom
-                      >
-                        End Date:{' '}
-                        {new Date(selectedBenefit.endDate).toLocaleDateString()}
-                      </Typography>
-
-                      <Divider sx={{ my: 1.5 }} />
-
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        Description:
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        sx={{ whiteSpace: 'pre-line' }}
-                      >
-                        {selectedBenefit.benefit.description}
-                      </Typography>
-                    </>
-                  ) : (
-                    <Typography>No benefit selected.</Typography>
-                  )}
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={() => setOpenBenefitDialog(false)}
-                    sx={{ color: 'var(--primary-dark-color)' }}
-                  >
-                    Close
-                  </Button>
-                </DialogActions>
-              </Dialog>
             </Paper>
 
             <Paper
