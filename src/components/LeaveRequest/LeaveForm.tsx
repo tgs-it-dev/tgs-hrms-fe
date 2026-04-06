@@ -91,7 +91,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     };
 
     fetchLeaveTypes();
-  }, [onError]);
+  }, []);
 
   const getToday = () => {
     const today = new Date();

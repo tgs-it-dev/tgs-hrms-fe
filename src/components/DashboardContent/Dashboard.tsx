@@ -507,7 +507,10 @@ const Dashboard: React.FC = () => {
                     backgroundColor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
                     borderRadius: '6px',
-                    // '&:hover': { backgroundColor: theme.palette.primary.dark },
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                    },
                   }}
                 >
                   <DownloadIcon />
@@ -1107,6 +1110,115 @@ const Dashboard: React.FC = () => {
               </Box>
             </Box>
           )}
+<<<<<<< HEAD
+=======
+          {/* Salary Overview (compact left) + Employee Growth (wide right) - Box-based layout for large screens */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: { xs: 2, md: 3 },
+              alignItems: 'stretch',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+            <Box sx={{ flex: 1, minWidth: { xs: '100%', md: 0 } }}>
+              <AppCard
+                sx={{
+                  p: 3,
+                  minHeight: { xs: 280, md: 420 },
+                  borderRadius: '20px',
+                }}
+              >
+                <EmployeeGrowthChart />
+              </AppCard>
+            </Box>
+            <Box
+              sx={{
+                width: { xs: '100%', md: '45%', lg: '33%' },
+                minWidth: 0,
+                maxWidth: '100%',
+                order: { xs: 2, md: 0 },
+              }}
+            >
+              <AppCard
+                sx={{
+                  p: { xs: 1.5, sm: 2 },
+                  borderRadius: { xs: '16px', sm: '20px' },
+                  height: '100%',
+                  overflow: 'hidden',
+                  maxWidth: '100%',
+                }}
+              >
+                <Typography
+                  variant='h6'
+                  mb={1}
+                  sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                >
+                  Salary Overview
+                </Typography>
+                <Box
+                  sx={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    height: { xs: 220, sm: 260, md: 320 },
+                    minHeight: 180,
+                  }}
+                >
+                  <ResponsiveContainer width='100%' height='91%'>
+                    <PieChart
+                      margin={{ top: 0, right: 0, bottom: 20, left: 0 }}
+                    >
+                      <Pie
+                        data={salaryOverview}
+                        dataKey='value'
+                        nameKey='name'
+                        innerRadius={isMobile ? 45 : 60}
+                        outerRadius={isMobile ? 70 : 90}
+                        paddingAngle={3}
+                        stroke='none'
+                        strokeWidth={0}
+                        startAngle={50}
+                        endAngle={450}
+                        label={({ percent }) =>
+                          `${(percent * 100).toFixed(0)}%`
+                        }
+                        labelLine={false}
+                      >
+                        {salaryOverview.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              index === 0
+                                ? theme.palette.success.main
+                                : theme.palette.error.main
+                            }
+                            style={{ outline: 'none' }}
+                          />
+                        ))}
+                      </Pie>
+                      <Legend
+                        verticalAlign='bottom'
+                        height={36}
+                        iconType='circle'
+                      />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </Box>
+                  <Box mt={1}>
+                    <Typography
+                      variant='caption'
+                      color='text.secondary'
+                      sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                    >
+                      Total payroll and unpaid summary for current cycle
+                    </Typography>
+                  </Box>
+                </AppCard>
+            </Box>
+          </Box>
+>>>>>>> 5eb173fbf3553236faf2e0da3b8ea763ea6c85a9
 
           {/* Attendance and Gender */}
           <Box

@@ -199,12 +199,36 @@ const TeamManager: React.FC<TeamManagerProps> = ({
     description?: string;
     manager_id: string;
   }) => {
+    // Create team (also tries to add manager as member on the backend)
     const newTeam = await teamApiService.createTeam(teamData);
-    setTeams(prev => [newTeam, ...prev]);
+
+    // Immediately load members for this new team so UI shows correct count
+    let teamWithMembers = newTeam;
+    if (newTeam.id) {
+      try {
+        const membersResponse = await teamApiService.getTeamMembers(
+          newTeam.id,
+          1
+        );
+        teamWithMembers = {
+          ...newTeam,
+          teamMembers: membersResponse.items || [],
+          memberCount:
+            typeof membersResponse.total === 'number'
+              ? membersResponse.total
+              : (membersResponse.items || []).length,
+        };
+      } catch {
+        // If members can't be loaded, fall back to basic team data
+        teamWithMembers = newTeam;
+      }
+    }
+
+    setTeams(prev => [teamWithMembers, ...prev]);
     setShowCreateForm(false);
 
-    // Show success toast
-    snackbar.success(lang.teamCreated);
+    // Show success snackbar
+    showSuccess(lang.teamCreated);
 
     // Trigger refresh for other components
     window.dispatchEvent(new CustomEvent('teamUpdated'));
@@ -496,6 +520,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                 teams={teams}
                 darkMode={darkMode}
                 onTeamUpdated={handleTeamUpdated}
+                onTeamDeleted={teamId =>
+                  setTeams(prev => prev.filter(team => team.id !== teamId))
+                }
               />
             </TabPanel>
           )}

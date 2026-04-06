@@ -212,7 +212,7 @@ const PasswordReset: React.FC = () => {
             variant='contained'
             text={loading ? 'Resetting...' : 'Reset Password'}
             disabled={loading}
-            sx={{ mt: 2, mb: 2, backgroundColor: COLORS.PRIMARY }}
+            sx={{ mt: 2, mb: 2}}
             startIcon={loading ? <CircularProgress size={24} /> : undefined}
           />
         </Box>

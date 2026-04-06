@@ -34,6 +34,10 @@ import {
   Receipt,
   Widgets,
 } from '@mui/icons-material';
+import {
+  useFeatureToggles,
+  type FeatureKey,
+} from '../../context/FeatureToggleContext';
 
 interface SubItem {
   label: string;
@@ -303,6 +307,19 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
+  Payroll: 'payroll',
+  Attendance: 'attendance',
+  'Leave Analytics': 'leaveAnalytics',
+  Benefits: 'benefits',
+  Performance: 'performance',
+  Recruitment: 'recruitment',
+  Announcements: 'announcements',
+  Projects: 'projects',
+  Accounts: 'accounts',
+  App: 'app',
+};
+
 export default function Sidebar({
   darkMode,
   onMenuItemClick,
@@ -313,6 +330,7 @@ export default function Sidebar({
   void _rtlMode;
   void _setRtlMode;
   const { toggleTheme } = useTheme();
+  const { isFeatureEnabled } = useFeatureToggles();
   const theme = useMuiTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -338,7 +356,14 @@ export default function Sidebar({
     const filtered = menuItems
       .filter(item => {
         const isVisible = isMenuVisibleForRole(item.label, userRole);
-        return isVisible;
+        if (!isVisible) return false;
+
+        const featureKey = menuLabelToFeature[item.label];
+        if (featureKey && !isFeatureEnabled(featureKey)) {
+          return false;
+        }
+
+        return true;
       })
       .map(item => ({
         ...item,
@@ -370,7 +395,18 @@ export default function Sidebar({
     // For system admins, keep the menu structure but hide the visible label
     // for the Manager Tasks subitem (show icon/navigation only).
     if (isSystemAdmin) {
-      return filtered.map(item => {
+      const withFeatureManagement: MenuItem[] = [
+        ...filtered,
+        {
+          label: 'Feature Management',
+          icon: <Apps />,
+          subItems: [
+            { label: 'Feature Management', path: 'feature-management' },
+          ],
+        },
+      ];
+
+      return withFeatureManagement.map(item => {
         if (item.label === 'Teams') {
           return {
             ...item,
@@ -384,7 +420,7 @@ export default function Sidebar({
     }
 
     return filtered;
-  }, [role, isEmployee]);
+  }, [role, isEmployee, isFeatureEnabled]);
 
   useEffect(() => {
     let currentPath = location.pathname.replace('/dashboard/', '');

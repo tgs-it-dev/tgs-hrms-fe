@@ -113,6 +113,10 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'performance', patterns: ['performance'] },
   { key: 'recruitment', patterns: ['recruitment'] },
+  {
+    key: 'feature-management',
+    patterns: ['feature management', 'feature-management'],
+  },
 ];
 
 const getMenuKey = (label: string) => {

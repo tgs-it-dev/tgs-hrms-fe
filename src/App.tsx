@@ -10,6 +10,7 @@ import { UserProvider } from './context/UserContext';
 import { ProfilePictureProvider } from './context/ProfilePictureContext';
 import { CompanyProvider } from './context/CompanyContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { FeatureToggleProvider } from './context/FeatureToggleContext';
 import { ThemeProvider } from './theme';
 import './App.css';
 
@@ -84,6 +85,12 @@ const AttendanceSummaryReport = lazy(
   () => import('./components/Attendance/AttendanceSummaryReport')
 );
 const SettingsPage = lazy(() => import('./components/Settings/SettingsPage'));
+const PrivacyPolicyPage = lazy(
+  () => import('./components/TermsPolicy/PrivacyPolicyPage')
+);
+const TermsOfServicePage = lazy(
+  () => import('./components/TermsPolicy/TermsOfServicePage')
+);
 const UserList = lazy(() => import('./components/ManagementUI/UserList'));
 const UserProfileComponent = lazy(
   () => import('./components/UserProfile/UserProfile')
@@ -141,6 +148,22 @@ function App() {
                 <Route path='/confirm-password' element={<ConfirmPassword />} />
                 <Route path='/Signup' element={<Signup />} />
                 <Route
+                  path='/terms'
+                  element={
+                    <ThemeProvider>
+                      <TermsOfServicePage />
+                    </ThemeProvider>
+                  }
+                />
+                <Route
+                  path='/privacy-policy'
+                  element={
+                    <ThemeProvider>
+                      <PrivacyPolicyPage />
+                    </ThemeProvider>
+                  }
+                />
+                <Route
                   path='/signup/company-details'
                   element={<CompanyDetails />}
                 />
@@ -159,9 +182,11 @@ function App() {
                     <ProtectedRoute>
                       <CompanyProvider>
                         <NotificationProvider>
-                          <ThemeProvider>
-                            <Layout />
-                          </ThemeProvider>
+                          <FeatureToggleProvider>
+                            <ThemeProvider>
+                              <Layout />
+                            </ThemeProvider>
+                          </FeatureToggleProvider>
                         </NotificationProvider>
                       </CompanyProvider>
                     </ProtectedRoute>

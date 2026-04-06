@@ -362,3 +362,10 @@ h3 {
 .MuiPaper-root.MuiTableContainer-root {
   box-shadow: none !important;
 }
+
+/* Hide Edge's built-in password reveal icon to prevent double-eye icons
+   when we use custom visibility toggles inside inputs */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}

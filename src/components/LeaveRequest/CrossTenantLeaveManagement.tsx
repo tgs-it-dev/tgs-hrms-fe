@@ -793,11 +793,6 @@ const CrossTenantLeaveManagement: React.FC = () => {
                       title={leave.reason || 'N/A'}
                       placement='top'
                       arrow
-                      slotProps={{
-                        tooltip: {
-                          sx: { position: 'relative', left: '-115px' },
-                        },
-                      }}
                     >
                       <Typography
                         sx={{
