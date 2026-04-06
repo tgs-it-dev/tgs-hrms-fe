@@ -19,7 +19,6 @@ export interface SearchResponse {
     teams?: SearchResultItem[];
     attendance?: SearchResultItem[];
     benefits?: SearchResultItem[];
-    payroll?: SearchResultItem[];
   };
   counts: {
     employees?: number;
@@ -29,7 +28,6 @@ export interface SearchResponse {
     teams?: number;
     attendance?: number;
     benefits?: number;
-    payroll?: number;
   };
 }
 

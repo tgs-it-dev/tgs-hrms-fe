@@ -24,12 +24,6 @@ const featureDefinitions: {
   description: string;
 }[] = [
   {
-    key: 'payroll',
-    label: 'Payroll',
-    description:
-      'Run payroll, manage employee salaries, and view payroll reports.',
-  },
-  {
     key: 'attendance',
     label: 'Attendance & Leaves',
     description:

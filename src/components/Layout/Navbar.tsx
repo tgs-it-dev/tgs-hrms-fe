@@ -134,7 +134,6 @@ interface SearchResult {
     | 'tenant'
     | 'project'
     | 'attendance'
-    | 'payroll';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -282,31 +281,6 @@ const searchableRoutes: SearchResult[] = [
   },
   { label: 'Invoice', path: 'invoice', category: 'Accounts', type: 'route' },
   { label: 'Payments', path: 'payments', category: 'Accounts', type: 'route' },
-  {
-    label: 'Payroll Configuration',
-    path: 'payroll-configuration',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Employee Salary',
-    path: 'employee-salary',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Records',
-    path: 'payroll-records',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Reports',
-    path: 'payroll-reports',
-    category: 'Payroll',
-    type: 'route',
-  },
-  { label: 'My Salary', path: 'my-salary', category: 'Payroll', type: 'route' },
   { label: 'Audit Logs', path: 'audit-logs', category: 'Audit', type: 'route' },
   { label: 'Settings', path: 'settings', category: 'Settings', type: 'route' },
   {
@@ -339,7 +313,6 @@ const searchableRoutes: SearchResult[] = [
 ];
 
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
-  Payroll: 'payroll',
   Attendance: 'attendance',
   Benefits: 'benefits',
   Performance: 'performance',
@@ -1072,15 +1045,6 @@ const Navbar: React.FC<NavbarProps> = ({
       navigate('/dashboard/AttendanceCheck', {
         state: {
           attendanceId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'payroll' && result.id) {
-      navigate('/dashboard/payroll-records', {
-        state: {
-          payrollId: result.id,
-          viewPayroll: true,
           fromSearch: true,
         },
         replace: false,

@@ -28,9 +28,6 @@ export const Icons = {
   benefits: '/benefits.svg',
   benefitsFill: '/benefits-fill.svg',
 
-  payroll: '/payroll.svg',
-  payrollFill: '/payroll-fill.svg',
-
   logout: '/logout.svg',
   arrowUp: '/arrow-up.svg',
   search: '/search.svg',

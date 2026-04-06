@@ -59,7 +59,6 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'audit logs',
     'performance',
-    'payroll',
     'recruitment',
     'feature-management',
   ],
@@ -79,7 +78,6 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'teams',
     'benefits',
     'leave-analytics',
-    'payroll',
     'employees',
     'recruitment',
   ],
@@ -92,7 +90,6 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'attendance',
     'report',
     'leave-analytics',
-    'payroll',
     'benefits',
     'recruitment',
   ],
@@ -101,12 +98,11 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'attendance',
     'report',
     'leave-analytics',
-    'payroll',
     'benefits',
     'recruitment',
   ],
-  employee: ['attendance', 'benefits', 'leave-analytics', 'payroll', 'teams', 'recruitment'],
-  user: ['attendance', 'benefits', 'payroll', 'teams', 'recruitment'],
+  employee: ['attendance', 'benefits', 'leave-analytics', 'teams', 'recruitment'],
+  user: ['attendance', 'benefits', 'teams', 'recruitment'],
   unknown: ['benefits', 'recruitment'],
 };
 
@@ -125,7 +121,6 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
   { key: 'report', patterns: ['report'] },
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'performance', patterns: ['performance'] },
-  { key: 'payroll', patterns: ['payroll'] },
   { key: 'recruitment', patterns: ['recruitment'] },
   {
     key: 'feature-management',
@@ -152,7 +147,6 @@ type ParentKey =
   | 'benefits'
   | 'department'
   | 'leave-analytics'
-  | 'payroll'
   | 'employees'
   | 'teams'
   | 'audit logs'
@@ -164,7 +158,6 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'benefits', patterns: ['benefit'] },
   { key: 'department', patterns: ['department'] },
   { key: 'leave-analytics', patterns: ['leave analytics', 'leave-analytics'] },
-  { key: 'payroll', patterns: ['payroll'] },
   { key: 'employees', patterns: ['employee'] },
   { key: 'teams', patterns: ['team'] },
   { key: 'audit logs', patterns: ['audit logs'] },
@@ -195,7 +188,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     department: { deny: ['user list', 'policies', 'holidays'] },
     benefits: { allowOnly: ['benefits report'] },
     'leave-analytics': { deny: ['report'] },
-    payroll: { allowOnly: ['payroll reports'] },
     employees: { deny: ['employee list'] },
     teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
     attendance: { deny: ['leave request', 'geofencing'] },
@@ -211,7 +203,6 @@ const ROLE_SUBMENU_POLICIES: Record<
   'hr-admin': {
     employees: { deny: ['tenant employees'] },
     'audit logs': { denyAll: true },
-    payroll: { deny: ['payroll reports', 'my salary'] },
     department: { allowOnly: ['designation', 'department'] },
     benefits: { deny: ['benefits report', 'benefit details'] },
     'leave-analytics': { deny: ['cross tenant leaves'] },
@@ -225,14 +216,12 @@ const ROLE_SUBMENU_POLICIES: Record<
     attendance: { deny: ['reports', 'geofencing'] },
     'audit logs': { denyAll: true },
     benefits: { deny: ['benefits report', 'benefit details'] },
-    payroll: { deny: ['payroll reports', 'my salary'] },
     teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
   },
   manager: {
     employees: { deny: ['tenant employees'] },
     attendance: { deny: ['reports', 'report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     benefits: { allowOnly: ['benefit details'] },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     teams: { deny: ['my tasks'] }, // Managers see Team Management and Manager Tasks only
@@ -243,7 +232,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     benefits: { allowOnly: ['benefit details'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
   },
   user: {
@@ -252,7 +240,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     benefits: { allowOnly: ['benefit details'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     teams: { allowOnly: ['my tasks'] }, // Users see only My Tasks
   },
   unknown: {},
@@ -297,14 +284,6 @@ export const isSubMenuVisibleForRole = (
     return r === 'admin';
   }
 
-  if (
-    r === 'system-admin' &&
-    parentKey === 'payroll' &&
-    (subKey === 'payroll reports' || subKey.includes('payroll reports'))
-  ) {
-    return true;
-  }
-
   const policy = ROLE_SUBMENU_POLICIES[r]?.[parentKey];
   if (!policy) return true;
   if (policy.denyAll) return false;
@@ -346,7 +325,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'audit-logs',
     'TenantEmployees',
     'performance-dashboard',
-    'payroll-reports',
     'benefit-report',
     'feature-management',
   ],
@@ -396,8 +374,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'Reports',
     'benefits-list',
     'employee-benefit',
-    'payroll-configuration',
-    'payroll-records',
     'employee-salary',
   ],
   admin: [
@@ -428,8 +404,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'my-benefits',
     'benefits-list',
     'employee-benefit',
-    'payroll-configuration',
-    'payroll-records',
     'employee-salary',
   ],
   manager: [
