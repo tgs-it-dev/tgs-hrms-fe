@@ -42,12 +42,6 @@ const featureDefinitions: {
       'View leave analytics, reports, and cross-tenant leave metrics.',
   },
   {
-    key: 'benefits',
-    label: 'Benefits',
-    description:
-      'Configure benefits, assign employee benefits, and view benefit reports.',
-  },
-  {
     key: 'performance',
     label: 'Performance',
     description:
