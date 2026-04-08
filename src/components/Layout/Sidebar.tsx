@@ -298,13 +298,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Recruitment',
-    icon: <BusinessCenter />,
-    subItems: [
-      { label: 'Job Requisitions', path: 'job-requisitions' },
-    ],
-  },
-  {
     label: 'Audit Logs',
     icon: <History />,
     subItems: [{ label: 'Audit Logs', path: 'audit-logs' }],

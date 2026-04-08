@@ -54,11 +54,6 @@ const featureDefinitions: {
       'Enable performance dashboards and insights for employees and teams.',
   },
   {
-    key: 'recruitment',
-    label: 'Recruitment',
-    description: 'Manage job requisitions and hiring-related workflows.',
-  },
-  {
     key: 'announcements',
     label: 'Announcements',
     description: 'Company-wide announcements module.',

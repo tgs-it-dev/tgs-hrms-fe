@@ -153,9 +153,6 @@ const ManagerTaskBoard = lazy(
 const EmployeeTasks = lazy(
   () => import('./components/TaskManagement/EmployeeTasks')
 );
-const JobRequisitionManager = lazy(
-  () => import('./components/JobRequisition/JobRequisitionManager')
-);
 const FeatureManagementPage = lazy(
   () => import('./components/Settings/FeatureManagementPage')
 );
@@ -356,14 +353,6 @@ function App() {
                   />
                   <Route path='my-salary' element={<MySalary />} />
                   <Route path='geofencing' element={<GeofencingManagement />} />
-                  <Route
-                    path='job-requisitions'
-                    element={
-                      <RouteErrorBoundary>
-                        <JobRequisitionManager />
-                      </RouteErrorBoundary>
-                    }
-                  />
                 </Route>
                 <Route path='/company-details' element={<CompanyDetails />} />
                 <Route path='*' element={<Error404 />} />
