@@ -260,17 +260,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Benefits',
-    icon: Icons.benefits,
-    iconFill: Icons.benefitsFill,
-    subItems: [
-      { label: 'Benefits List', path: 'benefits-list' },
-      { label: 'Employee Benefits', path: 'employee-benefit' },
-      { label: 'Benefit Details', path: 'benefit-details' },
-      { label: 'Benefits Report', path: 'benefit-report' },
-    ],
-  },
-  {
     label: 'Performance',
     icon: <Insights />,
     subItems: [
@@ -321,7 +310,6 @@ const menuItems: MenuItem[] = [
 const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
   Attendance: 'attendance',
   'Leave Analytics': 'leaveAnalytics',
-  Benefits: 'benefits',
   Performance: 'performance',
   Recruitment: 'recruitment',
   Announcements: 'announcements',
