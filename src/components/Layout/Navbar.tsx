@@ -547,6 +547,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const { language, setLanguage } = useLanguage();
   const lang = labels[language];
   const { user, clearUser } = useUser();
+  const { clearProfilePicture } = useProfilePicture();
   const { updateProfilePicture } = useProfilePicture();
   const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
@@ -743,6 +744,7 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
+
     // Clear all authentication and signup data
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -754,6 +756,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
     // Clear user context
     clearUser();
+    clearProfilePicture();
 
     // Navigate to login page with replace to prevent back navigation
     navigate('/', { replace: true });
