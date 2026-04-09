@@ -204,66 +204,54 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
               >
                 <Box sx={{ p: 2 }}>
-                  <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
-                    {getLabel('Personal Information', 'المعلومات الشخصية')}
-                  </Typography>
+                <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
+                  {getLabel('Personal Information', 'المعلومات الشخصية')}
+                </Typography>
 
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                      gap: 2,
-                    }}
-                  >
-                    <Box sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                  }}
+                >
+                  {[
+                    { label: getLabel('Name', 'الاسم'), value: employee.name },
+                    { label: getLabel('Email', 'البريد الإلكتروني'), value: employee.email },
+                    { label: getLabel('Phone', 'رقم الهاتف'), value: employee.phone },
+                    { label: getLabel('CNIC Number', 'رقم الهوية'), value: employee.cnic_number || 'N/A' },
+                  ].map((item, index) => (
+                    <Box 
+                      key={index} 
+                      sx={{ 
+                        width: { xs: '100%', md: 'calc(50% - 8px)' }, 
+                        mb: 1,
+                        // Increased to 80px to handle very long wrapped emails/names
+                        minHeight: '80px', 
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                    >
                       <Typography
                         variant='body2'
                         sx={{ fontWeight: 'bold', color: textColor }}
                       >
-                        {getLabel('Name', 'الاسم')}:
+                        {item.label}:
                       </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.name}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
+                      <Typography 
+                        variant='body1' 
+                        sx={{ 
+                          color: textColor, 
+                          wordBreak: 'break-all', // Forces long emails to break so they don't overflow the card
+                          lineHeight: 1.2 
+                        }}
                       >
-                        {getLabel('Email', 'البريد الإلكتروني')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.email}
+                        {item.value}
                       </Typography>
                     </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Phone', 'رقم الهاتف')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.phone}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('CNIC Number', 'رقم الهوية')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.cnic_number || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  ))}
                 </Box>
+              </Box>
               </AppCard>
             </Box>
 
@@ -272,66 +260,53 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
               >
                 <Box sx={{ p: 2 }}>
-                  <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
-                    {getLabel('Work Information', 'معلومات العمل')}
-                  </Typography>
+                <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
+                  {getLabel('Work Information', 'معلومات العمل')}
+                </Typography>
 
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                      gap: 2,
-                    }}
-                  >
-                    <Box sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                  }}
+                >
+                  {[
+                    { label: getLabel('Department', 'القسم'), value: employee.department?.name || 'N/A' },
+                    { label: getLabel('Designation', 'الوظيفة'), value: employee.designation?.title || 'N/A' },
+                    { label: getLabel('Role', 'الدور'), value: employee.role_name || 'N/A' },
+                    { label: getLabel('Status', 'الحالة'), value: employee.status || 'N/A' },
+                  ].map((item, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: { xs: '100%', md: 'calc(50% - 8px)' },
+                        mb: 1,
+                        minHeight: '80px', 
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                    >
                       <Typography
                         variant='body2'
                         sx={{ fontWeight: 'bold', color: textColor }}
                       >
-                        {getLabel('Department', 'القسم')}:
+                        {item.label}:
                       </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.department?.name || 'N/A'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
+                      <Typography 
+                        variant='body1' 
+                        sx={{ 
+                          color: textColor,
+                          lineHeight: 1.2,
+                          wordBreak: 'break-word' 
+                        }}
                       >
-                        {getLabel('Designation', 'الوظيفة')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.designation?.title || 'N/A'}
+                        {item.value}
                       </Typography>
                     </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Role', 'الدور')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.role_name || 'N/A'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Status', 'الحالة')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.status || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  ))}
                 </Box>
+              </Box>
               </AppCard>
             </Box>
           </Box>
