@@ -124,19 +124,6 @@ const AnnouncementsPage = lazy(
 const PerformanceDashboard = lazy(
   () => import('./components/Performance/PerformanceManager')
 );
-const PayrollConfiguration = lazy(
-  () => import('./components/Payroll/PayrollConfiguration')
-);
-const EmployeeSalaryPage = lazy(
-  () => import('./components/Payroll/EmployeeSalary')
-);
-const PayrollRecords = lazy(
-  () => import('./components/Payroll/PayrollRecords')
-);
-const MySalary = lazy(() => import('./components/Payroll/MySalary'));
-const PayrollReports = lazy(
-  () => import('./components/Payroll/PayrollReports')
-);
 const GeofencingManagement = lazy(
   () => import('./components/Geofencing/GeofencingManagement'));
 const ManagerTaskBoard = lazy(
@@ -325,18 +312,6 @@ function App() {
                   />
                   <Route path='audit-logs' element={<AuditLogs />} />
                   <Route path='announcements' element={<AnnouncementsPage />} />
-
-                  <Route
-                    path='payroll-configuration'
-                    element={<PayrollConfiguration />}
-                  />
-                  <Route path='payroll-records' element={<PayrollRecords />} />
-                  <Route path='payroll-reports' element={<PayrollReports />} />
-                  <Route
-                    path='employee-salary'
-                    element={<EmployeeSalaryPage />}
-                  />
-                  <Route path='my-salary' element={<MySalary />} />
                   <Route path='geofencing' element={<GeofencingManagement />} />
                 </Route>
                 <Route path='/company-details' element={<CompanyDetails />} />

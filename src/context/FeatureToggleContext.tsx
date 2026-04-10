@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 
 type FeatureKey =
-  | 'payroll'
   | 'attendance'
   | 'performance'
   | 'recruitment'
@@ -29,7 +28,6 @@ interface FeatureToggleContextValue {
 const STORAGE_KEY = 'feature-toggles';
 
 const defaultFeatures: FeatureState = {
-  payroll: true,
   attendance: true,
   performance: true,
   recruitment: true,

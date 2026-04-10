@@ -275,18 +275,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'Payroll',
-    icon: Icons.payroll,
-    iconFill: Icons.payrollFill,
-    subItems: [
-      { label: 'Payroll Configuration', path: 'payroll-configuration' },
-      { label: 'Employee Salary', path: 'employee-salary' },
-      { label: 'Payroll Records', path: 'payroll-records' },
-      { label: 'Payroll Reports', path: 'payroll-reports' },
-      { label: 'My Salary', path: 'my-salary' },
-    ],
-  },
-  {
     label: 'Audit Logs',
     icon: <History />,
     subItems: [{ label: 'Audit Logs', path: 'audit-logs' }],
@@ -320,7 +308,6 @@ const menuItems: MenuItem[] = [
 ];
 
 const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
-  Payroll: 'payroll',
   Attendance: 'attendance',
   'Leave Analytics': 'leaveAnalytics',
   Performance: 'performance',

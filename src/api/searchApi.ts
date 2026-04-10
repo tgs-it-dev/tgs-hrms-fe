@@ -18,7 +18,6 @@ export interface SearchResponse {
     assetRequests?: SearchResultItem[];
     teams?: SearchResultItem[];
     attendance?: SearchResultItem[];
-    payroll?: SearchResultItem[];
   };
   counts: {
     employees?: number;
@@ -27,7 +26,6 @@ export interface SearchResponse {
     assetRequests?: number;
     teams?: number;
     attendance?: number;
-    payroll?: number;
   };
 }
 
