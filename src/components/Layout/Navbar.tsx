@@ -515,6 +515,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const { updateProfilePicture, clearProfilePicture } = useProfilePicture();
 
   // Cache for API responses to avoid redundant calls
   const dataCacheRef = React.useRef<{
@@ -547,8 +548,6 @@ const Navbar: React.FC<NavbarProps> = ({
   const { language, setLanguage } = useLanguage();
   const lang = labels[language];
   const { user, clearUser } = useUser();
-  const { clearProfilePicture } = useProfilePicture();
-  const { updateProfilePicture } = useProfilePicture();
   const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
     if (!user) return '';
@@ -700,14 +699,18 @@ const Navbar: React.FC<NavbarProps> = ({
   }, [user]);
 
   // Initialize profile picture state when user data loads
-  React.useEffect(() => {
-    if (user?.profile_pic) {
-      const profilePicUrl = user.profile_pic.startsWith('http')
-        ? user.profile_pic
-        : `${env.apiBaseUrl}/users/${user.id}/profile-picture`;
-      updateProfilePicture(profilePicUrl);
-    }
-  }, [user?.profile_pic, user?.id, updateProfilePicture]);
+React.useEffect(() => {
+  if (user?.profile_pic) {
+    // 1. If user exists and has a pic, set it
+    const profilePicUrl = user.profile_pic.startsWith('http')
+      ? user.profile_pic
+      : `${env.apiBaseUrl}/users/${user.id}/profile-picture`;
+    updateProfilePicture(profilePicUrl);
+  } else if (!user) {
+    // 2. If user is null (logged out), clear the picture state immediately
+    clearProfilePicture();
+  }
+}, [user, updateProfilePicture, clearProfilePicture]);
 
   // Fetch manager's team members when user is manager
   React.useEffect(() => {
@@ -744,23 +747,19 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
+  // Clear all authentication and signup data
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+  // ... other removals
 
-    // Clear all authentication and signup data
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('permissions');
-    localStorage.removeItem('rememberedLogin');
-    localStorage.removeItem('companyDetails');
-    localStorage.removeItem('signupSessionId');
+  // Clear user context
+  clearUser();
+  clearProfilePicture(); // Your fix
 
-    // Clear user context
-    clearUser();
-    clearProfilePicture();
-
-    // Navigate to login page with replace to prevent back navigation
-    navigate('/', { replace: true });
-  };
+  // Navigate to login page
+  navigate('/', { replace: true });
+};
 
   const handleOpenTeamMembersModal = () => {
     setTeamMembersModalOpen(true);
