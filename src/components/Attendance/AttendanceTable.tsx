@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -1670,6 +1670,21 @@ const AttendanceTable = () => {
     }
   };
 
+  // Add this inside the AttendanceTable component
+const totalWorkedHours = useMemo(() => {
+  // If in My/All Attendance tab (tab 0)
+  if (tab === 0) {
+    return filteredData.reduce((acc, record) => acc + (record.workedHours || 0), 0);
+  } 
+  // If in Team Attendance tab (tab 1)
+  else {
+    return filteredTeamAttendance.reduce((acc, member) => {
+      const memberHours = member.attendance?.reduce((sum, att) => sum + (att.workedHours || 0), 0) || 0;
+      return acc + memberHours;
+    }, 0);
+  }
+}, [filteredData, filteredTeamAttendance, tab]);
+
   // Handle filter changes - reset page to 1 and fetch new data
   const handleFilterChange = () => {
     setCurrentPage(1);
@@ -2009,6 +2024,17 @@ const AttendanceTable = () => {
                 }}
               >
                 Clear Filters
+              </AppButton>
+              <AppButton
+                variant="outlined"
+                color="info"
+                sx={{ 
+                  pointerEvents: 'none', // Makes it look like a badge/tag rather than a clickable button
+                  fontWeight: 'bold',
+                  borderColor: 'info.main'
+                }}
+              >
+                Total Hours: {totalWorkedHours.toFixed(2)}
               </AppButton>
             </Box>
 
