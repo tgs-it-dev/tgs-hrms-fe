@@ -791,28 +791,37 @@ const EmployeeManager: React.FC = () => {
     }
   };
 
-  const handleDeleteDocument = async (type: 'profile' | 'cnicFront' | 'cnicBack', url: string) => {
-    if (!editing) return;
+  const handleDeleteDocument = async (
+  type: 'profile' | 'cnicFront' | 'cnicBack',
+  url: string
+) => {
+  if (!editing) return;
 
-    try {
-      await employeeApi.deleteDocument(editing.id, url);
+  // 🚫 Restrict deletion of required documents in edit mode
+  if (type === 'cnicFront' || type === 'cnicBack') {
+    showError('CNIC documents are required and cannot be deleted.');
+    return;
+  }
 
-      // Update local state to remove the image from the editing employee and allEmployees list
-      const updatedEditing = { ...editing };
-      if (type === 'profile') updatedEditing.profile_picture = undefined;
-      else if (type === 'cnicFront') updatedEditing.cnic_picture = undefined;
-      else if (type === 'cnicBack') updatedEditing.cnic_back_picture = undefined;
+  try {
+    await employeeApi.deleteDocument(editing.id, url);
 
-      setEditing(updatedEditing);
-      setAllEmployees(prev => prev.map(emp => emp.id === editing.id ? updatedEditing : emp));
+    // Update local state
+    const updatedEditing = { ...editing };
+    if (type === 'profile') updatedEditing.profile_picture = undefined;
 
-      showSuccess('Document deleted successfully!');
-    } catch (err: unknown) {
-      const errorResult = extractErrorMessage(err);
-      showError(`Failed to delete document: ${errorResult.message}`);
+    setEditing(updatedEditing);
+    setAllEmployees(prev =>
+      prev.map(emp => (emp.id === editing.id ? updatedEditing : emp))
+    );
+
+    showSuccess('Document deleted successfully!');
+  } catch (err: unknown) {
+    const errorResult = extractErrorMessage(err);
+    showError(`Failed to delete document: ${errorResult.message}`);
       throw err; // Re-throw to inform the form component
-    }
-  };
+  }
+};
 
   const handleDeleteEmployee = async (id: string) => {
     try {
