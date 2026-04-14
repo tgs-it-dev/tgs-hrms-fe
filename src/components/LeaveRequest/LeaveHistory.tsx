@@ -58,15 +58,10 @@ const getDocumentUrl = (docUrl: string): string => {
   const token = authService.getAccessToken();
   const timestamp = Date.now();
 
-  // Build base URL
-  let baseUrl = '';
-  if (docUrl.startsWith('/')) {
-    baseUrl = `${env.apiBaseUrl}${docUrl}`;
-  } else {
-    baseUrl = `${env.apiBaseUrl}/${docUrl}`;
-  }
+  const baseUrl = docUrl.startsWith('/')
+    ? `${env.apiBaseUrl}${docUrl}`
+    : `${env.apiBaseUrl}/${docUrl}`;
 
-  // Add token and timestamp as query parameters
   const separator = baseUrl.includes('?') ? '&' : '?';
   const params = [`t=${timestamp}`];
   if (token) {
@@ -1027,134 +1022,70 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
           </IconButton>
         </DialogTitle>
 
-        <DialogContent dividers>
-          {currentDocs.length === 0 ? (
-            <Typography textAlign='center' color='textSecondary'>
-              No documents uploaded
-            </Typography>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 2,
-                justifyContent: 'center',
-              }}
-            >
-              {currentDocs.map((doc, idx) => {
-                const fullDocUrl = getDocumentUrl(doc);
-                const extension = doc.split('.').pop()?.toLowerCase() || '';
-                const isImage = [
-                  'jpeg',
-                  'jpg',
-                  'png',
-                  'gif',
-                  'webp',
-                  'bmp',
-                ].includes(extension);
-                const imageFailed = failedImages.has(idx);
+       <DialogContent>
+		  <Box sx={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, width: '100%', justifyContent: 'center',}}>
+			{currentDocs.map((doc, index) => {
+			  const imageUrl = getDocumentUrl(doc);
 
-                if (isImage) {
-                  return (
-                    <Box
-                      key={idx}
-                      sx={{ position: 'relative' }}
-                    >
-                      <Box
-                        sx={{
-                          width: { xs: 120, sm: 150, md: 180 },
-                          height: { xs: 120, sm: 150, md: 180 },
-                          border: '1px solid #ccc',
-                          borderRadius: 2,
-                          overflow: 'hidden',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexDirection: 'column',
-                          '&:hover': { boxShadow: 2 },
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => window.open(fullDocUrl, '_blank')}
-                      >
-                        {imageFailed ? (
-                          <>
-                            <Typography
-                              variant='body2'
-                              sx={{ mb: 1, textAlign: 'center', fontSize: 12 }}
-                            >
-                              Image failed to load
-                            </Typography>
-                            <Typography
-                              variant='caption'
-                              sx={{ color: '#1976d2', fontWeight: 'bold' }}
-                            >
-                              Click to view
-                            </Typography>
-                          </>
-                        ) : (
-                          <img
-                            src={fullDocUrl}
-                            alt={`Document ${idx + 1}`}
-                            style={{
-                              maxWidth: '100%',
-                              maxHeight: '100%',
-                              objectFit: 'contain',
-                              transition: 'transform 0.2s',
-                            }}
-                            onError={() => {
-                              setFailedImages(prev => new Set(prev).add(idx));
-                            }}
-                          />
-                        )}
-                      </Box>
-                    </Box>
-                  );
-                }
+			  return (
+				<Box key={index}>
+          
+				  {!failedImages.has(index) ? (
+				  <>
+					<img
+					  src={imageUrl}
+					  alt={`document-${index}`}
+					  style={{
+						width: '100%',  
+						height: 120,
+						objectFit: 'cover',
+						borderRadius: 6,
+						border: '1px solid #eee',
+						cursor: 'pointer',
+					  }}
+					  onError={() => {
+						setFailedImages(prev => new Set(prev).add(index));
+					  }}
+					/>
+					<Box
+						sx={{
+						  display: 'flex',
+						  justifyContent: 'center',
+						  mt: 0.5,
+						}}
+					  >
+						<Typography
+						  variant="caption"
+						  sx={{ cursor: 'pointer', color: 'primary.main', mx:0.5 }}
+						  onClick={() => window.open(imageUrl, '_blank')}
+						>
+						  View  /
+						</Typography>
 
-                // Non-image files
-                return (
-                  <Box
-                    key={idx}
-                    sx={{
-                      position: 'relative',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: { xs: 120, sm: 150, md: 180 },
-                        height: { xs: 120, sm: 150, md: 180 },
-                        border: '1px solid #ccc',
-                        borderRadius: 2,
-                        p: 1,
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        '&:hover': { boxShadow: 3 },
-                      }}
-                      onClick={() => window.open(fullDocUrl, '_blank')}
-                    >
-                      <Typography
-                        variant='body2'
-                        sx={{ mb: 1, wordBreak: 'break-word', fontWeight: 500 }}
-                      >
-                        {doc.split('/').pop()}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        sx={{ color: '#1976d2', fontWeight: 'bold' }}
-                      >
-                        View / Download
-                      </Typography>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          )}
-        </DialogContent>
+						<Typography
+						  variant="caption"
+						  sx={{ cursor: 'pointer', color: 'primary.main'}}
+						  onClick={() => {
+							const link = document.createElement('a');
+							link.href = imageUrl;
+							link.download = `document-${index}`;
+							link.click();
+						  }}
+						>
+						  Download
+						</Typography>
+					  </Box>
+					</>
+				  ) : (
+					<Typography variant="caption" color="error">
+					  Failed to load
+					</Typography>
+				  )}
+				</Box>
+			  );
+			})}
+		  </Box>
+		</DialogContent>
       </Dialog>
       {openLeaveForm && editingLeave && (
         <Dialog
