@@ -449,7 +449,7 @@ const EmployeeManager: React.FC = () => {
   ) => {
     try {
       setSubmitting(true);
-
+      
       // Ensure required fields are present
       if (
         !employeeData.first_name ||
