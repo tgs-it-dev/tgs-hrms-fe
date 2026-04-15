@@ -151,6 +151,27 @@ const AttendanceTable = () => {
     iso ? new Date(iso).toLocaleTimeString() : null;
   const token = localStorage.getItem('token');
 
+  /**
+ * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
+ */
+const formatWorkedHours = (decimalHours: number | null | undefined): string => {
+  if (decimalHours === null || decimalHours === undefined || decimalHours === 0) {
+    return '0 hr 0 min 0 sec';
+  }
+
+  const totalSeconds = Math.round(decimalHours * 3600);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) parts.push(`${hours} hr`);
+  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+  parts.push(`${seconds} sec`);
+
+  return parts.join(' ');
+};
+
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
     const params: Record<string, string> = {};
@@ -2155,7 +2176,12 @@ const AttendanceTable = () => {
                     </TableCell>
                     <TableCell>{record.checkIn || '--'}</TableCell>
                     <TableCell>{record.checkOut || '--'}</TableCell>
-                    <TableCell>{record.workedHours ?? '--'}</TableCell>
+                    <TableCell>
+                    <Typography variant="body2">
+                      {/* Use the formatter here */}
+                      {formatWorkedHours(record.workedHours)}
+                    </Typography>
+                  </TableCell>
                     <TableCell>
                       <Box
                         sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
