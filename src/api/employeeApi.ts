@@ -1,3 +1,4 @@
+import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
 
 export interface EmployeeJoiningReport {
@@ -627,12 +628,8 @@ class EmployeeApiService {
       );
       return normalizeEmployee(response.data);
     } catch (error) {
-      const err = handleApiError(error, {
-        operation: 'update',
-        resource: 'employee',
-        isGlobal: false,
-      });
-      throw new Error(err.message);
+      const result = extractErrorMessage(error);
+      throw new Error(result.message);
     }
   }
 

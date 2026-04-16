@@ -940,7 +940,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
                     style={{ display: 'none' }}
                     id='profile-picture-upload'
                     type='file'
@@ -1007,7 +1007,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
                     style={{ display: 'none' }}
                     id='cnic-front-upload'
                     type='file'
@@ -1077,7 +1077,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
                     style={{ display: 'none' }}
                     id='cnic-back-upload'
                     type='file'

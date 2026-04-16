@@ -11,9 +11,6 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { env } from '../../config/env';
-import { authService } from '../../api/authService';
-import axiosInstance from '../../api/axiosInstance';
-
 export interface DocumentItem {
   id: string;
   url?: string; // For existing documents (URLs)
@@ -47,7 +44,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 }) => {
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageBlobUrls, setImageBlobUrls] = useState<Map<string, string>>(new Map());
 
   // Helper function to construct base URL for documents
   const getBaseDocumentUrl = (docUrl: string): string => {
@@ -60,59 +56,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
     return `${env.apiBaseUrl}/${docUrl}`;
   };
-
-  // Fetch image as blob with authentication and create blob URL
-  const fetchImageAsBlob = async (docUrl: string): Promise<string | null> => {
-    try {
-      const baseUrl = getBaseDocumentUrl(docUrl);
-      const response = await axiosInstance.get(baseUrl, {
-        responseType: 'blob',
-      });
-
-      const blob = new Blob([response.data], {
-        type: response.data.type || 'image/jpeg',
-      });
-      const blobUrl = URL.createObjectURL(blob);
-      return blobUrl;
-    } catch (error) {
-      console.error('Failed to fetch image:', error);
-      return null;
-    }
-  };
-
-  // Load images as blobs for existing documents
-  useEffect(() => {
-    const loadImages = async () => {
-      const newBlobUrls = new Map<string, string>();
-
-      for (const docUrl of existingDocuments) {
-        if (!imageBlobUrls.has(docUrl)) {
-          const blobUrl = await fetchImageAsBlob(docUrl);
-          if (blobUrl) {
-            newBlobUrls.set(docUrl, blobUrl);
-          }
-        }
-      }
-
-      if (newBlobUrls.size > 0) {
-        setImageBlobUrls(prev => {
-          const updated = new Map(prev);
-          newBlobUrls.forEach((url, key) => updated.set(key, url));
-          return updated;
-        });
-      }
-    };
-
-    if (existingDocuments.length > 0) {
-      loadImages();
-    }
-
-    // Cleanup blob URLs when component unmounts or documents change
-    return () => {
-      imageBlobUrls.forEach(url => URL.revokeObjectURL(url));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existingDocuments.join(',')]); // Only re-run when documents change
 
   // Check if a file is an image
   const isImageFile = (fileName: string): boolean => {
@@ -181,7 +124,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
 
   // Render document preview
-  const renderDocument = (
+ const renderDocument = (
     doc: string | File,
     type: 'existing' | 'new',
     index: number
@@ -189,25 +132,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     const fileName = getFileName(doc);
     const isExisting = type === 'existing';
     const docUrlString = isExisting ? (doc as string) : '';
-
-    // For existing documents, use blob URL if available, otherwise try direct URL
-    let imageUrl = '';
-    if (isExisting && docUrlString) {
-      // Try blob URL first (with authentication)
-      const blobUrl = imageBlobUrls.get(docUrlString);
-      if (blobUrl) {
-        imageUrl = blobUrl;
-      } else {
-        // Fallback to direct URL with token in query param
-        const token = authService.getAccessToken();
-        const baseUrl = getBaseDocumentUrl(docUrlString);
-        const separator = baseUrl.includes('?') ? '&' : '?';
-        imageUrl = `${baseUrl}${separator}t=${Date.now()}${token ? `&token=${encodeURIComponent(token)}` : ''}`;
-      }
-    } else {
-      // For new files, create object URL
-      imageUrl = URL.createObjectURL(doc as File);
-    }
+    
+    const imageUrl =
+      typeof doc === 'string'
+        ? getBaseDocumentUrl(doc)
+        : URL.createObjectURL(doc);
 
     if (!imageUrl || imageUrl === '') return null;
 
@@ -223,12 +152,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           position: 'relative',
           border: `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
-          '&:hover': {
-            boxShadow: 2,
-          },
+          '&:hover': { boxShadow: 2 },
         }}
       >
-        {/* Image Preview - Always show image directly, clickable to open */}
+        {/* Image Preview Container */}
         <Box
           sx={{
             width: '100%',
@@ -242,9 +169,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             position: 'relative',
             border: '1px solid #ccc',
             cursor: isExisting && docUrlString ? 'pointer' : 'default',
-            '&:hover': {
-              boxShadow: isExisting && docUrlString ? 2 : 0,
-            },
           }}
           onClick={() => {
             if (isExisting && docUrlString) {
@@ -254,27 +178,30 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           }}
         >
           <Box
-            component='img'
+            component="img"
             src={imageUrl}
             alt={fileName}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
             sx={{
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain',
-              transition: 'transform 0.2s',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover', // or 'contain' based on preference
             }}
           />
         </Box>
 
         {/* File Name */}
         <Typography
-          variant='body2'
+          variant="body2"
           sx={{
             fontWeight: 500,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             fontSize: '12px',
+            textAlign: 'center'
           }}
           title={fileName}
         >
@@ -282,30 +209,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         </Typography>
 
         {/* Action Buttons */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 0.5,
-            justifyContent: 'center',
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           {!disabled && (
-            <>
-              <IconButton
-                size='small'
-                onClick={() => handleRemove(type, index)}
-                sx={{
-                  color: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.light,
-                    color: theme.palette.error.dark,
-                  },
-                }}
-                title='Remove document'
-              >
-                <DeleteIcon fontSize='small' />
-              </IconButton>
-            </>
+            <IconButton
+              size="small"
+              onClick={() => handleRemove(type, index)}
+              sx={{ color: theme.palette.error.main }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
           )}
         </Box>
       </Paper>
