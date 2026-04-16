@@ -325,117 +325,79 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                   gap: 2,
                 }}
               >
-                {employee.cnic_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
+                {[
+                  { 
+                    url: cnicFrontImage, 
+                    exists: employee.cnic_picture, 
+                    label: getLabel('CNIC Front', 'الهوية الأمامية'),
+                    fallback: getLabel('No CNIC Front Image', 'لا توجد صورة أمامية للهوية')
+                  },
+                  { 
+                    url: cnicBackImage, 
+                    exists: employee.cnic_back_picture, 
+                    label: getLabel('CNIC Back', 'الهوية الخلفية'),
+                    fallback: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية')
+                  }
+                ].map((item, index) => (
+                  item.exists && (
+                    <Box key={index} sx={{ flex: 1 }}>
+                      <Box sx={{ textAlign: 'center' }}>
+                        {loadingImages ? (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              height: 200, // Matching the standard height
+                              border: `1px solid ${borderColor}`,
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <CircularProgress size={40} />
+                          </Box>
+                        ) : item.url ? (
+                          <img
+                            src={item.url}
+                            alt={item.label}
+                            loading='lazy'
+                            style={{
+                              width: '100%',      
+                              height: '200px',     
+                              objectFit: 'cover', 
+                              objectPosition: 'center',
+                              border: `1px solid ${borderColor}`,
+                              borderRadius: '8px',
+                              display: 'block'
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              width: '100%',
+                              height: '200px',
+                              border: `2px dashed ${borderColor}`,
+                              borderRadius: '8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
+                            }}
+                          >
+                            <Typography variant='body2' sx={{ color: textColor }}>
+                              {item.fallback}
+                            </Typography>
+                          </Box>
+                        )}
+                        <Typography
+                          variant='body2'
+                          sx={{ mt: 1, color: textColor, fontWeight: 'medium' }}
                         >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicFrontImage ? (
-                        <img
-                          src={cnicFrontImage}
-                          alt='CNIC Front'
-                          loading={'lazy'}
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
-                            border: `1px solid ${borderColor}`,
-                            borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                          }}
-                        >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Front Image',
-                              'لا توجد صورة أمامية للهوية'
-                            )}
-                          </Typography>
-                        </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Front', 'الهوية الأمامية')}
-                      </Typography>
+                          {item.label}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
-                {employee.cnic_back_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
-                        >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicBackImage ? (
-                        <img
-                          src={cnicBackImage}
-                          alt='CNIC Back'
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
-                            border: `1px solid ${borderColor}`,
-                            borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                          }}
-                        >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Back Image',
-                              'لا توجد صورة خلفية للهوية'
-                            )}
-                          </Typography>
-                        </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Back', 'الهوية الخلفية')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
+                  )
+                ))}
               </Box>
             </Box>
           )}
