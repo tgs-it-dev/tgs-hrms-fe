@@ -159,7 +159,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 await leaveApi.deleteDocument(leaveId, doc);
               } catch (error) {
                 // Log individual failure but don't stop the whole process
-                console.error(`Failed to delete document: ${doc}`, error);
+                onError?.(`Failed to delete document: ${doc}`);
               }
             }
             // Clear list so we don't try to delete them again if user hits Save twice
