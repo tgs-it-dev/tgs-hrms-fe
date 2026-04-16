@@ -51,6 +51,7 @@ import { type CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
+import dayjs from 'dayjs';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
 
@@ -154,23 +155,23 @@ const AttendanceTable = () => {
   /**
  * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
  */
-const formatWorkedHours = (decimalHours: number | null | undefined): string => {
-  if (decimalHours === null || decimalHours === undefined || decimalHours === 0) {
-    return '0 hr 0 min 0 sec';
-  }
+	const formatWorkedHours = (decimalHours: number | null | undefined): string => {
+	  if (decimalHours === null || decimalHours === undefined) {
+		return '-';
+	  }
 
-  const totalSeconds = Math.round(decimalHours * 3600);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+	  const totalSeconds = Math.round(decimalHours * 3600);
+	  const hours = Math.floor(totalSeconds / 3600);
+	  const minutes = Math.floor((totalSeconds % 3600) / 60);
+	  const seconds = totalSeconds % 60;
 
-  const parts = [];
-  if (hours > 0) parts.push(`${hours} hr`);
-  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
-  parts.push(`${seconds} sec`);
+	  const parts = [];
+	  if (hours > 0) parts.push(`${hours} hr`);
+	  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+	  parts.push(`${seconds} sec`);
 
-  return parts.join(' ');
-};
+	  return parts.join(' ') || '0 sec';
+	};
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
@@ -371,10 +372,10 @@ const formatWorkedHours = (decimalHours: number | null | undefined): string => {
         }
       }
       for (const session of openSessions) {
-        const checkInDate = new Date(session.checkIn.timestamp);
-        const shiftDate = formatLocalYMD(checkInDate); // Use check-in date as the shift date
+        const checkInDate = dayjs(session.checkIn.timestamp);
+        const shiftDate = checkInDate.format('YYYY-MM-DD'); 
 
-        let workedHours = null;
+        let workedHours = null; 
         let checkOutISO = null;
         let checkOutDisplay = null;
 
@@ -382,43 +383,25 @@ const formatWorkedHours = (decimalHours: number | null | undefined): string => {
           checkOutISO = session.checkOut.timestamp;
           checkOutDisplay = toDisplayTime(checkOutISO);
 
-          const inTime = new Date(session.checkIn.timestamp).getTime();
-          const outTime = new Date(checkOutISO).getTime();
+          const inTime = dayjs(session.checkIn.timestamp);
+          const outTime = dayjs(checkOutISO);
 
-          if (outTime > inTime) {
-            workedHours = parseFloat(((outTime - inTime) / 3600000).toFixed(2));
+          if (outTime.isAfter(inTime)) {
+            workedHours = parseFloat(outTime.diff(inTime, 'hour', true).toFixed(2));
           }
         }
 
         sessions.push({
           id: `${session.checkIn.id}-${session.checkOut ? session.checkOut.id : 'open'}`,
-          userId: userId, // Use the userId from the map key (this is the user_id from events)
+          userId: userId,
           date: shiftDate,
           checkInISO: session.checkIn.timestamp,
           checkOutISO,
           checkIn: toDisplayTime(session.checkIn.timestamp),
-          checkOut: checkOutDisplay,
-          workedHours,
-          near_boundary:
-            session.checkIn.near_boundary ||
-            session.checkOut?.near_boundary ||
-            false,
-          user: {
-            first_name: session.checkIn.user?.first_name || 'N/A',
-            last_name: session.checkIn.user?.last_name || '',
-          },
-          approvalStatus:
-            (session.checkIn as { approvalStatus?: string | null })
-              .approvalStatus ?? null,
+          checkOut: checkOutDisplay || '-', 
+          workedHours, 
         });
-      }
-    }
-    sessions.sort((a, b) => {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      const at = a.checkInISO ? new Date(a.checkInISO).getTime() : 0;
-      const bt = b.checkInISO ? new Date(b.checkInISO).getTime() : 0;
-      return bt - at;
-    });
+    }}
 
     return sessions;
   };
