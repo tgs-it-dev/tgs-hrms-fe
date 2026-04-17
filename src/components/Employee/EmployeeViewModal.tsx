@@ -61,7 +61,26 @@ interface EmployeeViewModalProps {
   onClose: () => void;
   employee: Employee | null;
 }
-
+const getCnicDocuments = (
+  employee: Employee, 
+  images: { front: string; back: string }, 
+  getLabel: (en: string, ar: string) => string
+) => [
+  {
+    key: 'front',
+    exists: !!employee.cnic_picture,
+    url: images.front,
+    label: getLabel('CNIC Front', 'الهوية الأمامية'),
+    emptyText: getLabel('No CNIC Front Image', 'لا توجد صورة أمامية للهوية'),
+  },
+  {
+    key: 'back',
+    exists: !!employee.cnic_back_picture,
+    url: images.back,
+    label: getLabel('CNIC Back', 'الهوية الخلفية'),
+    emptyText: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية'),
+  }
+];
 
 const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
   open,
@@ -325,79 +344,52 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                   gap: 2,
                 }}
               >
-                {[
-                  { 
-                    url: cnicFrontImage, 
-                    exists: employee.cnic_picture, 
-                    label: getLabel('CNIC Front', 'الهوية الأمامية'),
-                    fallback: getLabel('No CNIC Front Image', 'لا توجد صورة أمامية للهوية')
-                  },
-                  { 
-                    url: cnicBackImage, 
-                    exists: employee.cnic_back_picture, 
-                    label: getLabel('CNIC Back', 'الهوية الخلفية'),
-                    fallback: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية')
-                  }
-                ].map((item, index) => (
-                  item.exists && (
-                    <Box key={index} sx={{ flex: 1 }}>
+                {getCnicDocuments(employee, { front: cnicFrontImage, back: cnicBackImage }, getLabel)
+                  .filter(doc => doc.exists)
+                  .map((doc) => (
+                    <Box key={doc.key} sx={{ flex: 1 }}>
                       <Box sx={{ textAlign: 'center' }}>
-                        {loadingImages ? (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              height: 200, // Matching the standard height
-                              border: `1px solid ${borderColor}`,
-                              borderRadius: '8px',
-                            }}
-                          >
-                            <CircularProgress size={40} />
-                          </Box>
-                        ) : item.url ? (
-                          <img
-                            src={item.url}
-                            alt={item.label}
-                            loading='lazy'
-                            style={{
-                              width: '100%',      
-                              height: '200px',     
-                              objectFit: 'cover', 
-                              objectPosition: 'center',
-                              border: `1px solid ${borderColor}`,
-                              borderRadius: '8px',
-                              display: 'block'
-                            }}
-                          />
-                        ) : (
-                          <Box
-                            sx={{
-                              width: '100%',
-                              height: '200px',
-                              border: `2px dashed ${borderColor}`,
-                              borderRadius: '8px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                            }}
-                          >
-                            <Typography variant='body2' sx={{ color: textColor }}>
-                              {item.fallback}
-                            </Typography>
-                          </Box>
-                        )}
-                        <Typography
-                          variant='body2'
-                          sx={{ mt: 1, color: textColor, fontWeight: 'medium' }}
+                        {/* This Wrapper Box ensures identical height/width for both images */}
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '220px', 
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: `1px solid ${borderColor}`,
+                            borderRadius: '8px',
+                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
+                            overflow: 'hidden',
+                            mb: 1
+                          }}
                         >
-                          {item.label}
+                          {loadingImages ? (
+                            <CircularProgress size={40} />
+                          ) : doc.url ? (
+                            <img
+                              src={doc.url}
+                              alt={doc.label}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain', // Keeps aspect ratio perfect
+                                padding: '10px'       // Matches the "look" of your screenshot
+                              }}
+                            />
+                          ) : (
+                            <Typography variant='body2' sx={{ color: textColor }}>
+                              {doc.emptyText}
+                            </Typography>
+                          )}
+                        </Box>
+                        
+                        <Typography variant='body2' sx={{ color: textColor }}>
+                          {doc.label}
                         </Typography>
                       </Box>
                     </Box>
-                  )
-                ))}
+                  ))}
               </Box>
             </Box>
           )}
