@@ -38,6 +38,8 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
     ref
   ) => {
     const theme = useTheme();
+	const valueLength = (rest.value as string)?.length || 0;
+	const maxLength = rest.inputProps?.maxLength || 200;
 
     return (
       <Box
@@ -147,6 +149,43 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
             }}
           />
         </Box>
+		<Box
+		  sx={{
+			display: 'flex',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			mt: 0.5,
+		  }}
+		>
+		  {/* Left side (helper text if needed) */}
+		  {helperTextBelowInput && rest.helperText ? (
+			<Typography
+			  sx={{
+				fontSize: { xs: '12px', sm: '14px' },
+				color: rest.error
+				  ? theme.palette.error.main
+				  : theme.palette.text.secondary,
+			  }}
+			>
+			  {rest.helperText}
+			</Typography>
+		  ) : (
+			<span />
+		  )}
+		  
+		  {/* Right side (character count) */}
+		  <Typography
+			sx={{
+			  fontSize: '12px',
+			  color:
+				valueLength >= maxLength
+				  ? theme.palette.error.main
+				  : theme.palette.text.secondary,
+			}}
+		  >
+			{valueLength}/{maxLength}
+		  </Typography>
+		</Box>
         {helperTextBelowInput && rest.helperText && (
           <Typography
             sx={{
