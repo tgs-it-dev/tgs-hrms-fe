@@ -44,6 +44,11 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
     handleClose();
   };
 
+	const controlBg =
+    theme.palette.mode === 'dark'
+      ? theme.palette.background.default
+      : '#F8F8F8';
+	  
   return (
     <AppFormModal
       open={open}
@@ -86,7 +91,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={fullName}
             placeholder='Name'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
+			inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setFullName(String(value ?? ''))}
           />
           <AppInputField
@@ -94,7 +99,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={workEmail}
             placeholder='Email'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
+			inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setWorkEmail(String(value ?? ''))}
           />
           <AppInputField
@@ -102,7 +107,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={companyName}
             placeholder='Company Name'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
+			inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setCompanyName(String(value ?? ''))}
           />
           <Box>
@@ -112,7 +117,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
               options={[...TEAM_SIZE_OPTIONS]}
               value={teamSize}
               placeholder='Select'
-              inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
+			  inputBackgroundColor={controlBg}
               onChange={(e: SelectChangeEvent<string | number | string[]>) =>
                 setTeamSize(String(e.target.value ?? ''))
               }
