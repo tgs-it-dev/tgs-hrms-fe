@@ -52,8 +52,10 @@ import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration'
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
+dayjs.extend(duration);
 
 type TenantOption = { id: string; name: string };
 interface AttendanceRecord {
@@ -152,21 +154,25 @@ const AttendanceTable = () => {
     iso ? new Date(iso).toLocaleTimeString() : null;
   const token = localStorage.getItem('token');
 
-  /**
- * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
- */
+	 /**
+	 * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
+	 * using Day.js Duration plugin
+	 */
 	const formatWorkedHours = (decimalHours: number | null | undefined): string => {
 	  if (decimalHours === null || decimalHours === undefined) {
 		return '-';
 	  }
 
-	  const totalSeconds = Math.round(decimalHours * 3600);
-	  const hours = Math.floor(totalSeconds / 3600);
-	  const minutes = Math.floor((totalSeconds % 3600) / 60);
-	  const seconds = totalSeconds % 60;
+	  // Create a duration object from hours
+	  const dur = dayjs.duration(decimalHours, 'hours');
+
+	  const hours = Math.floor(dur.asHours());
+	  const minutes = dur.minutes();
+	  const seconds = dur.seconds();
 
 	  const parts = [];
 	  if (hours > 0) parts.push(`${hours} hr`);
+	  // documentation style: include minutes if hours exist or minutes > 0
 	  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
 	  parts.push(`${seconds} sec`);
 
