@@ -1820,13 +1820,6 @@ const totalWorkedHours = useMemo(() => {
                       maxWidth: { sm: '200px' },
                       boxSizing: 'border-box',
                       flexShrink: 0,
-                      backgroundColor: 'primary.dark',
-                      color: '#fff',
-                      borderColor: 'primary.dark',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
-                        borderColor: 'primary.dark',
-                      },
                     }}
                   >
                     All Attendance
