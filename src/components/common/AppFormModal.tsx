@@ -304,6 +304,8 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
           sx={{
             p: 0,
             pt: 0,
+            px: 2, 
+            pb: { xs: 1, sm: 2 },
             gap: 1,
             justifyContent: 'flex-end',
           }}
