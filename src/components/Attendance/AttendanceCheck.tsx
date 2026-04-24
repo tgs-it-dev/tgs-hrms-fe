@@ -209,50 +209,28 @@ const AttendanceCheck = () => {
           <AppButton
             variant='contained'
             variantType='primary'
-            text='Check In'
+            text={loading ? 'Checking In...' : 'Check In'} 
             onClick={handleCheckIn}
-            disabled={loading}
-            startIcon={
-              <LoginIcon
-                sx={{ fontSize: { xs: 18, sm: 20 } }}
-                aria-hidden='true'
-              />
-            }
-            aria-label={loading ? 'Checking in...' : 'Check in for attendance'}
+            loading={loading} 
+            startIcon={!loading && 
+            <LoginIcon />} 
             sx={{
               width: { xs: '100%', sm: 'auto' },
               minWidth: { xs: 'auto', sm: 120, md: 140 },
-              height: { xs: 36, sm: 40 },
-              fontSize: '1.1rem',
-              fontWeight: 600,
-              px: { xs: 1, sm: 2 },
-              textTransform: 'none',
             }}
           />
         ) : (
           <AppButton
             variant='contained'
             variantType='primary'
-            text='Check Out'
+            text={loading ? 'Checking Out...' : 'Check Out'} 
             onClick={handleCheckOut}
-            disabled={loading}
-            startIcon={
-              <LogoutIcon
-                sx={{ fontSize: { xs: 18, sm: 20 } }}
-                aria-hidden='true'
-              />
-            }
-            aria-label={
-              loading ? 'Checking out...' : 'Check out from attendance'
-            }
+            loading={loading} 
+            startIcon={!loading && 
+            <LogoutIcon />} 
             sx={{
               width: { xs: '100%', sm: 'auto' },
               minWidth: { xs: 'auto', sm: 120, md: 140 },
-              height: { xs: 36, sm: 40 },
-              fontSize: '1.1rem',
-              fontWeight: 600,
-              px: { xs: 1, sm: 2 },
-              textTransform: 'none',
             }}
           />
         )}
