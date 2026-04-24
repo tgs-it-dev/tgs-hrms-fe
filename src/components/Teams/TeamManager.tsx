@@ -79,6 +79,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { language } = useLanguage();
   const theme = useTheme();
+  const [totalMembers, setTotalMembers] = useState(0); 
+  const [totalTeams, setTotalTeams] = useState(0);     
 
   const labels = {
     en: {
@@ -128,14 +130,18 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           ]);
           setTeams((teamsData as any)?.items || (teamsData as any) || []);
           setTeamMembers((membersData as any)?.items || []);
+          setTotalTeams((teamsData as any)?.total || 0);
+          setTotalMembers((membersData as any)?.total || 0);
         } else if (isAdmin()) {
           // Load all teams for admin with members included
           const teamsData = await teamApiService.getAllTeams(1);
           setTeams((teamsData as any)?.items || (teamsData as any) || []);
+          setTotalTeams((teamsData as any)?.total || 0);
         } else if (isHRAdmin()) {
           // Load all teams for HR admin without members
           const teamsData = await teamApiService.getAllTeams(1);
           setTeams((teamsData as any)?.items || (teamsData as any) || []);
+          setTotalTeams((teamsData as any)?.total || 0);
         }
       } catch {
         setError('Failed to load team data');
@@ -225,6 +231,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
     }
 
     setTeams(prev => [teamWithMembers, ...prev]);
+    setTotalTeams(prev => prev + 1);
     setShowCreateForm(false);
 
     // Show success snackbar
@@ -389,7 +396,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                       fontSize: { xs: '1.75rem', sm: '2.125rem' },
                     }}
                   >
-                    {teams.length}
+                    {totalTeams}
                   </Typography>
                   <Typography
                     variant='body2'
@@ -430,7 +437,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                         fontSize: { xs: '1.75rem', sm: '2.125rem' },
                       }}
                     >
-                      {teamMembers.length}
+                      {totalMembers}
                     </Typography>
                     <Typography
                       variant='body2'
