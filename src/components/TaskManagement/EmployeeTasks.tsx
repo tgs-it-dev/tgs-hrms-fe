@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import AppCard from '../common/AppCard';
 import * as tasksApi from '../../api/tasksApi';
-import type { Task } from '../../Data/taskMockData';
-import { formatDate } from '../../Data/taskMockData';
+import type { Task } from '../../types/task';
+import { formatDate } from '../../utils/dateUtils';
 
 export default function EmployeeTasks(): JSX.Element {
   const { employeeId } = useParams();
