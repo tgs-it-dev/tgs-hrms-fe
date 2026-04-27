@@ -61,7 +61,26 @@ interface EmployeeViewModalProps {
   onClose: () => void;
   employee: Employee | null;
 }
-
+const getCnicDocuments = (
+  employee: Employee, 
+  images: { front: string; back: string }, 
+  getLabel: (en: string, ar: string) => string
+) => [
+  {
+    key: 'front',
+    exists: !!employee.cnic_picture,
+    url: images.front,
+    label: getLabel('CNIC Front', 'الهوية الأمامية'),
+    emptyText: getLabel('No CNIC Front Image', 'لا توجد صورة أمامية للهوية'),
+  },
+  {
+    key: 'back',
+    exists: !!employee.cnic_back_picture,
+    url: images.back,
+    label: getLabel('CNIC Back', 'الهوية الخلفية'),
+    emptyText: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية'),
+  }
+];
 
 const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
   open,
@@ -325,117 +344,52 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                   gap: 2,
                 }}
               >
-                {employee.cnic_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
-                        >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicFrontImage ? (
-                        <img
-                          src={cnicFrontImage}
-                          alt='CNIC Front'
-                          loading={'lazy'}
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
-                            border: `1px solid ${borderColor}`,
-                            borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
+                {getCnicDocuments(employee, { front: cnicFrontImage, back: cnicBackImage }, getLabel)
+                  .filter(doc => doc.exists)
+                  .map((doc) => (
+                    <Box key={doc.key} sx={{ flex: 1 }}>
+                      <Box sx={{ textAlign: 'center' }}>
+                        {/* This Wrapper Box ensures identical height/width for both images */}
                         <Box
                           sx={{
                             width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
+                            height: '220px', 
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                          }}
-                        >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Front Image',
-                              'لا توجد صورة أمامية للهوية'
-                            )}
-                          </Typography>
-                        </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Front', 'الهوية الأمامية')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-                {employee.cnic_back_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
-                        >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicBackImage ? (
-                        <img
-                          src={cnicBackImage}
-                          alt='CNIC Back'
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
                             border: `1px solid ${borderColor}`,
                             borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
+                            overflow: 'hidden',
+                            mb: 1
                           }}
                         >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Back Image',
-                              'لا توجد صورة خلفية للهوية'
-                            )}
-                          </Typography>
+                          {loadingImages ? (
+                            <CircularProgress size={40} />
+                          ) : doc.url ? (
+                            <img
+                              src={doc.url}
+                              alt={doc.label}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain', // Keeps aspect ratio perfect
+                                padding: '10px'       // Matches the "look" of your screenshot
+                              }}
+                            />
+                          ) : (
+                            <Typography variant='body2' sx={{ color: textColor }}>
+                              {doc.emptyText}
+                            </Typography>
+                          )}
                         </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Back', 'الهوية الخلفية')}
-                      </Typography>
+                        
+                        <Typography variant='body2' sx={{ color: textColor }}>
+                          {doc.label}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
+                  ))}
               </Box>
             </Box>
           )}
