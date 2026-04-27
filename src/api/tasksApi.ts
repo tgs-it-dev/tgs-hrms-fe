@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { notificationsApi } from './notificationsApi';
 import { getCurrentUser } from '../utils/auth';
-import type { Task, TaskStatus } from '../Data/taskMockData';
+import type { Task, TaskStatus } from '../types/task';
 
 // The backend uses snake_case keys; our frontend uses camelCase Task interface.
 // This helper maps an API task object to the frontend Task shape.

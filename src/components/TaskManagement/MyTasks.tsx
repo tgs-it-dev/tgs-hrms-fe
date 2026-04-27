@@ -7,7 +7,7 @@ import * as tasksApi from '../../api/tasksApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 // teamApiService not required in this component
-import type { Task, TaskStatus } from '../../Data/taskMockData';
+import type { Task, TaskStatus } from '../../types/task';
 import { TASK_CARD_CONFIG } from '../../theme/themeConfig';
 
 function truncateText(text: string, limit: number) {
