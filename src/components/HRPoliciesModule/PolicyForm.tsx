@@ -11,7 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import type { Policy } from '../../type/Hrtypes';
+import type { Policy } from '../../types/policy';
 import AppButton from '../common/AppButton';
 import { COLORS } from '../../constants/appConstants';
 

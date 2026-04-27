@@ -4,7 +4,7 @@ import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { isSameDay } from 'date-fns';
-import type { Holiday } from '../../type/Holiday';
+import type { Holiday } from '../../types/holiday';
 
 interface HolidayCalendarViewProps {
   holidays: Holiday[];

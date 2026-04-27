@@ -7,7 +7,15 @@ export * from './stat';
 export * from './user';
 
 // Employee types (exported explicitly to avoid conflicts with mock data)
-export type { Department, Designation, FormData, FormErrors } from './employee';
+export type {
+  Department,
+  Designation,
+  FormData,
+  FormErrors,
+  DepartmentFormData,
+  DepartmentFormErrors,
+} from './employee';
+export * from './tenant';
 
 // Additional consolidated types
 export * from './leave';

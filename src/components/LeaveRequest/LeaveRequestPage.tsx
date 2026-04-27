@@ -6,7 +6,7 @@ import { leaveApi } from '../../api/leaveApi';
 import LeaveTypeFormModal, {
   type LeaveTypeFormValues,
 } from './LeaveTypeFormModal';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
 import { normalizeRole } from '../../utils/permissions';
 import {

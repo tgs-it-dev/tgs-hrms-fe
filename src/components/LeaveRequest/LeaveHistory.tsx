@@ -28,7 +28,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 import { formatDate } from '../../utils/dateUtils';
 import { leaveApi } from '../../api/leaveApi';
 import { PAGINATION } from '../../constants/appConstants';
