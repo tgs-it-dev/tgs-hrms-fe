@@ -11,7 +11,7 @@ import {
   DialogTitle,
   Divider,
 } from '@mui/material';
-import type { Policy } from '../../type/Hrtypes';
+import type { Policy } from '../../types/policy';
 import { mockPolicies } from '../../Data/HrmockData';
 import PolicyForm from './PolicyForm';
 import edit from '../../assets/dashboardIcon/edit.svg';

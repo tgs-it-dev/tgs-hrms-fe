@@ -13,7 +13,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import CloseIcon from '@mui/icons-material/Close';
 import { v4 as uuidv4 } from 'uuid';
-import type { Holiday } from '../../type/Holiday';
+import type { Holiday } from '../../types/holiday';
 
 interface AddHolidayDialogProps {
   open: boolean;

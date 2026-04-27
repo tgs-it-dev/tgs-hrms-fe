@@ -107,7 +107,7 @@ const SelectPlan: React.FC = () => {
 
     // If neither flow is valid, redirect to signup
     if (!isSignupFlow && !isLoginFlow) {
-      navigate('/Signup');
+      navigate('/signup');
       return;
     }
 
@@ -486,7 +486,7 @@ const SelectPlan: React.FC = () => {
     } else if (accessToken) {
       navigate('/dashboard');
     } else {
-      navigate('/Signup');
+      navigate('/signup');
     }
   };
 

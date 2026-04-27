@@ -149,7 +149,7 @@ function App() {
                 <Route path='/forget' element={<Forget />} />
                 <Route path='/reset-password' element={<ResetPassword />} />
                 <Route path='/confirm-password' element={<ConfirmPassword />} />
-                <Route path='/Signup' element={<Signup />} />
+                <Route path='/signup' element={<Signup />} />
                 <Route
                   path='/terms'
                   element={
@@ -212,11 +212,11 @@ function App() {
                     }
                   />
                   <Route path='departments' element={<DepartmentList />} />
-                  <Route path='Designations' element={<DesignationManager />} />
-                  <Route path='EmployeeManager' element={<EmployeeManager />} />
-                  <Route path='UserList' element={<UserList />} />
+                  <Route path='designations' element={<DesignationManager />} />
+                  <Route path='employee-manager' element={<EmployeeManager />} />
+                  <Route path='user-list' element={<UserList />} />
                   <Route
-                    path='UserProfile'
+                    path='user-profile'
                     element={<UserProfileComponent />}
                   />
                   <Route path='leaves' element={<LeaveRequestPage />} />
@@ -229,24 +229,24 @@ function App() {
                     element={<AttendanceSummaryReport />}
                   />
                   <Route
-                    path='EmployeeProfileView'
+                    path='employee-profile-view'
                     element={<EmployeeProfileView />}
                   />
                   <Route
-                    path='EmployeeProfileView/:employeeId'
+                    path='employee-profile-view/:employeeId'
                     element={<EmployeeProfileView />}
                   />
                   <Route
-                    path='TenantEmployees'
+                    path='tenant-employees'
                     element={<TenantBasedEmployeeManager />}
                   />
-                  <Route path='AttendanceCheck' element={<AttendanceCheck />} />
-                  <Route path='AttendanceTable' element={<AttendanceTable />} />
-                  <Route path='Reports' element={<Reports />} />
+                  <Route path='attendance-check' element={<AttendanceCheck />} />
+                  <Route path='attendance-table' element={<AttendanceTable />} />
+                  <Route path='reports' element={<Reports />} />
                   <Route path='policies' element={<PolicyList />} />
                   <Route path='holidays' element={<HolidayList />} />
                   <Route
-                    path='AttendanceCheck/TimesheetLayout'
+                    path='attendance-check/timesheet-layout'
                     element={<TimesheetLayout />}
                   />
                   <Route path='teams' element={<TeamManager />} />

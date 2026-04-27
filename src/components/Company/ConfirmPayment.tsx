@@ -231,7 +231,7 @@ const ConfirmPayment: React.FC = () => {
 
         // Give the dashboard a brief moment to mount after context is updated
         await new Promise(resolve => setTimeout(resolve, 200));
-        navigate(pendingEmployeePayment?.returnTo || '/dashboard/EmployeeManager', {
+        navigate(pendingEmployeePayment?.returnTo || '/dashboard/employee-manager', {
           replace: true,
         });
         return;

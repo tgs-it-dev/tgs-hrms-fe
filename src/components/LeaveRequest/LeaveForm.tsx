@@ -11,7 +11,7 @@ import AppTextarea from '../common/AppTextarea';
 import DocumentUpload from '../common/DocumentUpload';
 import { leaveApi, type LeaveType } from '../../api/leaveApi';
 import AppPageTitle from '../common/AppPageTitle';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 
 interface LeaveFormProps {
   /** create | edit */

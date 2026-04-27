@@ -172,13 +172,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Designation',
-    path: 'Designations',
+    path: 'designations',
     category: 'Department',
     type: 'route',
   },
   {
     label: 'User List',
-    path: 'UserList',
+    path: 'user-list',
     category: 'Department',
     type: 'route',
   },
@@ -196,13 +196,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Employee List',
-    path: 'EmployeeManager',
+    path: 'employee-manager',
     category: 'Employees',
     type: 'route',
   },
   {
     label: 'Tenant Employees',
-    path: 'TenantEmployees',
+    path: 'tenant-employees',
     category: 'Employees',
     type: 'route',
   },
@@ -214,13 +214,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Attendance',
-    path: 'AttendanceCheck',
+    path: 'attendance-check',
     category: 'Attendance',
     type: 'route',
   },
   {
     label: 'Daily Attendance',
-    path: 'AttendanceTable',
+    path: 'attendance-table',
     category: 'Attendance',
     type: 'route',
   },
@@ -238,7 +238,7 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Reports',
-    path: 'Reports',
+    path: 'reports',
     category: 'Leave Analytics',
     type: 'route',
   },
@@ -937,7 +937,7 @@ const Navbar: React.FC<NavbarProps> = ({
     setSelectedResultIndex(-1);
     if (!result) return;
     if (result.type === 'employee' && result.id) {
-      navigate(`/dashboard/EmployeeProfileView/${result.id}`, {
+      navigate(`/dashboard/employee-profile-view/${result.id}`, {
         state: {
           fromSearch: true,
           userId: result.metadata?.userId,
@@ -962,7 +962,7 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'designation' && result.id) {
-      navigate('/dashboard/Designations', {
+      navigate('/dashboard/designations', {
         state: {
           designationId: result.id,
           fromSearch: true,
@@ -994,7 +994,7 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'attendance' && result.id) {
-      navigate('/dashboard/AttendanceCheck', {
+      navigate('/dashboard/attendance-check', {
         state: {
           attendanceId: result.id,
           fromSearch: true,
@@ -1822,7 +1822,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <MenuItem
             onClick={() => {
               handleMenuClose();
-              navigate('/dashboard/EmployeeManager');
+              navigate('/dashboard/employee-manager');
             }}
             aria-label='Navigate to employee manager'
             sx={{
@@ -1850,7 +1850,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <MenuItem
           onClick={() => {
             handleMenuClose();
-            navigate('/dashboard/UserProfile');
+            navigate('/dashboard/user-profile');
           }}
           aria-label='Navigate to user profile'
           sx={{
