@@ -15,43 +15,30 @@ import {
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import AppPageTitle from '../common/AppPageTitle';
+import { useUser } from '../../hooks/useUser';
 
 type AttendanceStatus = 'Not Checked In' | 'Checked In' | 'Checked Out';
 
 const AttendanceCheck = () => {
+  const { user } = useUser();
   const [status, setStatus] = useState<AttendanceStatus>('Not Checked In');
   const [punchInTime, setPunchInTime] = useState<string | null>(null);
   const [punchOutTime, setPunchOutTime] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
-  const [userName, setUserName] = useState<string>('');
-  const [isAdminUser, setIsAdminUser] = useState(false);
-  const [isSystemAdminUser, setIsSystemAdminUser] = useState(false);
-  const [isNetworkAdminUser, setIsNetworkAdminUser] = useState(false);
-  const [isHRAdminUser, setIsHRAdminUser] = useState(false);
   const [attendanceRefreshToken, setAttendanceRefreshToken] = useState(0);
   const theme = useTheme();
 
-  const getCurrentUserId = () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      const user = JSON.parse(userStr);
-      setUserName(user.first_name || 'User');
-      setIsAdminUser(isAdmin(user.role));
-      setIsSystemAdminUser(isSystemAdmin(user.role));
-      setIsNetworkAdminUser(isNetworkAdmin(user.role));
-      setIsHRAdminUser(isHRAdmin(user.role));
-      return user.id;
-    } catch {
-      return null;
-    }
-  };
+  const isAdminUser = isAdmin(user?.role);
+  const isSystemAdminUser = isSystemAdmin(user?.role);
+  const isNetworkAdminUser = isNetworkAdmin(user?.role);
+  const isHRAdminUser = isHRAdmin(user?.role);
+  const userName = user?.first_name || 'User';
 
   const fetchToday = async () => {
     closeSnackbar();
-    const userId = getCurrentUserId();
+    const userId = user?.id;
     if (!userId) {
       showError('User not found. Please log in again.');
       return;
