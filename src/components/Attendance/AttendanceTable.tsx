@@ -150,8 +150,11 @@ const AttendanceTable = () => {
   const [teamStartDate, setTeamStartDate] = useState('');
   const [teamEndDate, setTeamEndDate] = useState('');
 
-  const toDisplayTime = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleTimeString() : null;
+  const toDisplayTime = (iso: string | null) => {
+    if (!iso) return '-';
+    const d = dayjs(iso);
+    return d.isValid() ? d.format('hh:mm A') : '-';
+  };
   const token = localStorage.getItem('token');
 
 	 /**
@@ -159,25 +162,23 @@ const AttendanceTable = () => {
 	 * using Day.js Duration plugin
 	 */
 	const formatWorkedHours = (decimalHours: number | null | undefined): string => {
-	  if (decimalHours === null || decimalHours === undefined) {
-		return '-';
-	  }
+  if (decimalHours === null || decimalHours === undefined || isNaN(decimalHours)) {
+    return '-';
+  }
 
-	  // Create a duration object from hours
-	  const dur = dayjs.duration(decimalHours, 'hours');
+  const dur = dayjs.duration(decimalHours, 'hours');
+  
+  const hours = Math.floor(dur.asHours());
+  const minutes = dur.minutes();
+  const seconds = dur.seconds();
 
-	  const hours = Math.floor(dur.asHours());
-	  const minutes = dur.minutes();
-	  const seconds = dur.seconds();
+  const parts = [];
+  if (hours > 0) parts.push(`${hours} hr`);
+  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+  parts.push(`${seconds} sec`);
 
-	  const parts = [];
-	  if (hours > 0) parts.push(`${hours} hr`);
-	  // documentation style: include minutes if hours exist or minutes > 0
-	  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
-	  parts.push(`${seconds} sec`);
-
-	  return parts.join(' ') || '0 sec';
-	};
+  return parts.join(' ') || '0 sec';
+};
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
