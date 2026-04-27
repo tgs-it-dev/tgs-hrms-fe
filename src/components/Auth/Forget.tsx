@@ -24,6 +24,10 @@ const Forget = () => {
   const [emailSent, setEmailSent] = useState(false);
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [lang, setLang] = useState<'en' | 'ar'>('en');
+  
+  const mainBgColor = '#3083DC';
+  const successBg = '#E8F5E9';
+  const infoBg = '#D1E4FF';
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -116,7 +120,7 @@ const Forget = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#3083DC',
+        backgroundColor: mainBgColor,
         overflowX: 'hidden',
         overflowY: 'hidden', 
         p: { xs: 2, sm: 3 }, 
@@ -158,7 +162,7 @@ const Forget = () => {
             width: 56,
             height: 56,
             borderRadius: '50%',
-            backgroundColor: emailSent ? '#E8F5E9' : '#D1E4FF',
+            backgroundColor: emailSent ? successBg : infoBg,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
