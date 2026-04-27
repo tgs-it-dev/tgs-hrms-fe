@@ -642,7 +642,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
             variant='text'
             variantType='ghost'
             component={RouterLink}
-            to='TimesheetLayout'
+            to='timesheet-layout'
             sx={{
               fontSize: '0.9rem',
               fontWeight: 400,
