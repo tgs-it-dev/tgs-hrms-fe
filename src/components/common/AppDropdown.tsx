@@ -8,6 +8,8 @@ import {
   useTheme,
   Checkbox,
   type SelectProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { Icons } from '../../assets/icons';
@@ -27,7 +29,7 @@ interface AppDropdownProps
   value: string | number | Array<string | number>;
   onChange: (event: SelectChangeEvent<string | number | string[]>) => void;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   placeholder?: string;
   error?: boolean;
   helperText?: string;

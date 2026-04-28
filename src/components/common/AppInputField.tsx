@@ -7,13 +7,15 @@ import {
   InputAdornment,
   IconButton,
   type TextFieldProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
   label: string;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   inputBackgroundColor?: string;
   hideErrorsOnSmallScreen?: boolean;
 }

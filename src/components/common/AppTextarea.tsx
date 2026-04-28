@@ -5,13 +5,15 @@ import {
   Box,
   useTheme,
   type TextFieldProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 
 export interface AppTextareaProps
   extends Omit<TextFieldProps, 'label' | 'multiline'> {
   label: string;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   inputBackgroundColor?: string;
   /** When true, helperText is rendered below the textarea instead of next to the label */
   helperTextBelowInput?: boolean;
