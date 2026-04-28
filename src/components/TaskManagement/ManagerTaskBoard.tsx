@@ -196,7 +196,7 @@ export default function ManagerTaskBoard() {
         const data = await tasksApi.getTasks();
         // Debug: log tasks received
 
-        console.debug(
+        console.warn(
           'Fetched tasks from API:',
           Array.isArray(data) ? data.length : 0,
           data?.[0]

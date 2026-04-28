@@ -63,7 +63,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
     const [showUploadDialog, setShowUploadDialog] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -252,6 +252,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       } finally {
         setRemoving(false);
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showError is stable; intentionally excluded to avoid spurious re-renders
     }, [
       clearProfilePicture,
       deferDelete,
@@ -259,7 +260,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       onPictureChanged,
       updateUser,
       user,
-    ]); // ✅ Removed refreshUser from dependencies
+    ]);
 
     const handleAvatarClick = useCallback(() => {
       if (clickable && showUploadButton) {

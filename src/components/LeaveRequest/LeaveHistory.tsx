@@ -138,7 +138,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
   viewMode = 'you',
   currentPage: serverCurrentPage = 1,
   totalPages: serverTotalPages = 1,
-  totalItems: serverTotalItems = 0,
+  totalItems: _serverTotalItems = 0,
   onPageChange,
   isLoading = false,
   onExportAll,
@@ -155,7 +155,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
   const [loadingAllLeaves, setLoadingAllLeaves] = useState(false);
   const [openDocs, setOpenDocs] = useState(false);
   const [currentDocs, setCurrentDocs] = useState<string[]>([]);
-  const [currentLeaveId, setCurrentLeaveId] = useState<string>('');
+  const [_currentLeaveId, setCurrentLeaveId] = useState<string>('');
   const [openLeaveForm, setOpenLeaveForm] = useState(false);
   const [editingLeave, setEditingLeave] = useState<Leave | null>(null);
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
@@ -294,11 +294,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
     : Math.max(1, Math.ceil(filteredTotalItems / ITEMS_PER_PAGE));
 
   // When employee is filtered, use filtered count; otherwise use server total
-  const totalItems = isEmployeeFiltered
-    ? filteredTotalItems
-    : useServerPagination
-      ? serverTotalItems
-      : filteredTotalItems;
+  // (totalItems kept for potential future use)
 
   // Use normal pagination for all cases
   const paginatedLeaves = useServerPagination

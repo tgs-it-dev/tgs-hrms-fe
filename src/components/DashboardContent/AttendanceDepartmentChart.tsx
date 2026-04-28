@@ -128,6 +128,7 @@ const AttendanceDepartmentChart: React.FC = () => {
         if (!deptStats.has(deptInfo.id)) {
           deptStats.set(deptInfo.id, { presents: 0, absents: 0, count: 0 });
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed non-null: we just set it above with has() check
         const stat = deptStats.get(deptInfo.id)!;
         stat.presents += daysPresent;
         stat.absents += daysAbsent;

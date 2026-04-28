@@ -15,7 +15,6 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useOutletContext } from 'react-router-dom';
 import type { AppOutletContext } from '../../types/outletContexts';
-import { env } from '../../config/env';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 

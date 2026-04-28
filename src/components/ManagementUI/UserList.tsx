@@ -178,6 +178,7 @@ const UserList: React.FC = () => {
                   <Button onClick={() => handleOpen(user)}>
                     <Edit />
                   </Button>
+                  {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id is present for all persisted users */}
                   <Button color='error' onClick={() => handleDelete(user.id!)}>
                     <Delete />
                   </Button>

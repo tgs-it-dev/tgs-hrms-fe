@@ -91,13 +91,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     };
 
     fetchLeaveTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onError is a callback prop; intentionally excluded to avoid re-fetching
   }, []);
-
-  const getToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  };
 
   const formatDate = (date: Date) => {
     const y = date.getFullYear();

@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-import { getCurrentUser } from '../utils/auth';
 
 export interface SendNotificationRequest {
   user_ids: string[];

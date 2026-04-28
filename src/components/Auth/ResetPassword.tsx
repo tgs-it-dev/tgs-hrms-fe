@@ -95,6 +95,7 @@ const ResetPassword = () => {
 
     try {
       const response = await authApi.resetPassword({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- token is validated as truthy before this block
         token: token!,
         password: formData.password,
         confirmPassword: formData.confirmPassword,

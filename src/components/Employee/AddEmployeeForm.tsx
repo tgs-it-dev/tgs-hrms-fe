@@ -213,6 +213,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
       if (initialData.departmentId) {
         // Load designations for department; keep designationId as provided
         (async () => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- departmentId is truthy (checked by `if (initialData.departmentId)` above)
           await loadDesignations(initialData.departmentId!);
           isInitializingRef.current = false;
         })();

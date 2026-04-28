@@ -100,6 +100,7 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook must be co-located with its context provider
 export const useFeatureToggles = (): FeatureToggleContextValue => {
   const ctx = useContext(FeatureToggleContext);
   if (!ctx) {
