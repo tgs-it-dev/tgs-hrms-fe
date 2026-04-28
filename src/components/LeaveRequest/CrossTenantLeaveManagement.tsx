@@ -423,7 +423,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
       const hasDepartmentFilter =
         apiFilters.departmentId && apiFilters.departmentId.trim() !== '';
       if (hasDepartmentFilter) {
-        const departmentIdToFilter = apiFilters.departmentId!.trim();
+        const departmentIdToFilter = apiFilters.departmentId?.trim() ?? '';
         mappedLeaves = mappedLeaves.filter(
           leave => String(leave.departmentId).trim() === departmentIdToFilter
         );

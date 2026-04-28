@@ -96,7 +96,7 @@ class SnackbarManager {
     snackbar.appendChild(icon);
     snackbar.appendChild(messageText);
 
-    this.container!.appendChild(snackbar);
+    this.container?.appendChild(snackbar);
 
     // Animate in
     setTimeout(() => {
