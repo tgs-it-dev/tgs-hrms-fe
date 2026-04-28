@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, IconButton, Typography, Paper, useTheme } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+
+dayjs.extend(advancedFormat);
 
 interface DateNavigationProps {
   currentDate: string; // YYYY-MM-DD format or 'all' for showing all records
@@ -38,31 +42,12 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
   };
 
   const formatDate = (date: Date) => {
-    const day = date.getDate();
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
-
-    const getOrdinalSuffix = (d: number) => {
-      if (d >= 11 && d <= 13) return 'th';
-      switch (d % 10) {
-        case 1:
-          return 'st';
-        case 2:
-          return 'nd';
-        case 3:
-          return 'rd';
-        default:
-          return 'th';
-      }
-    };
-
-    return `${day}${getOrdinalSuffix(day)} ${month}`;
+    
+    return dayjs(date).format('Do MMM');
   };
 
   const formatDateToString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return dayjs(date).format('YYYY-MM-DD');
   };
 
   const handlePrevious = () => {
