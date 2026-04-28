@@ -40,7 +40,6 @@ import {
 } from '../../api/designationApi';
 import { extractErrorMessage } from '../../utils/errorHandler';
 import { exportCSV } from '../../api/exportApi';
-import { env } from '../../config/env';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import AppButton from '../common/AppButton';
@@ -977,19 +976,6 @@ const EmployeeManager: React.FC = () => {
   const filters: Record<string, string> = {};
   if (departmentFilter && departmentFilter !== 'all') filters.department_id = departmentFilter;
   if (designationFilter && designationFilter !== 'all') filters.designation_id = designationFilter;
-
-  // Build absolute media URL from backend path
-  const API_BASE_URL = env.apiBaseUrl;
-  const toAbsoluteUrl = (path?: string | null) => {
-    if (!path) return '';
-    const trimmed = path.trim();
-    const isAbsolute = /^https?:\/\//i.test(trimmed);
-    const base = API_BASE_URL.replace(/\/$/, '');
-    const url = isAbsolute
-      ? trimmed
-      : `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-    return `${url}?t=${Date.now()}`;
-  };
 
   return (
     <Box>

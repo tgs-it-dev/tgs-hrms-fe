@@ -22,15 +22,6 @@ export interface Notification {
   raw?: unknown;
 }
 
-// Removed unused alert helper types (PendingApproval, AutoCheckout, SalaryIssue)
-
-interface SalaryIssue {
-  id?: string;
-  title?: string;
-  message?: string;
-  details?: string;
-  timestamp?: string;
-}
 // AlertsResponse not used — removed to satisfy lint rules
 interface NotificationContextType {
   notifications: Notification[];

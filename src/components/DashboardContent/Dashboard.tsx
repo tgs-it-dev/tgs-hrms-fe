@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   useTheme,
-  useMediaQuery,
   Grid,
   TableHead,
   TableRow,
@@ -31,11 +30,7 @@ import { getDashboardKpi, getAttendanceSummary } from '../../api/dashboardApi';
 // AvailabilityCardsGrid removed — availability column removed from dashboard
 import GenderPercentageChart from './GenderPercentageChart';
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -74,8 +69,6 @@ const Dashboard: React.FC = () => {
   const { language } = useLanguage();
   const lang = labels[language];
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const currentUser = getCurrentUser();
   const userRole = currentUser?.role;
   const isSysAdmin = isSystemAdmin(userRole);
@@ -159,10 +152,6 @@ const Dashboard: React.FC = () => {
       onLeave: 0,
     } as LiveKpi);
 
-  const salaryOverview = [
-    { name: 'Paid', value: displayedKpi.salaryPaid },
-    { name: 'Unpaid', value: displayedKpi.salaryUnpaid },
-  ];
 
   // Live attendance summary fetched from backend
   const [attendanceData, setAttendanceData] = useState<

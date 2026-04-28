@@ -47,7 +47,6 @@ interface TeamListProps {
 const TeamList: React.FC<TeamListProps> = ({
   teams = [],
   darkMode = false,
-  onTeamUpdated,
   onTeamDeleted,
 }) => {
   const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();

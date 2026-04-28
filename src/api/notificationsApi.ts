@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-import { getCurrentUser } from '../utils/auth';
 
 export interface SendNotificationRequest {
   user_ids: string[];
@@ -51,6 +50,7 @@ export interface GetNotificationsResult {
 
 class NotificationsApi {
   private baseUrl = '/notifications';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async sendNotification(_payload: SendNotificationRequest): Promise<SendNotificationResult> {
     return {
       ok: true,

@@ -4,7 +4,6 @@ import {
   Typography,
   useMediaQuery,
   IconButton,
-  Alert,
   CircularProgress,
   useTheme,
   TableBody,
@@ -91,7 +90,7 @@ export const TenantPage: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
+  const [, setTotalRecords] = useState(0);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
 
   const filteredTenants = useMemo(() => {

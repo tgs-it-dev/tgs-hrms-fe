@@ -93,11 +93,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     fetchLeaveTypes();
   }, []);
 
-  const getToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  };
 
   const formatDate = (date: Date) => {
     const y = date.getFullYear();

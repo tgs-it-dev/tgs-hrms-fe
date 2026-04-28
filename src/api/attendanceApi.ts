@@ -14,6 +14,7 @@ export interface AttendanceEvent {
   type: 'check-in' | 'check-out' | string;
   near_boundary?: boolean;
   user?: UserShort;
+  approvalStatus?: string | null;
 }
 
 export interface TeamAttendanceEntry {

@@ -16,8 +16,6 @@ import {
   IconButton,
   Button,
   Stack,
-  Divider,
-  DialogActions,
   useTheme,
 } from '@mui/material';
 import { Work, Business, Email, Star, Close } from '@mui/icons-material';
@@ -47,7 +45,7 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
   const theme = useTheme();
   const [profile, setProfile] = useState<SystemEmployeeDetails | null>(null);
   const [leaves, setLeaves] = useState<EmployeeLeave[]>([]);
-  const [assets, setAssets] = useState<EmployeeAsset[]>([]);
+  const [, setAssets] = useState<EmployeeAsset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<EmployeePerformance | null>(

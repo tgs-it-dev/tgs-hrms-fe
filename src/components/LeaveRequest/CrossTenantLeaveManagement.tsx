@@ -602,7 +602,6 @@ const CrossTenantLeaveManagement: React.FC = () => {
       departments,
       currentPage,
       totalPages,
-      totalRecords,
       isMobile,
       handleFilterChange,
       handlePageChange,

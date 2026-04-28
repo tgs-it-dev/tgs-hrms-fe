@@ -46,7 +46,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     phone: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -251,10 +251,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       showSuccess(successMessage || 'Profile updated successfully');
       onClose();
     } catch (err: unknown) {
-      const apiError = err as { response?: { data?: { message?: string } } };
-      const message =
-        apiError?.response?.data?.message ||
-        (err instanceof Error ? err.message : 'Failed to update profile. Please try again.');
       setError(null);
       showError(err);
     } finally {

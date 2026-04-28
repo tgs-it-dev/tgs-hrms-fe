@@ -283,7 +283,7 @@ const AttendanceTable = () => {
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       } else {
         // For all attendance view (no employee selected), process all events
@@ -298,7 +298,7 @@ const AttendanceTable = () => {
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       }
     }
@@ -334,7 +334,7 @@ const AttendanceTable = () => {
               timestamp: event.timestamp,
               near_boundary: nearBoundary,
               user: event.user,
-              approvalStatus: (event as any).approvalStatus ?? null,
+              approvalStatus: event.approvalStatus ?? null,
             },
             checkOut: null,
           });
@@ -1040,7 +1040,7 @@ const AttendanceTable = () => {
             .slice(0, 5)
             .map(r => ({ id: r.id, approvalStatus: r.approvalStatus }))
         );
-      } catch (e) {
+      } catch {
         // ignore
       }
 
