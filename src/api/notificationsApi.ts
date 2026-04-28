@@ -50,8 +50,8 @@ export interface GetNotificationsResult {
 
 class NotificationsApi {
   private baseUrl = '/notifications';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async sendNotification(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _payload: SendNotificationRequest
   ): Promise<SendNotificationResult> {
     return {
