@@ -202,8 +202,6 @@ class TeamApiService {
   }
 
   async updateTeam(id: string, teamData: UpdateTeamDto): Promise<Team> {
-    const currentTeam = await this.getTeamById(id);
-
     const response = await axiosInstance.patch<Team>(
       `${this.baseUrl}/${id}`,
       teamData

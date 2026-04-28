@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-import { getCurrentUser } from '../utils/auth';
 
 export interface SendNotificationRequest {
   user_ids: string[];
@@ -51,7 +50,10 @@ export interface GetNotificationsResult {
 
 class NotificationsApi {
   private baseUrl = '/notifications';
-  async sendNotification(_payload: SendNotificationRequest): Promise<SendNotificationResult> {
+  async sendNotification(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _payload: SendNotificationRequest
+  ): Promise<SendNotificationResult> {
     return {
       ok: true,
       status: 200,
@@ -59,7 +61,9 @@ class NotificationsApi {
     };
   }
 
-  async getNotifications(params?: GetNotificationsParams): Promise<GetNotificationsResult> {
+  async getNotifications(
+    params?: GetNotificationsParams
+  ): Promise<GetNotificationsResult> {
     const res: GetNotificationsResult = { ok: false, status: 0 };
     try {
       const resp = await axiosInstance.get(`${this.baseUrl}`, { params });
@@ -71,32 +75,48 @@ class NotificationsApi {
       res.message = data.message ?? undefined;
       return res;
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: Record<string, unknown> } };
+      const axiosErr = err as {
+        response?: { status?: number; data?: Record<string, unknown> };
+      };
       res.error = err;
       if (axiosErr?.response) {
         res.status = axiosErr.response.status ?? 0;
-        const data = axiosErr.response.data as Record<string, unknown> | undefined;
+        const data = axiosErr.response.data as
+          | Record<string, unknown>
+          | undefined;
         res.message = data?.message as string | undefined;
       }
       return res;
     }
   }
 
-  async markNotificationRead(notificationId: string): Promise<SendNotificationResult> {
-    const res: SendNotificationResult = { ok: false, status: 0, correlationId: null };
+  async markNotificationRead(
+    notificationId: string
+  ): Promise<SendNotificationResult> {
+    const res: SendNotificationResult = {
+      ok: false,
+      status: 0,
+      correlationId: null,
+    };
     try {
-      const resp = await axiosInstance.patch(`${this.baseUrl}/${encodeURIComponent(notificationId)}/read`);
+      const resp = await axiosInstance.patch(
+        `${this.baseUrl}/${encodeURIComponent(notificationId)}/read`
+      );
       res.status = resp.status;
       res.ok = resp.status >= 200 && resp.status < 300;
       res.data = resp.data?.data ?? resp.data;
       res.message = resp.data?.message ?? undefined;
       return res;
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: Record<string, unknown> } };
+      const axiosErr = err as {
+        response?: { status?: number; data?: Record<string, unknown> };
+      };
       res.error = err;
       if (axiosErr?.response) {
         res.status = axiosErr.response.status ?? 0;
-        const data = axiosErr.response.data as Record<string, unknown> | undefined;
+        const data = axiosErr.response.data as
+          | Record<string, unknown>
+          | undefined;
         res.message = data?.message as string | undefined;
       }
       return res;
@@ -104,7 +124,11 @@ class NotificationsApi {
   }
 
   async markAllNotificationsRead(): Promise<SendNotificationResult> {
-    const res: SendNotificationResult = { ok: false, status: 0, correlationId: null };
+    const res: SendNotificationResult = {
+      ok: false,
+      status: 0,
+      correlationId: null,
+    };
     try {
       const resp = await axiosInstance.patch(`${this.baseUrl}/read-all`);
       res.status = resp.status;
@@ -113,11 +137,15 @@ class NotificationsApi {
       res.message = resp.data?.message ?? undefined;
       return res;
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: Record<string, unknown> } };
+      const axiosErr = err as {
+        response?: { status?: number; data?: Record<string, unknown> };
+      };
       res.error = err;
       if (axiosErr?.response) {
         res.status = axiosErr.response.status ?? 0;
-        const data = axiosErr.response.data as Record<string, unknown> | undefined;
+        const data = axiosErr.response.data as
+          | Record<string, unknown>
+          | undefined;
         res.message = data?.message as string | undefined;
       }
       return res;

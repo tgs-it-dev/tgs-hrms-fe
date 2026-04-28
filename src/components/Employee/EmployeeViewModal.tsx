@@ -15,7 +15,6 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useOutletContext } from 'react-router-dom';
 import type { AppOutletContext } from '../../types/outletContexts';
-import { env } from '../../config/env';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 
@@ -62,8 +61,8 @@ interface EmployeeViewModalProps {
   employee: Employee | null;
 }
 const getCnicDocuments = (
-  employee: Employee, 
-  images: { front: string; back: string }, 
+  employee: Employee,
+  images: { front: string; back: string },
   getLabel: (en: string, ar: string) => string
 ) => [
   {
@@ -79,7 +78,7 @@ const getCnicDocuments = (
     url: images.back,
     label: getLabel('CNIC Back', 'الهوية الخلفية'),
     emptyText: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية'),
-  }
+  },
 ];
 
 const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
@@ -109,9 +108,9 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
       setLoadingImages(true);
 
       try {
-        const profileUrl = (employee.profile_picture) ?? '';
-        const cnicFrontUrl = (employee.cnic_picture) ?? '';
-        const cnicBackUrl = (employee.cnic_back_picture) ?? '';
+        const profileUrl = employee.profile_picture ?? '';
+        const cnicFrontUrl = employee.cnic_picture ?? '';
+        const cnicBackUrl = employee.cnic_back_picture ?? '';
 
         setProfileImage(profileUrl);
         setCnicFrontImage(cnicFrontUrl);
@@ -223,54 +222,66 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
               >
                 <Box sx={{ p: 2 }}>
-                <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
-                  {getLabel('Personal Information', 'المعلومات الشخصية')}
-                </Typography>
+                  <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
+                    {getLabel('Personal Information', 'المعلومات الشخصية')}
+                  </Typography>
 
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                  }}
-                >
-                  {[
-                    { label: getLabel('Name', 'الاسم'), value: employee.name },
-                    { label: getLabel('Email', 'البريد الإلكتروني'), value: employee.email },
-                    { label: getLabel('Phone', 'رقم الهاتف'), value: employee.phone },
-                    { label: getLabel('CNIC Number', 'رقم الهوية'), value: employee.cnic_number || 'N/A' },
-                  ].map((item, index) => (
-                    <Box 
-                      key={index} 
-                      sx={{ 
-                        width: { xs: '100%', md: 'calc(50% - 8px)' }, 
-                        mb: 1,
-                        // Increased to 80px to handle very long wrapped emails/names
-                        minHeight: '80px', 
-                        display: 'flex',
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {item.label}:
-                      </Typography>
-                      <Typography 
-                        variant='body1' 
-                        sx={{ 
-                          color: textColor, 
-                          wordBreak: 'break-all', // Forces long emails to break so they don't overflow the card
-                          lineHeight: 1.2 
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 2,
+                    }}
+                  >
+                    {[
+                      {
+                        label: getLabel('Name', 'الاسم'),
+                        value: employee.name,
+                      },
+                      {
+                        label: getLabel('Email', 'البريد الإلكتروني'),
+                        value: employee.email,
+                      },
+                      {
+                        label: getLabel('Phone', 'رقم الهاتف'),
+                        value: employee.phone,
+                      },
+                      {
+                        label: getLabel('CNIC Number', 'رقم الهوية'),
+                        value: employee.cnic_number || 'N/A',
+                      },
+                    ].map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: { xs: '100%', md: 'calc(50% - 8px)' },
+                          mb: 1,
+                          // Increased to 80px to handle very long wrapped emails/names
+                          minHeight: '80px',
+                          display: 'flex',
+                          flexDirection: 'column',
                         }}
                       >
-                        {item.value}
-                      </Typography>
-                    </Box>
-                  ))}
+                        <Typography
+                          variant='body2'
+                          sx={{ fontWeight: 'bold', color: textColor }}
+                        >
+                          {item.label}:
+                        </Typography>
+                        <Typography
+                          variant='body1'
+                          sx={{
+                            color: textColor,
+                            wordBreak: 'break-all', // Forces long emails to break so they don't overflow the card
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
-              </Box>
               </AppCard>
             </Box>
 
@@ -279,53 +290,65 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
               >
                 <Box sx={{ p: 2 }}>
-                <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
-                  {getLabel('Work Information', 'معلومات العمل')}
-                </Typography>
+                  <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
+                    {getLabel('Work Information', 'معلومات العمل')}
+                  </Typography>
 
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                  }}
-                >
-                  {[
-                    { label: getLabel('Department', 'القسم'), value: employee.department?.name || 'N/A' },
-                    { label: getLabel('Designation', 'الوظيفة'), value: employee.designation?.title || 'N/A' },
-                    { label: getLabel('Role', 'الدور'), value: employee.role_name || 'N/A' },
-                    { label: getLabel('Status', 'الحالة'), value: employee.status || 'N/A' },
-                  ].map((item, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        width: { xs: '100%', md: 'calc(50% - 8px)' },
-                        mb: 1,
-                        minHeight: '80px', 
-                        display: 'flex',
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {item.label}:
-                      </Typography>
-                      <Typography 
-                        variant='body1' 
-                        sx={{ 
-                          color: textColor,
-                          lineHeight: 1.2,
-                          wordBreak: 'break-word' 
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 2,
+                    }}
+                  >
+                    {[
+                      {
+                        label: getLabel('Department', 'القسم'),
+                        value: employee.department?.name || 'N/A',
+                      },
+                      {
+                        label: getLabel('Designation', 'الوظيفة'),
+                        value: employee.designation?.title || 'N/A',
+                      },
+                      {
+                        label: getLabel('Role', 'الدور'),
+                        value: employee.role_name || 'N/A',
+                      },
+                      {
+                        label: getLabel('Status', 'الحالة'),
+                        value: employee.status || 'N/A',
+                      },
+                    ].map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: { xs: '100%', md: 'calc(50% - 8px)' },
+                          mb: 1,
+                          minHeight: '80px',
+                          display: 'flex',
+                          flexDirection: 'column',
                         }}
                       >
-                        {item.value}
-                      </Typography>
-                    </Box>
-                  ))}
+                        <Typography
+                          variant='body2'
+                          sx={{ fontWeight: 'bold', color: textColor }}
+                        >
+                          {item.label}:
+                        </Typography>
+                        <Typography
+                          variant='body1'
+                          sx={{
+                            color: textColor,
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
-              </Box>
               </AppCard>
             </Box>
           </Box>
@@ -344,16 +367,20 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                   gap: 2,
                 }}
               >
-                {getCnicDocuments(employee, { front: cnicFrontImage, back: cnicBackImage }, getLabel)
+                {getCnicDocuments(
+                  employee,
+                  { front: cnicFrontImage, back: cnicBackImage },
+                  getLabel
+                )
                   .filter(doc => doc.exists)
-                  .map((doc) => (
+                  .map(doc => (
                     <Box key={doc.key} sx={{ flex: 1 }}>
                       <Box sx={{ textAlign: 'center' }}>
                         {/* This Wrapper Box ensures identical height/width for both images */}
                         <Box
                           sx={{
                             width: '100%',
-                            height: '220px', 
+                            height: '220px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -361,7 +388,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                             borderRadius: '8px',
                             backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
                             overflow: 'hidden',
-                            mb: 1
+                            mb: 1,
                           }}
                         >
                           {loadingImages ? (
@@ -374,16 +401,19 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain', // Keeps aspect ratio perfect
-                                padding: '10px'       // Matches the "look" of your screenshot
+                                padding: '10px', // Matches the "look" of your screenshot
                               }}
                             />
                           ) : (
-                            <Typography variant='body2' sx={{ color: textColor }}>
+                            <Typography
+                              variant='body2'
+                              sx={{ color: textColor }}
+                            >
                               {doc.emptyText}
                             </Typography>
                           )}
                         </Box>
-                        
+
                         <Typography variant='body2' sx={{ color: textColor }}>
                           {doc.label}
                         </Typography>

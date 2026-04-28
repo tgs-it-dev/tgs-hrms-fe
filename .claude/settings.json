@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr *)",
+      "Bash(gh api *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git pull *)",
+      "Bash(npx eslint *)",
+      "Bash(awk '{print $NF}')",
+      "Bash(grep -v \"^$\")",
+      "Bash(git reset *)",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git restore *)",
+      "Bash(git stash *)",
+      "Bash(gh run *)",
+      "Bash(awk -F: '{print $1}')",
+      "Bash(npm run *)"
+    ]
+  }
+}

@@ -508,8 +508,16 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
                         size='small'
                         onClick={() => handleAddToTeam(employee)}
                         disabled={isHREmployee(employee)}
-                        sx={{ color: isHREmployee(employee) ? 'action.disabled' : 'primary.main' }}
-                        title={isHREmployee(employee) ? 'HR cannot be added to a team' : lang.addToTeam}
+                        sx={{
+                          color: isHREmployee(employee)
+                            ? 'action.disabled'
+                            : 'primary.main',
+                        }}
+                        title={
+                          isHREmployee(employee)
+                            ? 'HR cannot be added to a team'
+                            : lang.addToTeam
+                        }
                       >
                         <AddIcon />
                       </IconButton>

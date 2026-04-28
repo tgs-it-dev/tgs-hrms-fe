@@ -126,7 +126,7 @@ const EmployeeGeofenceStatus = () => {
   const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<LatLngTuple | null>(null);
   const [geofence, setGeofence] = useState<Geofence | null>(null);
   const [distance, setDistance] = useState<number>(0);

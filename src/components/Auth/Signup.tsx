@@ -468,7 +468,7 @@ const Signup: React.FC = () => {
           <Box
             sx={{
               // maxWidth: { xs: '100%', sm: '90%' },
-              maxWidth:"700px",
+              maxWidth: '700px',
               width: '100%',
               mx: 'auto',
               backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },

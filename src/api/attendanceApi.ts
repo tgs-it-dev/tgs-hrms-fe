@@ -14,6 +14,7 @@ export interface AttendanceEvent {
   type: 'check-in' | 'check-out' | string;
   near_boundary?: boolean;
   user?: UserShort;
+  approvalStatus?: string | null;
 }
 
 export interface TeamAttendanceEntry {
@@ -305,7 +306,10 @@ class AttendanceApiService {
 
       const url = `${this.baseUrl}/today?${params.toString()}`;
 
-      const response = await axiosInstance.get<{ checkIn: string | null; checkOut: string | null }>(url);
+      const response = await axiosInstance.get<{
+        checkIn: string | null;
+        checkOut: string | null;
+      }>(url);
 
       return response.data;
     } catch {
@@ -354,7 +358,10 @@ class AttendanceApiService {
     if (typeof input.latitude === 'number') body.latitude = input.latitude;
     if (typeof input.longitude === 'number') body.longitude = input.longitude;
 
-    const response = await axiosInstance.post<AttendanceEvent>(this.baseUrl, body);
+    const response = await axiosInstance.post<AttendanceEvent>(
+      this.baseUrl,
+      body
+    );
     return response.data;
   }
 

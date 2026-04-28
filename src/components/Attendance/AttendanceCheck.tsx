@@ -96,7 +96,10 @@ const AttendanceCheck = () => {
       );
     });
 
-  const tryGetPosition = async (): Promise<{ lat: number; lon: number } | null> => {
+  const tryGetPosition = async (): Promise<{
+    lat: number;
+    lon: number;
+  } | null> => {
     const first = await tryGetPositionOnce();
     if (first) return first;
     await new Promise(r => setTimeout(r, 800));
@@ -183,9 +186,9 @@ const AttendanceCheck = () => {
             sx={{ mt: 1 }}
           >
             {isAdminUser ||
-              isSystemAdminUser ||
-              isNetworkAdminUser ||
-              isHRAdminUser
+            isSystemAdminUser ||
+            isNetworkAdminUser ||
+            isHRAdminUser
               ? 'Admin - Track your daily attendance'
               : 'Track your daily attendance'}
           </Typography>
@@ -196,11 +199,10 @@ const AttendanceCheck = () => {
           <AppButton
             variant='contained'
             variantType='primary'
-            text={loading ? 'Checking In...' : 'Check In'} 
+            text={loading ? 'Checking In...' : 'Check In'}
             onClick={handleCheckIn}
-            loading={loading} 
-            startIcon={!loading && 
-            <LoginIcon />} 
+            loading={loading}
+            startIcon={!loading && <LoginIcon />}
             sx={{
               width: { xs: '100%', sm: 'auto' },
               minWidth: { xs: 'auto', sm: 120, md: 140 },
@@ -210,11 +212,10 @@ const AttendanceCheck = () => {
           <AppButton
             variant='contained'
             variantType='primary'
-            text={loading ? 'Checking Out...' : 'Check Out'} 
+            text={loading ? 'Checking Out...' : 'Check Out'}
             onClick={handleCheckOut}
-            loading={loading} 
-            startIcon={!loading && 
-            <LogoutIcon />} 
+            loading={loading}
+            startIcon={!loading && <LogoutIcon />}
             sx={{
               width: { xs: '100%', sm: 'auto' },
               minWidth: { xs: 'auto', sm: 120, md: 140 },
@@ -359,7 +360,7 @@ const AttendanceCheck = () => {
         severity={snackbar.severity}
         onClose={closeSnackbar}
       />
-    </Box >
+    </Box>
   );
 };
 

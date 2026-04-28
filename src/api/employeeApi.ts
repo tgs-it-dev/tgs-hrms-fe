@@ -228,13 +228,13 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
       cnic_back_picture: data.cnic_back_picture as string,
       department: department
         ? {
-          id: department.id,
-          name: department.name,
-          description: department.description ?? '',
-          tenantId: department.tenant_id,
-          createdAt: department.created_at,
-          updatedAt: department.updated_at ?? department.created_at,
-        }
+            id: department.id,
+            name: department.name,
+            description: department.description ?? '',
+            tenantId: department.tenant_id,
+            createdAt: department.created_at,
+            updatedAt: department.updated_at ?? department.created_at,
+          }
         : null,
       designation: {
         id: designation.id,
@@ -285,24 +285,45 @@ class EmployeeApiService {
     formData.append('last_name', employeeData.last_name);
     formData.append('email', employeeData.email);
     formData.append('phone', employeeData.phone);
-    if (employeeData.password) formData.append('password', employeeData.password);
+    if (employeeData.password)
+      formData.append('password', employeeData.password);
     formData.append('designation_id', employeeData.designationId);
     formData.append('gender', employeeData.gender);
-    if (employeeData.role_name) formData.append('role_name', employeeData.role_name);
+    if (employeeData.role_name)
+      formData.append('role_name', employeeData.role_name);
     if (employeeData.role_id) formData.append('role_id', employeeData.role_id);
     if (employeeData.team_id) formData.append('team_id', employeeData.team_id);
-    if (employeeData.cnicNumber) formData.append('cnic_number', employeeData.cnicNumber);
+    if (employeeData.cnicNumber)
+      formData.append('cnic_number', employeeData.cnicNumber);
     if (employeeData.profilePicture)
-      formData.append('profile_picture', employeeData.profilePicture, employeeData.profilePicture.name);
+      formData.append(
+        'profile_picture',
+        employeeData.profilePicture,
+        employeeData.profilePicture.name
+      );
     if (employeeData.cnicFrontPicture)
-      formData.append('cnic_picture', employeeData.cnicFrontPicture, employeeData.cnicFrontPicture.name);
+      formData.append(
+        'cnic_picture',
+        employeeData.cnicFrontPicture,
+        employeeData.cnicFrontPicture.name
+      );
     if (employeeData.cnicBackPicture)
-      formData.append('cnic_back_picture', employeeData.cnicBackPicture, employeeData.cnicBackPicture.name);
+      formData.append(
+        'cnic_back_picture',
+        employeeData.cnicBackPicture,
+        employeeData.cnicBackPicture.name
+      );
     return formData;
   }
 
-  private async createByEndpoint(endpoint: string, employeeData: EmployeeDto): Promise<BackendEmployee> {
-    const response = await axiosInstance.post<RawEmployee>(endpoint, this.buildFormData(employeeData));
+  private async createByEndpoint(
+    endpoint: string,
+    employeeData: EmployeeDto
+  ): Promise<BackendEmployee> {
+    const response = await axiosInstance.post<RawEmployee>(
+      endpoint,
+      this.buildFormData(employeeData)
+    );
     return normalizeEmployee(response.data);
   }
 
@@ -491,7 +512,10 @@ class EmployeeApiService {
     return response.data;
   }
 
-  async deleteDocument(id: string, documentUrl: string): Promise<{ success: boolean }> {
+  async deleteDocument(
+    id: string,
+    documentUrl: string
+  ): Promise<{ success: boolean }> {
     const response = await axiosInstance.delete<{ success: boolean }>(
       `${this.baseUrl}/${id}/documents`,
       { data: { documentUrl } }

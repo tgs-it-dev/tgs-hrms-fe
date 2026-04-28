@@ -1227,10 +1227,17 @@ export default function ManagerTaskBoard() {
                       alignItems='center'
                     >
                       <Tooltip
-                        title={t.title.length > TASK_CARD_CONFIG.TITLE_LIMIT ? t.title : ''}
+                        title={
+                          t.title.length > TASK_CARD_CONFIG.TITLE_LIMIT
+                            ? t.title
+                            : ''
+                        }
                         arrow
                       >
-                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                        <Typography
+                          variant='subtitle1'
+                          sx={{ fontWeight: 600 }}
+                        >
                           {truncateText(t.title, TASK_CARD_CONFIG.TITLE_LIMIT)}
                         </Typography>
                       </Tooltip>
@@ -1243,11 +1250,24 @@ export default function ManagerTaskBoard() {
                       </Box>
                     </Box>
                     <Tooltip
-                      title={t.description && t.description.length > TASK_CARD_CONFIG.DESCRIPTION_LIMIT ? t.description : ''}
+                      title={
+                        t.description &&
+                        t.description.length >
+                          TASK_CARD_CONFIG.DESCRIPTION_LIMIT
+                          ? t.description
+                          : ''
+                      }
                       arrow
                     >
-                      <Typography variant='body2' color='text.secondary' sx={{ wordBreak: 'break-word' }}>
-                        {truncateText(t.description || '', TASK_CARD_CONFIG.DESCRIPTION_LIMIT)}
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        sx={{ wordBreak: 'break-word' }}
+                      >
+                        {truncateText(
+                          t.description || '',
+                          TASK_CARD_CONFIG.DESCRIPTION_LIMIT
+                        )}
                       </Typography>
                     </Tooltip>
                     {t.deadline && (

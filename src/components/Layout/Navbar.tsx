@@ -11,9 +11,6 @@ import {
   getRoleName,
   isManager,
   isEmployee,
-  isNetworkAdmin,
-  isAdmin,
-  isHRAdmin,
 } from '../../utils/roleUtils';
 
 import {
@@ -47,20 +44,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { Icons } from '../../assets/icons';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
 import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import EventIcon from '@mui/icons-material/Event';
-import DescriptionIcon from '@mui/icons-material/Description';
-import {
-  isDashboardPathAllowedForRole,
-  isMenuVisibleForRole,
-} from '../../utils/permissions';
-import { isSystemAdmin as roleIsSystemAdmin } from '../../utils/roleUtils';
+import { isDashboardPathAllowedForRole } from '../../utils/permissions';
 import {
   useFeatureToggles,
   type FeatureKey,
@@ -132,7 +119,7 @@ interface SearchResult {
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'attendance'
+    | 'attendance';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -406,64 +393,64 @@ const NotificationButton: React.FC = () => {
         {(() => {
           const unreadList = notifications.filter(n => !n.read);
           return unreadList.length === 0 ? (
-          <List sx={{ p: 2 }}>
-            <ListItem>
-              <ListItemText
-                primary='No notifications'
-                primaryTypographyProps={{ color: 'text.secondary' }}
-              />
-            </ListItem>
-          </List>
-        ) : (
-          <List>
-            {unreadList.map(n => (
-              <ListItemButton
-                key={n.id}
-                onClick={() => {
-                  markAsRead(n.id);
-                }}
-                sx={{
-                  alignItems: 'flex-start',
-                  bgcolor: n.read
-                    ? 'transparent'
-                    : theme.palette.action.selected,
-                }}
-              >
+            <List sx={{ p: 2 }}>
+              <ListItem>
                 <ListItemText
-                  primary={n.title}
-                  secondary={
-                    <>
-                      <Typography
-                        component='span'
-                        variant='body2'
-                        color='text.secondary'
-                      >
-                        {n.text}
-                      </Typography>
-                      <Typography
-                        component='div'
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{ mt: 0.5 }}
-                      >
-                        {new Date(n.timestamp).toLocaleString()}
-                      </Typography>
-                    </>
-                  }
+                  primary='No notifications'
+                  primaryTypographyProps={{ color: 'text.secondary' }}
                 />
-                <IconButton
-                  size='small'
-                  onClick={e => {
-                    e.stopPropagation();
-                    clearNotification(n.id);
+              </ListItem>
+            </List>
+          ) : (
+            <List>
+              {unreadList.map(n => (
+                <ListItemButton
+                  key={n.id}
+                  onClick={() => {
+                    markAsRead(n.id);
+                  }}
+                  sx={{
+                    alignItems: 'flex-start',
+                    bgcolor: n.read
+                      ? 'transparent'
+                      : theme.palette.action.selected,
                   }}
                 >
-                  ×
-                </IconButton>
-              </ListItemButton>
-            ))}
-          </List>
-        );
+                  <ListItemText
+                    primary={n.title}
+                    secondary={
+                      <>
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='text.secondary'
+                        >
+                          {n.text}
+                        </Typography>
+                        <Typography
+                          component='div'
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{ mt: 0.5 }}
+                        >
+                          {new Date(n.timestamp).toLocaleString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <IconButton
+                    size='small'
+                    onClick={e => {
+                      e.stopPropagation();
+                      clearNotification(n.id);
+                    }}
+                  >
+                    ×
+                  </IconButton>
+                </ListItemButton>
+              ))}
+            </List>
+          );
         })()}
       </Menu>
     </>
@@ -558,119 +545,6 @@ const Navbar: React.FC<NavbarProps> = ({
     [currentUserRole]
   );
 
-  // Helper functions to check if user can search specific data types
-  const canSearchEmployees = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Check if employees menu is visible for role
-    return isMenuVisibleForRole('employees', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchTeams = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('teams', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchDepartments = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('department', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchLeaves = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Explicitly deny for network-admin
-    if (isNetworkAdmin(currentUserRole)) {
-      return false;
-    }
-
-    // Leaves are part of attendance/leave-analytics
-    return (
-      isMenuVisibleForRole('attendance', currentUserRole) ||
-      isMenuVisibleForRole('leave-analytics', currentUserRole)
-    );
-  }, [currentUserRole]);
-
-  const canSearchTenants = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Only system-admin can search tenants
-    return roleIsSystemAdmin(currentUserRole);
-  }, [currentUserRole]);
-
-  // Get current user's tenantId for tenant-specific search
-  const getCurrentTenantId = React.useCallback((): string | null => {
-    try {
-      // Try localStorage first
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-
-      // Fallback to user object
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId =
-          userFromStorage?.tenant_id ||
-          userFromStorage?.tenantId ||
-          userFromStorage?.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-
-      // Last fallback: user context
-      if (user) {
-        const userWithTenant = user as {
-          tenant_id?: string;
-          tenantId?: string;
-          tenant?: { id?: string };
-        };
-        const tenantId =
-          userWithTenant.tenant_id ||
-          userWithTenant.tenantId ||
-          userWithTenant.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore errors
-    }
-    return null;
-  }, [user]);
-
   // Initialize profile picture state when user data loads
   React.useEffect(() => {
     if (user?.profile_pic) {
@@ -730,10 +604,6 @@ const Navbar: React.FC<NavbarProps> = ({
 
     // Navigate to login page with replace to prevent back navigation
     navigate('/', { replace: true });
-  };
-
-  const handleOpenTeamMembersModal = () => {
-    setTeamMembersModalOpen(true);
   };
 
   const handleCloseTeamMembersModal = () => {
@@ -905,7 +775,7 @@ const Navbar: React.FC<NavbarProps> = ({
           setShowSearchResults(results.length > 0);
           setSelectedResultIndex(-1);
         }
-      } catch (error) {
+      } catch {
         if (!abortController.signal.aborted) {
           setSearchResults([]);
           setShowSearchResults(false);

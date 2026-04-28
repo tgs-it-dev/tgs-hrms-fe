@@ -19,11 +19,10 @@ interface AppDropdownOption {
   label: string;
 }
 
-interface AppDropdownProps
-  extends Omit<
-    SelectProps<unknown>,
-    'label' | 'onChange' | 'variant' | 'open' | 'onOpen' | 'onClose'
-  > {
+interface AppDropdownProps extends Omit<
+  SelectProps<unknown>,
+  'label' | 'onChange' | 'variant' | 'open' | 'onOpen' | 'onClose'
+> {
   label: string;
   options: AppDropdownOption[];
   value: string | number | Array<string | number>;

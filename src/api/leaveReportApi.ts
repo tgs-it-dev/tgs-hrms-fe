@@ -64,14 +64,14 @@ export interface AllLeaveReportsResponse {
     rejectedRequests: number;
   };
   employeeReports:
-  | EmployeeReport[]
-  | {
-    items: EmployeeReport[];
-    total?: number;
-    page?: number;
-    limit?: number;
-    totalPages?: number;
-  };
+    | EmployeeReport[]
+    | {
+        items: EmployeeReport[];
+        total?: number;
+        page?: number;
+        limit?: number;
+        totalPages?: number;
+      };
   total?: number;
   page?: number;
   limit?: number;
@@ -378,7 +378,7 @@ class LeaveReportApiService {
             if (
               summary.leaveTypeName === record.leaveTypeName ||
               summary.leaveTypeName.toLowerCase() ===
-              record.leaveTypeName?.toLowerCase()
+                record.leaveTypeName?.toLowerCase()
             ) {
               leaveTypeId = id;
               break;

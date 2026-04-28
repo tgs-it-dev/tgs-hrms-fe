@@ -56,14 +56,15 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
     suppressExistingImage = false,
   }) => {
     const { updateUser } = useUser();
-    const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
+    const { snackbar, showSuccess, showError, closeSnackbar } =
+      useErrorHandler();
     const { updateProfilePicture, clearProfilePicture } = useProfilePicture();
     const [uploading, setUploading] = useState(false);
     const [removing, setRemoving] = useState(false);
     const [showUploadDialog, setShowUploadDialog] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -109,7 +110,9 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
       if (!validTypes.includes(file.type)) {
         setError('Please select a valid image file (JPG, PNG, or GIF)');
-        showError(new Error('Please select a valid image file (JPG, PNG, or GIF)'));
+        showError(
+          new Error('Please select a valid image file (JPG, PNG, or GIF)')
+        );
         return;
       }
 
@@ -612,7 +615,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
               variantType='primary'
               disabled={Boolean(
                 uploading ||
-                  (selectedFile && selectedFile.size > 5 * 1024 * 1024)
+                (selectedFile && selectedFile.size > 5 * 1024 * 1024)
               )}
               startIcon={uploading ? <CircularProgress size={16} /> : null}
             >
