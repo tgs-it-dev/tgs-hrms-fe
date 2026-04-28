@@ -210,7 +210,7 @@ class LeaveReportApiService {
 
   async exportLeaveSummaryCSV(year: number): Promise<Blob> {
     const { userId } = getUserFromLocalStorage();
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.get<Blob>(
       `${this.baseUrl}/leave-summary/export`,
       {
         params: { employeeId: userId, year },
@@ -222,7 +222,7 @@ class LeaveReportApiService {
 
   async exportTeamLeaveSummaryCSV(month: number, year: number): Promise<Blob> {
     const { userId: managerId } = getUserFromLocalStorage();
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.get<Blob>(
       `${this.baseUrl}/team-leave-summary/export`,
       {
         params: { managerId, month, year },
@@ -234,7 +234,7 @@ class LeaveReportApiService {
 
   async exportLeaveBalanceCSV(): Promise<Blob> {
     const { userId } = getUserFromLocalStorage();
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.get<Blob>(
       `${this.baseUrl}/leave-balance/export`,
       {
         params: { employeeId: userId },
@@ -252,7 +252,7 @@ class LeaveReportApiService {
     const year = params?.year ?? new Date().getFullYear();
     const requestParams: { year: number; employeeName?: string } = { year };
     if (params?.employeeName) requestParams.employeeName = params.employeeName;
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.get<Blob>(
       `${this.baseUrl}/export/all-leave-reports`,
       { params: requestParams, responseType: 'blob' }
     );
