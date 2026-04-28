@@ -32,7 +32,8 @@
   justify-content: center;
 }
 
-body.dark-mode .phone-input-textfield-adornment
+body.dark-mode
+  .phone-input-textfield-adornment
   .react-international-phone-country-selector-button {
   color: #eeeeee;
 }
@@ -64,7 +65,9 @@ body.dark-mode .phone-input-textfield-adornment
   height: 100%;
 }
 
-body.dark-mode .phone-input-textfield-adornment .react-international-phone-input {
+body.dark-mode
+  .phone-input-textfield-adornment
+  .react-international-phone-input {
   color: #eeeeee;
 }
 
@@ -73,7 +76,9 @@ body.dark-mode .phone-input-textfield-adornment .react-international-phone-input
   opacity: 1;
 }
 
-body.dark-mode .phone-input-textfield-adornment .react-international-phone-input::placeholder {
+body.dark-mode
+  .phone-input-textfield-adornment
+  .react-international-phone-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 

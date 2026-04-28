@@ -335,14 +335,7 @@ const Reports: React.FC = () => {
     fetchData();
     // Remove 'page' from dependencies - we use client-side pagination for leave type rows
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tab,
-    userInfo,
-    isAdminView,
-    isManager,
-    selectedYear,
-    selectedEmployee,
-  ]);
+  }, [tab, userInfo, isAdminView, isManager, selectedYear, selectedEmployee]);
 
   // Reset employee filter when month/year changes
   useEffect(() => {
@@ -641,7 +634,9 @@ const Reports: React.FC = () => {
                             sx={{ color: theme.palette.text.secondary }}
                           >
                             {row.summary.leaveTypeName
-                              ? row.summary.leaveTypeName.charAt(0).toUpperCase() +
+                              ? row.summary.leaveTypeName
+                                  .charAt(0)
+                                  .toUpperCase() +
                                 row.summary.leaveTypeName.slice(1)
                               : ''}
                           </TableCell>
@@ -848,9 +843,9 @@ const Reports: React.FC = () => {
                       gutterBottom
                     >
                       {item.leaveTypeName
-                      ? item.leaveTypeName.charAt(0).toUpperCase() +
-                        item.leaveTypeName.slice(1)
-                      : ''}
+                        ? item.leaveTypeName.charAt(0).toUpperCase() +
+                          item.leaveTypeName.slice(1)
+                        : ''}
                     </Typography>
                     <Typography
                       variant='h4'

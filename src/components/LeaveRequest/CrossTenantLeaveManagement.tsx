@@ -233,12 +233,12 @@ const CrossTenantLeaveManagement: React.FC = () => {
 
       try {
         const tenantIdStr = String(tenantId).trim();
-        const res = await departmentApiService.getAllTenantsWithDepartments(
-          tenantIdStr
-        );
+        const res =
+          await departmentApiService.getAllTenantsWithDepartments(tenantIdStr);
 
         const tenantData = res?.tenants?.find(
-          t => t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
+          t =>
+            t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
         );
 
         const deptList = tenantData?.departments ?? [];
@@ -733,7 +733,9 @@ const CrossTenantLeaveManagement: React.FC = () => {
             {tableLoading ? (
               <TableRow>
                 <TableCell colSpan={8} align='center'>
-                  <CircularProgress sx={{ color: 'var(--primary-dark-color)' }} />
+                  <CircularProgress
+                    sx={{ color: 'var(--primary-dark-color)' }}
+                  />
                 </TableCell>
               </TableRow>
             ) : leaves.length > 0 ? (

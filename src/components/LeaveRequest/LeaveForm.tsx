@@ -93,7 +93,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     fetchLeaveTypes();
   }, []);
 
-
   const formatDate = (date: Date) => {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -116,8 +115,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       setDocuments(prev => prev.filter((_, i) => i !== index));
     }
   };
-
-
 
   /* ------------------ SUBMIT ------------------ */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,7 +154,9 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
         if (documentsToRemove.length > 0) {
           try {
             await Promise.all(
-              documentsToRemove.map(doc => leaveApi.deleteDocument(leaveId, doc))
+              documentsToRemove.map(doc =>
+                leaveApi.deleteDocument(leaveId, doc)
+              )
             );
           } catch (error) {
             console.error('Failed to delete some documents', error);
@@ -313,10 +312,10 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: '#FFFFFF !important',
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
                   color: '#FFFFFF !important',
@@ -362,10 +361,10 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: '#FFFFFF !important',
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
                   color: '#FFFFFF !important',
@@ -393,7 +392,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             newDocuments={documents}
             onDocumentsChange={handleDocumentsChange}
             onDocumentRemove={handleDocumentRemove}
-
             multiple
             accept='image/*'
           />

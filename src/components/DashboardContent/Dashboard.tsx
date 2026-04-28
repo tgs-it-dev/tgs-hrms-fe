@@ -152,7 +152,6 @@ const Dashboard: React.FC = () => {
       onLeave: 0,
     } as LiveKpi);
 
-
   // Live attendance summary fetched from backend
   const [attendanceData, setAttendanceData] = useState<
     Array<{
@@ -1168,10 +1167,9 @@ const Dashboard: React.FC = () => {
                         xs: attendanceShouldForceMinWidthOnXs
                           ? `${attendanceMinChartWidth}px`
                           : '100%',
-                        md:
-                          attendanceShouldForceMinWidthOnXs
-                            ? `${attendanceMinChartWidth}px`
-                            : '100%',
+                        md: attendanceShouldForceMinWidthOnXs
+                          ? `${attendanceMinChartWidth}px`
+                          : '100%',
                       },
                       height: { xs: 360, md: 420 },
                     }}

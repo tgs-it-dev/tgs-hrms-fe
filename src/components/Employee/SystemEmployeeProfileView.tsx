@@ -239,10 +239,11 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
                       return (
                         <TableRow key={leave.id || idx}>
                           <TableCell>
-                            {(leaveTypeName || leave.leaveTypeId || '—').replace(
-                              /^./,
-                              c => c.toUpperCase()
-                            )}
+                            {(
+                              leaveTypeName ||
+                              leave.leaveTypeId ||
+                              '—'
+                            ).replace(/^./, c => c.toUpperCase())}
                           </TableCell>
                           <TableCell>
                             {new Date(leave.startDate).toLocaleDateString()}

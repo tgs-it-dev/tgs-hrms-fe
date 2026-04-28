@@ -84,8 +84,7 @@ const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
         typeof safeValues.maxDaysPerYear === 'number'
           ? safeValues.maxDaysPerYear
           : '',
-      carryForward:
-        safeValues.carryForward === false ? 'false' : 'true',
+      carryForward: safeValues.carryForward === false ? 'false' : 'true',
       isPaid: safeValues.isPaid === false ? 'false' : 'true',
     };
   }, [initialValues]);
@@ -228,4 +227,3 @@ const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
 };
 
 export default LeaveTypeFormModal;
-

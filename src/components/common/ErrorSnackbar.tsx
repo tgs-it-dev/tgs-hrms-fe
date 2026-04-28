@@ -50,7 +50,7 @@ export const ErrorSnackbar: React.FC<ErrorSnackbarProps> = ({
       <Alert
         onClose={onClose}
         severity={severity}
-        variant="standard"
+        variant='standard'
         sx={{
           width: '100%',
           ...errorSx,
