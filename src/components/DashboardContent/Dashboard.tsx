@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   useTheme,
-  useMediaQuery,
   Grid,
   TableHead,
   TableRow,
@@ -70,8 +69,6 @@ const Dashboard: React.FC = () => {
   const { language } = useLanguage();
   const lang = labels[language];
   const theme = useTheme();
-  useMediaQuery(theme.breakpoints.down('sm'));
-
   const currentUser = getCurrentUser();
   const userRole = currentUser?.role;
   const isSysAdmin = isSystemAdmin(userRole);
@@ -1170,10 +1167,9 @@ const Dashboard: React.FC = () => {
                         xs: attendanceShouldForceMinWidthOnXs
                           ? `${attendanceMinChartWidth}px`
                           : '100%',
-                        md:
-                          attendanceShouldForceMinWidthOnXs
-                            ? `${attendanceMinChartWidth}px`
-                            : '100%',
+                        md: attendanceShouldForceMinWidthOnXs
+                          ? `${attendanceMinChartWidth}px`
+                          : '100%',
                       },
                       height: { xs: 360, md: 420 },
                     }}

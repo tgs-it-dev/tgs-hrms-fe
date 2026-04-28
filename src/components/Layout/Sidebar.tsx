@@ -522,8 +522,8 @@ export default function Sidebar({
       >
         <List>
           {filteredMenuItems.map(item => {
-            const visibleSubItems = (item.subItems || []).filter(sub =>
-              !!(sub.label && String(sub.label).trim())
+            const visibleSubItems = (item.subItems || []).filter(
+              sub => !!(sub.label && String(sub.label).trim())
             );
             const hasSubMenu = visibleSubItems.length > 1;
             const isSingleSubItem = visibleSubItems.length === 1;

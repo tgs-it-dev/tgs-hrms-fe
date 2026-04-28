@@ -13,7 +13,6 @@ import ErrorSnackbar from '../common/ErrorSnackbar';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 
-
 interface MyTimerCardProps {
   /**
    * Optional token from parent to force-refresh attendance status
@@ -260,7 +259,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
       const msg =
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response: { data?: { message?: string } } }).response.data
-            ?.message
+              ?.message
           : null) ||
         (err as Error)?.message ||
         String(err);
@@ -293,7 +292,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
       const msg =
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response: { data?: { message?: string } } }).response.data
-            ?.message
+              ?.message
           : null) ||
         (err as Error)?.message ||
         String(err);
@@ -538,16 +537,17 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
             sx={{ fontSize: '1rem' }}
           >
             {currentSession && !currentSession.end_time
-              ? `Clocked In: Today at ${currentSession.start_time
-                ? new Date(currentSession.start_time).toLocaleTimeString(
-                  [],
-                  {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }
-                )
-                : 'N/A'
-              }`
+              ? `Clocked In: Today at ${
+                  currentSession.start_time
+                    ? new Date(currentSession.start_time).toLocaleTimeString(
+                        [],
+                        {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      )
+                    : 'N/A'
+                }`
               : hasCheckedIn
                 ? 'Ready to start tracking time'
                 : 'Please check in first'}

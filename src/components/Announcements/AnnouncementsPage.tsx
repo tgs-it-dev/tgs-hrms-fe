@@ -11,9 +11,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-} from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { Icons } from '../../assets/icons';
 
 import AppPageTitle from '../common/AppPageTitle';
@@ -111,7 +109,7 @@ export default function AnnouncementsPage() {
     } finally {
       setIsDeleting(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- showSuccess is stable but causes false-positive warning
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showSuccess is stable but causes false-positive warning
   }, [deleting, isDeleting, showError, showSuccess, isRtl]);
 
   return (
@@ -130,7 +128,14 @@ export default function AnnouncementsPage() {
         </AppPageTitle>
 
         {canCreate && (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', paddingBottom: '10px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              flexWrap: 'wrap',
+              paddingBottom: '10px',
+            }}
+          >
             <AppButton
               variantType='primary'
               onClick={handleOpenCreate}
@@ -199,7 +204,9 @@ export default function AnnouncementsPage() {
                       </Typography>
                     </Tooltip>
                   </TableCell>
-                  <TableCell sx={{ textTransform: 'capitalize' }}>{a.category}</TableCell>
+                  <TableCell sx={{ textTransform: 'capitalize' }}>
+                    {a.category}
+                  </TableCell>
                   <TableCell sx={{ textTransform: 'capitalize' }}>
                     {String(a.priority)}
                   </TableCell>
@@ -232,13 +239,16 @@ export default function AnnouncementsPage() {
                                 isRtl ? 'تعديل الإعلان' : 'Edit announcement'
                               }
                             >
-                            <Box
-                              component='img'
-                              src={Icons.edit}
-                              alt='Edit'
-                              sx={{ width: { xs: 16, sm: 20 }, height: { xs: 16, sm: 20 } }}
-                            />
-                          </IconButton>
+                              <Box
+                                component='img'
+                                src={Icons.edit}
+                                alt='Edit'
+                                sx={{
+                                  width: { xs: 16, sm: 20 },
+                                  height: { xs: 16, sm: 20 },
+                                }}
+                              />
+                            </IconButton>
                           </span>
                         </Tooltip>
                         <Tooltip title={isRtl ? 'حذف' : 'Delete'}>
@@ -254,7 +264,10 @@ export default function AnnouncementsPage() {
                               component='img'
                               src={Icons.delete}
                               alt='Delete'
-                              sx={{ width: { xs: 16, sm: 20 }, height: { xs: 16, sm: 20 } }}
+                              sx={{
+                                width: { xs: 16, sm: 20 },
+                                height: { xs: 16, sm: 20 },
+                              }}
                             />
                           </IconButton>
                         </Tooltip>
@@ -310,4 +323,3 @@ export default function AnnouncementsPage() {
     </Box>
   );
 }
-

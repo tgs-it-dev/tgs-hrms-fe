@@ -365,9 +365,7 @@ const LeaveRequestPage = () => {
       setLeaveTypeModalOpen(false);
       await fetchLeaveTypes();
     } catch (error: unknown) {
-      showError(
-        getErrorMessage(error) || 'Failed to create leave type'
-      );
+      showError(getErrorMessage(error) || 'Failed to create leave type');
     } finally {
       setSavingLeaveType(false);
     }
@@ -487,7 +485,9 @@ const LeaveRequestPage = () => {
       await leaveApi.cancelLeave(selectedId);
       showSuccess('Leave withdrawn successfully!');
       setLeaves(prev =>
-        prev.map((l: Leave) => (l.id === selectedId ? { ...l, status: 'withdrawn' } : l))
+        prev.map((l: Leave) =>
+          l.id === selectedId ? { ...l, status: 'withdrawn' } : l
+        )
       );
     } catch (error: unknown) {
       showError(getErrorMessage(error) || 'Failed to withdraw leave');
@@ -569,8 +569,7 @@ const LeaveRequestPage = () => {
               r === null || typeof r === 'undefined' ? undefined : String(r);
 
             const rawStatus = String(leaveRec.status ?? '').toLowerCase();
-            let normalizedStatus: LeaveStatus =
-              'pending';
+            let normalizedStatus: LeaveStatus = 'pending';
             // Accept 'processing' as a valid intermediate status coming from backend
             if (
               rawStatus === 'pending' ||
@@ -579,8 +578,7 @@ const LeaveRequestPage = () => {
               rawStatus === 'rejected' ||
               rawStatus === 'withdrawn'
             ) {
-              normalizedStatus =
-                rawStatus as LeaveStatus;
+              normalizedStatus = rawStatus as LeaveStatus;
             } else if (rawStatus === 'cancelled') {
               // Backend uses 'cancelled' sometimes — map to 'rejected'
               normalizedStatus = 'rejected';
@@ -730,9 +728,13 @@ const LeaveRequestPage = () => {
                 Leave History
               </AppButton>
 
-              {['admin', 'hr-admin', 'system-admin', 'network-admin', 'oe-admin'].includes(
-                role
-              ) && (
+              {[
+                'admin',
+                'hr-admin',
+                'system-admin',
+                'network-admin',
+                'oe-admin',
+              ].includes(role) && (
                 <AppButton
                   variant='contained'
                   variantType='secondary'

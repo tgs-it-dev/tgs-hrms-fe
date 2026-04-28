@@ -895,11 +895,16 @@ const AttendanceTable = () => {
       }
 
       const currentUser = contextUser;
-      const roleName = (
-        (currentUser as Record<string, unknown>).role instanceof Object
-          ? ((currentUser as Record<string, unknown>).role as Record<string, unknown>)?.name
-          : currentUser.role ?? ''
-      )?.toString() ?? '';
+      const roleName =
+        ((currentUser as Record<string, unknown>).role instanceof Object
+          ? (
+              (currentUser as Record<string, unknown>).role as Record<
+                string,
+                unknown
+              >
+            )?.name
+          : (currentUser.role ?? '')
+        )?.toString() ?? '';
       setUserRole(roleName);
       const isManagerFlag = checkIsManager(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
@@ -1096,7 +1101,9 @@ const AttendanceTable = () => {
 
       // For system admin "all" view, use client-side pagination to avoid rendering too many rows
       const useSystemAdminPagination =
-        isSystemAdminFlag && effectiveView === 'all' && filteredRows.length > ATTENDANCE_PAGE_SIZE;
+        isSystemAdminFlag &&
+        effectiveView === 'all' &&
+        filteredRows.length > ATTENDANCE_PAGE_SIZE;
       if (useSystemAdminPagination) {
         setCurrentPage(1);
         setTotalPages(Math.ceil(filteredRows.length / ATTENDANCE_PAGE_SIZE));
@@ -1612,19 +1619,26 @@ const AttendanceTable = () => {
   };
 
   // Add this inside the AttendanceTable component
-const totalWorkedHours = useMemo(() => {
-  // If in My/All Attendance tab (tab 0)
-  if (tab === 0) {
-    return filteredData.reduce((acc, record) => acc + (record.workedHours || 0), 0);
-  } 
-  // If in Team Attendance tab (tab 1)
-  else {
-    return filteredTeamAttendance.reduce((acc, member) => {
-      const memberHours = member.attendance?.reduce((sum, att) => sum + (att.workedHours || 0), 0) || 0;
-      return acc + memberHours;
-    }, 0);
-  }
-}, [filteredData, filteredTeamAttendance, tab]);
+  const totalWorkedHours = useMemo(() => {
+    // If in My/All Attendance tab (tab 0)
+    if (tab === 0) {
+      return filteredData.reduce(
+        (acc, record) => acc + (record.workedHours || 0),
+        0
+      );
+    }
+    // If in Team Attendance tab (tab 1)
+    else {
+      return filteredTeamAttendance.reduce((acc, member) => {
+        const memberHours =
+          member.attendance?.reduce(
+            (sum, att) => sum + (att.workedHours || 0),
+            0
+          ) || 0;
+        return acc + memberHours;
+      }, 0);
+    }
+  }, [filteredData, filteredTeamAttendance, tab]);
 
   // Handle filter changes - reset page to 1 and fetch new data
   const handleFilterChange = () => {
@@ -1960,12 +1974,12 @@ const totalWorkedHours = useMemo(() => {
                 Clear Filters
               </AppButton>
               <AppButton
-                variant="outlined"
-                color="info"
-                sx={{ 
+                variant='outlined'
+                color='info'
+                sx={{
                   pointerEvents: 'none', // Makes it look like a badge/tag rather than a clickable button
                   fontWeight: 'bold',
-                  borderColor: 'info.main'
+                  borderColor: 'info.main',
                 }}
               >
                 Total Hours: {totalWorkedHours.toFixed(2)}
@@ -2033,8 +2047,7 @@ const totalWorkedHours = useMemo(() => {
                         token || '',
                         selfParams
                       );
-                    }
-                    else if (isAdminLike) {
+                    } else if (isAdminLike) {
                       const allParams: Record<string, string> = {};
                       if (startDate) allParams.startDate = startDate;
                       if (endDate) allParams.endDate = endDate;
@@ -2188,20 +2201,18 @@ const totalWorkedHours = useMemo(() => {
             </TableBody>
           </AppTable>
 
-          {isSystemAdminUser &&
-            adminView === 'all' &&
-            totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={(_, page) => setCurrentPage(page)}
-                  color='primary'
-                  showFirstButton
-                  showLastButton
-                />
-              </Box>
-            )}
+          {isSystemAdminUser && adminView === 'all' && totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, page) => setCurrentPage(page)}
+                color='primary'
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
 
           {canViewAllAttendance && adminView === 'all' && (
             <DateNavigation
@@ -2804,7 +2815,8 @@ const totalWorkedHours = useMemo(() => {
           />
           {(() => {
             const teamRecordCount = filteredTeamAttendance.reduce(
-              (sum, m) => sum + ((m as CheckInTeamMember).attendance?.length || 0),
+              (sum, m) =>
+                sum + ((m as CheckInTeamMember).attendance?.length || 0),
               0
             );
             return teamRecordCount > 0 ? (

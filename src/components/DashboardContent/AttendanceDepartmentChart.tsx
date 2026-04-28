@@ -24,7 +24,7 @@ import AppTable from '../common/AppTable';
 
 interface AttendanceChartItem {
   id?: string;
-  name: string; 
+  name: string;
   presents: number;
   absents: number;
   leaves: number;
@@ -207,7 +207,7 @@ const AttendanceDepartmentChart: React.FC = () => {
 
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30); 
+        startDate.setDate(startDate.getDate() - 30);
 
         const startStr = formatDate(startDate);
         const endStr = formatDate(endDate);
@@ -248,7 +248,7 @@ const AttendanceDepartmentChart: React.FC = () => {
     };
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   const departmentOptions = [
     {

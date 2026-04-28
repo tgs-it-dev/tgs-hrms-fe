@@ -96,8 +96,10 @@ export const TenantPage: React.FC = () => {
   const filteredTenants = useMemo(() => {
     if (statusFilter === 'all') return tenants;
     if (statusFilter === 'deleted') return tenants.filter(t => t.isDeleted);
-    if (statusFilter === 'active') return tenants.filter(t => !t.isDeleted && t.status === 'active');
-    if (statusFilter === 'suspended') return tenants.filter(t => !t.isDeleted && t.status === 'suspended');
+    if (statusFilter === 'active')
+      return tenants.filter(t => !t.isDeleted && t.status === 'active');
+    if (statusFilter === 'suspended')
+      return tenants.filter(t => !t.isDeleted && t.status === 'suspended');
     return tenants;
   }, [tenants, statusFilter]);
 
@@ -517,7 +519,9 @@ export const TenantPage: React.FC = () => {
             onChange={(e: SelectChangeEvent<string | number>) => {
               const v = e.target.value;
               setStatusFilter(
-                (v === '' || v === 'all' ? 'all' : String(v)) as StatusFilterOption
+                (v === '' || v === 'all'
+                  ? 'all'
+                  : String(v)) as StatusFilterOption
               );
             }}
             showLabel={false}

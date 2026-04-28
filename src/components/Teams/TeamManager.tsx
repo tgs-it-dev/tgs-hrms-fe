@@ -79,8 +79,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { language } = useLanguage();
   const theme = useTheme();
-  const [totalMembers, setTotalMembers] = useState(0); 
-  const [totalTeams, setTotalTeams] = useState(0);     
+  const [totalMembers, setTotalMembers] = useState(0);
+  const [totalTeams, setTotalTeams] = useState(0);
 
   const labels = {
     en: {
@@ -257,7 +257,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           teamApiService.getMyTeams(),
           teamApiService.getMyTeamMembers(1),
         ]);
-        setTeams(Array.isArray(teamsData) ? teamsData : teamsData?.items ?? []);
+        setTeams(
+          Array.isArray(teamsData) ? teamsData : (teamsData?.items ?? [])
+        );
         setTeamMembers(membersData?.items ?? []);
       } else if (isAdmin()) {
         // Load all teams for admin with members included

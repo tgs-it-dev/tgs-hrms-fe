@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link as RouterLink } from 'react-router-dom';
+import {
+  useNavigate,
+  useSearchParams,
+  Link as RouterLink,
+} from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -76,13 +80,13 @@ const ResetPassword = () => {
 
   const handleInputChange =
     (field: keyof typeof formData) =>
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
-        const value = typeof e === 'string' ? e : e?.target?.value ?? '';
-        setFormData(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-          setErrors(prev => ({ ...prev, [field]: undefined }));
-        }
-      };
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
+      const value = typeof e === 'string' ? e : (e?.target?.value ?? '');
+      setFormData(prev => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors(prev => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -274,9 +278,7 @@ const ResetPassword = () => {
                       height: { xs: '40px', lg: 'auto' },
                     }}
                   >
-                    {lang === 'ar'
-                      ? 'طلب رابط جديد'
-                      : 'Request New Link'}
+                    {lang === 'ar' ? 'طلب رابط جديد' : 'Request New Link'}
                   </Button>
                 </Box>
                 <Box
@@ -343,7 +345,9 @@ const ResetPassword = () => {
                   <Box sx={{ mb: 3 }}>
                     <AppInputField
                       name='password'
-                      label={lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'}
+                      label={
+                        lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'
+                      }
                       type={showPassword ? 'text' : 'password'}
                       required
                       fullWidth
@@ -352,7 +356,9 @@ const ResetPassword = () => {
                       disabled={loading}
                       error={Boolean(errors.password)}
                       helperText={errors.password}
-                      placeholder={lang === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'}
+                      placeholder={
+                        lang === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'
+                      }
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position='end'>
@@ -361,7 +367,11 @@ const ResetPassword = () => {
                               edge='end'
                               aria-label='toggle password visibility'
                             >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
@@ -410,7 +420,9 @@ const ResetPassword = () => {
                     />
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}
+                  >
                     <Button
                       type='submit'
                       variant='contained'
@@ -439,7 +451,9 @@ const ResetPassword = () => {
                       }}
                     >
                       {loading ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                        >
                           <CircularProgress size={16} color='inherit' />
                           {lang === 'ar' ? 'جاري التحديث...' : 'Updating...'}
                         </Box>

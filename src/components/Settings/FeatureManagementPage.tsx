@@ -101,9 +101,7 @@ const FeatureManagementPage: React.FC = () => {
                 py: { xs: 1, sm: 1.5 },
                 borderRadius: 2,
                 backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
-                border: `1px solid ${
-                  darkMode ? '#333' : 'rgba(0,0,0,0.04)'
-                }`,
+                border: `1px solid ${darkMode ? '#333' : 'rgba(0,0,0,0.04)'}`,
                 flexWrap: 'wrap',
               }}
             >
@@ -169,4 +167,3 @@ const FeatureManagementPage: React.FC = () => {
 };
 
 export default FeatureManagementPage;
-

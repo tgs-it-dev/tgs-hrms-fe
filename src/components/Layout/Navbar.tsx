@@ -47,9 +47,7 @@ import { Icons } from '../../assets/icons';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
 import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
-import {
-  isDashboardPathAllowedForRole,
-} from '../../utils/permissions';
+import { isDashboardPathAllowedForRole } from '../../utils/permissions';
 import {
   useFeatureToggles,
   type FeatureKey,
@@ -121,7 +119,7 @@ interface SearchResult {
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'attendance'
+    | 'attendance';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -395,64 +393,64 @@ const NotificationButton: React.FC = () => {
         {(() => {
           const unreadList = notifications.filter(n => !n.read);
           return unreadList.length === 0 ? (
-          <List sx={{ p: 2 }}>
-            <ListItem>
-              <ListItemText
-                primary='No notifications'
-                primaryTypographyProps={{ color: 'text.secondary' }}
-              />
-            </ListItem>
-          </List>
-        ) : (
-          <List>
-            {unreadList.map(n => (
-              <ListItemButton
-                key={n.id}
-                onClick={() => {
-                  markAsRead(n.id);
-                }}
-                sx={{
-                  alignItems: 'flex-start',
-                  bgcolor: n.read
-                    ? 'transparent'
-                    : theme.palette.action.selected,
-                }}
-              >
+            <List sx={{ p: 2 }}>
+              <ListItem>
                 <ListItemText
-                  primary={n.title}
-                  secondary={
-                    <>
-                      <Typography
-                        component='span'
-                        variant='body2'
-                        color='text.secondary'
-                      >
-                        {n.text}
-                      </Typography>
-                      <Typography
-                        component='div'
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{ mt: 0.5 }}
-                      >
-                        {new Date(n.timestamp).toLocaleString()}
-                      </Typography>
-                    </>
-                  }
+                  primary='No notifications'
+                  primaryTypographyProps={{ color: 'text.secondary' }}
                 />
-                <IconButton
-                  size='small'
-                  onClick={e => {
-                    e.stopPropagation();
-                    clearNotification(n.id);
+              </ListItem>
+            </List>
+          ) : (
+            <List>
+              {unreadList.map(n => (
+                <ListItemButton
+                  key={n.id}
+                  onClick={() => {
+                    markAsRead(n.id);
+                  }}
+                  sx={{
+                    alignItems: 'flex-start',
+                    bgcolor: n.read
+                      ? 'transparent'
+                      : theme.palette.action.selected,
                   }}
                 >
-                  ×
-                </IconButton>
-              </ListItemButton>
-            ))}
-          </List>
-        );
+                  <ListItemText
+                    primary={n.title}
+                    secondary={
+                      <>
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='text.secondary'
+                        >
+                          {n.text}
+                        </Typography>
+                        <Typography
+                          component='div'
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{ mt: 0.5 }}
+                        >
+                          {new Date(n.timestamp).toLocaleString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <IconButton
+                    size='small'
+                    onClick={e => {
+                      e.stopPropagation();
+                      clearNotification(n.id);
+                    }}
+                  >
+                    ×
+                  </IconButton>
+                </ListItemButton>
+              ))}
+            </List>
+          );
         })()}
       </Menu>
     </>

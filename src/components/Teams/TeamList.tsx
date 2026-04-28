@@ -47,7 +47,6 @@ interface TeamListProps {
 const TeamList: React.FC<TeamListProps> = ({
   teams = [],
   darkMode = false,
-  onTeamUpdated: _onTeamUpdated,
   onTeamDeleted,
 }) => {
   const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
@@ -426,7 +425,11 @@ const TeamList: React.FC<TeamListProps> = ({
                               />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title={lang.deleteTeam} arrow placement='top'>
+                          <Tooltip
+                            title={lang.deleteTeam}
+                            arrow
+                            placement='top'
+                          >
                             <IconButton
                               size='small'
                               onClick={() => handleDeleteTeam(team)}

@@ -29,61 +29,59 @@ const AuthSidebar: React.FC = () => {
           minHeight: '100vh',
         }}
       >
-            <Box
-            component='img'
-            src={Icons.logoWhite}
-            alt='Logo'
-            sx={{
-              maxHeight: { lg: 40, xl: 48 },
-              width: 'auto',
-            }}
-          />
+        <Box
+          component='img'
+          src={Icons.logoWhite}
+          alt='Logo'
+          sx={{
+            maxHeight: { lg: 40, xl: 48 },
+            width: 'auto',
+          }}
+        />
         <Box>
-        <Box
-          sx={{
-            alignSelf: 'flex-start',
-            flexShrink: 0,
-          }}
-        >
-      
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: { lg: '50px', xl: '69px' },
-            alignSelf: 'center',
-            flex: 1,
-            mt: { lg: '80px', xl: '100px' },
-            mb: { lg: '80px', xl: '100px' },
-          }}
-        >
-          <Typography
-            variant='h1'
+          <Box
             sx={{
-              fontSize: { lg: '48px', xl: '56px' },
-              fontWeight: 500,
-              color: 'var(--white-color)',
-              lineHeight: 1.2,
+              alignSelf: 'flex-start',
+              flexShrink: 0,
             }}
-          >
-            Workonnect - Let's Management Better
-          </Typography>
+          ></Box>
 
           <Box
-            component='img'
-            src={Icons.authSidebar}
-            alt='Illustration'
             sx={{
-              width: '100%',
-              maxWidth: { lg: '500px', xl: '600px' },
-              height: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: { lg: '50px', xl: '69px' },
+              alignSelf: 'center',
+              flex: 1,
+              mt: { lg: '80px', xl: '100px' },
+              mb: { lg: '80px', xl: '100px' },
             }}
-          />
-        </Box>
+          >
+            <Typography
+              variant='h1'
+              sx={{
+                fontSize: { lg: '48px', xl: '56px' },
+                fontWeight: 500,
+                color: 'var(--white-color)',
+                lineHeight: 1.2,
+              }}
+            >
+              Workonnect - Let's Management Better
+            </Typography>
+
+            <Box
+              component='img'
+              src={Icons.authSidebar}
+              alt='Illustration'
+              sx={{
+                width: '100%',
+                maxWidth: { lg: '500px', xl: '600px' },
+                height: 'auto',
+              }}
+            />
+          </Box>
         </Box>
       </Box>
     </Box>

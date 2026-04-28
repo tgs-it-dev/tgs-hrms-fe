@@ -1,10 +1,5 @@
 import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
-import {
-  Box,
-  CircularProgress,
-  InputAdornment,
-  useTheme,
-} from '@mui/material';
+import { Box, CircularProgress, InputAdornment, useTheme } from '@mui/material';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import './PhoneInput.css';
@@ -291,141 +286,141 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         open={open}
         onClose={handleClose}
         title='Edit Profile'
-      onSubmit={handleSubmit}
-      submitLabel={loading ? 'Updating...' : 'Update Profile'}
-      cancelLabel='Cancel'
-      isSubmitting={loading}
-      hasChanges={!submitDisabled}
-      submitDisabled={submitDisabled}
-      submitTitle={submitTitle}
-      submitStartIcon={loading ? <CircularProgress size={16} /> : undefined}
-      maxWidth='sm'
-    >
-      <Box sx={{ pt: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-          <ProfilePictureUpload
-            user={user}
-            onProfileUpdate={onProfileUpdated}
-            size={100}
-            showUploadButton={true}
-            showRemoveButton={true}
-            clickable={true}
-            deferUpload={true}
-            onFileSelected={file => {
-              setSelectedPictureFile(file);
-              const reader = new FileReader();
-              reader.onload = e =>
-                setPreviewImageUrl(e.target?.result as string);
-              reader.readAsDataURL(file);
-            }}
-            previewImageOverride={previewImageUrl}
-            deferDelete={true}
-            onRemoveSelected={() => {
-              setSelectedPictureFile(null);
-              setPreviewImageUrl(null);
-              setRemoveRequested(true);
-            }}
-            suppressExistingImage={removeRequested}
-          />
-        </Box>
+        onSubmit={handleSubmit}
+        submitLabel={loading ? 'Updating...' : 'Update Profile'}
+        cancelLabel='Cancel'
+        isSubmitting={loading}
+        hasChanges={!submitDisabled}
+        submitDisabled={submitDisabled}
+        submitTitle={submitTitle}
+        submitStartIcon={loading ? <CircularProgress size={16} /> : undefined}
+        maxWidth='sm'
+      >
+        <Box sx={{ pt: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <ProfilePictureUpload
+              user={user}
+              onProfileUpdate={onProfileUpdated}
+              size={100}
+              showUploadButton={true}
+              showRemoveButton={true}
+              clickable={true}
+              deferUpload={true}
+              onFileSelected={file => {
+                setSelectedPictureFile(file);
+                const reader = new FileReader();
+                reader.onload = e =>
+                  setPreviewImageUrl(e.target?.result as string);
+                reader.readAsDataURL(file);
+              }}
+              previewImageOverride={previewImageUrl}
+              deferDelete={true}
+              onRemoveSelected={() => {
+                setSelectedPictureFile(null);
+                setPreviewImageUrl(null);
+                setRemoveRequested(true);
+              }}
+              suppressExistingImage={removeRequested}
+            />
+          </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <AppInputField
-            label='First Name'
-            value={displayData.first_name}
-            onChange={handleInputChange('first_name')}
-            error={!!validationErrors.first_name}
-            helperText={validationErrors.first_name}
-            disabled={loading}
-            inputProps={{ maxLength: 50 }}
-            placeholder='Enter first name'
-            inputBackgroundColor={controlBg}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <AppInputField
+              label='First Name'
+              value={displayData.first_name}
+              onChange={handleInputChange('first_name')}
+              error={!!validationErrors.first_name}
+              helperText={validationErrors.first_name}
+              disabled={loading}
+              inputProps={{ maxLength: 50 }}
+              placeholder='Enter first name'
+              inputBackgroundColor={controlBg}
+            />
 
-          <AppInputField
-            label='Last Name'
-            value={displayData.last_name}
-            onChange={handleInputChange('last_name')}
-            error={!!validationErrors.last_name}
-            helperText={validationErrors.last_name}
-            disabled={loading}
-            inputProps={{ maxLength: 50 }}
-            placeholder='Enter last name'
-            inputBackgroundColor={controlBg}
-          />
+            <AppInputField
+              label='Last Name'
+              value={displayData.last_name}
+              onChange={handleInputChange('last_name')}
+              error={!!validationErrors.last_name}
+              helperText={validationErrors.last_name}
+              disabled={loading}
+              inputProps={{ maxLength: 50 }}
+              placeholder='Enter last name'
+              inputBackgroundColor={controlBg}
+            />
 
-          <AppInputField
-            label='Phone Number'
-            value={displayData.phone}
-            onChange={e => handlePhoneChange(e.target.value)}
-            error={!!validationErrors.phone}
-            helperText={validationErrors.phone}
-            disabled={loading}
-            placeholder='Enter phone number (optional)'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position='start'
-                  sx={{ margin: 0, padding: '28px 0px' }}
-                >
-                  <PhoneInput
-                    defaultCountry='pk'
-                    value={displayData.phone}
-                    onChange={handlePhoneChange}
-                    disabled={loading}
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      background: 'transparent',
-                      width: '100%',
-                    }}
-                    inputStyle={{
-                      border: 'none',
-                      outline: 'none',
-                      padding: '0',
-                      margin: '0',
-                      fontSize: '0.9rem',
-                      backgroundColor: 'transparent',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      flex: 1,
-                      height: '100%',
-                      color: theme.palette.text.primary,
-                    }}
-                    countrySelectorStyleProps={{
-                      buttonStyle: {
+            <AppInputField
+              label='Phone Number'
+              value={displayData.phone}
+              onChange={e => handlePhoneChange(e.target.value)}
+              error={!!validationErrors.phone}
+              helperText={validationErrors.phone}
+              disabled={loading}
+              placeholder='Enter phone number (optional)'
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment
+                    position='start'
+                    sx={{ margin: 0, padding: '28px 0px' }}
+                  >
+                    <PhoneInput
+                      defaultCountry='pk'
+                      value={displayData.phone}
+                      onChange={handlePhoneChange}
+                      disabled={loading}
+                      style={{
                         border: 'none',
+                        outline: 'none',
                         background: 'transparent',
+                        width: '100%',
+                      }}
+                      inputStyle={{
+                        border: 'none',
+                        outline: 'none',
                         padding: '0',
                         margin: '0',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
+                        fontSize: '0.9rem',
+                        backgroundColor: 'transparent',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        flex: 1,
+                        height: '100%',
                         color: theme.palette.text.primary,
-                      },
-                    }}
-                    className='phone-input-textfield-adornment'
-                  />
-                </InputAdornment>
-              ),
-            }}
-            inputBackgroundColor={controlBg}
-          />
+                      }}
+                      countrySelectorStyleProps={{
+                        buttonStyle: {
+                          border: 'none',
+                          background: 'transparent',
+                          padding: '0',
+                          margin: '0',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          color: theme.palette.text.primary,
+                        },
+                      }}
+                      className='phone-input-textfield-adornment'
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              inputBackgroundColor={controlBg}
+            />
 
-          <AppInputField
-            label='Email Address'
-            type='email'
-            value={displayData.email}
-            onChange={handleInputChange('email')}
-            error={!!validationErrors.email}
-            helperText={validationErrors.email}
-            disabled={loading}
-            placeholder='Enter email address'
-            inputBackgroundColor={controlBg}
-          />
+            <AppInputField
+              label='Email Address'
+              type='email'
+              value={displayData.email}
+              onChange={handleInputChange('email')}
+              error={!!validationErrors.email}
+              helperText={validationErrors.email}
+              disabled={loading}
+              placeholder='Enter email address'
+              inputBackgroundColor={controlBg}
+            />
+          </Box>
         </Box>
-      </Box>
-    </AppFormModal>
+      </AppFormModal>
       <ErrorSnackbar
         open={snackbar.open}
         message={snackbar.message}

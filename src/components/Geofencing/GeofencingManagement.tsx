@@ -654,7 +654,7 @@ const GeofencingManagement = () => {
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          variant="standard"
+          variant='standard'
           sx={{
             width: '100%',
             ...(snackbar.severity === 'error'
