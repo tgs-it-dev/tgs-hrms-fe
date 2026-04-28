@@ -1,137 +1,31 @@
 import axiosInstance from './axiosInstance';
+import type { PaginatedResponse } from '../types/api';
+import type {
+  Team,
+  TeamMember,
+  Manager,
+  AllTenantsTeamsResponse,
+  CreateTeamDto,
+  UpdateTeamDto,
+} from '../types/team';
 
-// Team Member interface
-export interface TeamMember {
-  id: string;
-  user: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    profile_pic?: string | null;
-  };
-  designation: {
-    id: string;
-    title: string;
-    department?: {
-      id: string;
-      name: string;
-    };
-  };
-  department?: {
-    id: string;
-    name: string;
-  };
-  team_id?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// Team interface
-export interface Team {
-  id: string;
-  name: string;
-  description: string;
-  manager_id: string;
-  created_at: string;
-  updated_at: string;
-  manager?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    profile_pic?: string | null;
-  };
-  teamMembers?: TeamMember[];
-  members?: TeamMember[];
-  memberCount?: number;
-}
-
-// Paginated interface
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-// DTOs
-export interface CreateTeamDto {
-  name: string;
-  description?: string;
-  manager_id: string;
-}
-
-export interface UpdateTeamDto {
-  name?: string;
-  description?: string;
-  manager_id?: string;
-}
-
-export interface AddMemberDto {
-  employee_id: string;
-}
-
-export interface RemoveMemberDto {
-  employee_id: string;
-}
-
-// Manager interface for dropdown
-export interface Manager {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-}
-
-export interface TenantTeamMember {
-  id: string;
-  status: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    profile_pic?: string | null;
-  };
-  designation: {
-    id: string;
-    title: string;
-  };
-  department: {
-    id: string;
-    name: string;
-  };
-}
-
-export interface TenantTeam {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-  manager: {
-    id: string;
-    name: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    profile_pic?: string | null;
-    role: string;
-  };
-  members: TenantTeamMember[];
-}
-
-export interface TenantTeams {
-  tenant_id: string;
-  tenant_name: string;
-  tenant_status: string;
-  teams: TenantTeam[];
-}
-
-export interface AllTenantsTeamsResponse {
-  tenants: TenantTeams[];
-}
+// Re-export so existing component imports keep working without path changes.
+export type {
+  Team,
+  TeamMember,
+  Manager,
+  AllTenantsTeamsResponse,
+  TenantTeam,
+  TenantTeamMember,
+  TenantTeams,
+  CreateTeamDto,
+  UpdateTeamDto,
+  AddMemberDto,
+  RemoveMemberDto,
+  AttendanceTeamMember,
+  LeaveReportMember,
+} from '../types/team';
+export type { PaginatedResponse } from '../types/api';
 
 class TeamApiService {
   private baseUrl = '/teams';
@@ -151,8 +45,6 @@ class TeamApiService {
     const response = await axiosInstance.post<Team>(this.baseUrl, teamData);
     const newTeam = response.data;
 
-    // Try to add manager as a member, but don't fail team creation if this fails
-    // The team is already created successfully at this point
     if (newTeam.id && teamData.manager_id) {
       try {
         await this.addMemberToTeam(newTeam.id, teamData.manager_id);
@@ -206,16 +98,13 @@ class TeamApiService {
       `${this.baseUrl}/${id}`,
       teamData
     );
-    const updatedTeam = response.data;
-
-    return updatedTeam;
+    return response.data;
   }
 
   async deleteTeam(id: string): Promise<void> {
     await axiosInstance.delete(`${this.baseUrl}/${id}`);
   }
 
-  // Get manager's teams
   async getMyTeams(): Promise<Team[]> {
     try {
       const response = await axiosInstance.get<Team[]>(
@@ -227,7 +116,6 @@ class TeamApiService {
     }
   }
 
-  // Get manager's team members
   async getMyTeamMembers(
     page: number = 1,
     limit: number = 25
@@ -280,7 +168,6 @@ class TeamApiService {
     }
   }
 
-  // Add member to team
   async addMemberToTeam(
     teamId: string,
     employeeId: string,
@@ -288,11 +175,9 @@ class TeamApiService {
   ): Promise<void> {
     const payload: Record<string, string> = { employee_id: employeeId };
     if (companyId) payload.company_id = companyId;
-
     await axiosInstance.post(`${this.baseUrl}/${teamId}/add-member`, payload);
   }
 
-  // Remove member from team
   async removeMemberFromTeam(
     teamId: string,
     employeeId: string

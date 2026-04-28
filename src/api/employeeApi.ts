@@ -1,55 +1,16 @@
 import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
+import type {
+  BackendEmployee,
+  EmployeeJoiningReport,
+  GenderPercentage,
+} from '../types/employee';
 
-export interface EmployeeJoiningReport {
-  month: number;
-  year: number;
-  total: number;
-}
-
-export interface GenderPercentage {
-  male: number;
-  female: number;
-  total: number;
-}
-
-export interface BackendEmployee {
-  id: string;
-  user_id?: string; // User ID for fetching profile pictures
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  phone: string;
-  role_id?: string;
-  role_name?: string;
-  departmentId: string;
-  designationId: string;
-  status?: string;
-  cnic_number?: string;
-  profile_picture?: string;
-  cnic_picture?: string;
-  cnic_back_picture?: string;
-  department: {
-    id: string;
-    name: string;
-    description: string;
-    tenantId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  designation: {
-    id: string;
-    title: string;
-    tenantId: string;
-    departmentId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  tenantId: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  BackendEmployee,
+  EmployeeJoiningReport,
+  GenderPercentage,
+} from '../types/employee';
 
 export interface EmployeeProfileAttendanceSummaryItem {
   date: string;

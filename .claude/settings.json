@@ -15,7 +15,13 @@
       "Bash(git stash *)",
       "Bash(gh run *)",
       "Bash(awk -F: '{print $1}')",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(sed -n '1,55p' src/api/attendanceApi.ts)",
+      "Bash(sed -n '1,60p' src/api/departmentApi.ts)",
+      "Bash(sed -n '1,35p' src/api/designationApi.ts)",
+      "Bash(sed -n '1,55p' src/api/employeeApi.ts)",
+      "Bash(sed -n '1,30p' src/api/profileApi.ts)",
+      "Bash(sed -n '1,60p' src/api/leaveApi.ts)"
     ]
   }
 }

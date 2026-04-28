@@ -11,22 +11,10 @@ import notificationsApi from '../api/notificationsApi';
 import { authService } from '../api/authService';
 import { env } from '../config/env';
 import { getCurrentUser } from '../utils/auth';
+import type { UINotification } from '../types/notification';
 
-// Local Notification type for the UI notifications used by the Navbar
-export interface Notification {
-  id: string;
-  title: string;
-  text: string;
-  timestamp: string;
-  read: boolean;
-  // Optional extra fields used by some UIs (task panel etc.)
-  employeeName?: string;
-  taskTitle?: string;
-  oldStatus?: string;
-  newStatus?: string;
-  // keep raw payload for debugging or future use
-  raw?: unknown;
-}
+// Re-export UINotification as Notification so existing imports keep working.
+export type Notification = UINotification;
 
 // AlertsResponse not used — removed to satisfy lint rules
 interface NotificationContextType {
