@@ -22,11 +22,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { isAdmin, isManager, isHRAdmin, isSystemAdmin } from '../../utils/auth';
 import { teamApiService } from '../../api/teamApi';
 import AppButton from '../common/AppButton';
-import type {
-  Team,
-  TeamMember,
-  AllTenantsTeamsResponse,
-} from '../../api/teamApi';
+import type { Team, AllTenantsTeamsResponse } from '../../api/teamApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import TeamList from './TeamList';
@@ -70,7 +66,6 @@ const TeamManager: React.FC<TeamManagerProps> = ({
   const { snackbar, showSuccess, closeSnackbar } = useErrorHandler();
 
   const [tabValue, setTabValue] = useState(0);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [tenantsWithTeams, setTenantsWithTeams] =
     useState<AllTenantsTeamsResponse>({ tenants: [] });
   const [teams, setTeams] = useState<Team[]>([]);
@@ -129,7 +124,6 @@ const TeamManager: React.FC<TeamManagerProps> = ({
             teamApiService.getMyTeamMembers(1),
           ]);
           setTeams(teamsData);
-          setTeamMembers(membersData.items);
           setTotalTeams(teamsData.length);
           setTotalMembers(membersData.total);
         } else if (isAdmin()) {
@@ -172,15 +166,18 @@ const TeamManager: React.FC<TeamManagerProps> = ({
               teamApiService.getMyTeamMembers(1),
             ]);
             setTeams(teamsData);
-            setTeamMembers(membersData.items);
+            setTotalTeams(teamsData.length);
+            setTotalMembers(membersData.total);
           } else if (isAdmin()) {
             // Load all teams for admin with members included
             const teamsData = await teamApiService.getAllTeams(1);
             setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
           } else if (isHRAdmin()) {
             // Load all teams of the current tenant (view-only)
             const teamsData = await teamApiService.getAllTeams(1);
             setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
           }
         } catch {
           setError('Failed to refresh team data');
@@ -258,11 +255,13 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           teamApiService.getMyTeamMembers(1),
         ]);
         setTeams((teamsData as any)?.items || (teamsData as any) || []);
-        setTeamMembers((membersData as any)?.items || []);
+        setTotalTeams(Array.isArray(teamsData) ? teamsData.length : (teamsData as any)?.total || 0);
+        setTotalMembers((membersData as any)?.total || 0);
       } else if (isAdmin()) {
         // Load all teams for admin with members included
         const teamsData = await teamApiService.getAllTeams(1);
         setTeams((teamsData as any)?.items || (teamsData as any) || []);
+        setTotalTeams((teamsData as any)?.total || 0);
       }
     } catch {
       setError('Failed to refresh team data');
