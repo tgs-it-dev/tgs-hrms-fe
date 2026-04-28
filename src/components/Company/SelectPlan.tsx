@@ -530,6 +530,7 @@ const SelectPlan: React.FC = () => {
           fontWeight: 700,
           mb: 1,
           textAlign: 'center',
+          fontSize: { xs: '32px', md: '36px', lg: '52px' },
         }}
       >
         Choose Your Plan
