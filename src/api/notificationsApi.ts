@@ -1,52 +1,18 @@
 import axiosInstance from './axiosInstance';
+import type {
+  SendNotificationRequest,
+  SendNotificationResult,
+  GetNotificationsParams,
+  GetNotificationsResult,
+} from '../types/notification';
 
-export interface SendNotificationRequest {
-  user_ids: string[];
-  message: string;
-  type?: string; // e.g. 'alert'
-}
-
-export interface SendNotificationRawResponse {
-  success?: boolean;
-  message?: string;
-  data?: unknown;
-  correlationId?: string;
-}
-
-export interface SendNotificationResult {
-  ok: boolean;
-  status: number;
-  data?: unknown;
-  message?: string;
-  correlationId?: string | null;
-  error?: unknown;
-}
-
-export interface GetNotificationsParams {
-  status?: 'unread' | 'read';
-  type?: string;
-  limit?: number;
-}
-
-export interface NotificationItem {
-  id: string;
-  user_id: string;
-  tenant_id?: string;
-  message: string;
-  type?: string;
-  status?: 'unread' | 'read';
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface GetNotificationsResult {
-  ok: boolean;
-  status: number;
-  notifications?: NotificationItem[];
-  unread_count?: number;
-  message?: string;
-  error?: unknown;
-}
+export type {
+  SendNotificationRequest,
+  SendNotificationResult,
+  GetNotificationsParams,
+  NotificationItem,
+  GetNotificationsResult,
+} from '../types/notification';
 
 class NotificationsApi {
   private baseUrl = '/notifications';

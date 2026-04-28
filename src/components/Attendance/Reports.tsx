@@ -17,7 +17,7 @@ import {
   leaveReportApi,
   type EmployeeReport,
   type LeaveSummaryItem,
-  type TeamMember,
+  type LeaveReportMember,
 } from '../../api/leaveReportApi';
 import employeeApi from '../../api/employeeApi';
 import { useIsDarkMode } from '../../theme';
@@ -67,7 +67,7 @@ const Reports: React.FC = () => {
   const [allEmployees, setAllEmployees] = useState<
     Array<{ id: string; name: string; firstName: string }>
   >([]);
-  const [, setTeamSummary] = useState<TeamMember[]>([]);
+  const [, setTeamSummary] = useState<LeaveReportMember[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [userInfo, setUserInfo] = useState<{
     userId: string | null;
