@@ -10,6 +10,8 @@ import {
   useMediaQuery,
   useTheme,
   CircularProgress,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import AppInputField from './AppInputField';
@@ -44,7 +46,7 @@ export interface AppFormModalProps {
   children?: ReactNode;
   hideActions?: boolean;
   wrapInForm?: boolean;
-  paperSx?: object;
+  paperSx?: SxProps<Theme>;
   submitLabel?: string;
   cancelLabel?: string;
   submitStartIcon?: ReactNode;
