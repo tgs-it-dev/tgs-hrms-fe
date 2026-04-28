@@ -6,9 +6,6 @@ Required environment variables:
   GH_TOKEN           - GitHub token (for gh CLI)
   ANTHROPIC_API_KEY  - Anthropic API key
   PR_NUMBER          - Pull request number
-  PR_TITLE           - Pull request title
-  PR_BODY            - Pull request body / description
-  BASE_REF           - Base branch name (e.g. dev, main)
   GITHUB_SHA         - Current commit SHA (provided automatically by Actions)
 """
 
@@ -21,6 +18,14 @@ import urllib.request
 
 def get_env(key: str, default: str = "") -> str:
     return os.environ.get(key, default)
+
+
+def fetch_pr_metadata(pr_number: str) -> dict:
+    result = subprocess.run(
+        ["gh", "pr", "view", pr_number, "--json", "title,body,baseRefName"],
+        capture_output=True, text=True, check=True,
+    )
+    return json.loads(result.stdout)
 
 
 def fetch_diff(pr_number: str, base_ref: str) -> str:
@@ -126,17 +131,20 @@ def post_comment(pr_number: str, body: str) -> None:
 
 
 def main() -> None:
-    pr_number  = get_env("PR_NUMBER")
-    pr_title   = get_env("PR_TITLE", "(no title)")
-    pr_body    = get_env("PR_BODY", "").strip()
-    base_ref   = get_env("BASE_REF", "main")
-    api_key    = get_env("ANTHROPIC_API_KEY")
-    sha        = get_env("GITHUB_SHA", "")[:7]
+    pr_number = get_env("PR_NUMBER")
+    api_key   = get_env("ANTHROPIC_API_KEY")
+    sha       = get_env("GITHUB_SHA", "")[:7]
 
     if not pr_number:
         sys.exit("PR_NUMBER is required")
     if not api_key:
         sys.exit("ANTHROPIC_API_KEY is required")
+
+    print(f"Fetching PR metadata for #{pr_number}...")
+    meta     = fetch_pr_metadata(pr_number)
+    pr_title = meta.get("title", "(no title)")
+    pr_body  = (meta.get("body") or "").strip()
+    base_ref = meta.get("baseRefName", "main")
 
     print(f"Fetching diff for PR #{pr_number}...")
     diff = truncate_diff(fetch_diff(pr_number, base_ref))
