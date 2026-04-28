@@ -275,7 +275,7 @@ const AttendanceTable = () => {
         if (!userEvents.has(currentUserId)) {
           userEvents.set(currentUserId, []);
         }
-        userEvents.get(currentUserId)!.push({
+        userEvents.get(currentUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
@@ -290,7 +290,7 @@ const AttendanceTable = () => {
         if (!userEvents.has(finalUserId)) {
           userEvents.set(finalUserId, []);
         }
-        userEvents.get(finalUserId)!.push({
+        userEvents.get(finalUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',

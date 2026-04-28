@@ -1180,7 +1180,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                           handleImagePreviewClick(
                             values.profilePicture
                               ? URL.createObjectURL(values.profilePicture)
-                              : toAbsoluteUrl(initialData!.profilePicture!),
+                              : toAbsoluteUrl(initialData?.profilePicture ?? ''),
                             'Profile Picture'
                           )
                         }
@@ -1257,7 +1257,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                           handleImagePreviewClick(
                             values.cnicFrontPicture
                               ? URL.createObjectURL(values.cnicFrontPicture)
-                              : toAbsoluteUrl(initialData!.cnicFrontPicture!),
+                              : toAbsoluteUrl(initialData?.cnicFrontPicture ?? ''),
                             'CNIC Front'
                           )
                         }
@@ -1334,7 +1334,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                           handleImagePreviewClick(
                             values.cnicBackPicture
                               ? URL.createObjectURL(values.cnicBackPicture)
-                              : toAbsoluteUrl(initialData!.cnicBackPicture!),
+                              : toAbsoluteUrl(initialData?.cnicBackPicture ?? ''),
                             'CNIC Back'
                           )
                         }

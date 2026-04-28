@@ -539,7 +539,7 @@ const TenantBasedEmployeeManager: React.FC = () => {
             setOpenProfile(false);
             setSelectedEmployee(null);
           }}
-          employeeId={selectedEmployee!.id}
+          employeeId={selectedEmployee.id}
         />
       )}
 
