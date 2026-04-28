@@ -128,20 +128,20 @@ const TeamManager: React.FC<TeamManagerProps> = ({
             teamApiService.getMyTeams(),
             teamApiService.getMyTeamMembers(1),
           ]);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
-          setTeamMembers((membersData as any)?.items || []);
-          setTotalTeams((teamsData as any)?.total || 0);
-          setTotalMembers((membersData as any)?.total || 0);
+          setTeams(teamsData);
+          setTeamMembers(membersData.items);
+          setTotalTeams(teamsData.length);
+          setTotalMembers(membersData.total);
         } else if (isAdmin()) {
           // Load all teams for admin with members included
           const teamsData = await teamApiService.getAllTeams(1);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
-          setTotalTeams((teamsData as any)?.total || 0);
+          setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
         } else if (isHRAdmin()) {
           // Load all teams for HR admin without members
           const teamsData = await teamApiService.getAllTeams(1);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
-          setTotalTeams((teamsData as any)?.total || 0);
+          setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
         }
       } catch {
         setError('Failed to load team data');
@@ -171,16 +171,16 @@ const TeamManager: React.FC<TeamManagerProps> = ({
               teamApiService.getMyTeams(),
               teamApiService.getMyTeamMembers(1),
             ]);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
-            setTeamMembers((membersData as any)?.items || []);
+            setTeams(teamsData);
+            setTeamMembers(membersData.items);
           } else if (isAdmin()) {
             // Load all teams for admin with members included
             const teamsData = await teamApiService.getAllTeams(1);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
+            setTeams(teamsData.items);
           } else if (isHRAdmin()) {
             // Load all teams of the current tenant (view-only)
             const teamsData = await teamApiService.getAllTeams(1);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
+            setTeams(teamsData.items);
           }
         } catch {
           setError('Failed to refresh team data');
