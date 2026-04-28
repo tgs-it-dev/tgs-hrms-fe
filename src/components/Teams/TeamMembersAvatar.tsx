@@ -17,6 +17,7 @@ import {
   InputAdornment,
   useTheme,
   SvgIcon,
+  type SvgIconProps,
 } from '@mui/material';
 import UserAvatar from '../common/UserAvatar';
 import { Avatar } from '@mui/material';
@@ -36,7 +37,7 @@ interface AdminTeamMember extends TeamMember {
 }
 import { getUserRole, isAdmin } from '../../utils/auth';
 
-const CustomSearchIcon = (props: any) => (
+const CustomSearchIcon = (props: SvgIconProps) => (
   <SvgIcon
     {...props}
     viewBox='0 0 17 17'

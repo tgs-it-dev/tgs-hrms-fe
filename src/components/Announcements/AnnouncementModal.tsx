@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import AppFormModal from '../common/AppFormModal';
 import DateTimePickerField from '../common/DateTimePickerField';
@@ -339,7 +339,10 @@ export default function AnnouncementModal({
         }
         onBlur={() => setTitleTouched(true)}
         onChange={(e: unknown) => {
-          const raw = typeof e === 'string' ? e : (e as any).target?.value || '';
+          const raw =
+            typeof e === 'string'
+              ? e
+              : (e as React.ChangeEvent<HTMLInputElement>).target?.value ?? '';
           setTitle(raw.slice(0, MAX_TITLE_LENGTH));
           setTitleApiError(null);
         }}
