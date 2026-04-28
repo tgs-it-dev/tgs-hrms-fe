@@ -15,12 +15,7 @@ interface AppTableProps extends TableContainerProps {
   tableProps?: TableProps;
 }
 
-export function AppTable({
-  children,
-  sx,
-  tableProps,
-  ...rest
-}: AppTableProps) {
+export function AppTable({ children, sx, tableProps, ...rest }: AppTableProps) {
   const theme = useTheme();
 
   const baseSx: SxProps<Theme> = {
@@ -44,7 +39,9 @@ export function AppTable({
         letterSpacing: 'var(--subheading2-letter-spacing)',
         color: theme.palette.common.white,
         backgroundColor:
-          theme.palette.mode === 'dark' ? 'var(--primary-dark-color)' : 'var(--primary-light-color)',
+          theme.palette.mode === 'dark'
+            ? 'var(--primary-dark-color)'
+            : 'var(--primary-light-color)',
         whiteSpace: 'nowrap',
       },
     },

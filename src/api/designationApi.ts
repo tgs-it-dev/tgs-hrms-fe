@@ -63,7 +63,7 @@ class DesignationApiService {
     const response = await axiosInstance.get<
       BackendDepartment[] | { items: BackendDepartment[] }
     >(this.departmentUrl);
-    
+
     let items: BackendDepartment[] = [];
     if (Array.isArray(response.data)) {
       items = response.data;
@@ -143,7 +143,7 @@ class DesignationApiService {
       // we'll need to fetch all departments first and then get designations for each
       const departments = await this.getAllDepartments();
       const allDesignations: BackendDesignation[] = [];
-      
+
       for (const department of departments) {
         try {
           let currentPage = 1;
@@ -154,7 +154,7 @@ class DesignationApiService {
               department.id,
               currentPage
             );
-            
+
             if (response.items.length === 0) break;
 
             allDesignations.push(...response.items);

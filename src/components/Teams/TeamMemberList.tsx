@@ -43,7 +43,7 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
   teamId,
   darkMode = false,
 }) => {
-  const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
+  const { snackbar, showSuccess, closeSnackbar } = useErrorHandler();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -12,7 +12,7 @@ const TimesheetLayout: React.FC = () => {
       {/* Back Arrow */}
       <IconButton
         sx={{ p: 0, mb: 2, color: theme.palette.text.primary }}
-        onClick={() => navigate('/dashboard/AttendanceCheck')}
+        onClick={() => navigate('/dashboard/attendance-check')}
       >
         <ArrowBackIcon />
       </IconButton>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -19,16 +19,13 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { useLanguage } from '../../hooks/useLanguage';
-import type { Team, TeamMember } from '../../api/teamApi';
-import { teamApiService } from '../../api/teamApi';
+import type { Team } from '../../api/teamApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import { isAdmin, isManager } from '../../utils/auth';
 import TeamMemberList from './TeamMemberList';
 import AppButton from '../common/AppButton';
-import { useNavigate } from 'react-router-dom';
 import AppCard from '../common/AppCard';
-import AppDropdown from '../common/AppDropdown';
 import AvailableEmployees from './AvailableEmployees';
 
 interface MyTeamsProps {
@@ -37,13 +34,12 @@ interface MyTeamsProps {
 }
 
 const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
-  const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
+  const { snackbar, closeSnackbar } = useErrorHandler();
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const { language } = useLanguage();
   const theme = useTheme();
-  const navigate = useNavigate();
 
   const labels = {
     en: {

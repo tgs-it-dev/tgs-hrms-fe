@@ -96,7 +96,7 @@ const PerformanceDashboard: React.FC = () => {
           </Paper>
 
           {/* <Paper sx={{ mb: 3, boxShadow: 'none', p: 0 }}> */}
-            <PerformanceTrendChart tenantId={selectedTenant} />
+          <PerformanceTrendChart tenantId={selectedTenant} />
           {/* </Paper> */}
 
           <Paper sx={{ mt: 3, p: 2, boxShadow: 'none' }}>

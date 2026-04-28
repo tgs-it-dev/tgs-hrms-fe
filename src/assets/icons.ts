@@ -25,12 +25,6 @@ export const Icons = {
   leaveAnalytics: '/leaveAnalytics.svg',
   leaveAnalyticsFill: '/leaveAnalytics-fill.svg',
 
-  benefits: '/benefits.svg',
-  benefitsFill: '/benefits-fill.svg',
-
-  payroll: '/payroll.svg',
-  payrollFill: '/payroll-fill.svg',
-
   logout: '/logout.svg',
   arrowUp: '/arrow-up.svg',
   search: '/search.svg',

@@ -11,9 +11,6 @@ import {
   getRoleName,
   isManager,
   isEmployee,
-  isNetworkAdmin,
-  isAdmin,
-  isHRAdmin,
 } from '../../utils/roleUtils';
 
 import {
@@ -47,20 +44,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { Icons } from '../../assets/icons';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
 import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import EventIcon from '@mui/icons-material/Event';
-import DescriptionIcon from '@mui/icons-material/Description';
-import {
-  isDashboardPathAllowedForRole,
-  isMenuVisibleForRole,
-} from '../../utils/permissions';
-import { isSystemAdmin as roleIsSystemAdmin } from '../../utils/roleUtils';
+import { isDashboardPathAllowedForRole } from '../../utils/permissions';
 import {
   useFeatureToggles,
   type FeatureKey,
@@ -127,14 +114,12 @@ interface SearchResult {
     | 'team'
     | 'department'
     | 'designation'
-    | 'benefit'
     | 'leave'
     | 'policy'
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'attendance'
-    | 'payroll';
+    | 'attendance';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -174,13 +159,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Designation',
-    path: 'Designations',
+    path: 'designations',
     category: 'Department',
     type: 'route',
   },
   {
     label: 'User List',
-    path: 'UserList',
+    path: 'user-list',
     category: 'Department',
     type: 'route',
   },
@@ -198,13 +183,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Employee List',
-    path: 'EmployeeManager',
+    path: 'employee-manager',
     category: 'Employees',
     type: 'route',
   },
   {
     label: 'Tenant Employees',
-    path: 'TenantEmployees',
+    path: 'tenant-employees',
     category: 'Employees',
     type: 'route',
   },
@@ -216,13 +201,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Attendance',
-    path: 'AttendanceCheck',
+    path: 'attendance-check',
     category: 'Attendance',
     type: 'route',
   },
   {
     label: 'Daily Attendance',
-    path: 'AttendanceTable',
+    path: 'attendance-table',
     category: 'Attendance',
     type: 'route',
   },
@@ -240,7 +225,7 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Reports',
-    path: 'Reports',
+    path: 'reports',
     category: 'Leave Analytics',
     type: 'route',
   },
@@ -251,30 +236,6 @@ const searchableRoutes: SearchResult[] = [
     type: 'route',
   },
   {
-    label: 'Benefits List',
-    path: 'benefits-list',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Employee Benefits',
-    path: 'employee-benefit',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefit Details',
-    path: 'benefit-details',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefits Report',
-    path: 'benefit-report',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
     label: 'Employee Performance',
     path: 'performance-dashboard',
     category: 'Performance',
@@ -282,31 +243,6 @@ const searchableRoutes: SearchResult[] = [
   },
   { label: 'Invoice', path: 'invoice', category: 'Accounts', type: 'route' },
   { label: 'Payments', path: 'payments', category: 'Accounts', type: 'route' },
-  {
-    label: 'Payroll Configuration',
-    path: 'payroll-configuration',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Employee Salary',
-    path: 'employee-salary',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Records',
-    path: 'payroll-records',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Reports',
-    path: 'payroll-reports',
-    category: 'Payroll',
-    type: 'route',
-  },
-  { label: 'My Salary', path: 'my-salary', category: 'Payroll', type: 'route' },
   { label: 'Audit Logs', path: 'audit-logs', category: 'Audit', type: 'route' },
   { label: 'Settings', path: 'settings', category: 'Settings', type: 'route' },
   {
@@ -339,9 +275,7 @@ const searchableRoutes: SearchResult[] = [
 ];
 
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
-  Payroll: 'payroll',
   Attendance: 'attendance',
-  Benefits: 'benefits',
   Performance: 'performance',
   Recruitment: 'recruitment',
   'Leave Analytics': 'leaveAnalytics',
@@ -459,64 +393,64 @@ const NotificationButton: React.FC = () => {
         {(() => {
           const unreadList = notifications.filter(n => !n.read);
           return unreadList.length === 0 ? (
-          <List sx={{ p: 2 }}>
-            <ListItem>
-              <ListItemText
-                primary='No notifications'
-                primaryTypographyProps={{ color: 'text.secondary' }}
-              />
-            </ListItem>
-          </List>
-        ) : (
-          <List>
-            {unreadList.map(n => (
-              <ListItemButton
-                key={n.id}
-                onClick={() => {
-                  markAsRead(n.id);
-                }}
-                sx={{
-                  alignItems: 'flex-start',
-                  bgcolor: n.read
-                    ? 'transparent'
-                    : theme.palette.action.selected,
-                }}
-              >
+            <List sx={{ p: 2 }}>
+              <ListItem>
                 <ListItemText
-                  primary={n.title}
-                  secondary={
-                    <>
-                      <Typography
-                        component='span'
-                        variant='body2'
-                        color='text.secondary'
-                      >
-                        {n.text}
-                      </Typography>
-                      <Typography
-                        component='div'
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{ mt: 0.5 }}
-                      >
-                        {new Date(n.timestamp).toLocaleString()}
-                      </Typography>
-                    </>
-                  }
+                  primary='No notifications'
+                  primaryTypographyProps={{ color: 'text.secondary' }}
                 />
-                <IconButton
-                  size='small'
-                  onClick={e => {
-                    e.stopPropagation();
-                    clearNotification(n.id);
+              </ListItem>
+            </List>
+          ) : (
+            <List>
+              {unreadList.map(n => (
+                <ListItemButton
+                  key={n.id}
+                  onClick={() => {
+                    markAsRead(n.id);
+                  }}
+                  sx={{
+                    alignItems: 'flex-start',
+                    bgcolor: n.read
+                      ? 'transparent'
+                      : theme.palette.action.selected,
                   }}
                 >
-                  ×
-                </IconButton>
-              </ListItemButton>
-            ))}
-          </List>
-        );
+                  <ListItemText
+                    primary={n.title}
+                    secondary={
+                      <>
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='text.secondary'
+                        >
+                          {n.text}
+                        </Typography>
+                        <Typography
+                          component='div'
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{ mt: 0.5 }}
+                        >
+                          {new Date(n.timestamp).toLocaleString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <IconButton
+                    size='small'
+                    onClick={e => {
+                      e.stopPropagation();
+                      clearNotification(n.id);
+                    }}
+                  >
+                    ×
+                  </IconButton>
+                </ListItemButton>
+              ))}
+            </List>
+          );
         })()}
       </Menu>
     </>
@@ -548,7 +482,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: Team[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
-    benefits: unknown[] | null;
     leaves: unknown[] | null;
     policies: unknown[] | null;
     tenants: unknown[] | null;
@@ -558,7 +491,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: null,
     departments: null,
     designations: null,
-    benefits: null,
     leaves: null,
     policies: null,
     tenants: null,
@@ -612,131 +544,6 @@ const Navbar: React.FC<NavbarProps> = ({
     },
     [currentUserRole]
   );
-
-  // Helper functions to check if user can search specific data types
-  const canSearchEmployees = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Check if employees menu is visible for role
-    return isMenuVisibleForRole('employees', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchTeams = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('teams', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchDepartments = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('department', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchBenefits = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('benefits', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchLeaves = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Explicitly deny for network-admin
-    if (isNetworkAdmin(currentUserRole)) {
-      return false;
-    }
-
-    // Leaves are part of attendance/leave-analytics
-    return (
-      isMenuVisibleForRole('attendance', currentUserRole) ||
-      isMenuVisibleForRole('leave-analytics', currentUserRole)
-    );
-  }, [currentUserRole]);
-
-  const canSearchTenants = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Only system-admin can search tenants
-    return roleIsSystemAdmin(currentUserRole);
-  }, [currentUserRole]);
-
-  // Get current user's tenantId for tenant-specific search
-  const getCurrentTenantId = React.useCallback((): string | null => {
-    try {
-      // Try localStorage first
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-
-      // Fallback to user object
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId =
-          userFromStorage?.tenant_id ||
-          userFromStorage?.tenantId ||
-          userFromStorage?.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-
-      // Last fallback: user context
-      if (user) {
-        const userWithTenant = user as {
-          tenant_id?: string;
-          tenantId?: string;
-          tenant?: { id?: string };
-        };
-        const tenantId =
-          userWithTenant.tenant_id ||
-          userWithTenant.tenantId ||
-          userWithTenant.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore errors
-    }
-    return null;
-  }, [user]);
 
   // Initialize profile picture state when user data loads
   React.useEffect(() => {
@@ -797,10 +604,6 @@ const Navbar: React.FC<NavbarProps> = ({
 
     // Navigate to login page with replace to prevent back navigation
     navigate('/', { replace: true });
-  };
-
-  const handleOpenTeamMembersModal = () => {
-    setTeamMembersModalOpen(true);
   };
 
   const handleCloseTeamMembersModal = () => {
@@ -972,7 +775,7 @@ const Navbar: React.FC<NavbarProps> = ({
           setShowSearchResults(results.length > 0);
           setSelectedResultIndex(-1);
         }
-      } catch (error) {
+      } catch {
         if (!abortController.signal.aborted) {
           setSearchResults([]);
           setShowSearchResults(false);
@@ -1004,7 +807,7 @@ const Navbar: React.FC<NavbarProps> = ({
     setSelectedResultIndex(-1);
     if (!result) return;
     if (result.type === 'employee' && result.id) {
-      navigate(`/dashboard/EmployeeProfileView/${result.id}`, {
+      navigate(`/dashboard/employee-profile-view/${result.id}`, {
         state: {
           fromSearch: true,
           userId: result.metadata?.userId,
@@ -1029,17 +832,9 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'designation' && result.id) {
-      navigate('/dashboard/Designations', {
+      navigate('/dashboard/designations', {
         state: {
           designationId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'benefit' && result.id) {
-      navigate('/dashboard/benefits-list', {
-        state: {
-          benefitId: result.id,
           fromSearch: true,
         },
         replace: false,
@@ -1069,18 +864,9 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'attendance' && result.id) {
-      navigate('/dashboard/AttendanceCheck', {
+      navigate('/dashboard/attendance-check', {
         state: {
           attendanceId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'payroll' && result.id) {
-      navigate('/dashboard/payroll-records', {
-        state: {
-          payrollId: result.id,
-          viewPayroll: true,
           fromSearch: true,
         },
         replace: false,
@@ -1145,7 +931,6 @@ const Navbar: React.FC<NavbarProps> = ({
         cacheRef.teams = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
-        cacheRef.benefits = null;
         cacheRef.leaves = null;
         cacheRef.policies = null;
         cacheRef.tenants = null;
@@ -1159,7 +944,6 @@ const Navbar: React.FC<NavbarProps> = ({
       cacheRef.teams = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
-      cacheRef.benefits = null;
       cacheRef.leaves = null;
       cacheRef.policies = null;
       cacheRef.tenants = null;
@@ -1908,7 +1692,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <MenuItem
             onClick={() => {
               handleMenuClose();
-              navigate('/dashboard/EmployeeManager');
+              navigate('/dashboard/employee-manager');
             }}
             aria-label='Navigate to employee manager'
             sx={{
@@ -1936,7 +1720,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <MenuItem
           onClick={() => {
             handleMenuClose();
-            navigate('/dashboard/UserProfile');
+            navigate('/dashboard/user-profile');
           }}
           aria-label='Navigate to user profile'
           sx={{

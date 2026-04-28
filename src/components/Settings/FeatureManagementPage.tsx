@@ -24,12 +24,6 @@ const featureDefinitions: {
   description: string;
 }[] = [
   {
-    key: 'payroll',
-    label: 'Payroll',
-    description:
-      'Run payroll, manage employee salaries, and view payroll reports.',
-  },
-  {
     key: 'attendance',
     label: 'Attendance & Leaves',
     description:
@@ -42,21 +36,10 @@ const featureDefinitions: {
       'View leave analytics, reports, and cross-tenant leave metrics.',
   },
   {
-    key: 'benefits',
-    label: 'Benefits',
-    description:
-      'Configure benefits, assign employee benefits, and view benefit reports.',
-  },
-  {
     key: 'performance',
     label: 'Performance',
     description:
       'Enable performance dashboards and insights for employees and teams.',
-  },
-  {
-    key: 'recruitment',
-    label: 'Recruitment',
-    description: 'Manage job requisitions and hiring-related workflows.',
   },
   {
     key: 'announcements',
@@ -118,9 +101,7 @@ const FeatureManagementPage: React.FC = () => {
                 py: { xs: 1, sm: 1.5 },
                 borderRadius: 2,
                 backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
-                border: `1px solid ${
-                  darkMode ? '#333' : 'rgba(0,0,0,0.04)'
-                }`,
+                border: `1px solid ${darkMode ? '#333' : 'rgba(0,0,0,0.04)'}`,
                 flexWrap: 'wrap',
               }}
             >
@@ -186,4 +167,3 @@ const FeatureManagementPage: React.FC = () => {
 };
 
 export default FeatureManagementPage;
-

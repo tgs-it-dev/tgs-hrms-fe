@@ -39,7 +39,7 @@ const CompanyDetails: React.FC = () => {
   useEffect(() => {
     const signupSessionId = localStorage.getItem('signupSessionId');
     if (!signupSessionId) {
-      navigate('/Signup');
+      navigate('/signup');
     }
   }, [navigate]);
 
@@ -202,7 +202,7 @@ const CompanyDetails: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/Signup');
+    navigate('/signup');
   };
 
   return (

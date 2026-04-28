@@ -164,12 +164,6 @@ export const mockDesignations: Designation[] = [
     departmentId: 1,
   },
   {
-    id: 8,
-    title: 'Payroll Specialist',
-    titleAr: 'أخصائي الرواتب',
-    departmentId: 1,
-  },
-  {
     id: 9,
     title: 'Employee Relations Manager',
     titleAr: 'مدير علاقات الموظفين',

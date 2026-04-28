@@ -6,7 +6,7 @@ import { leaveApi } from '../../api/leaveApi';
 import LeaveTypeFormModal, {
   type LeaveTypeFormValues,
 } from './LeaveTypeFormModal';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
 import { normalizeRole } from '../../utils/permissions';
 import {
@@ -364,9 +364,7 @@ const LeaveRequestPage = () => {
       setLeaveTypeModalOpen(false);
       await fetchLeaveTypes();
     } catch (error: unknown) {
-      showError(
-        getErrorMessage(error) || 'Failed to create leave type'
-      );
+      showError(getErrorMessage(error) || 'Failed to create leave type');
     } finally {
       setSavingLeaveType(false);
     }
@@ -486,7 +484,9 @@ const LeaveRequestPage = () => {
       await leaveApi.cancelLeave(selectedId);
       showSuccess('Leave withdrawn successfully!');
       setLeaves(prev =>
-        prev.map((l: Leave) => (l.id === selectedId ? { ...l, status: 'withdrawn' } : l))
+        prev.map((l: Leave) =>
+          l.id === selectedId ? { ...l, status: 'withdrawn' } : l
+        )
       );
     } catch (error: unknown) {
       showError(getErrorMessage(error) || 'Failed to withdraw leave');
@@ -728,9 +728,13 @@ const LeaveRequestPage = () => {
                 Leave History
               </AppButton>
 
-              {['admin', 'hr-admin', 'system-admin', 'network-admin', 'oe-admin'].includes(
-                role
-              ) && (
+              {[
+                'admin',
+                'hr-admin',
+                'system-admin',
+                'network-admin',
+                'oe-admin',
+              ].includes(role) && (
                 <AppButton
                   variant='contained'
                   variantType='secondary'

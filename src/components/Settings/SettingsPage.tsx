@@ -183,9 +183,9 @@ const SettingsPage: React.FC = () => {
 
   const hasCompanyChanges = Boolean(
     contextCompanyDetails &&
-      (editFormData.company_name !== contextCompanyDetails.company_name ||
-        editFormData.domain !== contextCompanyDetails.domain ||
-        Boolean(selectedLogoFile))
+    (editFormData.company_name !== contextCompanyDetails.company_name ||
+      editFormData.domain !== contextCompanyDetails.domain ||
+      Boolean(selectedLogoFile))
   );
 
   return (

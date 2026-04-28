@@ -63,7 +63,6 @@ interface EmployeeListProps {
   designations?: Record<string, string>;
 }
 
-
 const EmployeeList: React.FC<EmployeeListProps> = ({
   employees,
   onDelete,
