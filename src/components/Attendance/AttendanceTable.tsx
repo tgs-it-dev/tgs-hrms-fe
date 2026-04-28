@@ -51,6 +51,8 @@ import { type CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
+import { useUser } from '../../hooks/useUser';
+import { authService } from '../../api/authService';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
 
@@ -98,6 +100,7 @@ const getApprovalStatus = (obj: unknown): string | null => {
 };
 
 const AttendanceTable = () => {
+  const { user: contextUser } = useUser();
   const { mode } = useTheme();
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
@@ -149,7 +152,7 @@ const AttendanceTable = () => {
 
   const toDisplayTime = (iso: string | null) =>
     iso ? new Date(iso).toLocaleTimeString() : null;
-  const token = localStorage.getItem('token');
+  const token = authService.getAccessToken();
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
@@ -541,8 +544,7 @@ const AttendanceTable = () => {
     }
 
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         if (view === 'all' || view === 'my') {
           setLoading(false);
         } else {
@@ -551,7 +553,7 @@ const AttendanceTable = () => {
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      const currentUser = contextUser;
       let response: AttendanceResponse;
 
       if (view === 'all') {
@@ -735,26 +737,17 @@ const AttendanceTable = () => {
         return;
       }
 
-      const storedUserForCheck = localStorage.getItem('user');
-      if (storedUserForCheck) {
-        try {
-          const userForCheck = JSON.parse(storedUserForCheck);
-          if (isSystemAdmin(userForCheck.role) && !selectedTenant) {
-            setEmployees([]);
-            return;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setEmployees([]);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      if (isSystemAdmin(contextUser.role) && !selectedTenant) {
+        setEmployees([]);
+        return;
+      }
+
+      const currentUser = contextUser;
       const isSystemAdminFlag = isSystemAdmin(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
       const isNetworkAdminFlag = isNetworkAdmin(currentUser.role);
@@ -880,26 +873,11 @@ const AttendanceTable = () => {
   };
 
   const getAdminTenantId = (currentUser: unknown): string | undefined => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return storedTenantId.trim();
-      }
-    } catch {
-      // Ignore; fall back to user object
-    }
-
-    try {
-      const userObj = (currentUser as Record<string, unknown>) || {};
-      const tenantId = userObj?.tenant_id || userObj?.tenant;
-      if (tenantId) {
-        return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; tenant id will remain undefined
-    }
-
-    return undefined;
+    const userObj = (currentUser as Record<string, unknown>) ?? {};
+    const tenantId = userObj?.tenant_id ?? userObj?.tenant;
+    if (tenantId) return String(tenantId).trim();
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? storedTenantId.trim() : undefined;
   };
 
   const fetchAttendance = async (
@@ -910,18 +888,17 @@ const AttendanceTable = () => {
   ) => {
     setLoading(true);
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setLoading(false);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      const currentUser = contextUser;
       const roleName = (
-        currentUser.role?.name ||
-        currentUser.role ||
-        ''
-      ).toString();
+        (currentUser as Record<string, unknown>).role instanceof Object
+          ? ((currentUser as Record<string, unknown>).role as Record<string, unknown>)?.name
+          : currentUser.role ?? ''
+      )?.toString() ?? '';
       setUserRole(roleName);
       const isManagerFlag = checkIsManager(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
@@ -1142,6 +1119,7 @@ const AttendanceTable = () => {
   // being forced to include the function reference in dependency arrays.
   const fetchAttendanceRef = useRef<typeof fetchAttendance | null>(null);
   fetchAttendanceRef.current = fetchAttendance;
+  const hasInitializedViewRef = useRef(false);
 
   // Refresh attendance when manager approves/disapproves in Team view
   useEffect(() => {
@@ -1253,20 +1231,8 @@ const AttendanceTable = () => {
     setCurrentNavigationDate(todayStr);
     fetchAttendanceByDate(todayStr, 'all');
 
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const currentUser = JSON.parse(storedUser);
-        const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-        if (isSystemAdminFlag) {
-          console.log('handleAllAttendance: Loading tenants for system admin');
-          // No await here – let tenants load in background
-          fetchTenantsFromSystemAttendance();
-        }
-      } catch (error) {
-        console.error('Error in handleAllAttendance:', error);
-      }
+    if (contextUser && isSystemAdmin(contextUser.role)) {
+      fetchTenantsFromSystemAttendance();
     }
 
     // Employees will be automatically extracted from attendance data in fetchAttendance
@@ -1397,74 +1363,47 @@ const AttendanceTable = () => {
     }
   }, [mode]);
 
-  // Set role flags from stored user on mount so All Attendance button shows immediately (without waiting for fetchAttendance)
+  // Sync role flags from context user and set initial attendance view once.
+  // Computes role booleans once per contextUser change and reuses them for
+  // both setState calls and the initial view decision — avoids redundant checks.
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        const roleName = (user.role?.name || user.role || '').toString();
-        setUserRole(roleName);
-        setIsManager(checkIsManager(user.role));
-        setIsAdminUser(isAdmin(user.role));
-        setIsSystemAdminUser(isSystemAdmin(user.role));
-        setIsNetworkAdminUser(isNetworkAdmin(user.role));
-        setIsHRAdminUser(isHRAdmin(user.role));
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
+    if (!contextUser) return;
 
-  useEffect(() => {
-    // Check if we should default to 'all' view for admins who have 'My Attendance' hidden
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      if (
-        isSystemAdmin(user.role) ||
-        isAdmin(user.role) ||
-        isHRAdmin(user.role)
-      ) {
-        // If "My Attendance" is hidden, default to 'all' with current date selected in date nav
+    const isAdminRole = isAdmin(contextUser.role);
+    const isSystemAdminRole = isSystemAdmin(contextUser.role);
+    const isNetworkAdminRole = isNetworkAdmin(contextUser.role);
+    const isHRAdminRole = isHRAdmin(contextUser.role);
+
+    setUserRole((contextUser.role ?? '').toString());
+    setIsManager(checkIsManager(contextUser.role));
+    setIsAdminUser(isAdminRole);
+    setIsSystemAdminUser(isSystemAdminRole);
+    setIsNetworkAdminUser(isNetworkAdminRole);
+    setIsHRAdminUser(isHRAdminRole);
+
+    if (!hasInitializedViewRef.current) {
+      hasInitializedViewRef.current = true;
+      const todayStr = formatLocalYMD(new Date());
+      if (isSystemAdminRole || isAdminRole || isHRAdminRole) {
         setAdminView('all');
-        const todayStr = formatLocalYMD(new Date());
         setCurrentNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'all');
-      } else if (checkIsManager(user.role)) {
-        // Manager (not admin): default to current date in date nav for My Attendance
-        const todayStr = formatLocalYMD(new Date());
-        setMyAttendanceNavigationDate(todayStr);
-        fetchAttendanceByDate(todayStr, 'my');
       } else {
-        // Employee (not admin, not manager): default to current date in date nav
-        const todayStr = formatLocalYMD(new Date());
         setMyAttendanceNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'my');
       }
-    } else {
-      fetchAttendanceRef.current?.('my', undefined, '', '');
-    }
-  }, []);
-
-  // Load tenants when system admin views "All Attendance" - using same API as Employee List
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser || adminView !== 'all') return;
-
-    try {
-      const currentUser = JSON.parse(storedUser);
-      const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-      if (isSystemAdminFlag && tenants.length === 0 && !tenantsLoading) {
-        console.log('Loading tenants for system admin in All Attendance view');
-        fetchTenantsFromSystemAttendance();
-      }
-    } catch (error) {
-      console.error('Error checking user role:', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminView]);
+  }, [contextUser]);
+
+  // Load tenants when system admin switches to "All Attendance" view
+  useEffect(() => {
+    if (adminView !== 'all' || !isSystemAdminUser) return;
+    if (tenants.length === 0 && !tenantsLoading) {
+      fetchTenantsFromSystemAttendance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminView, isSystemAdminUser]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser) {

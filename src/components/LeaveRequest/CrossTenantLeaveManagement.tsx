@@ -66,35 +66,13 @@ const CrossTenantLeaveManagement: React.FC = () => {
   const isSystemAdminUser = isSystemAdmin();
 
   const getTenantIdFromStorage = useCallback((): string => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to other sources
-    }
-
-    // Fallback: Get from user object in localStorage (login response format)
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId = userFromStorage?.tenant_id || '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to user context
-    }
-
-    // Last fallback: Get from user context
     if (user) {
       const userWithTenant = user as { tenant_id?: string; tenant?: string };
       const tenantId = userWithTenant.tenant_id || userWithTenant.tenant || '';
       if (tenantId) return String(tenantId).trim();
     }
-
-    return '';
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? String(storedTenantId).trim() : '';
   }, [user]);
 
   const userTenantId = getTenantIdFromStorage();
