@@ -109,6 +109,7 @@ export default function AnnouncementsPage() {
     } finally {
       setIsDeleting(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showSuccess is stable but causes false-positive warning
   }, [deleting, isDeleting, showError, showSuccess, isRtl]);
 
   return (

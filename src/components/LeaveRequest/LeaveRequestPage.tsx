@@ -7,6 +7,7 @@ import LeaveTypeFormModal, {
   type LeaveTypeFormValues,
 } from './LeaveTypeFormModal';
 import type { Leave } from '../../types/leave';
+import type { LeaveStatus } from '../../type/levetypes';
 import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
 import { normalizeRole } from '../../utils/permissions';
 import {
@@ -568,8 +569,7 @@ const LeaveRequestPage = () => {
               r === null || typeof r === 'undefined' ? undefined : String(r);
 
             const rawStatus = String(leaveRec.status ?? '').toLowerCase();
-            let normalizedStatus: import('../../type/levetypes').LeaveStatus =
-              'pending';
+            let normalizedStatus: LeaveStatus = 'pending';
             // Accept 'processing' as a valid intermediate status coming from backend
             if (
               rawStatus === 'pending' ||
@@ -578,8 +578,7 @@ const LeaveRequestPage = () => {
               rawStatus === 'rejected' ||
               rawStatus === 'withdrawn'
             ) {
-              normalizedStatus =
-                rawStatus as import('../../type/levetypes').LeaveStatus;
+              normalizedStatus = rawStatus as LeaveStatus;
             } else if (rawStatus === 'cancelled') {
               // Backend uses 'cancelled' sometimes — map to 'rejected'
               normalizedStatus = 'rejected';
@@ -614,6 +613,7 @@ const LeaveRequestPage = () => {
             .filter(e => e.user_id)
             .map(e => ({
               id: e.id,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- user_id is guaranteed by .filter(e => e.user_id) above
               userId: e.user_id!,
               name: e.name,
             }))

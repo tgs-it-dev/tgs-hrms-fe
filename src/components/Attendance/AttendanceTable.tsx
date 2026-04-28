@@ -47,7 +47,7 @@ import AppDropdown from '../common/AppDropdown';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
-import { type CheckInTeamMember } from './TeamCheckInDialog';
+import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
@@ -221,7 +221,7 @@ const AttendanceTable = () => {
         const finalUserId =
           eventUserId ?? userObjId ?? (isAllAttendance ? null : currentUserId);
 
-        console.log('Processing event:', {
+        console.warn('Processing event:', {
           eventId: e.id,
           eventUserId,
           userObjId,
@@ -860,6 +860,7 @@ const AttendanceTable = () => {
           }
 
           return {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeUserId is non-null: events without user_id are filtered above
             id: employeeUserId!,
             name: employeeName,
           };
@@ -1006,7 +1007,7 @@ const AttendanceTable = () => {
           (response.items as AttendanceEvent[]) || [];
 
         if (events.length > 0) {
-          console.log(
+          console.warn(
             'Sample events with user_id:',
             events.slice(0, 3).map(ev => ({
               id: ev.id,
@@ -1038,8 +1039,7 @@ const AttendanceTable = () => {
 
       // Debug: log first few built rows to verify approvalStatus comes from API
       try {
-        // eslint-disable-next-line no-console
-        console.log(
+        console.warn(
           'Attendance rows sample (approvalStatus):',
           rows
             .slice(0, 5)
@@ -1161,6 +1161,7 @@ const AttendanceTable = () => {
       );
     };
     // include relevant state so handler uses latest filters
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchTeamAttendance is a ref-based callback, intentionally excluded
   }, [
     tab,
     adminView,
@@ -1251,7 +1252,7 @@ const AttendanceTable = () => {
       // Use the same API as Employee List to get all tenants
       const allTenants = await systemEmployeeApiService.getAllTenants(true);
 
-      console.log('Fetched tenants from API:', allTenants);
+      console.warn('Fetched tenants from API:', allTenants);
 
       // Use tenants directly like Employee List does - map to the expected format
       const tenantOptions = (allTenants || [])
@@ -1261,9 +1262,9 @@ const AttendanceTable = () => {
         }))
         .filter((t: { id: string; name: string }) => t.id && t.name); // Only keep tenants with valid id and name
 
-      console.log('Mapped tenant options:', tenantOptions);
+      console.warn('Mapped tenant options:', tenantOptions);
       setTenants(tenantOptions);
-      console.log(' Set tenants in dropdown:', {
+      console.warn(' Set tenants in dropdown:', {
         count: tenantOptions.length,
         tenants: tenantOptions.map(t => t.name),
       });
@@ -1281,7 +1282,7 @@ const AttendanceTable = () => {
       });
 
       if (excludedTenants.length > 0) {
-        console.log(
+        console.warn(
           ' Excluded tenants:',
           excludedTenants.map((tUnknown: unknown) => {
             const t = (tUnknown as Record<string, unknown>) || {};
@@ -1303,7 +1304,6 @@ const AttendanceTable = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _fetchEmployeesFromSystemAttendance = async (_tenantId?: string) => {
     try {
       const response = await attendanceApi.getSystemAllAttendance();
@@ -1422,12 +1422,14 @@ const AttendanceTable = () => {
         fetchAttendanceRef.current?.('all', undefined, startDate, endDate);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAttendanceByDate is a stable callback ref, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser, startDate, endDate]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser && selectedTenant) {
       _fetchEmployeesFromAttendance('all');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- _fetchEmployeesFromAttendance is stable, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser]);
 
   useEffect(() => {

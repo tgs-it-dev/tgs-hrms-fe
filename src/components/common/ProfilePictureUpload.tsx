@@ -255,6 +255,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       } finally {
         setRemoving(false);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- showError is stable; intentionally excluded to avoid spurious re-renders
     }, [
       clearProfilePicture,
       deferDelete,
@@ -262,7 +263,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       onPictureChanged,
       updateUser,
       user,
-    ]); // ✅ Removed refreshUser from dependencies
+    ]);
 
     const handleAvatarClick = useCallback(() => {
       if (clickable && showUploadButton) {

@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { formatDate } from '../../utils/dateUtils';
 import AppTable from '../common/AppTable';
-import { type TeamAttendanceEntry } from '../../api/attendanceApi';
+import type { TeamAttendanceEntry } from '../../api/attendanceApi';
 
 export interface CheckInTeamMember {
   user_id: string;

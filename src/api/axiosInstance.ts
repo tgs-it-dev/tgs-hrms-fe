@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import { env } from '../config/env';
 import { authService } from './authService';
 import { axiosErrorHandler } from './axiosErrorHandler';

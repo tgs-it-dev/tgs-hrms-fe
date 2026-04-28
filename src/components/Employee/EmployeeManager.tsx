@@ -918,6 +918,7 @@ const EmployeeManager: React.FC = () => {
       const fetchAndViewEmployee = async () => {
         try {
           const employeeData = await employeeApi.getEmployeeById(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeId is checked truthy in the parent condition
             state.employeeId!
           );
           const employeeToView: Employee = {

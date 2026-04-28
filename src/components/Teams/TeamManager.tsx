@@ -257,12 +257,14 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           teamApiService.getMyTeams(),
           teamApiService.getMyTeamMembers(1),
         ]);
-        setTeams(Array.isArray(teamsData) ? teamsData : []);
-        setTeamMembers(membersData?.items || []);
+        setTeams(
+          Array.isArray(teamsData) ? teamsData : (teamsData?.items ?? [])
+        );
+        setTeamMembers(membersData?.items ?? []);
       } else if (isAdmin()) {
         // Load all teams for admin with members included
         const teamsData = await teamApiService.getAllTeams(1);
-        setTeams(teamsData?.items || []);
+        setTeams(teamsData?.items ?? []);
       }
     } catch {
       setError('Failed to refresh team data');

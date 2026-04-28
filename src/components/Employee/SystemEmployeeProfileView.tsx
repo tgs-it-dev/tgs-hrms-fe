@@ -21,7 +21,6 @@ import {
 import { Work, Business, Email, Star, Close } from '@mui/icons-material';
 import systemEmployeeApiService, {
   type EmployeeLeave,
-  type EmployeeAsset,
   type SystemEmployeeDetails,
   type EmployeePerformance,
 } from '../../api/systemEmployeeApi';
@@ -45,7 +44,6 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
   const theme = useTheme();
   const [profile, setProfile] = useState<SystemEmployeeDetails | null>(null);
   const [leaves, setLeaves] = useState<EmployeeLeave[]>([]);
-  const [, setAssets] = useState<EmployeeAsset[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<EmployeePerformance | null>(
@@ -96,14 +94,13 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
         setProfile(profileRes);
 
         // Note: All system employee API endpoints (leaves, assets, performance) use employee ID, not user ID
-        const [leavesRes, assetsRes, performanceRes] = await Promise.all([
+        const [leavesRes, , performanceRes] = await Promise.all([
           systemEmployeeApiService.getSystemEmployeeLeaves(employeeId),
           systemEmployeeApiService.getSystemEmployeeAssets(employeeId),
           systemEmployeeApiService.getSystemEmployeePerformance(employeeId),
         ]);
 
         setLeaves(leavesRes);
-        setAssets(assetsRes);
 
         setProfile(prev => (prev ? { ...prev, kpis: performanceRes } : null));
       } catch (e: unknown) {
