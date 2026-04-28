@@ -11,7 +11,7 @@ export type DashboardKpi = {
 
 export async function getDashboardKpi(): Promise<DashboardKpi | null> {
   try {
-    const resp = await axiosInstance.get('/dashboard/kpi');
+    const resp = await axiosInstance.get<Record<string, unknown>>('/dashboard/kpi');
     const data = resp?.data ?? resp;
 
     const mapped: DashboardKpi = {
@@ -46,7 +46,7 @@ export type AttendanceRow = {
 
 export async function getAttendanceSummary(): Promise<AttendanceRow[]> {
   try {
-    const resp = await axiosInstance.get('/dashboard/attendance-summary');
+    const resp = await axiosInstance.get<Array<Record<string, unknown>>>('/dashboard/attendance-summary');
     const data = resp?.data ?? resp;
     if (!Array.isArray(data)) return [];
 
