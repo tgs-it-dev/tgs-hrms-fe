@@ -17,7 +17,6 @@ import {
   InputAdornment,
   useTheme,
   SvgIcon,
-  type SvgIconProps,
 } from '@mui/material';
 import UserAvatar from '../common/UserAvatar';
 import { Avatar } from '@mui/material';
@@ -37,7 +36,7 @@ interface AdminTeamMember extends TeamMember {
 }
 import { getUserRole, isAdmin } from '../../utils/auth';
 
-const CustomSearchIcon = (props: SvgIconProps) => (
+const CustomSearchIcon = (props: any) => (
   <SvgIcon
     {...props}
     viewBox='0 0 17 17'
@@ -303,8 +302,6 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
 
     const displayMembers = validMembers.slice(0, 2);
     const remainingCount = Math.max(0, validMembers.length - 2);
-    const totalCount = validMembers.length;
-
     return (
       <>
         <Stack
@@ -351,14 +348,26 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
             sx: {
               backgroundColor: darkMode ? '#2d2d2d' : '#fff',
               color: theme.palette.text.primary,
-              borderRadius: '24px',
-              width: '100%',
-              maxWidth: '420px',
+              borderRadius: '30px',
+              // Figma: 527x693, but responsive to viewport on small/short screens
+              width: { xs: 'calc(100vw - 32px)', sm: '527px' },
+              maxWidth: '527px',
+              height: {
+                xs: 'calc(100vh - 32px)',
+                sm: 'min(693px, calc(100vh - 64px))',
+              },
+              maxHeight: {
+                xs: 'calc(100vh - 32px)',
+                sm: 'min(693px, calc(100vh - 64px))',
+              },
+              // Prevent the dialog itself from scrolling (we scroll the list only)
+              overflow: 'hidden',
             },
           }}
           sx={{
             '& .MuiDialog-paper': {
-              borderRadius: '24px !important',
+              borderRadius: '30px !important',
+              m: { xs: 2, sm: 3 },
             },
           }}
         >
@@ -367,7 +376,10 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              p: '16px 15px',
+              // Figma padding: 32px top, 20px sides
+              pt: 4,
+              px: 2.5,
+              pb: 0,
             }}
           >
             <Typography variant='h6' sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
@@ -413,10 +425,23 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent sx={{ p: 0 }}>
+          <DialogContent
+            sx={{
+              // Figma padding: 32px bottom, 20px sides
+              px: 2.5,
+              pt: 3,
+              pb: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              minHeight: 0,
+              // Avoid an extra scroll container from DialogContent (scroll only the list)
+              overflow: 'hidden',
+            }}
+          >
             <Box
               sx={{
-                p: 2,
+                mb: 3, // ~24px gap below search
               }}
             >
               <TextField
@@ -503,8 +528,10 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 <List
                   sx={{
                     p: 0,
-                    px: 2,
-                    maxHeight: '320px',
+                    px: 0,
+                    // Taller scroll area so ~4 members are visible at once
+                    flex: 1,
+                    minHeight: 0,
                     overflowY: 'auto',
                     overflowX: 'hidden',
                     '&::-webkit-scrollbar': {
@@ -672,7 +699,6 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
 
     const displayMembers = validMembers.slice(0, 2);
     const remainingCount = Math.max(0, validMembers.length - 2);
-    const totalCount = validMembers.length;
 
     return (
       <>
