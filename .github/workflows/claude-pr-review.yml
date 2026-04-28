@@ -19,7 +19,6 @@ on:
 jobs:
   claude-review:
     runs-on: ubuntu-latest
-    environment: production
     permissions:
       pull-requests: write
       contents: read
