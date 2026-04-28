@@ -1119,6 +1119,7 @@ const AttendanceTable = () => {
   // being forced to include the function reference in dependency arrays.
   const fetchAttendanceRef = useRef<typeof fetchAttendance | null>(null);
   fetchAttendanceRef.current = fetchAttendance;
+  const hasInitializedViewRef = useRef(false);
 
   // Refresh attendance when manager approves/disapproves in Team view
   useEffect(() => {
@@ -1362,47 +1363,47 @@ const AttendanceTable = () => {
     }
   }, [mode]);
 
-  // Sync role flags from context user so All Attendance button shows immediately
+  // Sync role flags from context user and set initial attendance view once.
+  // Computes role booleans once per contextUser change and reuses them for
+  // both setState calls and the initial view decision — avoids redundant checks.
   useEffect(() => {
     if (!contextUser) return;
-    const roleName = (contextUser.role ?? '').toString();
-    setUserRole(roleName);
-    setIsManager(checkIsManager(contextUser.role));
-    setIsAdminUser(isAdmin(contextUser.role));
-    setIsSystemAdminUser(isSystemAdmin(contextUser.role));
-    setIsNetworkAdminUser(isNetworkAdmin(contextUser.role));
-    setIsHRAdminUser(isHRAdmin(contextUser.role));
-  }, [contextUser]);
 
-  useEffect(() => {
-    if (!contextUser) {
-      fetchAttendanceRef.current?.('my', undefined, '', '');
-      return;
-    }
-    const todayStr = formatLocalYMD(new Date());
-    if (
-      isSystemAdmin(contextUser.role) ||
-      isAdmin(contextUser.role) ||
-      isHRAdmin(contextUser.role)
-    ) {
-      setAdminView('all');
-      setCurrentNavigationDate(todayStr);
-      fetchAttendanceByDate(todayStr, 'all');
-    } else {
-      setMyAttendanceNavigationDate(todayStr);
-      fetchAttendanceByDate(todayStr, 'my');
+    const isAdminRole = isAdmin(contextUser.role);
+    const isSystemAdminRole = isSystemAdmin(contextUser.role);
+    const isNetworkAdminRole = isNetworkAdmin(contextUser.role);
+    const isHRAdminRole = isHRAdmin(contextUser.role);
+
+    setUserRole((contextUser.role ?? '').toString());
+    setIsManager(checkIsManager(contextUser.role));
+    setIsAdminUser(isAdminRole);
+    setIsSystemAdminUser(isSystemAdminRole);
+    setIsNetworkAdminUser(isNetworkAdminRole);
+    setIsHRAdminUser(isHRAdminRole);
+
+    if (!hasInitializedViewRef.current) {
+      hasInitializedViewRef.current = true;
+      const todayStr = formatLocalYMD(new Date());
+      if (isSystemAdminRole || isAdminRole || isHRAdminRole) {
+        setAdminView('all');
+        setCurrentNavigationDate(todayStr);
+        fetchAttendanceByDate(todayStr, 'all');
+      } else {
+        setMyAttendanceNavigationDate(todayStr);
+        fetchAttendanceByDate(todayStr, 'my');
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contextUser]);
 
-  // Load tenants when system admin views "All Attendance"
+  // Load tenants when system admin switches to "All Attendance" view
   useEffect(() => {
-    if (!contextUser || adminView !== 'all') return;
-    if (isSystemAdmin(contextUser.role) && tenants.length === 0 && !tenantsLoading) {
+    if (adminView !== 'all' || !isSystemAdminUser) return;
+    if (tenants.length === 0 && !tenantsLoading) {
       fetchTenantsFromSystemAttendance();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminView]);
+  }, [adminView, isSystemAdminUser]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser) {
