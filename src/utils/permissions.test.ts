@@ -41,7 +41,9 @@ describe('getDefaultDashboardRoute', () => {
   });
 
   it('routes hr-admin to AttendanceTable', () => {
-    expect(getDefaultDashboardRoute('hr-admin')).toBe('/dashboard/AttendanceTable');
+    expect(getDefaultDashboardRoute('hr-admin')).toBe(
+      '/dashboard/AttendanceTable'
+    );
   });
 
   it('routes manager to teams', () => {
@@ -49,7 +51,9 @@ describe('getDefaultDashboardRoute', () => {
   });
 
   it('routes employee and user to AttendanceCheck', () => {
-    expect(getDefaultDashboardRoute('employee')).toBe('/dashboard/AttendanceCheck');
+    expect(getDefaultDashboardRoute('employee')).toBe(
+      '/dashboard/AttendanceCheck'
+    );
     expect(getDefaultDashboardRoute('user')).toBe('/dashboard/AttendanceCheck');
   });
 
@@ -61,19 +65,31 @@ describe('getDefaultDashboardRoute', () => {
 
 describe('isDashboardPathAllowedForRole', () => {
   it('allows AttendanceCheck for employee', () => {
-    expect(isDashboardPathAllowedForRole('AttendanceCheck', 'employee')).toBe(true);
+    expect(isDashboardPathAllowedForRole('AttendanceCheck', 'employee')).toBe(
+      true
+    );
   });
 
   it('blocks employee from EmployeeManager', () => {
-    expect(isDashboardPathAllowedForRole('EmployeeManager', 'employee')).toBe(false);
+    expect(isDashboardPathAllowedForRole('EmployeeManager', 'employee')).toBe(
+      false
+    );
   });
 
   it('allows admin to access EmployeeManager', () => {
-    expect(isDashboardPathAllowedForRole('EmployeeManager', 'admin')).toBe(true);
+    expect(isDashboardPathAllowedForRole('EmployeeManager', 'admin')).toBe(
+      true
+    );
   });
 
   it('allows system-admin to access all major routes', () => {
-    const adminRoutes = ['EmployeeManager', 'AttendanceCheck', 'AttendanceTable', 'Designations', 'TenantEmployees'];
+    const adminRoutes = [
+      'EmployeeManager',
+      'AttendanceCheck',
+      'AttendanceTable',
+      'Designations',
+      'TenantEmployees',
+    ];
     for (const route of adminRoutes) {
       expect(isDashboardPathAllowedForRole(route, 'system-admin')).toBe(true);
     }

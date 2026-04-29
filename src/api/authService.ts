@@ -100,6 +100,7 @@ class AuthService {
       if (error) {
         prom.reject(error);
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- token is non-null when error is falsy (checked above)
         prom.resolve(token!);
       }
     });

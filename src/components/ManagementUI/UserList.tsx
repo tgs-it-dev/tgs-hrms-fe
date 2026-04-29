@@ -24,14 +24,13 @@ import {
   users as mockUsers,
 } from '../../Data/userMock';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>(mockUsers);
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | undefined>(undefined);
   const [filters, setFilters] = useState({ department: '', designation: '' });
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
+  const { darkMode: _darkMode } = useOutletContext<{ darkMode: boolean }>();
   const theme = useTheme();
 
   const filteredUsers = users.filter(user => {
@@ -68,11 +67,7 @@ const UserList: React.FC = () => {
   };
   return (
     <Box p={0}>
-      <Typography
-        variant='h5'
-        gutterBottom
-        sx={{ color: darkMode ? COLORS.DARK_TEXT : COLORS.LIGHT_TEXT }}
-      >
+      <Typography variant='h5' gutterBottom sx={{ color: 'text.primary' }}>
         User Management UI
       </Typography>
 
@@ -178,6 +173,7 @@ const UserList: React.FC = () => {
                   <Button onClick={() => handleOpen(user)}>
                     <Edit />
                   </Button>
+                  {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id is present for all persisted users */}
                   <Button color='error' onClick={() => handleDelete(user.id!)}>
                     <Delete />
                   </Button>

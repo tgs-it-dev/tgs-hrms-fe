@@ -242,7 +242,6 @@ const Layout = () => {
   // Memoize Outlet context to prevent unnecessary re-renders of child components
   const outletContext = useMemo(() => ({ darkMode }), [darkMode]);
 
-
   return (
     <Box
       sx={{

@@ -538,7 +538,9 @@ const Login: React.FC = () => {
                   disabled={isLoading}
                   error={Boolean(emailError)}
                   helperText={emailError}
-                  placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                  placeholder={
+                    lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'
+                  }
                 />
               </Box>
               <Box

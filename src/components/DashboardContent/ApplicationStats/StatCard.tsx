@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { useOutletContext } from 'react-router-dom';
+import { Box, Typography, useTheme } from '@mui/material';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 interface StatCardProps {
@@ -16,12 +15,12 @@ const StatCard: React.FC<StatCardProps> = ({
   count,
   label,
 }) => {
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const theme = useTheme();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const borderColor = darkMode ? '#252525' : '#f0f0f0';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
+  const bgColor = theme.palette.background.paper;
+  const borderColor = theme.palette.divider;
+  const textColor = theme.palette.text.secondary;
 
   // Label Translations
   const labelTranslations: Record<string, { en: string; ar: string }> = {

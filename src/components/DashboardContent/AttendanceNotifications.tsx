@@ -14,7 +14,10 @@ import {
   CheckCircle as CheckInIcon,
   ExitToApp as CheckOutIcon,
 } from '@mui/icons-material';
-import { useWebSocketNotifications, type Notification } from '../../hooks/useWebSocketNotifications';
+import {
+  useWebSocketNotifications,
+  type Notification,
+} from '../../hooks/useWebSocketNotifications';
 import { format } from 'date-fns';
 
 const AttendanceNotifications: React.FC = () => {
@@ -97,7 +100,7 @@ const AttendanceNotifications: React.FC = () => {
           </Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {notifications.map((notification) => (
+            {notifications.map(notification => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -182,4 +185,3 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 export default AttendanceNotifications;
-

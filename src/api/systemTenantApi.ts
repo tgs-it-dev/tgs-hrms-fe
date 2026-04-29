@@ -143,7 +143,7 @@ export const SystemTenantApi = {
         detail.logo = logoUrl;
       }
 
-      console.log('Tenant Detail API Response:', {
+      console.warn('Tenant Detail API Response:', {
         id: detail.id,
         name: detail.name,
         originalLogo: response.data.logo,
