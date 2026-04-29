@@ -46,6 +46,14 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'storybook',
           browser: {
             enabled: true,

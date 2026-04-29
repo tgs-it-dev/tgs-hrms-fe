@@ -538,7 +538,9 @@ const Login: React.FC = () => {
                   disabled={isLoading}
                   error={Boolean(emailError)}
                   helperText={emailError}
-                  placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                  placeholder={
+                    lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'
+                  }
                 />
               </Box>
               <Box
@@ -711,7 +713,7 @@ const Login: React.FC = () => {
                       : "Don't have an account? "}
                     <Link
                       component={RouterLink}
-                      to='/Signup'
+                      to='/signup'
                       sx={{
                         color: 'var(--primary-dark-color)',
                         textDecoration: 'none',

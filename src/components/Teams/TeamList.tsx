@@ -35,7 +35,7 @@ import AvailableEmployees from './AvailableEmployees';
 import { exportCSV } from '../../api/exportApi';
 import { isAdmin, isHRAdmin } from '../../utils/auth';
 import { Icons } from '../../assets/icons';
-import { COLORS } from '../../constants/appConstants';
+import { colorTokens } from '../../theme';
 
 interface TeamListProps {
   teams?: Team[];
@@ -47,7 +47,6 @@ interface TeamListProps {
 const TeamList: React.FC<TeamListProps> = ({
   teams = [],
   darkMode = false,
-  onTeamUpdated,
   onTeamDeleted,
 }) => {
   const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
@@ -106,20 +105,8 @@ const TeamList: React.FC<TeamListProps> = ({
 
   // Generate avatar color
   const generateAvatarColor = (name: string): string => {
-    const colors = [
-      '#1976d2',
-      '#388e3c',
-      '#f57c00',
-      COLORS.ERROR,
-      '#7b1fa2',
-      '#303f9f',
-      '#ff6f00',
-      '#388e3c',
-      '#c2185b',
-      '#0097a7',
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
+    const index = name.charCodeAt(0) % colorTokens.avatar.length;
+    return colorTokens.avatar[index];
   };
 
   const handleViewMembers = (team: Team) => {
@@ -277,7 +264,7 @@ const TeamList: React.FC<TeamListProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             py: 8,
-            color: darkMode ? '#ccc' : '#666',
+            color: theme.palette.text.secondary,
           }}
         >
           <GroupIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
@@ -426,7 +413,11 @@ const TeamList: React.FC<TeamListProps> = ({
                               />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title={lang.deleteTeam} arrow placement='top'>
+                          <Tooltip
+                            title={lang.deleteTeam}
+                            arrow
+                            placement='top'
+                          >
                             <IconButton
                               size='small'
                               onClick={() => handleDeleteTeam(team)}
@@ -624,9 +615,7 @@ const TeamList: React.FC<TeamListProps> = ({
             {selectedTeam?.name} - {lang.teamMembers}
           </DialogTitle>
           <DialogContent>
-            {selectedTeam && (
-              <TeamMemberList teamId={selectedTeam.id} darkMode={darkMode} />
-            )}
+            {selectedTeam && <TeamMemberList teamId={selectedTeam.id} />}
           </DialogContent>
           <DialogActions>
             <AppButton
@@ -652,7 +641,6 @@ const TeamList: React.FC<TeamListProps> = ({
             </DialogTitle>
             <DialogContent>
               <AvailableEmployees
-                darkMode={darkMode}
                 isEmployeePool
                 preselectedTeamId={preselectedPoolTeamId}
                 teamName={employeePoolTeam?.name}
@@ -683,7 +671,6 @@ const TeamList: React.FC<TeamListProps> = ({
             </DialogTitle>
             <DialogContent>
               <AvailableEmployees
-                darkMode={darkMode}
                 teamId={selectedTeam?.id}
                 teamName={selectedTeam?.name}
                 teamDescription={selectedTeam?.description}

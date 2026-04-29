@@ -2,11 +2,7 @@ import axiosInstance from './axiosInstance';
 import { extractErrorMessage } from '../utils/errorHandler';
 
 export type AnnouncementPriority = 'low' | 'medium' | 'high' | (string & {});
-export type AnnouncementStatus =
-  | 'draft'
-  | 'scheduled'
-  | 'sent'
-  | (string & {});
+export type AnnouncementStatus = 'draft' | 'scheduled' | 'sent' | (string & {});
 
 export interface AnnouncementCreator {
   id: string;
@@ -106,7 +102,9 @@ class AnnouncementsApiService {
     }
   }
 
-  async createAnnouncement(payload: CreateAnnouncementDto): Promise<Announcement> {
+  async createAnnouncement(
+    payload: CreateAnnouncementDto
+  ): Promise<Announcement> {
     try {
       const response = await axiosInstance.post<ApiResponse<Announcement>>(
         this.baseUrl,
@@ -137,9 +135,10 @@ class AnnouncementsApiService {
 
   async deleteAnnouncement(id: string): Promise<{ deleted: true; id: string }> {
     try {
-      const response = await axiosInstance.delete<{ deleted: true; id: string }>(
-        `${this.baseUrl}/${id}`
-      );
+      const response = await axiosInstance.delete<{
+        deleted: true;
+        id: string;
+      }>(`${this.baseUrl}/${id}`);
       return response.data;
     } catch (error) {
       const errorResult = extractErrorMessage(error);
@@ -149,4 +148,3 @@ class AnnouncementsApiService {
 }
 
 export const announcementsApiService = new AnnouncementsApiService();
-

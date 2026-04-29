@@ -41,7 +41,8 @@ const mockData: Record<string, { name: string; value: number }[]> = {
   ],
 };
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
+import { colorTokens } from '../../theme';
+const CHART_COLORS = colorTokens.chart;
 
 const LeaveSummaryChart: React.FC = () => {
   const [selected, setSelected] = useState('Ali');
@@ -87,7 +88,7 @@ const LeaveSummaryChart: React.FC = () => {
               label
             >
               {chartData.map((_entry, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
               ))}
             </Pie>
             <Tooltip />

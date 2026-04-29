@@ -90,9 +90,8 @@ const TenantBasedEmployeeManager: React.FC = () => {
       return;
     }
     try {
-      const res = await departmentApiService.getAllTenantsWithDepartments(
-        tenantId
-      );
+      const res =
+        await departmentApiService.getAllTenantsWithDepartments(tenantId);
       const tenantData = res?.tenants?.find(
         t => t.tenant_id === tenantId || String(t.tenant_id) === tenantId
       );
@@ -539,7 +538,7 @@ const TenantBasedEmployeeManager: React.FC = () => {
             setOpenProfile(false);
             setSelectedEmployee(null);
           }}
-          employeeId={selectedEmployee!.id}
+          employeeId={selectedEmployee.id}
         />
       )}
 

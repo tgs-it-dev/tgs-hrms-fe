@@ -51,7 +51,7 @@ const Forget = () => {
     setEmailError('');
 
     try {
-      const response = await authApi.forgotPassword({ email }) as {
+      const response = (await authApi.forgotPassword({ email })) as {
         message?: string;
         errors?: unknown[];
         statusCode?: number;
@@ -65,13 +65,20 @@ const Forget = () => {
       ) {
         setEmailError(
           response.message ||
-            (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
         );
         return;
       }
 
       if (response && response.errors) {
-        setEmailError(response.message || (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address'));
+        setEmailError(
+          response.message ||
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
+        );
         return;
       }
 
@@ -93,7 +100,9 @@ const Forget = () => {
         ) {
           setEmailError(
             apiError.response.data?.message ||
-              (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+              (lang === 'ar'
+                ? 'البريد الإلكتروني غير صالح'
+                : 'Invalid email address')
           );
         } else {
           showError(apiError.response.data?.message || 'Something went wrong.');

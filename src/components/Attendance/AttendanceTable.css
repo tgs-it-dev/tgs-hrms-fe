@@ -1,6 +1,6 @@
 /* Light mode styles - keep original default */
 .custom-date-picker-input {
-  border: 1px solid #3083DC !important;
+  border: 1px solid #3083dc !important;
   border-radius: 12px !important;
   padding: 21px 12px !important;
   font-size: 15px !important;
@@ -93,27 +93,27 @@
 [data-theme='dark'] .rmdp-day.rmdp-today {
   background-color: rgba(48, 131, 220, 0.3) !important;
   color: #ffffff !important;
-  border: 1px solid #3083DC !important;
+  border: 1px solid #3083dc !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-selected {
-  background-color: #3083DC !important;
+  background-color: #3083dc !important;
   color: white !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-range {
-  background-color: #3083DC !important;
+  background-color: #3083dc !important;
   color: #fff !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-range-start,
 [data-theme='dark'] .rmdp-day.rmdp-range-end {
-  background-color: #3083DC !important;
+  background-color: #3083dc !important;
   color: white !important;
 }
 
 [data-theme='dark'] .rmdp-arrow {
-  color: #3083DC !important;
+  color: #3083dc !important;
 }
 
 [data-theme='dark'] .rmdp-arrow:hover {
@@ -157,24 +157,24 @@
   background-color: rgba(25, 118, 210, 0.08) !important;
 } */
 .rmdp-day.rmdp-selected {
-  background-color: #3083DC !important;
+  background-color: #3083dc !important;
   color: white !important;
 }
 
 .rmdp-day.rmdp-range {
-  background-color: #3083DC;
+  background-color: #3083dc;
   box-shadow: 0 0 3px rgba(48, 131, 220, 0.3);
   color: #fff;
 }
 
 .rmdp-day.rmdp-range-start,
 .rmdp-day.rmdp-range-end {
-  background-color: #3083DC !important;
+  background-color: #3083dc !important;
   color: white !important;
 }
 
 .rmdp-arrow {
-  color: #3083DC !important;
+  color: #3083dc !important;
 }
 
 .rmdp-arrow:hover {
