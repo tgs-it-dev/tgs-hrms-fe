@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Button,
-  Link,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Typography, Button, Link, CircularProgress } from '@mui/material';
 import authApi from '../../api/authApi';
 import { validateEmailAddress } from '../../utils/validation';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -120,15 +114,15 @@ const Forget = () => {
       sx={{
         height: '100vh',
         width: '100vw',
-        maxWidth: '100%', 
+        maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'var(--primary-dark-color)',
         overflowX: 'hidden',
-        overflowY: 'hidden', 
-        p: { xs: 2, sm: 3 }, 
+        overflowY: 'hidden',
+        p: { xs: 2, sm: 3 },
         boxSizing: 'border-box',
       }}
     >
@@ -137,11 +131,11 @@ const Forget = () => {
         component='img'
         src={Icons.logoWhite}
         alt='Logo'
-        sx={{ 
-          maxHeight: { xs: 32, sm: 40 }, 
-          width: 'auto', 
+        sx={{
+          maxHeight: { xs: 32, sm: 40 },
+          width: 'auto',
           mb: { xs: 3, sm: 4 },
-          flexShrink: 0 
+          flexShrink: 0,
         }}
       />
 
@@ -149,7 +143,7 @@ const Forget = () => {
       <Box
         sx={{
           width: '100%',
-          maxWidth: '420px', 
+          maxWidth: '420px',
           backgroundColor: '#F9FAFB',
           borderRadius: '32px',
           p: { xs: 3, sm: 5 },
@@ -167,13 +161,15 @@ const Forget = () => {
             width: 56,
             height: 56,
             borderRadius: '50%',
-            backgroundColor: emailSent ? 'var(--success-bg-light)' : 'var(--info-bg-light)',
+            backgroundColor: emailSent
+              ? 'var(--success-bg-light)'
+              : 'var(--info-bg-light)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             mx: 'auto',
             mb: 2.5,
-            flexShrink: 0
+            flexShrink: 0,
           }}
         >
           {emailSent ? (
@@ -185,34 +181,55 @@ const Forget = () => {
 
         {emailSent ? (
           <Box>
-            <Typography variant='h5' sx={{ fontWeight: 700, mb: 1, color: '#2C2C2C' }}>
+            <Typography
+              variant='h5'
+              sx={{ fontWeight: 700, mb: 1, color: '#2C2C2C' }}
+            >
               {lang === 'ar' ? 'تم إرسال البريد الإلكتروني' : 'Email Sent'}
             </Typography>
-            <Typography sx={{ color: '#888', mb: 3, fontSize: { xs: '14px', sm: '16px' } }}>
-              {lang === 'ar' ? 'تحقق من بريدك الوارد' : 'Check your inbox for a reset link!'}
+            <Typography
+              sx={{
+                color: '#888',
+                mb: 3,
+                fontSize: { xs: '14px', sm: '16px' },
+              }}
+            >
+              {lang === 'ar'
+                ? 'تحقق من بريدك الوارد'
+                : 'Check your inbox for a reset link!'}
             </Typography>
           </Box>
         ) : (
           <>
-            <Typography 
-              variant='h5' 
-              sx={{ 
-                fontWeight: 700, 
-                mb: 1, 
+            <Typography
+              variant='h5'
+              sx={{
+                fontWeight: 700,
+                mb: 1,
                 color: '#2C2C2C',
-                fontSize: { xs: '1.4rem', sm: '1.6rem' } 
+                fontSize: { xs: '1.4rem', sm: '1.6rem' },
               }}
             >
               {lang === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}
             </Typography>
 
-            <Typography sx={{ color: '#888', mb: 3, fontSize: { xs: '14px', sm: '16px' } }}>
+            <Typography
+              sx={{
+                color: '#888',
+                mb: 3,
+                fontSize: { xs: '14px', sm: '16px' },
+              }}
+            >
               {lang === 'ar'
                 ? 'سنرسل لك رابطًا لإعادة تعيين كلمة المرور'
                 : "We'll email you a link to reset your password"}
             </Typography>
 
-            <Box component='form' onSubmit={handleSubmit} sx={{ textAlign: 'left' }}>
+            <Box
+              component='form'
+              onSubmit={handleSubmit}
+              sx={{ textAlign: 'left' }}
+            >
               <Box sx={{ mb: 2.5 }}>
                 <AppInputField
                   name='email'
@@ -225,7 +242,9 @@ const Forget = () => {
                   disabled={loading}
                   error={Boolean(emailError)}
                   helperText={emailError}
-                  placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                  placeholder={
+                    lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'
+                  }
                 />
               </Box>
 
@@ -246,7 +265,11 @@ const Forget = () => {
                   '&:hover': { backgroundColor: '#2669B2' },
                 }}
               >
-                {loading ? <CircularProgress size={20} color='inherit' /> : 'Send an email'}
+                {loading ? (
+                  <CircularProgress size={20} color='inherit' />
+                ) : (
+                  'Send an email'
+                )}
               </Button>
             </Box>
           </>
