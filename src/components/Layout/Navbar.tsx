@@ -546,18 +546,18 @@ const Navbar: React.FC<NavbarProps> = ({
   );
 
   // Initialize profile picture state when user data loads
-React.useEffect(() => {
-  if (user?.profile_pic) {
-    // 1. If user exists and has a pic, set it
-    const profilePicUrl = user.profile_pic.startsWith('http')
-      ? user.profile_pic
-      : `${env.apiBaseUrl}/users/${user.id}/profile-picture`;
-    updateProfilePicture(profilePicUrl);
-  } else if (!user) {
-    // 2. If user is null (logged out), clear the picture state immediately
-    clearProfilePicture();
-  }
-}, [user, updateProfilePicture, clearProfilePicture]);
+  React.useEffect(() => {
+    if (user?.profile_pic) {
+      // 1. If user exists and has a pic, set it
+      const profilePicUrl = user.profile_pic.startsWith('http')
+        ? user.profile_pic
+        : `${env.apiBaseUrl}/users/${user.id}/profile-picture`;
+      updateProfilePicture(profilePicUrl);
+    } else if (!user) {
+      // 2. If user is null (logged out), clear the picture state immediately
+      clearProfilePicture();
+    }
+  }, [user, updateProfilePicture, clearProfilePicture]);
 
   // Fetch manager's team members when user is manager
   React.useEffect(() => {
@@ -594,19 +594,19 @@ React.useEffect(() => {
   };
 
   const handleLogout = () => {
-  // Clear all authentication and signup data
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
-  // ... other removals
+    // Clear all authentication and signup data
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    // ... other removals
 
-  // Clear user context
-  clearUser();
-  clearProfilePicture(); // Your fix
+    // Clear user context
+    clearUser();
+    clearProfilePicture(); // Your fix
 
-  // Navigate to login page
-  navigate('/', { replace: true });
-};
+    // Navigate to login page
+    navigate('/', { replace: true });
+  };
 
   const handleCloseTeamMembersModal = () => {
     setTeamMembersModalOpen(false);
