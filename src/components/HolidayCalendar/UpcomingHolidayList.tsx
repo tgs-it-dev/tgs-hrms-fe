@@ -1,6 +1,6 @@
 import React from 'react';
 import { Paper, Typography, List, ListItem, ListItemText } from '@mui/material';
-import type { Holiday } from '../../type/Holiday';
+import type { Holiday } from '../../types/holiday';
 
 interface UpcomingHolidayListProps {
   holidays: Holiday[];

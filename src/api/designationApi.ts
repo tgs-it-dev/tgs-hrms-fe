@@ -1,35 +1,24 @@
 import axiosInstance from './axiosInstance';
 import { handleApiError } from '../utils/errorHandler';
-// Normalized types exposed to the rest of the app (camelCase)
-export interface BackendDesignation {
-  id: string;
-  title: string;
-  departmentId: string;
-  tenantId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-export interface BackendDepartment {
-  id: string;
-  name: string;
-  description?: string;
-  tenantId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-export interface FrontendDesignation {
-  id: string;
-  title: string;
-  titleAr: string;
-  departmentId: string;
-}
-export interface FrontendDepartment {
-  id: string;
-  name: string;
-  nameAr: string;
-  description?: string;
-  descriptionAr?: string;
-}
+import type {
+  BackendDesignation,
+  BackendDepartment,
+  Designation,
+  Department,
+} from '../types/department';
+
+export type {
+  BackendDesignation,
+  BackendDepartment,
+  Designation,
+  Department,
+} from '../types/department';
+
+/** @deprecated Use Designation from src/types/department.ts */
+export type FrontendDesignation = Designation;
+/** @deprecated Use Department from src/types/department.ts */
+export type FrontendDepartment = Department;
+
 export interface DesignationDto {
   title: string;
   departmentId: string;
@@ -63,7 +52,7 @@ class DesignationApiService {
     const response = await axiosInstance.get<
       BackendDepartment[] | { items: BackendDepartment[] }
     >(this.departmentUrl);
-    
+
     let items: BackendDepartment[] = [];
     if (Array.isArray(response.data)) {
       items = response.data;
@@ -143,7 +132,7 @@ class DesignationApiService {
       // we'll need to fetch all departments first and then get designations for each
       const departments = await this.getAllDepartments();
       const allDesignations: BackendDesignation[] = [];
-      
+
       for (const department of departments) {
         try {
           let currentPage = 1;
@@ -154,7 +143,7 @@ class DesignationApiService {
               department.id,
               currentPage
             );
-            
+
             if (response.items.length === 0) break;
 
             allDesignations.push(...response.items);

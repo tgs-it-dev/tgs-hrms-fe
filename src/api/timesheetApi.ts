@@ -49,27 +49,17 @@ class TimesheetApiService {
   private baseUrl = '/timesheet';
 
   async startWork(): Promise<TimesheetEntry> {
-    try {
-      const response = await axiosInstance.post<TimesheetEntry>(
-        `${this.baseUrl}/start`
-      );
-
-      return response.data;
-    } catch (err) {
-      throw err;
-    }
+    const response = await axiosInstance.post<TimesheetEntry>(
+      `${this.baseUrl}/start`
+    );
+    return response.data;
   }
 
   async endWork(): Promise<TimesheetEntry> {
-    try {
-      const response = await axiosInstance.post<TimesheetEntry>(
-        `${this.baseUrl}/end`
-      );
-
-      return response.data;
-    } catch (err) {
-      throw err;
-    }
+    const response = await axiosInstance.post<TimesheetEntry>(
+      `${this.baseUrl}/end`
+    );
+    return response.data;
   }
 
   async getUserTimesheet(page: number = 1): Promise<TimesheetResponse> {

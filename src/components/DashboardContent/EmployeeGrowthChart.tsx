@@ -43,8 +43,8 @@ const EmployeeGrowthChart: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
   const [selectedTenant, setSelectedTenant] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<number>(
-    () => new Date().getFullYear()
+  const [selectedYear, setSelectedYear] = useState<number>(() =>
+    new Date().getFullYear()
   );
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [tenantGrowthData, setTenantGrowthData] = useState<TenantGrowth[]>([]);
@@ -346,7 +346,13 @@ const EmployeeGrowthChart: React.FC = () => {
             padding: 0,
           }}
         >
-          <Chart options={options} series={series} type='line' width='100%' height={300} />
+          <Chart
+            options={options}
+            series={series}
+            type='line'
+            width='100%'
+            height={300}
+          />
         </Box>
       </Box>
     </Box>

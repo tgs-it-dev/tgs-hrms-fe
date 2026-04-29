@@ -23,8 +23,7 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import WarningIcon from '@mui/icons-material/Warning';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
-import type { AppOutletContext } from '../../types/outletContexts';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AddEmployeeForm from './AddEmployeeForm';
 import EmployeeList from './EmployeeList';
 import EmployeeViewModal from './EmployeeViewModal';
@@ -40,7 +39,6 @@ import {
 } from '../../api/designationApi';
 import { extractErrorMessage } from '../../utils/errorHandler';
 import { exportCSV } from '../../api/exportApi';
-import { env } from '../../config/env';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import AppButton from '../common/AppButton';
@@ -85,7 +83,6 @@ interface Employee {
   updatedAt: string;
 }
 
-
 import { useUser } from '../../hooks/useUser';
 import { isManager } from '../../utils/roleUtils';
 import { teamApiService, type TeamMember } from '../../api/teamApi';
@@ -97,7 +94,6 @@ const EmployeeManager: React.FC = () => {
   const direction = theme.direction;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery('(min-width:601px) and (max-width:786px)');
-  const { darkMode } = useOutletContext<AppOutletContext>();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser(); // Get user context
@@ -191,18 +187,15 @@ const EmployeeManager: React.FC = () => {
   const isInitialMount = useRef(true);
   const isLoadingRef = useRef(false);
 
-  // Dark mode
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderColor = darkMode ? '#333' : '#ddd';
   // Match Designation page dropdown background (AppDropdown default)
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
+  const borderColor = theme.palette.divider;
   const controlBg = theme.palette.background.paper;
-  
+
   const designationsForSelectedDepartment = useMemo(() => {
     if (!departmentFilter || departmentFilter === 'all') return [];
-    return designationList.filter(
-      des => des.departmentId === departmentFilter
-    );
+    return designationList.filter(des => des.departmentId === departmentFilter);
   }, [departmentFilter, designationList]);
 
   const loadDepartmentsAndDesignations = useCallback(async () => {
@@ -278,7 +271,8 @@ const EmployeeManager: React.FC = () => {
     lastName: member.user.last_name,
     email: member.user.email,
     phone: '', // Not available in TeamMember
-    departmentId: member.department?.id || member.designation.department?.id || '',
+    departmentId:
+      member.department?.id || member.designation.department?.id || '',
     designationId: member.designation.id,
     role_name: 'Employee', // Default
     status: 'Active', // Default or fetch if available
@@ -293,20 +287,21 @@ const EmployeeManager: React.FC = () => {
           updatedAt: '',
         }
       : member.designation.department
-      ? {
-          id: member.designation.department.id,
-          name: member.designation.department.name,
-          description: '',
-          tenantId: '',
-          createdAt: '',
-          updatedAt: '',
-        }
-      : null,
+        ? {
+            id: member.designation.department.id,
+            name: member.designation.department.name,
+            description: '',
+            tenantId: '',
+            createdAt: '',
+            updatedAt: '',
+          }
+        : null,
     designation: {
       id: member.designation.id,
       title: member.designation.title,
       tenantId: '', // Not available
-      departmentId: member.department?.id || member.designation.department?.id || '',
+      departmentId:
+        member.department?.id || member.designation.department?.id || '',
       createdAt: '',
       updatedAt: '',
     },
@@ -350,9 +345,10 @@ const EmployeeManager: React.FC = () => {
 
         const mappedEmployees = allMembers.map(convertTeamMemberToEmployee);
         setAllEmployees(mappedEmployees);
-        setPaginationLimit(mappedEmployees.length > 0 ? mappedEmployees.length : 25);
+        setPaginationLimit(
+          mappedEmployees.length > 0 ? mappedEmployees.length : 25
+        );
         setCurrentPage(1);
-
       } else {
         // Admin/HR Admin logic - fetch full list
         const filters = {
@@ -491,23 +487,23 @@ const EmployeeManager: React.FC = () => {
         cnic_back_picture: completeEmployee.cnic_back_picture,
         department: completeEmployee.department
           ? {
-            id: completeEmployee.department.id,
-            name: completeEmployee.department.name,
-            description: completeEmployee.department.description,
-            tenantId: completeEmployee.department.tenantId,
-            createdAt: completeEmployee.department.createdAt,
-            updatedAt: completeEmployee.department.updatedAt,
-          }
+              id: completeEmployee.department.id,
+              name: completeEmployee.department.name,
+              description: completeEmployee.department.description,
+              tenantId: completeEmployee.department.tenantId,
+              createdAt: completeEmployee.department.createdAt,
+              updatedAt: completeEmployee.department.updatedAt,
+            }
           : {
-            id: completeEmployee.departmentId,
-            name:
-              departments[completeEmployee.departmentId] ||
-              'Unknown Department',
-            description: '',
-            tenantId: completeEmployee.tenantId,
-            createdAt: completeEmployee.createdAt,
-            updatedAt: completeEmployee.updatedAt,
-          },
+              id: completeEmployee.departmentId,
+              name:
+                departments[completeEmployee.departmentId] ||
+                'Unknown Department',
+              description: '',
+              tenantId: completeEmployee.tenantId,
+              createdAt: completeEmployee.createdAt,
+              updatedAt: completeEmployee.updatedAt,
+            },
         designation: completeEmployee.designation || {
           id: completeEmployee.designationId,
           title:
@@ -552,21 +548,21 @@ const EmployeeManager: React.FC = () => {
         ) || false;
       const checkoutUrl =
         typeof (data as Record<string, unknown> | null)?.checkoutUrl ===
-          'string'
+        'string'
           ? ((data as Record<string, unknown>).checkoutUrl as string)
           : typeof (data as Record<string, unknown> | null)?.checkout_url ===
-            'string'
+              'string'
             ? ((data as Record<string, unknown>).checkout_url as string)
             : null;
       const checkoutSessionId =
         typeof (data as Record<string, unknown> | null)?.checkoutSessionId ===
-          'string'
+        'string'
           ? ((data as Record<string, unknown>).checkoutSessionId as string)
           : typeof (data as Record<string, unknown> | null)
-            ?.checkout_session_id === 'string'
+                ?.checkout_session_id === 'string'
             ? ((data as Record<string, unknown>).checkout_session_id as string)
             : typeof (data as Record<string, unknown> | null)?.session_id ===
-              'string'
+                'string'
               ? ((data as Record<string, unknown>).session_id as string)
               : null;
 
@@ -615,10 +611,12 @@ const EmployeeManager: React.FC = () => {
           const lower = msg.toLowerCase();
           if (lower.includes('cnic')) fieldErrors.cnicNumber = msg;
           else if (lower.includes('phone')) fieldErrors.phone = msg;
-          else if (lower.includes('email') || lower.includes('user')) fieldErrors.email = msg;
+          else if (lower.includes('email') || lower.includes('user'))
+            fieldErrors.email = msg;
           else if (lower.includes('first')) fieldErrors.first_name = msg;
           else if (lower.includes('last')) fieldErrors.last_name = msg;
-          else if (lower.includes('designation')) fieldErrors.designationId = msg;
+          else if (lower.includes('designation'))
+            fieldErrors.designationId = msg;
           else if (lower.includes('password')) fieldErrors.password = msg;
           else fieldErrors.general = msg;
         }
@@ -725,55 +723,55 @@ const EmployeeManager: React.FC = () => {
         prev.map(emp =>
           emp.id === editing.id
             ? {
-              ...emp,
-              user_id: updatedEmployee.user_id || emp.user_id,
-              name: updatedEmployee.name,
-              firstName: updatedEmployee.firstName,
-              lastName: updatedEmployee.lastName,
-              email: updatedEmployee.email,
-              phone: updatedEmployee.phone,
-              departmentId: newDepartmentId,
-              designationId: nextDesignationId,
-              role_name:
-                updatedEmployee.role_name || nextRoleName || emp.role_name,
-              status: updatedEmployee.status || emp.status,
-              cnic_number: updatedEmployee.cnic_number || emp.cnic_number,
-              profile_picture:
-                updatedEmployee.profile_picture || emp.profile_picture,
-              cnic_picture: updatedEmployee.cnic_picture || emp.cnic_picture,
-              cnic_back_picture:
-                updatedEmployee.cnic_back_picture || emp.cnic_back_picture,
-              department: emp.department
-                ? {
-                  ...emp.department,
-                  id: newDepartmentId,
-                  name: departmentName,
-                }
-                : {
-                  id: newDepartmentId,
-                  name: departmentName,
-                  description: '',
-                  tenantId: emp.tenantId,
-                  createdAt: emp.createdAt,
-                  updatedAt: emp.updatedAt,
-                },
-              designation: emp.designation
-                ? {
-                  ...emp.designation,
-                  id: nextDesignationId,
-                  title: designationName,
-                  departmentId: newDepartmentId,
-                }
-                : {
-                  id: nextDesignationId,
-                  title: designationName,
-                  tenantId: emp.tenantId,
-                  departmentId: newDepartmentId,
-                  createdAt: emp.createdAt,
-                  updatedAt: emp.updatedAt,
-                },
-              updatedAt: updatedEmployee.updatedAt,
-            }
+                ...emp,
+                user_id: updatedEmployee.user_id || emp.user_id,
+                name: updatedEmployee.name,
+                firstName: updatedEmployee.firstName,
+                lastName: updatedEmployee.lastName,
+                email: updatedEmployee.email,
+                phone: updatedEmployee.phone,
+                departmentId: newDepartmentId,
+                designationId: nextDesignationId,
+                role_name:
+                  updatedEmployee.role_name || nextRoleName || emp.role_name,
+                status: updatedEmployee.status || emp.status,
+                cnic_number: updatedEmployee.cnic_number || emp.cnic_number,
+                profile_picture:
+                  updatedEmployee.profile_picture || emp.profile_picture,
+                cnic_picture: updatedEmployee.cnic_picture || emp.cnic_picture,
+                cnic_back_picture:
+                  updatedEmployee.cnic_back_picture || emp.cnic_back_picture,
+                department: emp.department
+                  ? {
+                      ...emp.department,
+                      id: newDepartmentId,
+                      name: departmentName,
+                    }
+                  : {
+                      id: newDepartmentId,
+                      name: departmentName,
+                      description: '',
+                      tenantId: emp.tenantId,
+                      createdAt: emp.createdAt,
+                      updatedAt: emp.updatedAt,
+                    },
+                designation: emp.designation
+                  ? {
+                      ...emp.designation,
+                      id: nextDesignationId,
+                      title: designationName,
+                      departmentId: newDepartmentId,
+                    }
+                  : {
+                      id: nextDesignationId,
+                      title: designationName,
+                      tenantId: emp.tenantId,
+                      departmentId: newDepartmentId,
+                      createdAt: emp.createdAt,
+                      updatedAt: emp.updatedAt,
+                    },
+                updatedAt: updatedEmployee.updatedAt,
+              }
             : emp
         )
       );
@@ -792,36 +790,36 @@ const EmployeeManager: React.FC = () => {
   };
 
   const handleDeleteDocument = async (
-  type: 'profile' | 'cnicFront' | 'cnicBack',
-  url: string
-) => {
-  if (!editing) return;
+    type: 'profile' | 'cnicFront' | 'cnicBack',
+    url: string
+  ) => {
+    if (!editing) return;
 
-  // 🚫 Restrict deletion of required documents in edit mode
-  if (type === 'cnicFront' || type === 'cnicBack') {
-    showError('CNIC documents are required and cannot be deleted.');
-    return;
-  }
+    // 🚫 Restrict deletion of required documents in edit mode
+    if (type === 'cnicFront' || type === 'cnicBack') {
+      showError('CNIC documents are required and cannot be deleted.');
+      return;
+    }
 
-  try {
-    await employeeApi.deleteDocument(editing.id, url);
+    try {
+      await employeeApi.deleteDocument(editing.id, url);
 
-    // Update local state
-    const updatedEditing = { ...editing };
-    if (type === 'profile') updatedEditing.profile_picture = undefined;
+      // Update local state
+      const updatedEditing = { ...editing };
+      if (type === 'profile') updatedEditing.profile_picture = undefined;
 
-    setEditing(updatedEditing);
-    setAllEmployees(prev =>
-      prev.map(emp => (emp.id === editing.id ? updatedEditing : emp))
-    );
+      setEditing(updatedEditing);
+      setAllEmployees(prev =>
+        prev.map(emp => (emp.id === editing.id ? updatedEditing : emp))
+      );
 
-    showSuccess('Document deleted successfully!');
-  } catch (err: unknown) {
-    const errorResult = extractErrorMessage(err);
-    showError(`Failed to delete document: ${errorResult.message}`);
+      showSuccess('Document deleted successfully!');
+    } catch (err: unknown) {
+      const errorResult = extractErrorMessage(err);
+      showError(`Failed to delete document: ${errorResult.message}`);
       throw err; // Re-throw to inform the form component
-  }
-};
+    }
+  };
 
   const handleDeleteEmployee = async (id: string) => {
     try {
@@ -917,6 +915,7 @@ const EmployeeManager: React.FC = () => {
       const fetchAndViewEmployee = async () => {
         try {
           const employeeData = await employeeApi.getEmployeeById(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeId is checked truthy in the parent condition
             state.employeeId!
           );
           const employeeToView: Employee = {
@@ -965,31 +964,20 @@ const EmployeeManager: React.FC = () => {
   const deleteTitle = getLabel('Confirm Delete', 'تأكيد الحذف');
   const deleteMessage = pendingDeleteName
     ? getLabel(
-      `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
-      `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
-    )
+        `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
+        `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
+      )
     : getLabel(
-      'Are you sure you want to delete this employee? This action cannot be undone.',
-      'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
-    );
+        'Are you sure you want to delete this employee? This action cannot be undone.',
+        'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
+      );
 
   const token = localStorage.getItem('token');
   const filters: Record<string, string> = {};
-  if (departmentFilter && departmentFilter !== 'all') filters.department_id = departmentFilter;
-  if (designationFilter && designationFilter !== 'all') filters.designation_id = designationFilter;
-
-  // Build absolute media URL from backend path
-  const API_BASE_URL = env.apiBaseUrl;
-  const toAbsoluteUrl = (path?: string | null) => {
-    if (!path) return '';
-    const trimmed = path.trim();
-    const isAbsolute = /^https?:\/\//i.test(trimmed);
-    const base = API_BASE_URL.replace(/\/$/, '');
-    const url = isAbsolute
-      ? trimmed
-      : `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-    return `${url}?t=${Date.now()}`;
-  };
+  if (departmentFilter && departmentFilter !== 'all')
+    filters.department_id = departmentFilter;
+  if (designationFilter && designationFilter !== 'all')
+    filters.designation_id = designationFilter;
 
   return (
     <Box>
@@ -1352,21 +1340,21 @@ const EmployeeManager: React.FC = () => {
           initialData={
             editing
               ? {
-                id: editing.id,
-                firstName: editing.firstName,
-                lastName: editing.lastName,
-                email: editing.email,
-                phone: editing.phone,
-                designationId: editing.designationId,
-                departmentId: editing.departmentId,
-                gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
-                role: (editing.role_name || '').trim() || 'Employee',
-                role_name: editing.role_name,
-                cnicNumber: editing.cnic_number,
-                profilePicture: editing.profile_picture,
-                cnicFrontPicture: editing.cnic_picture,
-                cnicBackPicture: editing.cnic_back_picture,
-              }
+                  id: editing.id,
+                  firstName: editing.firstName,
+                  lastName: editing.lastName,
+                  email: editing.email,
+                  phone: editing.phone,
+                  designationId: editing.designationId,
+                  departmentId: editing.departmentId,
+                  gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
+                  role: (editing.role_name || '').trim() || 'Employee',
+                  role_name: editing.role_name,
+                  cnicNumber: editing.cnic_number,
+                  profilePicture: editing.profile_picture,
+                  cnicFrontPicture: editing.cnic_picture,
+                  cnicBackPicture: editing.cnic_back_picture,
+                }
               : null
           }
         />

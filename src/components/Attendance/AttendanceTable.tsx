@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -47,12 +47,13 @@ import AppDropdown from '../common/AppDropdown';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
-import { type CheckInTeamMember } from './TeamCheckInDialog';
+import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration'
+import { useUser } from '../../hooks/useUser';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
 dayjs.extend(duration);
@@ -101,6 +102,7 @@ const getApprovalStatus = (obj: unknown): string | null => {
 };
 
 const AttendanceTable = () => {
+  const { user: contextUser } = useUser();
   const { mode } = useTheme();
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
@@ -247,7 +249,7 @@ const AttendanceTable = () => {
         const finalUserId =
           eventUserId ?? userObjId ?? (isAllAttendance ? null : currentUserId);
 
-        console.log('Processing event:', {
+        console.warn('Processing event:', {
           eventId: e.id,
           eventUserId,
           userObjId,
@@ -304,12 +306,12 @@ const AttendanceTable = () => {
         if (!userEvents.has(currentUserId)) {
           userEvents.set(currentUserId, []);
         }
-        userEvents.get(currentUserId)!.push({
+        userEvents.get(currentUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       } else {
         // For all attendance view (no employee selected), process all events
@@ -319,12 +321,12 @@ const AttendanceTable = () => {
         if (!userEvents.has(finalUserId)) {
           userEvents.set(finalUserId, []);
         }
-        userEvents.get(finalUserId)!.push({
+        userEvents.get(finalUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       }
     }
@@ -360,7 +362,7 @@ const AttendanceTable = () => {
               timestamp: event.timestamp,
               near_boundary: nearBoundary,
               user: event.user,
-              approvalStatus: (event as any).approvalStatus ?? null,
+              approvalStatus: event.approvalStatus ?? null,
             },
             checkOut: null,
           });
@@ -552,8 +554,7 @@ const AttendanceTable = () => {
     }
 
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         if (view === 'all' || view === 'my') {
           setLoading(false);
         } else {
@@ -562,7 +563,7 @@ const AttendanceTable = () => {
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      const currentUser = contextUser;
       let response: AttendanceResponse;
 
       if (view === 'all') {
@@ -746,26 +747,17 @@ const AttendanceTable = () => {
         return;
       }
 
-      const storedUserForCheck = localStorage.getItem('user');
-      if (storedUserForCheck) {
-        try {
-          const userForCheck = JSON.parse(storedUserForCheck);
-          if (isSystemAdmin(userForCheck.role) && !selectedTenant) {
-            setEmployees([]);
-            return;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setEmployees([]);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      if (isSystemAdmin(contextUser.role) && !selectedTenant) {
+        setEmployees([]);
+        return;
+      }
+
+      const currentUser = contextUser;
       const isSystemAdminFlag = isSystemAdmin(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
       const isNetworkAdminFlag = isNetworkAdmin(currentUser.role);
@@ -878,6 +870,7 @@ const AttendanceTable = () => {
           }
 
           return {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeUserId is non-null: events without user_id are filtered above
             id: employeeUserId!,
             name: employeeName,
           };
@@ -891,26 +884,11 @@ const AttendanceTable = () => {
   };
 
   const getAdminTenantId = (currentUser: unknown): string | undefined => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return storedTenantId.trim();
-      }
-    } catch {
-      // Ignore; fall back to user object
-    }
-
-    try {
-      const userObj = (currentUser as Record<string, unknown>) || {};
-      const tenantId = userObj?.tenant_id || userObj?.tenant;
-      if (tenantId) {
-        return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; tenant id will remain undefined
-    }
-
-    return undefined;
+    const userObj = (currentUser as Record<string, unknown>) ?? {};
+    const tenantId = userObj?.tenant_id ?? userObj?.tenant;
+    if (tenantId) return String(tenantId).trim();
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? storedTenantId.trim() : undefined;
   };
 
   const fetchAttendance = async (
@@ -921,18 +899,22 @@ const AttendanceTable = () => {
   ) => {
     setLoading(true);
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setLoading(false);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
-      const roleName = (
-        currentUser.role?.name ||
-        currentUser.role ||
-        ''
-      ).toString();
+      const currentUser = contextUser;
+      const roleName =
+        ((currentUser as Record<string, unknown>).role instanceof Object
+          ? (
+              (currentUser as Record<string, unknown>).role as Record<
+                string,
+                unknown
+              >
+            )?.name
+          : (currentUser.role ?? '')
+        )?.toString() ?? '';
       setUserRole(roleName);
       const isManagerFlag = checkIsManager(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
@@ -1035,7 +1017,7 @@ const AttendanceTable = () => {
           (response.items as AttendanceEvent[]) || [];
 
         if (events.length > 0) {
-          console.log(
+          console.warn(
             'Sample events with user_id:',
             events.slice(0, 3).map(ev => ({
               id: ev.id,
@@ -1067,14 +1049,13 @@ const AttendanceTable = () => {
 
       // Debug: log first few built rows to verify approvalStatus comes from API
       try {
-        // eslint-disable-next-line no-console
-        console.log(
+        console.warn(
           'Attendance rows sample (approvalStatus):',
           rows
             .slice(0, 5)
             .map(r => ({ id: r.id, approvalStatus: r.approvalStatus }))
         );
-      } catch (e) {
+      } catch {
         // ignore
       }
 
@@ -1130,7 +1111,9 @@ const AttendanceTable = () => {
 
       // For system admin "all" view, use client-side pagination to avoid rendering too many rows
       const useSystemAdminPagination =
-        isSystemAdminFlag && effectiveView === 'all' && filteredRows.length > ATTENDANCE_PAGE_SIZE;
+        isSystemAdminFlag &&
+        effectiveView === 'all' &&
+        filteredRows.length > ATTENDANCE_PAGE_SIZE;
       if (useSystemAdminPagination) {
         setCurrentPage(1);
         setTotalPages(Math.ceil(filteredRows.length / ATTENDANCE_PAGE_SIZE));
@@ -1153,6 +1136,7 @@ const AttendanceTable = () => {
   // being forced to include the function reference in dependency arrays.
   const fetchAttendanceRef = useRef<typeof fetchAttendance | null>(null);
   fetchAttendanceRef.current = fetchAttendance;
+  const hasInitializedViewRef = useRef(false);
 
   // Refresh attendance when manager approves/disapproves in Team view
   useEffect(() => {
@@ -1187,6 +1171,7 @@ const AttendanceTable = () => {
       );
     };
     // include relevant state so handler uses latest filters
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchTeamAttendance is a ref-based callback, intentionally excluded
   }, [
     tab,
     adminView,
@@ -1264,20 +1249,8 @@ const AttendanceTable = () => {
     setCurrentNavigationDate(todayStr);
     fetchAttendanceByDate(todayStr, 'all');
 
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const currentUser = JSON.parse(storedUser);
-        const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-        if (isSystemAdminFlag) {
-          console.log('handleAllAttendance: Loading tenants for system admin');
-          // No await here – let tenants load in background
-          fetchTenantsFromSystemAttendance();
-        }
-      } catch (error) {
-        console.error('Error in handleAllAttendance:', error);
-      }
+    if (contextUser && isSystemAdmin(contextUser.role)) {
+      fetchTenantsFromSystemAttendance();
     }
 
     // Employees will be automatically extracted from attendance data in fetchAttendance
@@ -1289,7 +1262,7 @@ const AttendanceTable = () => {
       // Use the same API as Employee List to get all tenants
       const allTenants = await systemEmployeeApiService.getAllTenants(true);
 
-      console.log('Fetched tenants from API:', allTenants);
+      console.warn('Fetched tenants from API:', allTenants);
 
       // Use tenants directly like Employee List does - map to the expected format
       const tenantOptions = (allTenants || [])
@@ -1299,9 +1272,9 @@ const AttendanceTable = () => {
         }))
         .filter((t: { id: string; name: string }) => t.id && t.name); // Only keep tenants with valid id and name
 
-      console.log('Mapped tenant options:', tenantOptions);
+      console.warn('Mapped tenant options:', tenantOptions);
       setTenants(tenantOptions);
-      console.log(' Set tenants in dropdown:', {
+      console.warn(' Set tenants in dropdown:', {
         count: tenantOptions.length,
         tenants: tenantOptions.map(t => t.name),
       });
@@ -1319,7 +1292,7 @@ const AttendanceTable = () => {
       });
 
       if (excludedTenants.length > 0) {
-        console.log(
+        console.warn(
           ' Excluded tenants:',
           excludedTenants.map((tUnknown: unknown) => {
             const t = (tUnknown as Record<string, unknown>) || {};
@@ -1341,7 +1314,6 @@ const AttendanceTable = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _fetchEmployeesFromSystemAttendance = async (_tenantId?: string) => {
     try {
       const response = await attendanceApi.getSystemAllAttendance();
@@ -1408,74 +1380,47 @@ const AttendanceTable = () => {
     }
   }, [mode]);
 
-  // Set role flags from stored user on mount so All Attendance button shows immediately (without waiting for fetchAttendance)
+  // Sync role flags from context user and set initial attendance view once.
+  // Computes role booleans once per contextUser change and reuses them for
+  // both setState calls and the initial view decision — avoids redundant checks.
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        const roleName = (user.role?.name || user.role || '').toString();
-        setUserRole(roleName);
-        setIsManager(checkIsManager(user.role));
-        setIsAdminUser(isAdmin(user.role));
-        setIsSystemAdminUser(isSystemAdmin(user.role));
-        setIsNetworkAdminUser(isNetworkAdmin(user.role));
-        setIsHRAdminUser(isHRAdmin(user.role));
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
+    if (!contextUser) return;
 
-  useEffect(() => {
-    // Check if we should default to 'all' view for admins who have 'My Attendance' hidden
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      if (
-        isSystemAdmin(user.role) ||
-        isAdmin(user.role) ||
-        isHRAdmin(user.role)
-      ) {
-        // If "My Attendance" is hidden, default to 'all' with current date selected in date nav
+    const isAdminRole = isAdmin(contextUser.role);
+    const isSystemAdminRole = isSystemAdmin(contextUser.role);
+    const isNetworkAdminRole = isNetworkAdmin(contextUser.role);
+    const isHRAdminRole = isHRAdmin(contextUser.role);
+
+    setUserRole((contextUser.role ?? '').toString());
+    setIsManager(checkIsManager(contextUser.role));
+    setIsAdminUser(isAdminRole);
+    setIsSystemAdminUser(isSystemAdminRole);
+    setIsNetworkAdminUser(isNetworkAdminRole);
+    setIsHRAdminUser(isHRAdminRole);
+
+    if (!hasInitializedViewRef.current) {
+      hasInitializedViewRef.current = true;
+      const todayStr = formatLocalYMD(new Date());
+      if (isSystemAdminRole || isAdminRole || isHRAdminRole) {
         setAdminView('all');
-        const todayStr = formatLocalYMD(new Date());
         setCurrentNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'all');
-      } else if (checkIsManager(user.role)) {
-        // Manager (not admin): default to current date in date nav for My Attendance
-        const todayStr = formatLocalYMD(new Date());
-        setMyAttendanceNavigationDate(todayStr);
-        fetchAttendanceByDate(todayStr, 'my');
       } else {
-        // Employee (not admin, not manager): default to current date in date nav
-        const todayStr = formatLocalYMD(new Date());
         setMyAttendanceNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'my');
       }
-    } else {
-      fetchAttendanceRef.current?.('my', undefined, '', '');
-    }
-  }, []);
-
-  // Load tenants when system admin views "All Attendance" - using same API as Employee List
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser || adminView !== 'all') return;
-
-    try {
-      const currentUser = JSON.parse(storedUser);
-      const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-      if (isSystemAdminFlag && tenants.length === 0 && !tenantsLoading) {
-        console.log('Loading tenants for system admin in All Attendance view');
-        fetchTenantsFromSystemAttendance();
-      }
-    } catch (error) {
-      console.error('Error checking user role:', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminView]);
+  }, [contextUser]);
+
+  // Load tenants when system admin switches to "All Attendance" view
+  useEffect(() => {
+    if (adminView !== 'all' || !isSystemAdminUser) return;
+    if (tenants.length === 0 && !tenantsLoading) {
+      fetchTenantsFromSystemAttendance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminView, isSystemAdminUser]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser) {
@@ -1487,12 +1432,14 @@ const AttendanceTable = () => {
         fetchAttendanceRef.current?.('all', undefined, startDate, endDate);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAttendanceByDate is a stable callback ref, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser, startDate, endDate]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser && selectedTenant) {
       _fetchEmployeesFromAttendance('all');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- _fetchEmployeesFromAttendance is stable, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser]);
 
   useEffect(() => {
@@ -1681,6 +1628,28 @@ const AttendanceTable = () => {
     }
   };
 
+  // Add this inside the AttendanceTable component
+  const totalWorkedHours = useMemo(() => {
+    // If in My/All Attendance tab (tab 0)
+    if (tab === 0) {
+      return filteredData.reduce(
+        (acc, record) => acc + (record.workedHours || 0),
+        0
+      );
+    }
+    // If in Team Attendance tab (tab 1)
+    else {
+      return filteredTeamAttendance.reduce((acc, member) => {
+        const memberHours =
+          member.attendance?.reduce(
+            (sum, att) => sum + (att.workedHours || 0),
+            0
+          ) || 0;
+        return acc + memberHours;
+      }, 0);
+    }
+  }, [filteredData, filteredTeamAttendance, tab]);
+
   // Handle filter changes - reset page to 1 and fetch new data
   const handleFilterChange = () => {
     setCurrentPage(1);
@@ -1816,13 +1785,6 @@ const AttendanceTable = () => {
                       maxWidth: { sm: '200px' },
                       boxSizing: 'border-box',
                       flexShrink: 0,
-                      backgroundColor: 'primary.dark',
-                      color: '#fff',
-                      borderColor: 'primary.dark',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
-                        borderColor: 'primary.dark',
-                      },
                     }}
                   >
                     All Attendance
@@ -2021,6 +1983,17 @@ const AttendanceTable = () => {
               >
                 Clear Filters
               </AppButton>
+              <AppButton
+                variant='outlined'
+                color='info'
+                sx={{
+                  pointerEvents: 'none', // Makes it look like a badge/tag rather than a clickable button
+                  fontWeight: 'bold',
+                  borderColor: 'info.main',
+                }}
+              >
+                Total Hours: {totalWorkedHours.toFixed(2)}
+              </AppButton>
             </Box>
 
             <Box
@@ -2084,8 +2057,7 @@ const AttendanceTable = () => {
                         token || '',
                         selfParams
                       );
-                    }
-                    else if (isAdminLike) {
+                    } else if (isAdminLike) {
                       const allParams: Record<string, string> = {};
                       if (startDate) allParams.startDate = startDate;
                       if (endDate) allParams.endDate = endDate;
@@ -2244,20 +2216,18 @@ const AttendanceTable = () => {
             </TableBody>
           </AppTable>
 
-          {isSystemAdminUser &&
-            adminView === 'all' &&
-            totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={(_, page) => setCurrentPage(page)}
-                  color='primary'
-                  showFirstButton
-                  showLastButton
-                />
-              </Box>
-            )}
+          {isSystemAdminUser && adminView === 'all' && totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, page) => setCurrentPage(page)}
+                color='primary'
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
 
           {canViewAllAttendance && adminView === 'all' && (
             <DateNavigation
@@ -2860,7 +2830,8 @@ const AttendanceTable = () => {
           />
           {(() => {
             const teamRecordCount = filteredTeamAttendance.reduce(
-              (sum, m) => sum + ((m as CheckInTeamMember).attendance?.length || 0),
+              (sum, m) =>
+                sum + ((m as CheckInTeamMember).attendance?.length || 0),
               0
             );
             return teamRecordCount > 0 ? (

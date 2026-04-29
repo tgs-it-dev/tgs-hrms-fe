@@ -148,6 +148,12 @@ export const themeStyles = {
   }),
 };
 
+/**
+ * Returns a hex string for a given index in the chart color palette.
+ * Import colorTokens.chart directly if you need the full array.
+ */
+export { colorTokens } from './tokens';
+
 // CSS Custom Properties for theme values
 export const cssVars = {
   // Get CSS custom property value

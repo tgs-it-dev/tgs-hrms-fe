@@ -1,36 +1,21 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { io, type Socket } from 'socket.io-client';
 import notificationsApi from '../api/notificationsApi';
 import { authService } from '../api/authService';
 import { env } from '../config/env';
 import { getCurrentUser } from '../utils/auth';
+import type { UINotification } from '../types/notification';
 
-// Local Notification type for the UI notifications used by the Navbar
-export interface Notification {
-  id: string;
-  title: string;
-  text: string;
-  timestamp: string;
-  read: boolean;
-  // Optional extra fields used by some UIs (task panel etc.)
-  employeeName?: string;
-  taskTitle?: string;
-  oldStatus?: string;
-  newStatus?: string;
-  // keep raw payload for debugging or future use
-  raw?: unknown;
-}
+// Re-export UINotification as Notification so existing imports keep working.
+export type Notification = UINotification;
 
-// Removed unused alert helper types (PendingApproval, AutoCheckout, SalaryIssue)
-
-interface SalaryIssue {
-  id?: string;
-  title?: string;
-  message?: string;
-  details?: string;
-  timestamp?: string;
-}
 // AlertsResponse not used — removed to satisfy lint rules
 interface NotificationContextType {
   notifications: Notification[];
@@ -51,16 +36,24 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 function formatTypeLabel(t?: string) {
   if (!t) return undefined;
   let s = String(t).split(':')[0];
-  s = s.replace(/[_-]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-  return s
-    .split(' ')
-    .map(w => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
-    .join(' ') || undefined;
+  s = s
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return (
+    s
+      .split(' ')
+      .map(w => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
+      .join(' ') || undefined
+  );
 }
 
 function cleanMessage(m?: unknown) {
   return String(m ?? '')
-    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '')
+    .replace(
+      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
+      ''
+    )
     .replace(/\b(?:leave\s*request\s*id|request\s*id|id)[:=]?\s*#?\d+\b/gi, '')
     .replace(/#\d+\b/g, '')
     .replace(/id[:=]?\s*[0-9a-f-]+/gi, '')
@@ -69,15 +62,19 @@ function cleanMessage(m?: unknown) {
 }
 
 function mapPayloadToNotification(p: Record<string, unknown>): Notification {
-  const id = String(p.id ?? `notif-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
+  const id = String(
+    p.id ?? `notif-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  );
   const message = p.message ?? p.text ?? '';
   const type = p.type ?? '';
   const title =
     (formatTypeLabel(String(type)) ?? String(message).slice(0, 80)) ||
     'Notification';
   const text = cleanMessage(message);
-  const timestamp = String(p.created_at ?? p.updated_at ?? p.timestamp ?? new Date().toISOString());
-  const status = (p.status ?? 'unread');
+  const timestamp = String(
+    p.created_at ?? p.updated_at ?? p.timestamp ?? new Date().toISOString()
+  );
+  const status = p.status ?? 'unread';
   const read = status === 'read';
   return { id, title, text, timestamp, read, raw: p };
 }
@@ -162,7 +159,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     const pushNotification = (payload: unknown) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
-      if (String(p.type ?? '').toLowerCase() === 'alert' || String(p.message ?? p.text ?? '').toLowerCase().includes('alert')) return;
+      if (
+        String(p.type ?? '').toLowerCase() === 'alert' ||
+        String(p.message ?? p.text ?? '')
+          .toLowerCase()
+          .includes('alert')
+      )
+        return;
       const notification = mapPayloadToNotification(p);
       setNotifications(prev => {
         if (prev.some(n => n.id === notification.id)) return prev;

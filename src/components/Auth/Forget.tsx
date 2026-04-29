@@ -53,7 +53,7 @@ const Forget = () => {
     setEmailError('');
 
     try {
-      const response = await authApi.forgotPassword({ email }) as {
+      const response = (await authApi.forgotPassword({ email })) as {
         message?: string;
         errors?: unknown[];
         statusCode?: number;
@@ -67,13 +67,20 @@ const Forget = () => {
       ) {
         setEmailError(
           response.message ||
-            (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
         );
         return;
       }
 
       if (response && response.errors) {
-        setEmailError(response.message || (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address'));
+        setEmailError(
+          response.message ||
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
+        );
         return;
       }
 
@@ -95,7 +102,9 @@ const Forget = () => {
         ) {
           setEmailError(
             apiError.response.data?.message ||
-              (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+              (lang === 'ar'
+                ? 'البريد الإلكتروني غير صالح'
+                : 'Invalid email address')
           );
         } else {
           showError(apiError.response.data?.message || 'Something went wrong.');
@@ -336,11 +345,17 @@ const Forget = () => {
                       disabled={loading}
                       error={Boolean(emailError)}
                       helperText={emailError}
-                      placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                      placeholder={
+                        lang === 'ar'
+                          ? 'أدخل بريدك الإلكتروني'
+                          : 'Enter your email'
+                      }
                     />
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}
+                  >
                     <Button
                       type='submit'
                       variant='contained'
@@ -363,7 +378,9 @@ const Forget = () => {
                       }}
                     >
                       {loading ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                        >
                           <CircularProgress size={16} color='inherit' />
                           {lang === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
                         </Box>
