@@ -22,25 +22,6 @@ export const PAGINATION = {
   MOBILE_PAGE_SIZE_OPTIONS: [5, 10] as const,
 } as const;
 
-export const COLORS = {
-  PRIMARY: '#464b8a',
-  ACCENT: '#f19828',
-  SUCCESS: '#4caf50',
-  ERROR: '#d32f2f',
-  WARNING: '#ff9800',
-  INFO: '#1976d2',
-  DARK_BG: '#1e1e1e',
-  LIGHT_BG: '#fff',
-  DARK_TEXT: '#8f8f8f',
-  LIGHT_TEXT: '#000',
-  DARK_BORDER: '#333',
-  LIGHT_BORDER: '#ddd',
-  DARK_FIELD_BG: '#2e2e2e',
-  LIGHT_FIELD_BG: '#f1f1f1',
-  DARK_CARD_BG: '#2a2a2a',
-  LIGHT_CARD_BG: '#f9f9f9',
-} as const;
-
 export const SIZES = {
   AVATAR: {
     SMALL: 40,

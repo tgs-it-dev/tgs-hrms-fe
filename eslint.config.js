@@ -10,6 +10,11 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   [
     { ignores: ['dist', 'node_modules', 'build', 'coverage'] },
+    // tokens.ts is the only file allowed to contain raw hex color literals.
+    {
+      files: ['src/theme/tokens.ts'],
+      rules: { 'no-restricted-syntax': 'off' },
+    },
     {
       files: ['**/*.{ts,tsx}'],
       extends: [
@@ -26,6 +31,20 @@ export default tseslint.config(
         },
       },
       rules: {
+        // ── Design tokens — ban raw hex values outside tokens.ts ──────
+        // All colors must live in src/theme/tokens.ts; components use
+        // theme.palette.* or MUI sx shorthand ('primary.main') instead.
+        // Warn on hex literals; will be promoted to 'error' once existing
+        // violations are cleaned up component-by-component.
+        'no-restricted-syntax': [
+          'warn',
+          {
+            selector:
+              'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
+            message:
+              'Hardcoded hex color detected. Add the color to src/theme/tokens.ts and reference it via theme.palette.* or an MUI sx shorthand.',
+          },
+        ],
         // ── TypeScript ────────────────────────────────────────────────
         // Unused vars: allow underscore-prefixed names to be ignored
         '@typescript-eslint/no-unused-vars': [

@@ -17,7 +17,6 @@ import PolicyForm from './PolicyForm';
 import edit from '../../assets/dashboardIcon/edit.svg';
 import deleteIcon from '../../assets/dashboardIcon/ui-delete.svg';
 import { useOutletContext } from 'react-router-dom';
-import { COLORS } from '../../constants/appConstants';
 
 const PolicyList: React.FC = () => {
   const [policies, setPolicies] = useState<Policy[]>(mockPolicies);
@@ -62,7 +61,7 @@ const PolicyList: React.FC = () => {
             setSelected(null);
             setOpenForm(true);
           }}
-          sx={{ backgroundColor: COLORS.PRIMARY }}
+          sx={{ backgroundColor: 'primary.main' }}
         >
           Add Policy
         </Button>

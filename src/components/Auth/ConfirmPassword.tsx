@@ -15,7 +15,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { validatePasswordStrength } from '../../utils/validation';
 import authApi from '../../api/authApi';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 const PasswordReset: React.FC = () => {
   const navigate = useNavigate();
@@ -128,7 +127,7 @@ const PasswordReset: React.FC = () => {
             variant='contained'
             text='Back to Login'
             onClick={() => navigate('/', { replace: true })}
-            sx={{ backgroundColor: COLORS.PRIMARY }}
+            sx={{ backgroundColor: 'primary.main' }}
           />
         </Paper>
       </Box>

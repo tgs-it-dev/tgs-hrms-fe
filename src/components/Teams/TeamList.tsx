@@ -35,7 +35,7 @@ import AvailableEmployees from './AvailableEmployees';
 import { exportCSV } from '../../api/exportApi';
 import { isAdmin, isHRAdmin } from '../../utils/auth';
 import { Icons } from '../../assets/icons';
-import { COLORS } from '../../constants/appConstants';
+import { colorTokens } from '../../theme';
 
 interface TeamListProps {
   teams?: Team[];
@@ -105,20 +105,8 @@ const TeamList: React.FC<TeamListProps> = ({
 
   // Generate avatar color
   const generateAvatarColor = (name: string): string => {
-    const colors = [
-      '#1976d2',
-      '#388e3c',
-      '#f57c00',
-      COLORS.ERROR,
-      '#7b1fa2',
-      '#303f9f',
-      '#ff6f00',
-      '#388e3c',
-      '#c2185b',
-      '#0097a7',
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
+    const index = name.charCodeAt(0) % colorTokens.avatar.length;
+    return colorTokens.avatar[index];
   };
 
   const handleViewMembers = (team: Team) => {
