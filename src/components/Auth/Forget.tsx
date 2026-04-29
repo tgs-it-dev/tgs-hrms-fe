@@ -23,7 +23,7 @@ const Forget = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
-  const [lang, setLang] = useState<'en' | 'ar'>('en');
+  const [lang] = useState<'en' | 'ar'>('en');
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
