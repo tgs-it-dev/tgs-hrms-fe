@@ -32,14 +32,14 @@ export const getDefaultDashboardRoute = (role?: string): string => {
     case 'network-admin':
       return '/dashboard';
     case 'hr-admin':
-      return '/dashboard/AttendanceTable';
+      return '/dashboard/attendance-table';
     case 'admin':
       return '/dashboard';
     case 'manager':
       return '/dashboard/teams';
     case 'employee':
     case 'user':
-      return '/dashboard/AttendanceCheck';
+      return '/dashboard/attendance-check';
     default:
       return '/dashboard';
   }
@@ -58,7 +58,6 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'audit logs',
     'performance',
-    'payroll',
     'recruitment',
     'feature-management',
   ],
@@ -76,7 +75,6 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'department',
     'teams',
     'leave-analytics',
-    'payroll',
     'employees',
     'recruitment',
   ],
@@ -89,19 +87,11 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'attendance',
     'report',
     'leave-analytics',
-    'payroll',
     'recruitment',
   ],
-  manager: [
-    'teams',
-    'attendance',
-    'report',
-    'leave-analytics',
-    'payroll',
-    'recruitment',
-  ],
-  employee: ['attendance', 'leave-analytics', 'payroll', 'teams', 'recruitment'],
-  user: ['attendance', 'payroll', 'teams', 'recruitment'],
+  manager: ['teams', 'attendance', 'report', 'leave-analytics', 'recruitment'],
+  employee: ['attendance', 'leave-analytics', 'teams', 'recruitment'],
+  user: ['attendance', 'teams', 'recruitment'],
   unknown: ['recruitment'],
 };
 
@@ -119,7 +109,6 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
   { key: 'report', patterns: ['report'] },
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'performance', patterns: ['performance'] },
-  { key: 'payroll', patterns: ['payroll'] },
   { key: 'recruitment', patterns: ['recruitment'] },
   {
     key: 'feature-management',
@@ -145,7 +134,6 @@ type ParentKey =
   | 'attendance'
   | 'department'
   | 'leave-analytics'
-  | 'payroll'
   | 'employees'
   | 'teams'
   | 'audit logs'
@@ -156,7 +144,6 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'attendance', patterns: ['attendance'] },
   { key: 'department', patterns: ['department'] },
   { key: 'leave-analytics', patterns: ['leave analytics', 'leave-analytics'] },
-  { key: 'payroll', patterns: ['payroll'] },
   { key: 'employees', patterns: ['employee'] },
   { key: 'teams', patterns: ['team'] },
   { key: 'audit logs', patterns: ['audit logs'] },
@@ -186,7 +173,6 @@ const ROLE_SUBMENU_POLICIES: Record<
   'system-admin': {
     department: { deny: ['user list', 'policies', 'holidays'] },
     'leave-analytics': { deny: ['report'] },
-    payroll: { allowOnly: ['payroll reports'] },
     employees: { deny: ['employee list'] },
     teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
     attendance: { deny: ['leave request', 'geofencing'] },
@@ -201,7 +187,6 @@ const ROLE_SUBMENU_POLICIES: Record<
   'hr-admin': {
     employees: { deny: ['tenant employees'] },
     'audit logs': { denyAll: true },
-    payroll: { deny: ['payroll reports', 'my salary'] },
     department: { allowOnly: ['designation', 'department'] },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     attendance: { deny: ['geofencing'] },
@@ -213,14 +198,12 @@ const ROLE_SUBMENU_POLICIES: Record<
     'leave-analytics': { deny: ['cross tenant leaves'] },
     attendance: { deny: ['reports', 'geofencing'] },
     'audit logs': { denyAll: true },
-    payroll: { deny: ['payroll reports', 'my salary'] },
     teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
   },
   manager: {
     employees: { deny: ['tenant employees'] },
     attendance: { deny: ['reports', 'report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     teams: { deny: ['my tasks'] }, // Managers see Team Management and Manager Tasks only
   },
@@ -229,7 +212,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     attendance: { deny: ['report', 'geofencing'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
   },
   user: {
@@ -237,7 +219,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     attendance: { deny: ['report'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    payroll: { allowOnly: ['my salary'] },
     teams: { allowOnly: ['my tasks'] }, // Users see only My Tasks
   },
   unknown: {},
@@ -282,14 +263,6 @@ export const isSubMenuVisibleForRole = (
     return r === 'admin';
   }
 
-  if (
-    r === 'system-admin' &&
-    parentKey === 'payroll' &&
-    (subKey === 'payroll reports' || subKey.includes('payroll reports'))
-  ) {
-    return true;
-  }
-
   const policy = ROLE_SUBMENU_POLICIES[r]?.[parentKey];
   if (!policy) return true;
   if (policy.denyAll) return false;
@@ -308,57 +281,56 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'announcements',
     'tenant',
     'departments',
-    'Designations',
-    'EmployeeManager',
-    'UserProfile',
-    'AttendanceCheck',
-    'AttendanceTable',
+    'designations',
+    'employee-manager',
+    'user-profile',
+    'attendance-check',
+    'attendance-table',
     'attendance-summary',
-    'AttendanceCheck/TimesheetLayout',
+    'attendance-check/timesheet-layout',
     'CrossTenantLeaveManagement',
     'teams',
     'teams/list',
     'teams/tasks',
     'manager-tasks',
     'my-tasks',
-    'EmployeeProfileView',
+    'employee-profile-view',
     'settings',
     'cross-tenant-leaves',
     'audit-logs',
-    'TenantEmployees',
+    'tenant-employees',
     'performance-dashboard',
-    'payroll-reports',
     'feature-management',
   ],
   'network-admin': [
     '',
     'departments',
-    'Designations',
-    'EmployeeManager',
-    'UserList',
-    'UserProfile',
-    'AttendanceCheck',
-    'AttendanceTable',
-    'AttendanceCheck/TimesheetLayout',
+    'designations',
+    'employee-manager',
+    'user-list',
+    'user-profile',
+    'attendance-check',
+    'attendance-table',
+    'attendance-check/timesheet-layout',
     'teams',
     'teams/list',
     'teams/tasks',
     'manager-tasks',
     'my-tasks',
-    'EmployeeProfileView',
+    'employee-profile-view',
     'attendance-summary',
     'settings',
   ],
   'hr-admin': [
     'departments',
-    'EmployeeManager',
+    'employee-manager',
     'departments',
-    'Designations',
-    // 'AttendanceCheck',
+    'designations',
+    // 'attendance-check',
     'attendance-summary',
-    'AttendanceTable',
-    'AttendanceCheck/TimesheetLayout',
-    'UserProfile',
+    'attendance-table',
+    'attendance-check/timesheet-layout',
+    'user-profile',
     'announcements',
     'settings',
     'teams',
@@ -367,43 +339,39 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'manager-tasks',
     'my-tasks',
     'leaves',
-    'Reports',
-    'payroll-configuration',
-    'payroll-records',
+    'reports',
     'employee-salary',
   ],
   admin: [
     '',
     'departments',
-    'Designations',
-    'EmployeeManager',
-    'UserList',
-    'UserProfile',
+    'designations',
+    'employee-manager',
+    'user-list',
+    'user-profile',
     'leaves',
     'CrossTenantLeaveManagement',
     'cross-tenant-leaves',
     'announcements',
-    'AttendanceCheck',
-    'AttendanceTable',
-    'AttendanceCheck/TimesheetLayout',
-    'Reports',
+    'attendance-check',
+    'attendance-table',
+    'attendance-check/timesheet-layout',
+    'reports',
     'teams',
     'teams/list',
     'teams/tasks',
     'manager-tasks',
-    'EmployeeProfileView',
+    'employee-profile-view',
     'attendance-summary',
     'settings',
-    'payroll-configuration',
-    'payroll-records',
     'employee-salary',
   ],
   manager: [
-    'EmployeeManager',
-    'AttendanceCheck',
-    'AttendanceTable',
-    'Reports',
-    'AttendanceCheck/TimesheetLayout',
+    'employee-manager',
+    'attendance-check',
+    'attendance-table',
+    'reports',
+    'attendance-check/timesheet-layout',
     'announcements',
     'teams',
     'geofencing',
@@ -412,31 +380,31 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'manager-tasks',
     'my-tasks',
     'leaves',
-    'UserProfile',
+    'user-profile',
     'settings',
     'employee-salary',
     'my-salary',
-    'EmployeeProfileView',
+    'employee-profile-view',
   ],
   employee: [
-    'AttendanceCheck',
-    'AttendanceTable',
-    'Reports',
-    'AttendanceCheck/TimesheetLayout',
+    'attendance-check',
+    'attendance-table',
+    'reports',
+    'attendance-check/timesheet-layout',
     'leaves',
     'my-tasks',
-    'UserProfile',
+    'user-profile',
     'settings',
     'my-salary',
   ],
   user: [
-    'AttendanceCheck',
-    'AttendanceTable',
-    'AttendanceCheck/TimesheetLayout',
+    'attendance-check',
+    'attendance-table',
+    'attendance-check/timesheet-layout',
     'leaves',
     'announcements',
     'my-tasks',
-    'UserProfile',
+    'user-profile',
     'settings',
     'my-salary',
   ],

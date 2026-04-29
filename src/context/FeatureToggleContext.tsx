@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 
 type FeatureKey =
-  | 'payroll'
   | 'attendance'
   | 'performance'
   | 'recruitment'
@@ -29,7 +28,6 @@ interface FeatureToggleContextValue {
 const STORAGE_KEY = 'feature-toggles';
 
 const defaultFeatures: FeatureState = {
-  payroll: true,
   attendance: true,
   performance: true,
   recruitment: true,
@@ -102,6 +100,7 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useFeatureToggles = (): FeatureToggleContextValue => {
   const ctx = useContext(FeatureToggleContext);
   if (!ctx) {
@@ -113,4 +112,3 @@ export const useFeatureToggles = (): FeatureToggleContextValue => {
 };
 
 export type { FeatureKey, FeatureState };
-

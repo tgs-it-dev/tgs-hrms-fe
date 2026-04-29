@@ -16,7 +16,10 @@ interface UserAvatarProps extends Omit<AvatarProps, 'src' | 'alt'> {
 }
 
 const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
-  ({ user, size = 40, clickable = false, onClick, sx, ...avatarProps }, ref) => {
+  (
+    { user, size = 40, clickable = false, onClick, sx, ...avatarProps },
+    ref
+  ) => {
     const API_BASE_URL =
       import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     const { profilePictureUrl } = useProfilePicture();
@@ -74,10 +77,10 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
       },
       '&:hover': clickable
         ? {
-          opacity: 0.8,
-          transform: 'scale(1.05)',
-          transition: 'all 0.2s ease-in-out',
-        }
+            opacity: 0.8,
+            transform: 'scale(1.05)',
+            transition: 'all 0.2s ease-in-out',
+          }
         : {},
       ...sx,
     };

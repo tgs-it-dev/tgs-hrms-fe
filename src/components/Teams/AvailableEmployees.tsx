@@ -38,7 +38,6 @@ import ErrorSnackbar from '../common/ErrorSnackbar';
 type SelectedTeamInfo = Pick<Team, 'id' | 'name' | 'description'>;
 
 interface AvailableEmployeesProps {
-  darkMode?: boolean;
   teamId?: string; // Optional team ID - if provided, skip team selection
   teamName?: string;
   teamDescription?: string;
@@ -47,7 +46,6 @@ interface AvailableEmployeesProps {
 }
 
 const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
-  darkMode = false,
   teamId,
   teamName,
   teamDescription,
@@ -402,15 +400,15 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
                 ),
               }}
               sx={{
-                backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+                backgroundColor: 'background.paper',
                 borderRadius: 2,
                 '& .MuiOutlinedInput-root': {
                   color: theme.palette.text.primary,
                   '& fieldset': {
-                    borderColor: darkMode ? '#555' : '#ccc',
+                    borderColor: 'divider',
                   },
                   '&:hover fieldset': {
-                    borderColor: darkMode ? '#888' : '#999',
+                    borderColor: 'divider',
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#484c7f',
@@ -426,7 +424,7 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
           <AppTable
             component={Paper}
             sx={{
-              backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+              backgroundColor: 'background.paper',
               boxShadow: 'none',
             }}
           >
@@ -508,8 +506,16 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
                         size='small'
                         onClick={() => handleAddToTeam(employee)}
                         disabled={isHREmployee(employee)}
-                        sx={{ color: isHREmployee(employee) ? 'action.disabled' : 'primary.main' }}
-                        title={isHREmployee(employee) ? 'HR cannot be added to a team' : lang.addToTeam}
+                        sx={{
+                          color: isHREmployee(employee)
+                            ? 'action.disabled'
+                            : 'primary.main',
+                        }}
+                        title={
+                          isHREmployee(employee)
+                            ? 'HR cannot be added to a team'
+                            : lang.addToTeam
+                        }
                       >
                         <AddIcon />
                       </IconButton>
@@ -587,7 +593,7 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
         fullWidth
         PaperProps={{
           sx: {
-            backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+            backgroundColor: 'background.paper',
             color: theme.palette.text.primary,
           },
         }}
@@ -608,7 +614,7 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
               <Box
                 sx={{
                   p: 2,
-                  backgroundColor: darkMode ? '#444' : '#f5f5f5',
+                  backgroundColor: 'background.default',
                   borderRadius: 1,
                 }}
               >

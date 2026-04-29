@@ -3,10 +3,13 @@
  * @param dateInput - The date to format (ISO string, Date object, Dayjs object, or any valid date string)
  * @returns Formatted date string in "DD/MMM/YYYY" format, or the original string if formatting fails
  */
-export const formatDate = (
-  dateInput: unknown
-): string => {
-  if (dateInput === null || typeof dateInput === 'undefined' || dateInput === '') return 'N/A';
+export const formatDate = (dateInput: unknown): string => {
+  if (
+    dateInput === null ||
+    typeof dateInput === 'undefined' ||
+    dateInput === ''
+  )
+    return 'N/A';
 
   try {
     let date: Date;

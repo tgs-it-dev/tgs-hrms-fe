@@ -21,6 +21,7 @@ import AppTable from '../common/AppTable';
 import AppDropdown from '../common/AppDropdown';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
+import { useUser } from '../../hooks/useUser';
 
 interface AttendanceSummaryItem {
   employeeName?: string;
@@ -33,6 +34,7 @@ interface AttendanceSummaryItem {
 }
 
 const AttendanceSummaryReport: React.FC = () => {
+  const { user } = useUser();
   const [summaryData, setSummaryData] = useState<AttendanceSummaryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<
@@ -45,24 +47,10 @@ const AttendanceSummaryReport: React.FC = () => {
   const { snackbar, showError, showSuccess, showWarning, closeSnackbar } =
     useErrorHandler();
 
-  // Calculate days range based on filter
-  // Get tenant ID from localStorage - same pattern as other attendance pages
-  const getTenantId = () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      const user = JSON.parse(userStr);
-      // localStorage has tenant_id (with underscore), not tenant
-      return user.tenant_id || user.tenant || null;
-    } catch {
-      return null;
-    }
-  };
-
   // Fetch attendance summary with pagination
   const fetchSummary = useCallback(
     async (page: number = 1) => {
-      const tenantId = getTenantId();
+      const tenantId = user?.tenant || localStorage.getItem('tenant_id');
       if (!tenantId) {
         setSummaryData([]);
         setLoading(false);
@@ -165,7 +153,7 @@ const AttendanceSummaryReport: React.FC = () => {
         setLoading(false);
       }
     },
-    [filter, itemsPerPage, showError]
+    [filter, itemsPerPage, showError, user]
   );
 
   // Fetch when filter changes, reset to page 1
@@ -309,7 +297,9 @@ const AttendanceSummaryReport: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Paper sx={{ mt: 2, boxShadow: 'none', backgroundColor: 'transparent' }}>
+        <Paper
+          sx={{ mt: 2, boxShadow: 'none', backgroundColor: 'transparent' }}
+        >
           <AppTable>
             <TableHead>
               <TableRow>

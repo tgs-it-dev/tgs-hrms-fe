@@ -1,11 +1,9 @@
 import axiosInstance from './axiosInstance';
+import type { UserShort } from '../types/user';
+import type { AttendanceTeamMember } from '../types/team';
 
-export interface UserShort {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
+export type { UserShort } from '../types/user';
+export type { AttendanceTeamMember } from '../types/team';
 
 export interface AttendanceEvent {
   id: string;
@@ -14,8 +12,10 @@ export interface AttendanceEvent {
   type: 'check-in' | 'check-out' | string;
   near_boundary?: boolean;
   user?: UserShort;
+  approvalStatus?: string | null;
 }
 
+/** Single attendance row in AttendanceTeamMember.attendance. */
 export interface TeamAttendanceEntry {
   date: string;
   checkIn: string | null;
@@ -23,17 +23,8 @@ export interface TeamAttendanceEntry {
   workedHours: number;
 }
 
-export interface TeamMember {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  profile_pic?: string;
-  attendance: TeamAttendanceEntry[];
-  user?: UserShort;
-  totalDaysWorked?: number;
-  totalHoursWorked?: number;
-}
+/** @deprecated Use AttendanceTeamMember from src/types/team.ts */
+export type TeamMember = AttendanceTeamMember;
 
 export interface AttendanceRecord {
   date: string;
@@ -80,6 +71,42 @@ export interface SystemAllAttendanceResponse {
   totalTenants: number;
 }
 
+export interface TodayTeamAttendanceMember {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  profile_pic?: string;
+  designation?: string;
+  department?: string;
+  attendance: {
+    date: string;
+    checkIn: string;
+    checkInId: string;
+    checkOut: string | null;
+    checkOutId: string | null;
+    workedHours: number;
+    approvalStatus: string;
+    approvalRemarks: string | null;
+    approvedBy: string | null;
+    approvedAt: string | null;
+  }[];
+  totalDaysWorked: number;
+  totalHoursWorked: number;
+}
+
+export interface TodayTeamAttendanceResponse {
+  items: TodayTeamAttendanceMember[];
+  total: number;
+}
+
+export interface TeamAttendanceResponse {
+  items: AttendanceEvent[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 class AttendanceApiService {
   private baseUrl = '/attendance';
 
@@ -107,7 +134,7 @@ class AttendanceApiService {
         params.append('tenantId', tenantId);
       }
 
-      const response = await axiosInstance.get(
+      const response = await axiosInstance.get<AttendanceResponse>(
         `${this.baseUrl}/all?${params.toString()}`
       );
 
@@ -167,7 +194,7 @@ class AttendanceApiService {
 
       const url = `${this.baseUrl}/events?${params.toString()}`;
 
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get<AttendanceResponse>(url);
 
       if (response.data && response.data.items) {
         return response.data;
@@ -225,7 +252,7 @@ class AttendanceApiService {
 
       const url = `${this.baseUrl}?${params.toString()}`; // This hits the /attendance endpoint for daily summaries
 
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get<AttendanceResponse>(url);
 
       if (response.data && response.data.items) {
         return response.data;
@@ -269,7 +296,10 @@ class AttendanceApiService {
 
       const url = `${this.baseUrl}/today?${params.toString()}`;
 
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get<{
+        checkIn: string | null;
+        checkOut: string | null;
+      }>(url);
 
       return response.data;
     } catch {
@@ -318,7 +348,10 @@ class AttendanceApiService {
     if (typeof input.latitude === 'number') body.latitude = input.latitude;
     if (typeof input.longitude === 'number') body.longitude = input.longitude;
 
-    const response = await axiosInstance.post(this.baseUrl, body);
+    const response = await axiosInstance.post<AttendanceEvent>(
+      this.baseUrl,
+      body
+    );
     return response.data;
   }
 
@@ -346,7 +379,7 @@ class AttendanceApiService {
       if (tenantId) {
         params.append('tenantId', tenantId);
       }
-      const response = await axiosInstance.get(
+      const response = await axiosInstance.get<TeamAttendanceResponse>(
         `${this.baseUrl}/team?${params.toString()}`
       );
       return response.data;
@@ -361,34 +394,9 @@ class AttendanceApiService {
   }
 
   // Get today's attendance for all team members (Manager only)
-  async getTodayTeamAttendance(): Promise<{
-    items: {
-      user_id: string;
-      first_name: string;
-      last_name: string;
-      email: string;
-      profile_pic?: string;
-      designation?: string;
-      department?: string;
-      attendance: {
-        date: string;
-        checkIn: string;
-        checkInId: string;
-        checkOut: string | null;
-        checkOutId: string | null;
-        workedHours: number;
-        approvalStatus: string;
-        approvalRemarks: string | null;
-        approvedBy: string | null;
-        approvedAt: string | null;
-      }[];
-      totalDaysWorked: number;
-      totalHoursWorked: number;
-    }[];
-    total: number;
-  }> {
+  async getTodayTeamAttendance(): Promise<TodayTeamAttendanceResponse> {
     try {
-      const response = await axiosInstance.get(
+      const response = await axiosInstance.get<TodayTeamAttendanceResponse>(
         `${this.baseUrl}/team/today/attendance`
       );
       return response.data;

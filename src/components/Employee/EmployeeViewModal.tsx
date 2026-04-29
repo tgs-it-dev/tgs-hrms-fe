@@ -13,9 +13,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useOutletContext } from 'react-router-dom';
-import type { AppOutletContext } from '../../types/outletContexts';
-import { env } from '../../config/env';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 
@@ -61,7 +58,26 @@ interface EmployeeViewModalProps {
   onClose: () => void;
   employee: Employee | null;
 }
-
+const getCnicDocuments = (
+  employee: Employee,
+  images: { front: string; back: string },
+  getLabel: (en: string, ar: string) => string
+) => [
+  {
+    key: 'front',
+    exists: !!employee.cnic_picture,
+    url: images.front,
+    label: getLabel('CNIC Front', 'الهوية الأمامية'),
+    emptyText: getLabel('No CNIC Front Image', 'لا توجد صورة أمامية للهوية'),
+  },
+  {
+    key: 'back',
+    exists: !!employee.cnic_back_picture,
+    url: images.back,
+    label: getLabel('CNIC Back', 'الهوية الخلفية'),
+    emptyText: getLabel('No CNIC Back Image', 'لا توجد صورة خلفية للهوية'),
+  },
+];
 
 const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
   open,
@@ -70,11 +86,9 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
 }) => {
   const theme = useTheme();
   const direction = theme.direction;
-  const { darkMode } = useOutletContext<AppOutletContext>();
-
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderColor = darkMode ? '#333' : '#ddd';
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
+  const borderColor = theme.palette.divider;
 
   // State for images
   const [profileImage, setProfileImage] = useState<string>('');
@@ -90,9 +104,9 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
       setLoadingImages(true);
 
       try {
-        const profileUrl = (employee.profile_picture) ?? '';
-        const cnicFrontUrl = (employee.cnic_picture) ?? '';
-        const cnicBackUrl = (employee.cnic_back_picture) ?? '';
+        const profileUrl = employee.profile_picture ?? '';
+        const cnicFrontUrl = employee.cnic_picture ?? '';
+        const cnicBackUrl = employee.cnic_back_picture ?? '';
 
         setProfileImage(profileUrl);
         setCnicFrontImage(cnicFrontUrl);
@@ -181,7 +195,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                     height: 120,
                     mx: 'auto',
                     mb: 2,
-                    backgroundColor: darkMode ? '#555' : '#ccc',
+                    backgroundColor: 'divider',
                     border: '1px solid #000',
                   }}
                 >
@@ -200,9 +214,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
             }}
           >
             <Box sx={{ flex: 1 }}>
-              <AppCard
-                sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
-              >
+              <AppCard sx={{ backgroundColor: 'background.default' }}>
                 <Box sx={{ p: 2 }}>
                   <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
                     {getLabel('Personal Information', 'المعلومات الشخصية')}
@@ -210,67 +222,65 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
 
                   <Box
                     sx={{
-                      display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       gap: 2,
                     }}
                   >
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
+                    {[
+                      {
+                        label: getLabel('Name', 'الاسم'),
+                        value: employee.name,
+                      },
+                      {
+                        label: getLabel('Email', 'البريد الإلكتروني'),
+                        value: employee.email,
+                      },
+                      {
+                        label: getLabel('Phone', 'رقم الهاتف'),
+                        value: employee.phone,
+                      },
+                      {
+                        label: getLabel('CNIC Number', 'رقم الهوية'),
+                        value: employee.cnic_number || 'N/A',
+                      },
+                    ].map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: { xs: '100%', md: 'calc(50% - 8px)' },
+                          mb: 1,
+                          // Increased to 80px to handle very long wrapped emails/names
+                          minHeight: '80px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
                       >
-                        {getLabel('Name', 'الاسم')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.name}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Email', 'البريد الإلكتروني')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.email}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Phone', 'رقم الهاتف')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.phone}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('CNIC Number', 'رقم الهوية')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.cnic_number || 'N/A'}
-                      </Typography>
-                    </Box>
+                        <Typography
+                          variant='body2'
+                          sx={{ fontWeight: 'bold', color: textColor }}
+                        >
+                          {item.label}:
+                        </Typography>
+                        <Typography
+                          variant='body1'
+                          sx={{
+                            color: textColor,
+                            wordBreak: 'break-all', // Forces long emails to break so they don't overflow the card
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
               </AppCard>
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <AppCard
-                sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
-              >
+              <AppCard sx={{ backgroundColor: 'background.default' }}>
                 <Box sx={{ p: 2 }}>
                   <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
                     {getLabel('Work Information', 'معلومات العمل')}
@@ -278,58 +288,57 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
 
                   <Box
                     sx={{
-                      display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       gap: 2,
                     }}
                   >
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
+                    {[
+                      {
+                        label: getLabel('Department', 'القسم'),
+                        value: employee.department?.name || 'N/A',
+                      },
+                      {
+                        label: getLabel('Designation', 'الوظيفة'),
+                        value: employee.designation?.title || 'N/A',
+                      },
+                      {
+                        label: getLabel('Role', 'الدور'),
+                        value: employee.role_name || 'N/A',
+                      },
+                      {
+                        label: getLabel('Status', 'الحالة'),
+                        value: employee.status || 'N/A',
+                      },
+                    ].map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: { xs: '100%', md: 'calc(50% - 8px)' },
+                          mb: 1,
+                          minHeight: '80px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
                       >
-                        {getLabel('Department', 'القسم')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.department?.name || 'N/A'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Designation', 'الوظيفة')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.designation?.title || 'N/A'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Role', 'الدور')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.role_name || 'N/A'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: textColor }}
-                      >
-                        {getLabel('Status', 'الحالة')}:
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: textColor }}>
-                        {employee.status || 'N/A'}
-                      </Typography>
-                    </Box>
+                        <Typography
+                          variant='body2'
+                          sx={{ fontWeight: 'bold', color: textColor }}
+                        >
+                          {item.label}:
+                        </Typography>
+                        <Typography
+                          variant='body1'
+                          sx={{
+                            color: textColor,
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
               </AppCard>
@@ -350,117 +359,59 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                   gap: 2,
                 }}
               >
-                {employee.cnic_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
-                        >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicFrontImage ? (
-                        <img
-                          src={cnicFrontImage}
-                          alt='CNIC Front'
-                          loading={'lazy'}
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
-                            border: `1px solid ${borderColor}`,
-                            borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
+                {getCnicDocuments(
+                  employee,
+                  { front: cnicFrontImage, back: cnicBackImage },
+                  getLabel
+                )
+                  .filter(doc => doc.exists)
+                  .map(doc => (
+                    <Box key={doc.key} sx={{ flex: 1 }}>
+                      <Box sx={{ textAlign: 'center' }}>
+                        {/* This Wrapper Box ensures identical height/width for both images */}
                         <Box
                           sx={{
                             width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
+                            height: '220px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                          }}
-                        >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Front Image',
-                              'لا توجد صورة أمامية للهوية'
-                            )}
-                          </Typography>
-                        </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Front', 'الهوية الأمامية')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-                {employee.cnic_back_picture && (
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      {loadingImages ? (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                          }}
-                        >
-                          <CircularProgress size={40} />
-                        </Box>
-                      ) : cnicBackImage ? (
-                        <img
-                          src={cnicBackImage}
-                          alt='CNIC Back'
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
                             border: `1px solid ${borderColor}`,
                             borderRadius: '8px',
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '200px',
-                            border: `2px dashed ${borderColor}`,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
+                            backgroundColor: 'background.default',
+                            overflow: 'hidden',
+                            mb: 1,
                           }}
                         >
-                          <Typography variant='body2' sx={{ color: textColor }}>
-                            {getLabel(
-                              'No CNIC Back Image',
-                              'لا توجد صورة خلفية للهوية'
-                            )}
-                          </Typography>
+                          {loadingImages ? (
+                            <CircularProgress size={40} />
+                          ) : doc.url ? (
+                            <img
+                              src={doc.url}
+                              alt={doc.label}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain', // Keeps aspect ratio perfect
+                                padding: '10px', // Matches the "look" of your screenshot
+                              }}
+                            />
+                          ) : (
+                            <Typography
+                              variant='body2'
+                              sx={{ color: textColor }}
+                            >
+                              {doc.emptyText}
+                            </Typography>
+                          )}
                         </Box>
-                      )}
-                      <Typography
-                        variant='body2'
-                        sx={{ mt: 1, color: textColor }}
-                      >
-                        {getLabel('CNIC Back', 'الهوية الخلفية')}
-                      </Typography>
+
+                        <Typography variant='body2' sx={{ color: textColor }}>
+                          {doc.label}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
+                  ))}
               </Box>
             </Box>
           )}

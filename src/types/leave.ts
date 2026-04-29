@@ -1,5 +1,6 @@
 export type LeaveStatus =
   | 'pending'
+  | 'processing'
   | 'approved'
   | 'rejected'
   | 'withdrawn'
@@ -24,6 +25,7 @@ export interface Leave {
   };
   reason: string;
   remarks?: string;
+  managerRemarks?: string;
   startDate: string;
   endDate: string;
   totalDays?: number;

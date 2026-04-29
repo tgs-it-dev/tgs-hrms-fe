@@ -12,16 +12,17 @@ type AppButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 interface AppButtonProps extends Omit<ButtonProps, 'children'> {
   variantType?: AppButtonVariant;
   text?: string;
+  loading?: boolean;
   children?: React.ReactNode;
-  // Allow forwarding arbitrary props (e.g. `to` when using react-router Link)
-  [key: string]: any;
 }
 
 export function AppButton({
   variantType = 'primary',
   sx,
   text,
+  loading = false,
   children,
+  disabled,
   ...rest
 }: AppButtonProps) {
   const theme = useTheme();
@@ -41,6 +42,7 @@ export function AppButton({
       minHeight: { xs: 40, sm: 44 },
       px: { xs: 2, sm: 3 },
       py: { xs: 0.75, sm: 1 },
+      position: 'relative',
       // Keep icon sizing aligned with text scale
       '& .MuiButton-startIcon, & .MuiButton-endIcon': {
         '& > *:nth-of-type(1)': {
@@ -110,7 +112,11 @@ export function AppButton({
   const baseSx = getVariantStyles();
 
   return (
-    <Button {...rest} sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}>
+    <Button
+      {...rest}
+      disabled={disabled || loading}
+      sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}
+    >
       {text || children}
     </Button>
   );

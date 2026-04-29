@@ -1,4 +1,10 @@
-import { Box, Typography, CircularProgress, useTheme, Tooltip } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  useTheme,
+  Tooltip,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import { useOutletContext } from 'react-router-dom';
@@ -212,13 +218,10 @@ const TenantGrowthChart: React.FC = () => {
               const num = typeof v === 'number' ? v : parseInt(v as string);
               if (!isNaN(num)) setSelectedYear(num);
             }}
-            options={Array.from(
-              { length: 6 },
-              (_, i) => {
-                const year = currentYear - 4 + i;
-                return { value: year, label: String(year) };
-              }
-            )}
+            options={Array.from({ length: 6 }, (_, i) => {
+              const year = currentYear - 4 + i;
+              return { value: year, label: String(year) };
+            })}
             containerSx={{ minWidth: 120 }}
             sx={{
               width: { xs: '100%', sm: 120 },
