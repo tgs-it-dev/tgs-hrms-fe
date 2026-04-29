@@ -11,7 +11,6 @@ import {
 import AppCard from '../common/AppCard';
 import AppPageTitle from '../common/AppPageTitle';
 import { MarketingFooter, MarketingHeader } from './LegalPageChrome';
-import { useIsDarkMode } from '../../theme';
 
 type TocItem = { id: string; label: string };
 
@@ -43,9 +42,8 @@ const tocItems: TocItem[] = [
 
 const TermsOfServicePage: React.FC = () => {
   const theme = useTheme();
-  const darkMode = useIsDarkMode();
-  const textColor = darkMode ? '#f2f2f2' : '#222';
-  const subTextColor = darkMode ? 'rgba(255,255,255,0.72)' : '#888888';
+  const textColor = theme.palette.text.primary;
+  const subTextColor = theme.palette.text.secondary;
 
   const pageWrapperSx = { py: 2 } as const;
   const containerSx = {
@@ -54,7 +52,7 @@ const TermsOfServicePage: React.FC = () => {
     px: { xs: 2, sm: 2 },
   } as const;
   const titleSx = {
-    color: darkMode ? '#8f8f8f' : 'text.primary',
+    color: theme.palette.text.secondary,
     mb: 0,
   } as const;
   const cardSx = {

@@ -23,8 +23,7 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import WarningIcon from '@mui/icons-material/Warning';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
-import type { AppOutletContext } from '../../types/outletContexts';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AddEmployeeForm from './AddEmployeeForm';
 import EmployeeList from './EmployeeList';
 import EmployeeViewModal from './EmployeeViewModal';
@@ -95,7 +94,6 @@ const EmployeeManager: React.FC = () => {
   const direction = theme.direction;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery('(min-width:601px) and (max-width:786px)');
-  const { darkMode } = useOutletContext<AppOutletContext>();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser(); // Get user context
@@ -189,11 +187,10 @@ const EmployeeManager: React.FC = () => {
   const isInitialMount = useRef(true);
   const isLoadingRef = useRef(false);
 
-  // Dark mode
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderColor = darkMode ? '#333' : '#ddd';
   // Match Designation page dropdown background (AppDropdown default)
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
+  const borderColor = theme.palette.divider;
   const controlBg = theme.palette.background.paper;
 
   const designationsForSelectedDepartment = useMemo(() => {

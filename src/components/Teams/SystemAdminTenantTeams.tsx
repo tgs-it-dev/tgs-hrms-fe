@@ -39,7 +39,7 @@ interface SystemAdminTenantTeamsProps {
 
 const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   data,
-  darkMode = false,
+  darkMode: _darkMode = false,
 }) => {
   const theme = useTheme();
   const [selectedTeam, setSelectedTeam] = useState<TenantTeam | null>(null);
@@ -49,8 +49,8 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   const [loadingTenants, setLoadingTenants] = useState(true);
   const { language } = useLanguage();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const borderColor = darkMode ? '#252525' : '#f0f0f0';
+  const bgColor = theme.palette.background.paper;
+  const borderColor = theme.palette.divider;
 
   useEffect(() => {
     // Extract tenant list from GET:/teams/all-tenants API response

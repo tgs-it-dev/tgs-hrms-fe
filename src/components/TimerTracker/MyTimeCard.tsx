@@ -310,7 +310,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
     <>
       <AppCard
         sx={{
-          background: darkMode ? '#1e1e1e' : '#ffffff',
+          background: theme.palette.background.paper,
           borderRadius: 1,
           position: 'relative',
           flex: 1,
@@ -333,18 +333,14 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                 ? darkMode
                   ? '#2e4a2e'
                   : '#e8f5e8'
-                : darkMode
-                  ? '#2a2a2a'
-                  : '#f5f5f5',
+                : 'background.default',
             borderRadius: 2,
             px: 2,
             py: 1,
             border:
               currentSession && !currentSession.end_time
                 ? '1px solid #4CAF50'
-                : darkMode
-                  ? '1px solid #333333'
-                  : '1px solid #e0e0e0',
+                : `1px solid ${theme.palette.divider}`,
             zIndex: 1,
             display: 'flex',
             alignItems: 'center',
@@ -390,13 +386,13 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
               disabled={refreshing || loading}
               size='small'
               sx={{
-                backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
-                border: darkMode ? '1px solid #333333' : '1px solid #e0e0e0',
+                backgroundColor: 'background.default',
+                border: `1px solid ${theme.palette.divider}`,
                 '&:hover': {
-                  backgroundColor: darkMode ? '#333333' : '#e0e0e0',
+                  backgroundColor: theme.palette.divider,
                 },
                 '&:disabled': {
-                  backgroundColor: darkMode ? '#1a1a1a' : '#f0f0f0',
+                  backgroundColor: 'background.default',
                 },
               }}
             >

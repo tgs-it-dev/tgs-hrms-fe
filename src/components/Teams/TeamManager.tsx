@@ -519,7 +519,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           {/* Tab Panels */}
           {isManager() && (
             <TabPanel value={tabValue} index={0}>
-              <MyTeams teams={teams} darkMode={darkMode} />
+              <MyTeams teams={teams} />
             </TabPanel>
           )}
 

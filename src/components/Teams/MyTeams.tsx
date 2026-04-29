@@ -30,10 +30,9 @@ import AvailableEmployees from './AvailableEmployees';
 
 interface MyTeamsProps {
   teams: Team[];
-  darkMode?: boolean;
 }
 
-const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
+const MyTeams: React.FC<MyTeamsProps> = ({ teams }) => {
   const { snackbar, closeSnackbar } = useErrorHandler();
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
@@ -149,7 +148,7 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
           <AppCard
             key={team.id}
             sx={{
-              backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+              backgroundColor: 'background.paper',
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
@@ -296,9 +295,7 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
           {selectedTeam?.name} - {lang.teamMembers}
         </DialogTitle>
         <DialogContent>
-          {selectedTeam && (
-            <TeamMemberList teamId={selectedTeam.id} darkMode={darkMode} />
-          )}
+          {selectedTeam && <TeamMemberList teamId={selectedTeam.id} />}
         </DialogContent>
         <DialogActions>
           <AppButton
@@ -324,7 +321,6 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams, darkMode = false }) => {
         <DialogContent>
           {selectedTeam && (
             <AvailableEmployees
-              darkMode={darkMode}
               teamId={selectedTeam.id}
               teamName={selectedTeam.name}
               teamDescription={selectedTeam.description}

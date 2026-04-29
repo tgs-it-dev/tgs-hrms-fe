@@ -13,8 +13,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useOutletContext } from 'react-router-dom';
-import type { AppOutletContext } from '../../types/outletContexts';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 
@@ -88,11 +86,9 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
 }) => {
   const theme = useTheme();
   const direction = theme.direction;
-  const { darkMode } = useOutletContext<AppOutletContext>();
-
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderColor = darkMode ? '#333' : '#ddd';
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
+  const borderColor = theme.palette.divider;
 
   // State for images
   const [profileImage, setProfileImage] = useState<string>('');
@@ -199,7 +195,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                     height: 120,
                     mx: 'auto',
                     mb: 2,
-                    backgroundColor: darkMode ? '#555' : '#ccc',
+                    backgroundColor: 'divider',
                     border: '1px solid #000',
                   }}
                 >
@@ -218,9 +214,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
             }}
           >
             <Box sx={{ flex: 1 }}>
-              <AppCard
-                sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
-              >
+              <AppCard sx={{ backgroundColor: 'background.default' }}>
                 <Box sx={{ p: 2 }}>
                   <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
                     {getLabel('Personal Information', 'المعلومات الشخصية')}
@@ -286,9 +280,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <AppCard
-                sx={{ backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5' }}
-              >
+              <AppCard sx={{ backgroundColor: 'background.default' }}>
                 <Box sx={{ p: 2 }}>
                   <Typography variant='h6' sx={{ color: textColor, mb: 2 }}>
                     {getLabel('Work Information', 'معلومات العمل')}
@@ -386,7 +378,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                             justifyContent: 'center',
                             border: `1px solid ${borderColor}`,
                             borderRadius: '8px',
-                            backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
+                            backgroundColor: 'background.default',
                             overflow: 'hidden',
                             mb: 1,
                           }}
