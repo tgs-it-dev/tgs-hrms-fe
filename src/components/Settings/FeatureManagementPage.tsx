@@ -10,7 +10,6 @@ import {
 import AppPageTitle from '../common/AppPageTitle';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
-import { useIsDarkMode } from '../../theme';
 import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/roleUtils';
 import {
@@ -50,7 +49,6 @@ const featureDefinitions: {
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
-  const darkMode = useIsDarkMode();
   const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
 
@@ -74,7 +72,7 @@ const FeatureManagementPage: React.FC = () => {
       <AppPageTitle
         sx={{
           mb: 2,
-          color: darkMode ? '#8f8f8f' : theme.palette.text.primary,
+          color: theme.palette.text.secondary,
         }}
       >
         Feature Management
@@ -100,8 +98,8 @@ const FeatureManagementPage: React.FC = () => {
                 px: { xs: 1, sm: 1.5 },
                 py: { xs: 1, sm: 1.5 },
                 borderRadius: 2,
-                backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
-                border: `1px solid ${darkMode ? '#333' : 'rgba(0,0,0,0.04)'}`,
+                backgroundColor: 'background.default',
+                border: `1px solid ${theme.palette.divider}`,
                 flexWrap: 'wrap',
               }}
             >
@@ -119,7 +117,7 @@ const FeatureManagementPage: React.FC = () => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#a0a0a0' : '#666',
+                    color: 'text.secondary',
                   }}
                 >
                   {feature.description}

@@ -20,7 +20,6 @@ import {
   type LeaveReportMember,
 } from '../../api/leaveReportApi';
 import employeeApi from '../../api/employeeApi';
-import { useIsDarkMode } from '../../theme';
 import AppCard from '../common/AppCard';
 import AppTable from '../common/AppTable';
 import AppPageTitle from '../common/AppPageTitle';
@@ -28,12 +27,12 @@ import AppDropdown from '../common/AppDropdown';
 import dayjs from 'dayjs';
 import type { SelectChangeEvent } from '@mui/material/Select';
 
-const getCardStyle = (darkMode: boolean) => ({
+const getCardStyle = () => ({
   flex: '1 1 calc(33.33% - 16px)',
   minWidth: '250px',
   boxShadow: 'none',
   borderRadius: '0.5rem',
-  backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+  backgroundColor: 'background.paper',
 });
 
 interface LeaveBalance {
@@ -50,7 +49,6 @@ const yearOptions = Array.from({ length: 11 }, (_, i) => {
 }).reverse();
 
 const Reports: React.FC = () => {
-  const darkMode = useIsDarkMode();
   const [tab] = useState(0);
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -421,7 +419,7 @@ const Reports: React.FC = () => {
               ]}
               placeholder='Select Employee'
               containerSx={{ minWidth: { xs: '100%', sm: 200 } }}
-              inputBackgroundColor={darkMode ? '#1e1e1e' : '#fff'}
+              inputBackgroundColor={theme.palette.background.paper}
               loading={loadingEmployees}
             />
           )}
@@ -435,7 +433,7 @@ const Reports: React.FC = () => {
               options={yearOptions}
               placeholder='Select Year'
               containerSx={{ minWidth: { xs: '100%', sm: 150 } }}
-              inputBackgroundColor={darkMode ? '#1e1e1e' : '#fff'}
+              inputBackgroundColor={theme.palette.background.paper}
             />
           )}
 
@@ -466,13 +464,11 @@ const Reports: React.FC = () => {
           <AppCard
             sx={{
               padding: 0,
-              backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+              backgroundColor: 'background.paper',
             }}
           >
             <AppTable tableProps={{ sx: { minWidth: 1100 } }}>
-              <TableHead
-                sx={{ backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5' }}
-              >
+              <TableHead sx={{ backgroundColor: 'background.default' }}>
                 <TableRow>
                   <TableCell sx={{ color: theme.palette.text.primary }}>
                     <b>Employee Name</b>
@@ -528,7 +524,7 @@ const Reports: React.FC = () => {
                 {loadingTab ? (
                   <TableRow
                     sx={{
-                      backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+                      backgroundColor: 'background.paper',
                     }}
                   >
                     <TableCell
@@ -542,7 +538,7 @@ const Reports: React.FC = () => {
                 ) : filteredEmployeeReports.length === 0 ? (
                   <TableRow
                     sx={{
-                      backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+                      backgroundColor: 'background.paper',
                     }}
                   >
                     <TableCell
@@ -609,9 +605,9 @@ const Reports: React.FC = () => {
                         <TableRow
                           key={row.key}
                           sx={{
-                            backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+                            backgroundColor: 'background.paper',
                             '&:hover': {
-                              backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
+                              backgroundColor: 'background.default',
                             },
                           }}
                         >
@@ -681,7 +677,7 @@ const Reports: React.FC = () => {
                         <TableRow
                           key={row.key}
                           sx={{
-                            backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+                            backgroundColor: 'background.paper',
                           }}
                         >
                           <TableCell
@@ -809,7 +805,7 @@ const Reports: React.FC = () => {
                   <Box display='flex' justifyContent='center' mt={1}>
                     <Typography
                       variant='body2'
-                      sx={{ color: darkMode ? '#ccc' : 'text.secondary' }}
+                      sx={{ color: 'text.secondary' }}
                     >
                       Showing page {page} of {calculatedTotalPages} (
                       {totalLeaveTypeRows} total records)
@@ -837,7 +833,7 @@ const Reports: React.FC = () => {
             <>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                 {leaveBalance.map((item, idx) => (
-                  <AppCard key={idx} compact sx={getCardStyle(darkMode)}>
+                  <AppCard key={idx} compact sx={getCardStyle()}>
                     <Typography
                       sx={{ color: theme.palette.text.primary }}
                       gutterBottom
@@ -874,9 +870,7 @@ const Reports: React.FC = () => {
               >
                 <AppTable tableProps={{ sx: { minWidth: 650 } }}>
                   <TableHead>
-                    <TableRow
-                      sx={{ backgroundColor: darkMode ? '#2a2a2a' : '#ffffff' }}
-                    >
+                    <TableRow sx={{ backgroundColor: 'background.paper' }}>
                       <TableCell sx={{ color: theme.palette.text.primary }}>
                         Leave Type
                       </TableCell>
@@ -900,7 +894,7 @@ const Reports: React.FC = () => {
                         key={idx}
                         hover
                         sx={{
-                          backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+                          backgroundColor: 'background.paper',
                         }}
                       >
                         <TableCell sx={{ color: theme.palette.text.primary }}>

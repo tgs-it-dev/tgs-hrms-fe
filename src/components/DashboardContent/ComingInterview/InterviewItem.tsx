@@ -1,6 +1,5 @@
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, Typography, useTheme } from '@mui/material';
 import type { Interview } from '../../../types/interview';
-import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 export default function InterviewItem({
@@ -9,11 +8,11 @@ export default function InterviewItem({
   time,
   avatarUrl,
 }: Interview) {
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const theme = useTheme();
 
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderBottomColor = darkMode ? '#8f8f8f' : '#f0f0f0';
+  const textColor = theme.palette.text.secondary;
+  const borderBottomColor = theme.palette.divider;
 
   const roleTranslations: Record<string, { en: string; ar: string }> = {
     'UI/UX Designer': { en: 'UI/UX Designer', ar: 'مصمم UI/UX' },

@@ -344,7 +344,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
           maxWidth='xs'
           PaperProps={{
             sx: {
-              backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+              backgroundColor: 'background.paper',
               color: theme.palette.text.primary,
               borderRadius: '24px',
               width: '100%',
@@ -436,15 +436,15 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 sx={{
                   borderRadius: '12px',
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: darkMode ? '#1f1f1f' : '#F8F8F8',
+                    backgroundColor: 'background.default',
                     color: theme.palette.text.primary,
                     borderRadius: '12px',
                     '& fieldset': {
-                      borderColor: darkMode ? '#555' : '#BDBDBD',
+                      borderColor: theme.palette.divider,
                       borderWidth: 1,
                     },
                     '&:hover fieldset': {
-                      borderColor: darkMode ? '#777' : '#b5b5b5',
+                      borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: '#a0a0a0',
@@ -590,9 +590,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   sx={{
                                     backgroundColor: 'transparent',
                                     borderRadius: '999px',
-                                    border: `0.5px solid ${
-                                      darkMode ? '#555' : '#BDBDBD'
-                                    }`,
+                                    border: `0.5px solid ${theme.palette.divider}`,
                                     color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -713,7 +711,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
           maxWidth='xs'
           PaperProps={{
             sx: {
-              backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+              backgroundColor: 'background.paper',
               color: theme.palette.text.primary,
               borderRadius: '24px',
               width: '100%',
@@ -816,15 +814,15 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 sx={{
                   borderRadius: '12px',
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: darkMode ? '#1f1f1f' : '#F8F8F8',
+                    backgroundColor: 'background.default',
                     color: theme.palette.text.primary,
                     borderRadius: '12px',
                     '& fieldset': {
-                      borderColor: darkMode ? '#555' : '#BDBDBD',
+                      borderColor: theme.palette.divider,
                       borderWidth: 1,
                     },
                     '&:hover fieldset': {
-                      borderColor: darkMode ? '#777' : '#b5b5b5',
+                      borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: '#a0a0a0',
@@ -971,9 +969,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   sx={{
                                     backgroundColor: 'transparent',
                                     borderRadius: '999px',
-                                    border: `0.5px solid ${
-                                      darkMode ? '#555' : '#BDBDBD'
-                                    }`,
+                                    border: `0.5px solid ${theme.palette.divider}`,
                                     color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,

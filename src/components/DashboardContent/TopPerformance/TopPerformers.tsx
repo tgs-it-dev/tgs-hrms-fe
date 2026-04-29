@@ -1,6 +1,12 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, Avatar } from '@mui/material';
-import { useOutletContext } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Avatar,
+  useTheme,
+} from '@mui/material';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 type Performer = {
@@ -29,11 +35,11 @@ const TopPerformers: React.FC<TopPerformersProps> = ({
   completedTaskLabel,
   performers,
 }) => {
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const theme = useTheme();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
 
   return (
     <Box

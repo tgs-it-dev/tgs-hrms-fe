@@ -264,7 +264,7 @@ const TeamList: React.FC<TeamListProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             py: 8,
-            color: darkMode ? '#ccc' : '#666',
+            color: theme.palette.text.secondary,
           }}
         >
           <GroupIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
@@ -615,9 +615,7 @@ const TeamList: React.FC<TeamListProps> = ({
             {selectedTeam?.name} - {lang.teamMembers}
           </DialogTitle>
           <DialogContent>
-            {selectedTeam && (
-              <TeamMemberList teamId={selectedTeam.id} darkMode={darkMode} />
-            )}
+            {selectedTeam && <TeamMemberList teamId={selectedTeam.id} />}
           </DialogContent>
           <DialogActions>
             <AppButton
@@ -643,7 +641,6 @@ const TeamList: React.FC<TeamListProps> = ({
             </DialogTitle>
             <DialogContent>
               <AvailableEmployees
-                darkMode={darkMode}
                 isEmployeePool
                 preselectedTeamId={preselectedPoolTeamId}
                 teamName={employeePoolTeam?.name}
@@ -674,7 +671,6 @@ const TeamList: React.FC<TeamListProps> = ({
             </DialogTitle>
             <DialogContent>
               <AvailableEmployees
-                darkMode={darkMode}
                 teamId={selectedTeam?.id}
                 teamName={selectedTeam?.name}
                 teamDescription={selectedTeam?.description}
