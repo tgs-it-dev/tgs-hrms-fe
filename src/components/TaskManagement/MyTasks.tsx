@@ -73,10 +73,10 @@ export default function MyTasks() {
       return prev.map(task =>
         task.id === taskId
           ? {
-            ...task,
-            status: newStatus as TaskStatus,
-            updatedAt: new Date().toISOString(),
-          }
+              ...task,
+              status: newStatus as TaskStatus,
+              updatedAt: new Date().toISOString(),
+            }
           : task
       );
     });
@@ -136,7 +136,11 @@ export default function MyTasks() {
                   gap={1}
                 >
                   <Tooltip
-                    title={task.title.length > TASK_CARD_CONFIG.TITLE_LIMIT ? task.title : ''}
+                    title={
+                      task.title.length > TASK_CARD_CONFIG.TITLE_LIMIT
+                        ? task.title
+                        : ''
+                    }
                     arrow
                   >
                     <Typography
@@ -168,7 +172,7 @@ export default function MyTasks() {
                 <Tooltip
                   title={
                     task.description &&
-                      task.description.length > TASK_CARD_CONFIG.DESCRIPTION_LIMIT
+                    task.description.length > TASK_CARD_CONFIG.DESCRIPTION_LIMIT
                       ? task.description
                       : ''
                   }

@@ -91,7 +91,8 @@ export default function AnnouncementModal({
 
   const isEditing = Boolean(announcement?.id);
   const isSent = Boolean(
-    announcement && (announcement.status === 'sent' || Boolean(announcement.sent_at))
+    announcement &&
+    (announcement.status === 'sent' || Boolean(announcement.sent_at))
   );
 
   const [initial, setInitial] = useState<{
@@ -117,7 +118,8 @@ export default function AnnouncementModal({
       const initTitle = announcement.title ?? '';
       const initContent = announcement.content ?? '';
       const initCategory = announcement.category ?? 'general';
-      const initPriority = (announcement.priority ?? 'medium') as AnnouncementPriority;
+      const initPriority = (announcement.priority ??
+        'medium') as AnnouncementPriority;
 
       const initSendNow = isSent ? true : !announcement.scheduled_at;
       const initScheduledAt = announcement.scheduled_at
@@ -166,7 +168,9 @@ export default function AnnouncementModal({
     const trimmed = title.trim();
     if (!trimmed) return isRtl ? 'العنوان مطلوب' : 'Title is required';
     if (trimmed.length < MIN_TITLE_LENGTH) {
-      return isRtl ? 'العنوان 5 أحرف على الأقل' : 'Title must be at least 5 characters';
+      return isRtl
+        ? 'العنوان 5 أحرف على الأقل'
+        : 'Title must be at least 5 characters';
     }
     if (trimmed.length > MAX_TITLE_LENGTH) {
       return isRtl
@@ -218,7 +222,16 @@ export default function AnnouncementModal({
       sendNow !== initial.sendNow ||
       scheduledAt !== initial.scheduledAt
     );
-  }, [title, content, category, priority, sendNow, scheduledAt, isEditing, initial]);
+  }, [
+    title,
+    content,
+    category,
+    priority,
+    sendNow,
+    scheduledAt,
+    isEditing,
+    initial,
+  ]);
 
   const isFormValid = useMemo(() => {
     if (titleError) return false;
@@ -262,7 +275,9 @@ export default function AnnouncementModal({
         onUpdated?.(updated);
         handleClose();
       } else {
-        const scheduled_at = sendNow ? undefined : datetimeLocalToIso(scheduledAt);
+        const scheduled_at = sendNow
+          ? undefined
+          : datetimeLocalToIso(scheduledAt);
         const created = await announcementsApiService.createAnnouncement({
           title: title.trim(),
           content: content.trim(),
@@ -272,19 +287,31 @@ export default function AnnouncementModal({
           send_now: sendNow,
         });
         showSuccess(
-          isRtl ? 'تم إنشاء الإعلان بنجاح' : 'Announcement created successfully.'
+          isRtl
+            ? 'تم إنشاء الإعلان بنجاح'
+            : 'Announcement created successfully.'
         );
         onCreated?.(created);
         handleClose();
       }
     } catch (err: unknown) {
-      const axiosData = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { errors?: Array<{ field?: string; message?: string }> } } }).response?.data
-        : undefined;
+      const axiosData =
+        err && typeof err === 'object' && 'response' in err
+          ? (
+              err as {
+                response?: {
+                  data?: {
+                    errors?: Array<{ field?: string; message?: string }>;
+                  };
+                };
+              }
+            ).response?.data
+          : undefined;
       const errors = axiosData?.errors;
-      const titleErr = Array.isArray(errors) && errors.length > 0
-        ? errors.find(e => (e.field || '').toLowerCase() === 'title')
-        : undefined;
+      const titleErr =
+        Array.isArray(errors) && errors.length > 0
+          ? errors.find(e => (e.field || '').toLowerCase() === 'title')
+          : undefined;
       if (titleErr?.message) {
         setTitleApiError(titleErr.message);
         return;
@@ -331,10 +358,12 @@ export default function AnnouncementModal({
         placeholder={isRtl ? 'اكتب عنوان الإعلان' : 'Enter announcement title'}
         required
         inputProps={{ maxLength: MAX_TITLE_LENGTH }}
-        error={Boolean((titleTouched || submitAttempted) && (titleError || titleApiError))}
+        error={Boolean(
+          (titleTouched || submitAttempted) && (titleError || titleApiError)
+        )}
         helperText={
           (titleTouched || submitAttempted) && (titleError || titleApiError)
-            ? (titleError || titleApiError)
+            ? titleError || titleApiError
             : undefined
         }
         onBlur={() => setTitleTouched(true)}
@@ -342,12 +371,15 @@ export default function AnnouncementModal({
           const raw =
             typeof e === 'string'
               ? e
-              : (e as React.ChangeEvent<HTMLInputElement>).target?.value ?? '';
+              : ((e as React.ChangeEvent<HTMLInputElement>).target?.value ??
+                '');
           setTitle(raw.slice(0, MAX_TITLE_LENGTH));
           setTitleApiError(null);
         }}
         inputBackgroundColor={
-          theme.palette.mode === 'dark' ? theme.palette.background.default : '#F8F8F8'
+          theme.palette.mode === 'dark'
+            ? theme.palette.background.default
+            : '#F8F8F8'
         }
       />
 
@@ -355,17 +387,23 @@ export default function AnnouncementModal({
         label={isRtl ? 'المحتوى' : 'Content'}
         name='content'
         value={content}
-        placeholder={isRtl ? 'اكتب محتوى الإعلان' : 'Enter announcement content'}
+        placeholder={
+          isRtl ? 'اكتب محتوى الإعلان' : 'Enter announcement content'
+        }
         required
         error={Boolean((contentTouched || submitAttempted) && contentError)}
-        helperText={(contentTouched || submitAttempted) ? contentError : undefined}
+        helperText={
+          contentTouched || submitAttempted ? contentError : undefined
+        }
         onBlur={() => setContentTouched(true)}
         rows={4}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           setContent(e.target.value)
         }
         inputBackgroundColor={
-          theme.palette.mode === 'dark' ? theme.palette.background.default : '#F8F8F8'
+          theme.palette.mode === 'dark'
+            ? theme.palette.background.default
+            : '#F8F8F8'
         }
       />
 
@@ -376,7 +414,9 @@ export default function AnnouncementModal({
         onChange={e => setCategory(String(e.target.value))}
         placeholder={isRtl ? 'اختر فئة' : 'Select category'}
         inputBackgroundColor={
-          theme.palette.mode === 'dark' ? theme.palette.background.default : '#F8F8F8'
+          theme.palette.mode === 'dark'
+            ? theme.palette.background.default
+            : '#F8F8F8'
         }
       />
 
@@ -384,10 +424,14 @@ export default function AnnouncementModal({
         label={isRtl ? 'الأولوية' : 'Priority'}
         options={PRIORITY_OPTIONS}
         value={priority}
-        onChange={e => setPriority(String(e.target.value) as AnnouncementPriority)}
+        onChange={e =>
+          setPriority(String(e.target.value) as AnnouncementPriority)
+        }
         placeholder={isRtl ? 'اختر أولوية' : 'Select priority'}
         inputBackgroundColor={
-          theme.palette.mode === 'dark' ? theme.palette.background.default : '#F8F8F8'
+          theme.palette.mode === 'dark'
+            ? theme.palette.background.default
+            : '#F8F8F8'
         }
       />
 
@@ -410,12 +454,17 @@ export default function AnnouncementModal({
             value={scheduledAt}
             onChange={setScheduledAt}
             required
-            error={Boolean((scheduledAtTouched || submitAttempted) && scheduledAtError)}
-            helperText={(scheduledAtTouched || submitAttempted) ? scheduledAtError : undefined}
+            error={Boolean(
+              (scheduledAtTouched || submitAttempted) && scheduledAtError
+            )}
+            helperText={
+              scheduledAtTouched || submitAttempted
+                ? scheduledAtError
+                : undefined
+            }
           />
         )}
       </Box>
     </AppFormModal>
   );
 }
-

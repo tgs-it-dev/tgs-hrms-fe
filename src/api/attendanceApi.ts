@@ -1,11 +1,9 @@
 import axiosInstance from './axiosInstance';
+import type { UserShort } from '../types/user';
+import type { AttendanceTeamMember } from '../types/team';
 
-export interface UserShort {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
+export type { UserShort } from '../types/user';
+export type { AttendanceTeamMember } from '../types/team';
 
 export interface AttendanceEvent {
   id: string;
@@ -14,8 +12,10 @@ export interface AttendanceEvent {
   type: 'check-in' | 'check-out' | string;
   near_boundary?: boolean;
   user?: UserShort;
+  approvalStatus?: string | null;
 }
 
+/** Single attendance row in AttendanceTeamMember.attendance. */
 export interface TeamAttendanceEntry {
   date: string;
   checkIn: string | null;
@@ -23,17 +23,8 @@ export interface TeamAttendanceEntry {
   workedHours: number;
 }
 
-export interface TeamMember {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  profile_pic?: string;
-  attendance: TeamAttendanceEntry[];
-  user?: UserShort;
-  totalDaysWorked?: number;
-  totalHoursWorked?: number;
-}
+/** @deprecated Use AttendanceTeamMember from src/types/team.ts */
+export type TeamMember = AttendanceTeamMember;
 
 export interface AttendanceRecord {
   date: string;
@@ -305,7 +296,10 @@ class AttendanceApiService {
 
       const url = `${this.baseUrl}/today?${params.toString()}`;
 
-      const response = await axiosInstance.get<{ checkIn: string | null; checkOut: string | null }>(url);
+      const response = await axiosInstance.get<{
+        checkIn: string | null;
+        checkOut: string | null;
+      }>(url);
 
       return response.data;
     } catch {
@@ -354,7 +348,10 @@ class AttendanceApiService {
     if (typeof input.latitude === 'number') body.latitude = input.latitude;
     if (typeof input.longitude === 'number') body.longitude = input.longitude;
 
-    const response = await axiosInstance.post<AttendanceEvent>(this.baseUrl, body);
+    const response = await axiosInstance.post<AttendanceEvent>(
+      this.baseUrl,
+      body
+    );
     return response.data;
   }
 

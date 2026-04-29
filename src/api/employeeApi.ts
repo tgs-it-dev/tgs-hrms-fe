@@ -1,55 +1,16 @@
 import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
+import type {
+  BackendEmployee,
+  EmployeeJoiningReport,
+  GenderPercentage,
+} from '../types/employee';
 
-export interface EmployeeJoiningReport {
-  month: number;
-  year: number;
-  total: number;
-}
-
-export interface GenderPercentage {
-  male: number;
-  female: number;
-  total: number;
-}
-
-export interface BackendEmployee {
-  id: string;
-  user_id?: string; // User ID for fetching profile pictures
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  phone: string;
-  role_id?: string;
-  role_name?: string;
-  departmentId: string;
-  designationId: string;
-  status?: string;
-  cnic_number?: string;
-  profile_picture?: string;
-  cnic_picture?: string;
-  cnic_back_picture?: string;
-  department: {
-    id: string;
-    name: string;
-    description: string;
-    tenantId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  designation: {
-    id: string;
-    title: string;
-    tenantId: string;
-    departmentId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  tenantId: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  BackendEmployee,
+  EmployeeJoiningReport,
+  GenderPercentage,
+} from '../types/employee';
 
 export interface EmployeeProfileAttendanceSummaryItem {
   date: string;
@@ -228,13 +189,13 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
       cnic_back_picture: data.cnic_back_picture as string,
       department: department
         ? {
-          id: department.id,
-          name: department.name,
-          description: department.description ?? '',
-          tenantId: department.tenant_id,
-          createdAt: department.created_at,
-          updatedAt: department.updated_at ?? department.created_at,
-        }
+            id: department.id,
+            name: department.name,
+            description: department.description ?? '',
+            tenantId: department.tenant_id,
+            createdAt: department.created_at,
+            updatedAt: department.updated_at ?? department.created_at,
+          }
         : null,
       designation: {
         id: designation.id,
@@ -285,24 +246,45 @@ class EmployeeApiService {
     formData.append('last_name', employeeData.last_name);
     formData.append('email', employeeData.email);
     formData.append('phone', employeeData.phone);
-    if (employeeData.password) formData.append('password', employeeData.password);
+    if (employeeData.password)
+      formData.append('password', employeeData.password);
     formData.append('designation_id', employeeData.designationId);
     formData.append('gender', employeeData.gender);
-    if (employeeData.role_name) formData.append('role_name', employeeData.role_name);
+    if (employeeData.role_name)
+      formData.append('role_name', employeeData.role_name);
     if (employeeData.role_id) formData.append('role_id', employeeData.role_id);
     if (employeeData.team_id) formData.append('team_id', employeeData.team_id);
-    if (employeeData.cnicNumber) formData.append('cnic_number', employeeData.cnicNumber);
+    if (employeeData.cnicNumber)
+      formData.append('cnic_number', employeeData.cnicNumber);
     if (employeeData.profilePicture)
-      formData.append('profile_picture', employeeData.profilePicture, employeeData.profilePicture.name);
+      formData.append(
+        'profile_picture',
+        employeeData.profilePicture,
+        employeeData.profilePicture.name
+      );
     if (employeeData.cnicFrontPicture)
-      formData.append('cnic_picture', employeeData.cnicFrontPicture, employeeData.cnicFrontPicture.name);
+      formData.append(
+        'cnic_picture',
+        employeeData.cnicFrontPicture,
+        employeeData.cnicFrontPicture.name
+      );
     if (employeeData.cnicBackPicture)
-      formData.append('cnic_back_picture', employeeData.cnicBackPicture, employeeData.cnicBackPicture.name);
+      formData.append(
+        'cnic_back_picture',
+        employeeData.cnicBackPicture,
+        employeeData.cnicBackPicture.name
+      );
     return formData;
   }
 
-  private async createByEndpoint(endpoint: string, employeeData: EmployeeDto): Promise<BackendEmployee> {
-    const response = await axiosInstance.post<RawEmployee>(endpoint, this.buildFormData(employeeData));
+  private async createByEndpoint(
+    endpoint: string,
+    employeeData: EmployeeDto
+  ): Promise<BackendEmployee> {
+    const response = await axiosInstance.post<RawEmployee>(
+      endpoint,
+      this.buildFormData(employeeData)
+    );
     return normalizeEmployee(response.data);
   }
 
@@ -491,7 +473,10 @@ class EmployeeApiService {
     return response.data;
   }
 
-  async deleteDocument(id: string, documentUrl: string): Promise<{ success: boolean }> {
+  async deleteDocument(
+    id: string,
+    documentUrl: string
+  ): Promise<{ success: boolean }> {
     const response = await axiosInstance.delete<{ success: boolean }>(
       `${this.baseUrl}/${id}/documents`,
       { data: { documentUrl } }

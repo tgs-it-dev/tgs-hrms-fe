@@ -1,0 +1,47 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+      - master
+      - dev
+
+  # Allow manual trigger for any PR (e.g. to review existing open PRs)
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: true
+        type: string
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve PR number
+        id: pr
+        env:
+          EVENT_PR: ${{ github.event.pull_request.number }}
+          INPUT_PR: ${{ github.event.inputs.pr_number }}
+        run: |
+          PR="${INPUT_PR:-$EVENT_PR}"
+          echo "number=$PR" >> $GITHUB_OUTPUT
+
+      - name: Run Claude review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: python3 .github/scripts/claude_review.py

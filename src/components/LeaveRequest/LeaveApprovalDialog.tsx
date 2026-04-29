@@ -37,7 +37,8 @@ const LeaveApprovalDialog = ({
   const actionText = action === 'approved' ? 'Approve' : 'Reject';
   const actionLower = action === 'approved' ? 'approve' : 'reject';
   // Show comment field if: allowComments is true OR (action is rejected AND showRemarksField is true)
-  const showCommentField = allowComments || (action === 'rejected' && showRemarksField);
+  const showCommentField =
+    allowComments || (action === 'rejected' && showRemarksField);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='xs' fullWidth>

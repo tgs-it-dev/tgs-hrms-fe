@@ -31,7 +31,6 @@ function formatDateLocal(isoDate?: string) {
 // AppCard not needed here
 
 export default function NotificationPanel() {
-
   const {
     notifications,
     unreadCount,

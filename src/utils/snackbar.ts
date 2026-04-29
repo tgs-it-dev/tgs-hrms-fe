@@ -54,7 +54,11 @@ class SnackbarManager {
     }
   }
 
-  show({ message, type = 'info', duration = TIMEOUTS.SNACKBAR_DURATION }: SnackbarOptions) {
+  show({
+    message,
+    type = 'info',
+    duration = TIMEOUTS.SNACKBAR_DURATION,
+  }: SnackbarOptions) {
     this.createContainer();
 
     const snackbar = document.createElement('div');
