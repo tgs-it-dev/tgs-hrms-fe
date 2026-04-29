@@ -1,6 +1,11 @@
 import axiosInstance from './axiosInstance';
 import { getRoleName } from '../utils/roleUtils';
-import type { Leave } from '../types/leave';
+import type { LeaveReportMember } from '../types/team';
+
+export type { LeaveReportMember } from '../types/team';
+
+/** @deprecated Use LeaveReportMember */
+export type TeamMember = LeaveReportMember;
 
 export interface LeaveSummaryItem {
   type: string;
@@ -13,21 +18,11 @@ export interface LeaveSummaryResponse {
   summary: LeaveSummaryItem[];
 }
 
-export interface TeamMember {
-  employeeId: string;
-  name: string;
-  email: string;
-  department: string;
-  designation: string;
-  leaves: Leave[];
-  totalLeaveDays: number;
-}
-
 export interface TeamLeaveSummaryResponse {
   managerId: string;
   month: number;
   year: number;
-  teamMembers: TeamMember[];
+  teamMembers: LeaveReportMember[];
   totalTeamMembers: number;
   membersOnLeave: number;
 }
@@ -64,14 +59,14 @@ export interface AllLeaveReportsResponse {
     rejectedRequests: number;
   };
   employeeReports:
-  | EmployeeReport[]
-  | {
-    items: EmployeeReport[];
-    total?: number;
-    page?: number;
-    limit?: number;
-    totalPages?: number;
-  };
+    | EmployeeReport[]
+    | {
+        items: EmployeeReport[];
+        total?: number;
+        page?: number;
+        limit?: number;
+        totalPages?: number;
+      };
   total?: number;
   page?: number;
   limit?: number;
@@ -378,7 +373,7 @@ class LeaveReportApiService {
             if (
               summary.leaveTypeName === record.leaveTypeName ||
               summary.leaveTypeName.toLowerCase() ===
-              record.leaveTypeName?.toLowerCase()
+                record.leaveTypeName?.toLowerCase()
             ) {
               leaveTypeId = id;
               break;

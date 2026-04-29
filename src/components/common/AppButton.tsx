@@ -112,9 +112,11 @@ export function AppButton({
   const baseSx = getVariantStyles();
 
   return (
-    <Button {...rest}
-     disabled={disabled || loading}
-     sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}>
+    <Button
+      {...rest}
+      disabled={disabled || loading}
+      sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}
+    >
       {text || children}
     </Button>
   );

@@ -297,7 +297,9 @@ const AttendanceSummaryReport: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Paper sx={{ mt: 2, boxShadow: 'none', backgroundColor: 'transparent' }}>
+        <Paper
+          sx={{ mt: 2, boxShadow: 'none', backgroundColor: 'transparent' }}
+        >
           <AppTable>
             <TableHead>
               <TableRow>

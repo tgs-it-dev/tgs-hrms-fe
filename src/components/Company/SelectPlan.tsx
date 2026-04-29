@@ -568,9 +568,9 @@ const SelectPlan: React.FC = () => {
               borderRadius: '24px',
               overflow: 'hidden',
               boxShadow:
-              selectedPlan === plan.id
-                ? '0 0 25px 8px rgba(48, 131, 220, 0.35)' // Equal glow on all sides
-                : '0 4px 12px rgba(0,0,0,0.08)',
+                selectedPlan === plan.id
+                  ? '0 0 25px 8px rgba(48, 131, 220, 0.35)' // Equal glow on all sides
+                  : '0 4px 12px rgba(0,0,0,0.08)',
               position: 'relative',
               bgcolor: 'var(--white-color)',
               transition: 'all 250ms ease',
@@ -585,9 +585,10 @@ const SelectPlan: React.FC = () => {
               //       ? '0 0 0 3px rgba(48, 131, 220, 0.5), 0 12px 28px rgba(48, 131, 220, 0.35), 0 0 25px rgba(48, 131, 220, 0.2)'
               //       : '0 8px 24px rgba(0,0,0,0.15)',
               // },
-              border: selectedPlan === plan.id 
-              ? '2px solid rgba(48, 131, 220, 0.5)' 
-              : '1px solid transparent',
+              border:
+                selectedPlan === plan.id
+                  ? '2px solid rgba(48, 131, 220, 0.5)'
+                  : '1px solid transparent',
             }}
           >
             {/* Card Header */}
@@ -642,7 +643,10 @@ const SelectPlan: React.FC = () => {
                 </Typography>
               </Box>
             </Box>
-            <Box sx={{ px: 3 }}> <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} /> </Box>
+            <Box sx={{ px: 3 }}>
+              {' '}
+              <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />{' '}
+            </Box>
             {/* Features - scrollable area */}
             <Box
               sx={{

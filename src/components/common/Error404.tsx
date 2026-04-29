@@ -3,7 +3,6 @@ import { Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AppButton from './AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 const Error404: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +20,7 @@ const Error404: React.FC = () => {
         p: 3,
       }}
     >
-      <ErrorOutlineIcon sx={{ fontSize: 120, color: COLORS.ACCENT, mb: 2 }} />
+      <ErrorOutlineIcon sx={{ fontSize: 120, color: 'warning.main', mb: 2 }} />
       <Typography variant='h1' sx={{ fontWeight: 700, fontSize: 64, mb: 1 }}>
         404
       </Typography>
@@ -38,7 +37,7 @@ const Error404: React.FC = () => {
         text='Go to Home'
         onClick={() => navigate('/')}
         sx={{
-          bgcolor: COLORS.PRIMARY,
+          bgcolor: 'primary.main',
           color: 'white',
           fontWeight: 600,
           borderRadius: 2,

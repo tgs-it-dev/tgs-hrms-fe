@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import { shouldLogout, forceLogout } from '../utils/authValidation';
 
 export interface ErrorHandlerResult {

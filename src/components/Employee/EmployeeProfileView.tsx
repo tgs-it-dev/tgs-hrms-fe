@@ -148,7 +148,9 @@ const EmployeeProfileView: React.FC = () => {
         }
 
         if (!targetUserId) {
-          setError('Unable to resolve user id from token or parameter. Please re-login.');
+          setError(
+            'Unable to resolve user id from token or parameter. Please re-login.'
+          );
           setIsLoading(false);
           return;
         }
@@ -283,8 +285,7 @@ const EmployeeProfileView: React.FC = () => {
                   color: 'var(--primary-dark-color)',
                 }}
               />{' '}
-              Joined:{' '}
-              {new Date(profile.joinedAt).toLocaleDateString()}
+              Joined: {new Date(profile.joinedAt).toLocaleDateString()}
             </Typography>
           </Box>
         </Box>
