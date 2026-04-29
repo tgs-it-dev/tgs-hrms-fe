@@ -150,7 +150,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             for (const doc of documentsToRemove) {
               try {
                 await leaveApi.deleteDocument(leaveId, doc);
-              } catch (error) {
+              } catch (_error) {
                 // Log individual failure but don't stop the whole process
                 onError?.(`Failed to delete document: ${doc}`);
               }
