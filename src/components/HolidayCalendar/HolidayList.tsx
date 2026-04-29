@@ -6,7 +6,6 @@ import AddHolidayDialog from './AddHolidayDialog';
 import HolidayCalendarView from './HolidayCalendarView';
 import UpcomingHolidayList from './UpcomingHolidayList';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 export interface Holiday {
   id: string;
@@ -32,7 +31,7 @@ const HolidayList: React.FC = () => {
   ]);
 
   const [open, setOpen] = useState(false);
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
+  const { darkMode: _darkMode } = useOutletContext<{ darkMode: boolean }>();
 
   const handleAddHoliday = (newHoliday: Holiday) => {
     setHolidays(prev => [...prev, newHoliday]);
@@ -49,17 +48,14 @@ const HolidayList: React.FC = () => {
           mb: 2,
         }}
       >
-        <Typography
-          variant='h5'
-          sx={{ color: darkMode ? COLORS.DARK_TEXT : COLORS.LIGHT_TEXT }}
-        >
+        <Typography variant='h5' sx={{ color: 'text.primary' }}>
           Holiday List
         </Typography>
         <AppButton
           variant='contained'
           text='Add Holiday'
           onClick={() => setOpen(true)}
-          sx={{ backgroundColor: COLORS.PRIMARY }}
+          sx={{ backgroundColor: 'primary.main' }}
         />
       </Box>
       <Box
