@@ -37,9 +37,7 @@ const DateTimePickerField: React.FC<DateTimePickerFieldProps> = ({
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateTimePicker
         label={label}
-        value={
-          value && value.trim() ? new Date(value.trim()) : null
-        }
+        value={value && value.trim() ? new Date(value.trim()) : null}
         onChange={val => {
           if (val instanceof Date && !Number.isNaN(val.getTime())) {
             onChange(toDatetimeLocal(val.toISOString()));

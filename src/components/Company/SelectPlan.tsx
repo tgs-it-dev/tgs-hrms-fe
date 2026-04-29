@@ -107,7 +107,7 @@ const SelectPlan: React.FC = () => {
 
     // If neither flow is valid, redirect to signup
     if (!isSignupFlow && !isLoginFlow) {
-      navigate('/Signup');
+      navigate('/signup');
       return;
     }
 
@@ -486,7 +486,7 @@ const SelectPlan: React.FC = () => {
     } else if (accessToken) {
       navigate('/dashboard');
     } else {
-      navigate('/Signup');
+      navigate('/signup');
     }
   };
 
@@ -569,7 +569,7 @@ const SelectPlan: React.FC = () => {
               overflow: 'hidden',
               boxShadow:
                 selectedPlan === plan.id
-                  ? '0 0 0 3px rgba(48, 131, 220, 0.4), 0 8px 24px rgba(48, 131, 220, 0.25), 0 0 20px rgba(48, 131, 220, 0.15)'
+                  ? '0 0 25px 8px rgba(48, 131, 220, 0.35)' // Equal glow on all sides
                   : '0 4px 12px rgba(0,0,0,0.08)',
               position: 'relative',
               bgcolor: 'var(--white-color)',
@@ -585,6 +585,10 @@ const SelectPlan: React.FC = () => {
               //       ? '0 0 0 3px rgba(48, 131, 220, 0.5), 0 12px 28px rgba(48, 131, 220, 0.35), 0 0 25px rgba(48, 131, 220, 0.2)'
               //       : '0 8px 24px rgba(0,0,0,0.15)',
               // },
+              border:
+                selectedPlan === plan.id
+                  ? '2px solid rgba(48, 131, 220, 0.5)'
+                  : '1px solid transparent',
             }}
           >
             {/* Card Header */}
@@ -639,8 +643,10 @@ const SelectPlan: React.FC = () => {
                 </Typography>
               </Box>
             </Box>
-            <Divider />
-
+            <Box sx={{ px: 3 }}>
+              {' '}
+              <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />{' '}
+            </Box>
             {/* Features - scrollable area */}
             <Box
               sx={{
@@ -694,14 +700,14 @@ const SelectPlan: React.FC = () => {
                   handlePlanSelect(plan.id);
                 }}
                 sx={{
-                  maxWidth: '180px',
+                  maxWidth: '130px',
                   backgroundColor:
                     selectedPlan === plan.id
                       ? 'var(--black-color)'
                       : 'var(--dark-grey-500-color)',
                   color: 'var(--white-color)',
                   borderRadius: '16px',
-                  px: 4,
+                  px: 2,
                   py: 1.25,
                   width: '100%',
                   fontWeight: 500,

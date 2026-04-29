@@ -16,7 +16,9 @@ const setJsonItem = (key: string, value: unknown) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-export const getTenantIdFromUser = (user?: Record<string, unknown>): string | null => {
+export const getTenantIdFromUser = (
+  user?: Record<string, unknown>
+): string | null => {
   if (!user || typeof user !== 'object') return null;
   const tenantId =
     (user.tenant_id as string | number | undefined) ??

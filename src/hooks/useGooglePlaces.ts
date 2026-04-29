@@ -12,7 +12,10 @@ type GooglePlacesTypes = {
       AutocompleteService?: new () => {
         getPlacePredictions: (
           req: { input: string },
-          cb: (predictions: Array<Record<string, unknown>> | null, status: unknown) => void
+          cb: (
+            predictions: Array<Record<string, unknown>> | null,
+            status: unknown
+          ) => void
         ) => void;
       };
       PlacesService?: new (el: HTMLElement) => {
@@ -82,10 +85,12 @@ export function useGooglePlaces() {
           resolve([]);
           return;
         }
-        resolve((predictions || []).map(p => ({
-          description: String(p.description),
-          place_id: String(p.place_id),
-        })));
+        resolve(
+          (predictions || []).map(p => ({
+            description: String(p.description),
+            place_id: String(p.place_id),
+          }))
+        );
       });
     });
   };

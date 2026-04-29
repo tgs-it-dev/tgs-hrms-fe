@@ -213,8 +213,8 @@ const menuItems: MenuItem[] = [
     iconFill: Icons.departmentFill,
     subItems: [
       { label: 'Department List', path: 'departments' },
-      { label: 'Designation', path: 'Designations' },
-      { label: 'User List', path: 'UserList' },
+      { label: 'Designation', path: 'designations' },
+      { label: 'User List', path: 'user-list' },
       { label: 'Policies', path: 'policies' },
       { label: 'Holidays', path: 'holidays' },
     ],
@@ -224,8 +224,8 @@ const menuItems: MenuItem[] = [
     icon: Icons.employee,
     iconFill: Icons.employeeFill,
     subItems: [
-      { label: 'Employee List', path: 'EmployeeManager' },
-      { label: 'Tenant Employees', path: 'TenantEmployees' },
+      { label: 'Employee List', path: 'employee-manager' },
+      { label: 'Tenant Employees', path: 'tenant-employees' },
     ],
   },
   {
@@ -244,8 +244,8 @@ const menuItems: MenuItem[] = [
     iconFill: Icons.attendanceFill,
     subItems: [
       { label: 'Geofencing', path: 'geofencing' },
-      { label: 'Attendance', path: 'AttendanceCheck' },
-      { label: 'Daily Attendance', path: 'AttendanceTable' },
+      { label: 'Attendance', path: 'attendance-check' },
+      { label: 'Daily Attendance', path: 'attendance-table' },
       { label: 'Report', path: 'attendance-summary' },
       { label: 'Leave Request', path: 'leaves' },
     ],
@@ -255,7 +255,7 @@ const menuItems: MenuItem[] = [
     icon: Icons.leaveAnalytics,
     iconFill: Icons.leaveAnalyticsFill,
     subItems: [
-      { label: 'Reports', path: 'Reports' },
+      { label: 'Reports', path: 'reports' },
       { label: 'Cross Tenant Leaves', path: 'cross-tenant-leaves' },
     ],
   },
@@ -522,8 +522,8 @@ export default function Sidebar({
       >
         <List>
           {filteredMenuItems.map(item => {
-            const visibleSubItems = (item.subItems || []).filter(sub =>
-              !!(sub.label && String(sub.label).trim())
+            const visibleSubItems = (item.subItems || []).filter(
+              sub => !!(sub.label && String(sub.label).trim())
             );
             const hasSubMenu = visibleSubItems.length > 1;
             const isSingleSubItem = visibleSubItems.length === 1;

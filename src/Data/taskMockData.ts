@@ -1,38 +1,7 @@
+// Types live in src/types/task.ts — re-export for backwards compatibility
+export type { Task, TaskStatus, Team, TeamMember } from '../types/task';
+
 import { formatDate as _formatDate } from '../utils/dateUtils';
-
-export type TaskStatus = 'Pending' | 'In Progress' | 'Completed';
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  assignedTo: string[];
-  assignedToName?: string[];
-  status: TaskStatus;
-  createdBy?: string;
-  createdByName?: string;
-  createdAt?: string;
-  deadline?: string;
-  updatedAt?: string;
-  teamId?: string;
-}
-
-export interface Team {
-  id: string;
-  name: string;
-  department?: string;
-  project?: string;
-  managerId?: string;
-  memberIds?: string[];
-}
-
-export interface TeamMember {
-  id: string;
-  name: string;
-  email?: string;
-  role?: string;
-  department?: string;
-}
 
 export const getStatusColor = (status: string | undefined) => {
   const s = String(status ?? '').toLowerCase();

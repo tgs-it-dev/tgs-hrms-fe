@@ -11,7 +11,7 @@ import AppTextarea from '../common/AppTextarea';
 import DocumentUpload from '../common/DocumentUpload';
 import { leaveApi, type LeaveType } from '../../api/leaveApi';
 import AppPageTitle from '../common/AppPageTitle';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 
 interface LeaveFormProps {
   /** create | edit */
@@ -91,13 +91,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     };
 
     fetchLeaveTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onError is a callback prop; intentionally excluded to avoid re-fetching
   }, []);
-
-  const getToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  };
 
   const formatDate = (date: Date) => {
     const y = date.getFullYear();
@@ -121,8 +116,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       setDocuments(prev => prev.filter((_, i) => i !== index));
     }
   };
-
-
 
   /* ------------------ SUBMIT ------------------ */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -312,10 +305,10 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: '#FFFFFF !important',
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
                   color: '#FFFFFF !important',
@@ -361,10 +354,10 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: '#FFFFFF !important',
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
                   color: '#FFFFFF !important',
@@ -392,7 +385,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             newDocuments={documents}
             onDocumentsChange={handleDocumentsChange}
             onDocumentRemove={handleDocumentRemove}
-
             multiple
             accept='image/*'
           />

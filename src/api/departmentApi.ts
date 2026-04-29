@@ -1,37 +1,16 @@
 import axiosInstance from './axiosInstance';
 import { handleApiError } from '../utils/errorHandler';
+import type { BackendDepartment, Department } from '../types/department';
 
-// Backend Department interface (matches your NestJS entity)
-export interface BackendDepartment {
-  id: string;
-  tenantId: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type { BackendDepartment, Department } from '../types/department';
+export type { ApiResponse } from '../types/api';
 
-// Frontend Department interface (your current structure)
-export interface FrontendDepartment {
-  id: string;
-  name: string;
-  nameAr: string;
-  description?: string;
-  descriptionAr?: string;
-  subtitle?: string;
-  subtitleAr?: string;
-}
+/** @deprecated Use Department from src/types/department.ts */
+export type FrontendDepartment = Department;
 
-// Create/Update DTO interface
 export interface DepartmentDto {
   name: string;
   description?: string;
-}
-
-// API Response wrapper
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
 }
 
 class DepartmentApiService {

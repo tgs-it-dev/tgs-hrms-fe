@@ -30,5 +30,3 @@ class BillingApiService {
 
 const billingApi = new BillingApiService();
 export default billingApi;
-
-

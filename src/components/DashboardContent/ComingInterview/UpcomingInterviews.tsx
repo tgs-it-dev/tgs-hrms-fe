@@ -1,16 +1,15 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import InterviewItem from './InterviewItem';
 import { upcomingInterviews } from '../../../Data/upcomingInterviews.ts';
-import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 export default function UpcomingInterviews() {
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const theme = useTheme();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const borderColor = darkMode ? '#252525' : '#f0f0f0';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
+  const bgColor = theme.palette.background.paper;
+  const borderColor = theme.palette.divider;
+  const textColor = theme.palette.text.secondary;
 
   const labels = {
     en: 'Upcoming Interviews',
