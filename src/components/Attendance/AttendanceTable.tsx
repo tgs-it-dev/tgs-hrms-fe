@@ -52,7 +52,7 @@ import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration'
+import duration from 'dayjs/plugin/duration';
 import { useUser } from '../../hooks/useUser';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
@@ -159,28 +159,34 @@ const AttendanceTable = () => {
   };
   const token = localStorage.getItem('token');
 
-	 /**
-	 * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
-	 * using Day.js Duration plugin
-	 */
-	const formatWorkedHours = (decimalHours: number | null | undefined): string => {
-  if (decimalHours === null || decimalHours === undefined || isNaN(decimalHours)) {
-    return '-';
-  }
+  /**
+   * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
+   * using Day.js Duration plugin
+   */
+  const formatWorkedHours = (
+    decimalHours: number | null | undefined
+  ): string => {
+    if (
+      decimalHours === null ||
+      decimalHours === undefined ||
+      isNaN(decimalHours)
+    ) {
+      return '-';
+    }
 
-  const dur = dayjs.duration(decimalHours, 'hours');
-  
-  const hours = Math.floor(dur.asHours());
-  const minutes = dur.minutes();
-  const seconds = dur.seconds();
+    const dur = dayjs.duration(decimalHours, 'hours');
 
-  const parts = [];
-  if (hours > 0) parts.push(`${hours} hr`);
-  if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
-  parts.push(`${seconds} sec`);
+    const hours = Math.floor(dur.asHours());
+    const minutes = dur.minutes();
+    const seconds = dur.seconds();
 
-  return parts.join(' ') || '0 sec';
-};
+    const parts = [];
+    if (hours > 0) parts.push(`${hours} hr`);
+    if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+    parts.push(`${seconds} sec`);
+
+    return parts.join(' ') || '0 sec';
+  };
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
@@ -382,9 +388,9 @@ const AttendanceTable = () => {
       }
       for (const session of openSessions) {
         const checkInDate = dayjs(session.checkIn.timestamp);
-        const shiftDate = checkInDate.format('YYYY-MM-DD'); 
+        const shiftDate = checkInDate.format('YYYY-MM-DD');
 
-        let workedHours = null; 
+        let workedHours = null;
         let checkOutISO = null;
         let checkOutDisplay = null;
 
@@ -396,7 +402,9 @@ const AttendanceTable = () => {
           const outTime = dayjs(checkOutISO);
 
           if (outTime.isAfter(inTime)) {
-            workedHours = parseFloat(outTime.diff(inTime, 'hour', true).toFixed(2));
+            workedHours = parseFloat(
+              outTime.diff(inTime, 'hour', true).toFixed(2)
+            );
           }
         }
 
@@ -407,10 +415,11 @@ const AttendanceTable = () => {
           checkInISO: session.checkIn.timestamp,
           checkOutISO,
           checkIn: toDisplayTime(session.checkIn.timestamp),
-          checkOut: checkOutDisplay || '-', 
-          workedHours, 
+          checkOut: checkOutDisplay || '-',
+          workedHours,
         });
-    }}
+      }
+    }
 
     return sessions;
   };
@@ -2139,11 +2148,11 @@ const AttendanceTable = () => {
                     <TableCell>{record.checkIn || '--'}</TableCell>
                     <TableCell>{record.checkOut || '--'}</TableCell>
                     <TableCell>
-                    <Typography variant="body2">
-                      {/* Use the formatter here */}
-                      {formatWorkedHours(record.workedHours)}
-                    </Typography>
-                  </TableCell>
+                      <Typography variant='body2'>
+                        {/* Use the formatter here */}
+                        {formatWorkedHours(record.workedHours)}
+                      </Typography>
+                    </TableCell>
                     <TableCell>
                       <Box
                         sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
