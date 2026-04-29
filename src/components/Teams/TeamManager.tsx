@@ -177,12 +177,12 @@ const TeamManager: React.FC<TeamManagerProps> = ({
             // Load all teams for admin with members included
             const teamsData = await teamApiService.getAllTeams(1);
             setTeams(teamsData.items);
-          setTotalTeams(teamsData.total);
+            setTotalTeams(teamsData.total);
           } else if (isHRAdmin()) {
             // Load all teams of the current tenant (view-only)
             const teamsData = await teamApiService.getAllTeams(1);
             setTeams(teamsData.items);
-          setTotalTeams(teamsData.total);
+            setTotalTeams(teamsData.total);
           }
         } catch {
           setError('Failed to refresh team data');
@@ -259,13 +259,17 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           teamApiService.getMyTeams(),
           teamApiService.getMyTeamMembers(1),
         ]);
-      // Check if teamsData is an array or a paginated object
-      const teamsList = Array.isArray(teamsData) ? teamsData : (teamsData as PaginatedTeams).items;
-      const teamsCount = Array.isArray(teamsData) ? teamsData.length : (teamsData as PaginatedTeams).total;
+        // Check if teamsData is an array or a paginated object
+        const teamsList = Array.isArray(teamsData)
+          ? teamsData
+          : (teamsData as PaginatedTeams).items;
+        const teamsCount = Array.isArray(teamsData)
+          ? teamsData.length
+          : (teamsData as PaginatedTeams).total;
 
-      setTeams(teamsList || []);
-      setTotalTeams(teamsCount || 0);
-      setTotalMembers(membersData.total || 0);
+        setTeams(teamsList || []);
+        setTotalTeams(teamsCount || 0);
+        setTotalMembers(membersData.total || 0);
       } else if (isAdmin()) {
         // Load all teams for admin with members included
         const teamsData = await teamApiService.getAllTeams(1);
@@ -422,7 +426,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                 <BusinessIcon
                   sx={{
                     fontSize: { xs: 32, sm: 40 },
-                    color: theme.palette.primary.main
+                    color: theme.palette.primary.main,
                   }}
                 />
               </Box>
@@ -499,7 +503,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                   '&.Mui-selected': {
                     color: theme.palette.primary.main,
                     '& .MuiSvgIcon-root': {
-                      color: theme.palette.primary.main
+                      color: theme.palette.primary.main,
                     },
                   },
                   '& .MuiSvgIcon-root': {
