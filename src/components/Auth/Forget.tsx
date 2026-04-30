@@ -53,7 +53,7 @@ const Forget = () => {
     setEmailError('');
 
     try {
-      const response = await authApi.forgotPassword({ email }) as {
+      const response = (await authApi.forgotPassword({ email })) as {
         message?: string;
         errors?: unknown[];
         statusCode?: number;
@@ -67,13 +67,20 @@ const Forget = () => {
       ) {
         setEmailError(
           response.message ||
-            (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
         );
         return;
       }
 
       if (response && response.errors) {
-        setEmailError(response.message || (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address'));
+        setEmailError(
+          response.message ||
+            (lang === 'ar'
+              ? 'البريد الإلكتروني غير صالح'
+              : 'Invalid email address')
+        );
         return;
       }
 
@@ -95,7 +102,9 @@ const Forget = () => {
         ) {
           setEmailError(
             apiError.response.data?.message ||
-              (lang === 'ar' ? 'البريد الإلكتروني غير صالح' : 'Invalid email address')
+              (lang === 'ar'
+                ? 'البريد الإلكتروني غير صالح'
+                : 'Invalid email address')
           );
         } else {
           showError(apiError.response.data?.message || 'Something went wrong.');
@@ -138,7 +147,10 @@ const Forget = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -185,7 +197,7 @@ const Forget = () => {
             sx={{
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '30px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -240,7 +252,7 @@ const Forget = () => {
                     fontWeight: 700,
                     textAlign: 'center',
                     mb: 1,
-                    color: '#2C2C2C',
+                    color: 'text.primary',
                   }}
                 >
                   {lang === 'ar' ? 'تم إرسال البريد الإلكتروني' : 'Email Sent'}
@@ -251,7 +263,7 @@ const Forget = () => {
                     fontSize: { xs: '14px', sm: '16px' },
                     textAlign: 'center',
                     mb: 3,
-                    color: '#888888',
+                    color: 'text.secondary',
                     fontWeight: 400,
                   }}
                 >
@@ -272,7 +284,7 @@ const Forget = () => {
                     component={RouterLink}
                     to='/'
                     sx={{
-                      color: '#656565',
+                      color: 'text.secondary',
                       textDecoration: 'none',
                       fontSize: { xs: '14px', sm: '16px' },
                       fontWeight: 400,
@@ -295,7 +307,7 @@ const Forget = () => {
                   sx={{
                     mb: 0,
                     fontWeight: 700,
-                    color: { xs: '#001218', lg: 'inherit' },
+                    color: { xs: 'text.primary', lg: 'inherit' },
                   }}
                 >
                   {lang === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}
@@ -303,7 +315,10 @@ const Forget = () => {
 
                 <Typography
                   sx={{
-                    color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                    color: {
+                      xs: 'text.secondary',
+                      lg: 'var(--dark-grey-color)',
+                    },
                     mb: 3,
                     fontSize: { xs: '14px', sm: '16px', lg: '24px' },
                     fontWeight: 400,
@@ -336,11 +351,17 @@ const Forget = () => {
                       disabled={loading}
                       error={Boolean(emailError)}
                       helperText={emailError}
-                      placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                      placeholder={
+                        lang === 'ar'
+                          ? 'أدخل بريدك الإلكتروني'
+                          : 'Enter your email'
+                      }
                     />
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}
+                  >
                     <Button
                       type='submit'
                       variant='contained'
@@ -358,12 +379,14 @@ const Forget = () => {
                         width: { xs: '100%', lg: '200px' },
                         '&:disabled': {
                           backgroundColor: 'var(--grey-color)',
-                          color: '#FFFFFF',
+                          color: 'common.white',
                         },
                       }}
                     >
                       {loading ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                        >
                           <CircularProgress size={16} color='inherit' />
                           {lang === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
                         </Box>
@@ -387,7 +410,7 @@ const Forget = () => {
                       component={RouterLink}
                       to='/'
                       sx={{
-                        color: '#656565',
+                        color: 'text.secondary',
                         textDecoration: 'none',
                         fontSize: { xs: '14px', sm: '16px' },
                         fontWeight: 400,

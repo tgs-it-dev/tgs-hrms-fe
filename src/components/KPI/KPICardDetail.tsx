@@ -8,6 +8,7 @@ import {
   IconButton,
   Divider,
   CircularProgress,
+  useTheme,
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -15,7 +16,7 @@ import LoopIcon from '@mui/icons-material/Loop';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import { Close } from '@mui/icons-material';
-import { type EmployeePerformance } from '../../api/systemEmployeeApi';
+import type { EmployeePerformance } from '../../api/systemEmployeeApi';
 
 interface KpiDetailCardProps {
   open: boolean;
@@ -28,6 +29,7 @@ const KpiDetailCard: React.FC<KpiDetailCardProps> = ({
   onClose,
   kpiData,
 }) => {
+  const theme = useTheme();
   if (!kpiData) return null;
 
   const achievedPercent =
@@ -39,10 +41,10 @@ const KpiDetailCard: React.FC<KpiDetailCardProps> = ({
 
   const progressColor =
     achievedPercent >= 90
-      ? '#4CAF50'
+      ? theme.palette.success.main
       : achievedPercent >= 60
-        ? '#FFB300'
-        : '#E53935';
+        ? theme.palette.warning.main
+        : theme.palette.error.main;
 
   return (
     <Dialog
@@ -153,7 +155,10 @@ const KpiDetailCard: React.FC<KpiDetailCardProps> = ({
               key={i}
               fontSize='small'
               sx={{
-                color: i < stars ? '#FFC107' : '#E0E0E0',
+                color:
+                  i < stars
+                    ? theme.palette.warning.light
+                    : theme.palette.text.disabled,
                 transition: 'color 0.3s',
               }}
             />

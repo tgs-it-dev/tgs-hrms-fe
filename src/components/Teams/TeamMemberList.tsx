@@ -36,14 +36,10 @@ import { Icons } from '../../assets/icons';
 
 interface TeamMemberListProps {
   teamId: string;
-  darkMode?: boolean;
 }
 
-const TeamMemberList: React.FC<TeamMemberListProps> = ({
-  teamId,
-  darkMode = false,
-}) => {
-  const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
+const TeamMemberList: React.FC<TeamMemberListProps> = ({ teamId }) => {
+  const { snackbar, showSuccess, closeSnackbar } = useErrorHandler();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -297,18 +293,18 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
             ),
           }}
           sx={{
-            backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+            backgroundColor: 'background.paper',
             borderRadius: 2,
             '& .MuiOutlinedInput-root': {
               color: theme.palette.text.primary,
               '& fieldset': {
-                borderColor: darkMode ? '#555' : '#ccc',
+                borderColor: 'divider',
               },
               '&:hover fieldset': {
-                borderColor: darkMode ? '#888' : '#999',
+                borderColor: 'divider',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#484c7f',
+                borderColor: 'primary.main',
               },
             },
             '& .MuiInputBase-input::placeholder': {
@@ -321,7 +317,7 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
       <AppTable
         component={Paper}
         sx={{
-          backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+          backgroundColor: 'background.paper',
           boxShadow: 'none',
         }}
       >
@@ -387,8 +383,8 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
                     label={member.designation?.title || 'N/A'}
                     size='small'
                     sx={{
-                      backgroundColor: '#3083DC',
-                      color: '#FFFFFF',
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                       fontSize: '0.75rem',
                     }}
                   />
@@ -442,7 +438,7 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
         fullWidth
         PaperProps={{
           sx: {
-            backgroundColor: darkMode ? '#2d2d2d' : '#fff',
+            backgroundColor: 'background.paper',
             color: theme.palette.text.primary,
           },
         }}
@@ -464,7 +460,7 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({
               <Box
                 sx={{
                   p: 2,
-                  backgroundColor: darkMode ? '#444' : '#f5f5f5',
+                  backgroundColor: 'background.default',
                   borderRadius: 1,
                 }}
               >

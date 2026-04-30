@@ -7,13 +7,15 @@ import {
   InputAdornment,
   IconButton,
   type TextFieldProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
   label: string;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   inputBackgroundColor?: string;
   hideErrorsOnSmallScreen?: boolean;
 }
@@ -36,7 +38,8 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
     // Check if this is a phone input (has PhoneInput in InputProps)
     const isPhoneInput = rest.InputProps?.startAdornment !== undefined;
     const isDateInput = String(rest.type) === 'date';
-    const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
+    const isFirefox =
+      typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
 
     const handleAdornmentClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -142,12 +145,11 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               // If caller provided InputProps, keep them and merge
               isDateInput
                 ? {
-                  ...rest.InputProps,
-                  endAdornment:
-                    rest.InputProps && rest.InputProps.endAdornment ? (
-                      rest.InputProps.endAdornment
-                    ) : (
-                      !isFirefox ? (
+                    ...rest.InputProps,
+                    endAdornment:
+                      rest.InputProps && rest.InputProps.endAdornment ? (
+                        rest.InputProps.endAdornment
+                      ) : !isFirefox ? (
                         <InputAdornment position='end'>
                           <IconButton
                             size='small'
@@ -158,9 +160,8 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
                             <CalendarTodayIcon fontSize='small' />
                           </IconButton>
                         </InputAdornment>
-                      ) : null
-                    ),
-                }
+                      ) : null,
+                  }
                 : rest.InputProps
             }
             inputRef={inputRef}
@@ -181,9 +182,9 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               // If caller expects the native event, they can wrap it accordingly.
               if (typeof rest.onChange === 'function') {
                 try {
-                  (
-                    rest.onChange as unknown as (v: string | number) => void
-                  )(out);
+                  (rest.onChange as unknown as (v: string | number) => void)(
+                    out
+                  );
                 } catch {
                   // fallback: call with native event
                   (
@@ -233,7 +234,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiOutlinedInput-input:-webkit-autofill': {
                 padding: rest.multiline ? undefined : '10px 16px !important',
-                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : '#EFEFEF')} inset`,
+                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.default)} inset`,
                 WebkitTextFillColor: theme.palette.text.primary,
               },
               '& .MuiInputLabel-root': {
@@ -244,14 +245,14 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiInputAdornment-root': isPhoneInput
                 ? {
-                  width: '100%',
-                  margin: 0,
-                }
+                    width: '100%',
+                    margin: 0,
+                  }
                 : {},
               '& .MuiInputAdornment-positionStart': isPhoneInput
                 ? {
-                  marginRight: 0,
-                }
+                    marginRight: 0,
+                  }
                 : {},
               ...sx,
             }}

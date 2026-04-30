@@ -7,6 +7,7 @@ import LeaveTypeFormModal, {
   type LeaveTypeFormValues,
 } from './LeaveTypeFormModal';
 import type { Leave } from '../../types/leave';
+import type { LeaveStatus } from '../../type/levetypes';
 import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
 import { normalizeRole } from '../../utils/permissions';
 import {
@@ -364,9 +365,7 @@ const LeaveRequestPage = () => {
       setLeaveTypeModalOpen(false);
       await fetchLeaveTypes();
     } catch (error: unknown) {
-      showError(
-        getErrorMessage(error) || 'Failed to create leave type'
-      );
+      showError(getErrorMessage(error) || 'Failed to create leave type');
     } finally {
       setSavingLeaveType(false);
     }
@@ -486,7 +485,9 @@ const LeaveRequestPage = () => {
       await leaveApi.cancelLeave(selectedId);
       showSuccess('Leave withdrawn successfully!');
       setLeaves(prev =>
-        prev.map((l: Leave) => (l.id === selectedId ? { ...l, status: 'withdrawn' } : l))
+        prev.map((l: Leave) =>
+          l.id === selectedId ? { ...l, status: 'withdrawn' } : l
+        )
       );
     } catch (error: unknown) {
       showError(getErrorMessage(error) || 'Failed to withdraw leave');
@@ -568,8 +569,7 @@ const LeaveRequestPage = () => {
               r === null || typeof r === 'undefined' ? undefined : String(r);
 
             const rawStatus = String(leaveRec.status ?? '').toLowerCase();
-            let normalizedStatus: import('../../type/levetypes').LeaveStatus =
-              'pending';
+            let normalizedStatus: LeaveStatus = 'pending';
             // Accept 'processing' as a valid intermediate status coming from backend
             if (
               rawStatus === 'pending' ||
@@ -578,8 +578,7 @@ const LeaveRequestPage = () => {
               rawStatus === 'rejected' ||
               rawStatus === 'withdrawn'
             ) {
-              normalizedStatus =
-                rawStatus as import('../../type/levetypes').LeaveStatus;
+              normalizedStatus = rawStatus as LeaveStatus;
             } else if (rawStatus === 'cancelled') {
               // Backend uses 'cancelled' sometimes — map to 'rejected'
               normalizedStatus = 'rejected';
@@ -614,6 +613,7 @@ const LeaveRequestPage = () => {
             .filter(e => e.user_id)
             .map(e => ({
               id: e.id,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- user_id is guaranteed by .filter(e => e.user_id) above
               userId: e.user_id!,
               name: e.name,
             }))
@@ -653,7 +653,7 @@ const LeaveRequestPage = () => {
             justifyContent: 'space-between',
             textAlign: { xs: 'start', sm: 'left' },
             gap: { xs: 1, sm: 0 },
-            color: '#fff',
+            color: 'common.white',
           }}
         >
           <Box>
@@ -690,10 +690,10 @@ const LeaveRequestPage = () => {
                   color:
                     activeTab === 'apply'
                       ? 'var(--primary-dark-color)'
-                      : '#fff',
+                      : 'common.white',
                   backgroundColor:
-                    activeTab === 'apply' ? '#fff' : 'transparent',
-                  borderColor: '#fff',
+                    activeTab === 'apply' ? 'background.paper' : 'transparent',
+                  borderColor: 'common.white',
                 }}
               >
                 Apply Leave
@@ -710,27 +710,35 @@ const LeaveRequestPage = () => {
                   color:
                     activeTab === 'history'
                       ? 'var(--primary-dark-color)'
-                      : '#fff',
+                      : 'common.white',
                   backgroundColor:
-                    activeTab === 'history' ? '#fff' : 'transparent',
-                  borderColor: '#fff',
+                    activeTab === 'history'
+                      ? 'background.paper'
+                      : 'transparent',
+                  borderColor: 'common.white',
                   '&:hover': {
                     color:
                       activeTab === 'history'
                         ? 'var(--primary-dark-color)'
-                        : '#fff',
+                        : 'common.white',
                     backgroundColor:
-                      activeTab === 'history' ? '#fff' : 'transparent',
-                    borderColor: '#fff',
+                      activeTab === 'history'
+                        ? 'background.paper'
+                        : 'transparent',
+                    borderColor: 'common.white',
                   },
                 }}
               >
                 Leave History
               </AppButton>
 
-              {['admin', 'hr-admin', 'system-admin', 'network-admin', 'oe-admin'].includes(
-                role
-              ) && (
+              {[
+                'admin',
+                'hr-admin',
+                'system-admin',
+                'network-admin',
+                'oe-admin',
+              ].includes(role) && (
                 <AppButton
                   variant='contained'
                   variantType='secondary'
@@ -739,8 +747,8 @@ const LeaveRequestPage = () => {
                     borderRadius: '20px',
                     width: { xs: '100%', sm: 'auto' },
                     backgroundColor: 'transparent',
-                    color: '#fff',
-                    borderColor: '#fff',
+                    color: 'common.white',
+                    borderColor: 'common.white',
                   }}
                 >
                   Create Leave Type
@@ -822,7 +830,9 @@ const LeaveRequestPage = () => {
                         ? 'var(--primary-dark-color)'
                         : 'transparent',
                     color:
-                      viewMode === 'you' ? '#fff' : 'var(--primary-dark-color)',
+                      viewMode === 'you'
+                        ? 'common.white'
+                        : 'var(--primary-dark-color)',
                     borderColor: 'var(--primary-dark-color)',
                     '&:hover': {
                       backgroundColor:
@@ -847,7 +857,7 @@ const LeaveRequestPage = () => {
                         : 'transparent',
                     color:
                       viewMode === 'team'
-                        ? '#fff'
+                        ? 'common.white'
                         : 'var(--primary-dark-color)',
                     borderColor: 'var(--primary-dark-color)',
                     '&:hover': {

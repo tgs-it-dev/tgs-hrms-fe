@@ -66,7 +66,12 @@ export function clearAuthData(): void {
 export function forceLogout(): void {
   clearAuthData();
   const path = window.location.pathname || '/';
-  const isLoginPage = path === '/' || path === '/forget' || path === '/reset-password' || path === '/confirm-password' || path === '/signup';
+  const isLoginPage =
+    path === '/' ||
+    path === '/forget' ||
+    path === '/reset-password' ||
+    path === '/confirm-password' ||
+    path === '/signup';
   if (!isLoginPage) {
     window.location.href = '/';
   }

@@ -5,13 +5,17 @@ import {
   Box,
   useTheme,
   type TextFieldProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 
-export interface AppTextareaProps
-  extends Omit<TextFieldProps, 'label' | 'multiline'> {
+export interface AppTextareaProps extends Omit<
+  TextFieldProps,
+  'label' | 'multiline'
+> {
   label: string;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   inputBackgroundColor?: string;
   /** When true, helperText is rendered below the textarea instead of next to the label */
   helperTextBelowInput?: boolean;
@@ -38,8 +42,8 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
     ref
   ) => {
     const theme = useTheme();
-	const valueLength = (rest.value as string)?.length || 0;
-	const maxLength = rest.inputProps?.maxLength || 200;
+    const valueLength = (rest.value as string)?.length || 0;
+    const maxLength = rest.inputProps?.maxLength || 200;
 
     return (
       <Box
@@ -60,7 +64,9 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
         >
           <Typography
             component='label'
-            htmlFor={rest.id || (rest.name ? `textarea-${rest.name}` : undefined)}
+            htmlFor={
+              rest.id || (rest.name ? `textarea-${rest.name}` : undefined)
+            }
             className={labelClassName}
             sx={{
               fontWeight: { xs: 400, lg: 500 },
@@ -102,7 +108,7 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
               inputBackgroundColor ||
               (theme.palette.mode === 'dark'
                 ? theme.palette.background.default
-                : '#F8F8F8'),
+                : theme.palette.background.default),
             overflow: 'visible',
           }}
         >
@@ -149,43 +155,43 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
             }}
           />
         </Box>
-		<Box
-		  sx={{
-			display: 'flex',
-			justifyContent: 'space-between',
-			alignItems: 'center',
-			mt: 0.5,
-		  }}
-		>
-		  {/* Left side (helper text if needed) */}
-		  {helperTextBelowInput && rest.helperText ? (
-			<Typography
-			  sx={{
-				fontSize: { xs: '12px', sm: '14px' },
-				color: rest.error
-				  ? theme.palette.error.main
-				  : theme.palette.text.secondary,
-			  }}
-			>
-			  {rest.helperText}
-			</Typography>
-		  ) : (
-			<span />
-		  )}
-		  
-		  {/* Right side (character count) */}
-		  <Typography
-			sx={{
-			  fontSize: '12px',
-			  color:
-				valueLength >= maxLength
-				  ? theme.palette.error.main
-				  : theme.palette.text.secondary,
-			}}
-		  >
-			{valueLength}/{maxLength}
-		  </Typography>
-		</Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mt: 0.5,
+          }}
+        >
+          {/* Left side (helper text if needed) */}
+          {helperTextBelowInput && rest.helperText ? (
+            <Typography
+              sx={{
+                fontSize: { xs: '12px', sm: '14px' },
+                color: rest.error
+                  ? theme.palette.error.main
+                  : theme.palette.text.secondary,
+              }}
+            >
+              {rest.helperText}
+            </Typography>
+          ) : (
+            <span />
+          )}
+
+          {/* Right side (character count) */}
+          <Typography
+            sx={{
+              fontSize: '12px',
+              color:
+                valueLength >= maxLength
+                  ? theme.palette.error.main
+                  : theme.palette.text.secondary,
+            }}
+          >
+            {valueLength}/{maxLength}
+          </Typography>
+        </Box>
         {helperTextBelowInput && rest.helperText && (
           <Typography
             sx={{

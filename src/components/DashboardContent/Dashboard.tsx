@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   useTheme,
-  useMediaQuery,
   Grid,
   TableHead,
   TableRow,
@@ -31,11 +30,7 @@ import { getDashboardKpi, getAttendanceSummary } from '../../api/dashboardApi';
 // AvailabilityCardsGrid removed — availability column removed from dashboard
 import GenderPercentageChart from './GenderPercentageChart';
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -74,8 +69,6 @@ const Dashboard: React.FC = () => {
   const { language } = useLanguage();
   const lang = labels[language];
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const currentUser = getCurrentUser();
   const userRole = currentUser?.role;
   const isSysAdmin = isSystemAdmin(userRole);
@@ -158,11 +151,6 @@ const Dashboard: React.FC = () => {
       presentToday: 0,
       onLeave: 0,
     } as LiveKpi);
-
-  const salaryOverview = [
-    { name: 'Paid', value: displayedKpi.salaryPaid },
-    { name: 'Unpaid', value: displayedKpi.salaryUnpaid },
-  ];
 
   // Live attendance summary fetched from backend
   const [attendanceData, setAttendanceData] = useState<
@@ -392,8 +380,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -408,8 +396,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -528,8 +516,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -541,8 +528,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -554,8 +540,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -567,8 +552,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -580,8 +564,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -1179,10 +1162,9 @@ const Dashboard: React.FC = () => {
                         xs: attendanceShouldForceMinWidthOnXs
                           ? `${attendanceMinChartWidth}px`
                           : '100%',
-                        md:
-                          attendanceShouldForceMinWidthOnXs
-                            ? `${attendanceMinChartWidth}px`
-                            : '100%',
+                        md: attendanceShouldForceMinWidthOnXs
+                          ? `${attendanceMinChartWidth}px`
+                          : '100%',
                       },
                       height: { xs: 360, md: 420 },
                     }}

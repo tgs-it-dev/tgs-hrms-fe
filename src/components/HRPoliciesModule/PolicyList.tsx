@@ -10,21 +10,20 @@ import {
   DialogActions,
   DialogTitle,
   Divider,
+  useTheme,
 } from '@mui/material';
 import type { Policy } from '../../types/policy';
 import { mockPolicies } from '../../Data/HrmockData';
 import PolicyForm from './PolicyForm';
 import edit from '../../assets/dashboardIcon/edit.svg';
 import deleteIcon from '../../assets/dashboardIcon/ui-delete.svg';
-import { useOutletContext } from 'react-router-dom';
-import { COLORS } from '../../constants/appConstants';
 
 const PolicyList: React.FC = () => {
   const [policies, setPolicies] = useState<Policy[]>(mockPolicies);
   const [openForm, setOpenForm] = useState(false);
   const [selected, setSelected] = useState<Policy | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const { darkMode } = useOutletContext<{ darkMode: boolean }>();
+  const theme = useTheme();
 
   const handleAddEdit = (policy: Policy) => {
     setPolicies(prev =>
@@ -52,7 +51,7 @@ const PolicyList: React.FC = () => {
           gap: 2,
         }}
       >
-        <Typography variant='h5' sx={{ color: darkMode ? '#8f8f8f' : '#000' }}>
+        <Typography variant='h5' sx={{ color: theme.palette.text.secondary }}>
           HR Policies
         </Typography>
 
@@ -62,7 +61,7 @@ const PolicyList: React.FC = () => {
             setSelected(null);
             setOpenForm(true);
           }}
-          sx={{ backgroundColor: COLORS.PRIMARY }}
+          sx={{ backgroundColor: 'primary.main' }}
         >
           Add Policy
         </Button>
@@ -115,7 +114,9 @@ const PolicyList: React.FC = () => {
                     size='small'
                     aria-label={`Edit policy ${policy.name}`}
                     sx={{
-                      border: '1px solid #f0f0f0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderTopLeftRadius: '3px',
                       borderBottomLeftRadius: '3px',
                       borderTopRightRadius: 0,
@@ -146,7 +147,9 @@ const PolicyList: React.FC = () => {
                     size='small'
                     aria-label={`Delete policy ${policy.name}`}
                     sx={{
-                      border: '1px solid #f0f0f0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderTopLeftRadius: '0px',
                       borderBottomLeftRadius: '0px',
                       borderTopRightRadius: '3px',

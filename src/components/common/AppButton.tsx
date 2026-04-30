@@ -14,8 +14,6 @@ interface AppButtonProps extends Omit<ButtonProps, 'children'> {
   text?: string;
   loading?: boolean;
   children?: React.ReactNode;
-  // Allow forwarding arbitrary props (e.g. `to` when using react-router Link)
-  [key: string]: any;
 }
 
 export function AppButton({
@@ -62,8 +60,8 @@ export function AppButton({
           backgroundColor: 'primary.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       secondary: {
@@ -78,8 +76,8 @@ export function AppButton({
           backgroundColor: 'action.hover',
         },
         '&:disabled': {
-          borderColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#555555' : '#ccc',
+          borderColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       danger: {
@@ -90,8 +88,8 @@ export function AppButton({
           backgroundColor: 'error.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#5a3a3a' : '#f2b8b5',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'error.light',
+          color: 'action.disabled',
         },
       },
       ghost: {
@@ -99,7 +97,7 @@ export function AppButton({
         borderColor: 'transparent',
         color: 'text.primary',
         '&:disabled': {
-          color: isDark ? '#555555' : '#ccc',
+          color: 'action.disabled',
         },
         '&:hover': {
           backgroundColor: 'action.hover',
@@ -114,9 +112,11 @@ export function AppButton({
   const baseSx = getVariantStyles();
 
   return (
-    <Button {...rest}
-     disabled={disabled || loading}
-     sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}>
+    <Button
+      {...rest}
+      disabled={disabled || loading}
+      sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}
+    >
       {text || children}
     </Button>
   );

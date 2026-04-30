@@ -126,7 +126,7 @@ const EmployeeGeofenceStatus = () => {
   const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<LatLngTuple | null>(null);
   const [geofence, setGeofence] = useState<Geofence | null>(null);
   const [distance, setDistance] = useState<number>(0);
@@ -408,7 +408,9 @@ const EmployeeGeofenceStatus = () => {
                       center={geofence.center}
                       radius={geofence.radius + threshold}
                       pathOptions={{
-                        color: canCheckIn ? '#4caf50' : '#ff9800',
+                        color: canCheckIn
+                          ? theme.palette.success.main
+                          : theme.palette.warning.main,
                         dashArray: '8 6',
                         fillOpacity: 0.12,
                       }}
@@ -417,7 +419,7 @@ const EmployeeGeofenceStatus = () => {
                       center={geofence.center}
                       radius={geofence.radius}
                       pathOptions={{
-                        color: '#1976d2',
+                        color: theme.palette.primary.main,
                         fillOpacity: 0.3,
                         weight: 3,
                       }}
@@ -429,7 +431,7 @@ const EmployeeGeofenceStatus = () => {
                   <Polygon
                     positions={geofence.coordinates}
                     pathOptions={{
-                      color: '#1976d2',
+                      color: theme.palette.primary.main,
                       fillOpacity: 0.3,
                       weight: 3,
                     }}
@@ -451,7 +453,7 @@ const EmployeeGeofenceStatus = () => {
                       ] as [[number, number], [number, number]]
                     }
                     pathOptions={{
-                      color: '#1976d2',
+                      color: theme.palette.primary.main,
                       fillOpacity: 0.3,
                       weight: 3,
                     }}

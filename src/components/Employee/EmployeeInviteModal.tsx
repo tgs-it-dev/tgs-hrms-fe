@@ -9,6 +9,7 @@ import {
   Avatar,
   Stack,
   Divider,
+  useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import settings from '../../assets/dashboardIcon/ui-settings.svg';
@@ -35,7 +36,7 @@ const style = {
   borderRadius: 2,
   boxShadow: 24,
   p: 2,
-  bgcolor: '#fff',
+  bgcolor: 'background.paper',
   outline: 'none',
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -97,6 +98,7 @@ const EmployeeInviteModal: React.FC<EmployeeInviteModalProps> = ({
 }) => {
   const [email, setEmail] = useState<string>('');
   const { language } = useLanguage();
+  const theme = useTheme();
   const lang = labels[language];
 
   const handleSend = () => {
@@ -105,10 +107,10 @@ const EmployeeInviteModal: React.FC<EmployeeInviteModalProps> = ({
     }
   };
 
-  const bgColor = darkMode ? '#1e1e1e' : '#fff';
-  const fieldBg = darkMode ? '#2e2e2e' : '#f1f1f1';
-  const textColor = darkMode ? '#e0e0e0' : '#000';
-  const cardBg = darkMode ? '#2a2a2a' : '#f9f9f9';
+  const bgColor = theme.palette.background.paper;
+  const fieldBg = theme.palette.background.default;
+  const textColor = theme.palette.text.secondary;
+  const cardBg = theme.palette.background.default;
 
   return (
     <Modal open={open} onClose={onClose} sx={{ overflowY: 'auto' }}>
@@ -196,8 +198,8 @@ const EmployeeInviteModal: React.FC<EmployeeInviteModalProps> = ({
               <Stack direction='row' spacing={2} alignItems='center'>
                 <Avatar
                   sx={{
-                    bgcolor: idx % 2 === 0 ? '#ffcd38' : '#e24c4c',
-                    color: '#fff',
+                    bgcolor: idx % 2 === 0 ? '#ffcd38' : 'error.main',
+                    color: 'common.white',
                   }}
                 >
                   {(language === 'ar' ? emp.name_ar : emp.name_en)[0]}
@@ -236,14 +238,14 @@ const EmployeeInviteModal: React.FC<EmployeeInviteModalProps> = ({
         </Box>
 
         {/* Bottom Buttons */}
-        <Divider sx={{ my: 3, borderColor: darkMode ? '#444' : undefined }} />
+        <Divider sx={{ my: 3, borderColor: 'divider' }} />
         <Box display='flex' justifyContent='end' gap={1}>
           <Button
             variant='outlined'
             sx={{
-              color: '#fff',
+              color: 'common.white',
               backgroundColor: 'var(--background-dark)',
-              borderColor: '#555',
+              borderColor: 'divider',
             }}
             onClick={onClose}
           >

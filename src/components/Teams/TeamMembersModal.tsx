@@ -312,7 +312,7 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
               onClick={handleAddMember}
               sx={{
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#ffffff',
+                color: 'common.white',
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                   opacity: 0.9,

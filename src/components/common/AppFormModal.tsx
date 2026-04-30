@@ -10,6 +10,8 @@ import {
   useMediaQuery,
   useTheme,
   CircularProgress,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import AppInputField from './AppInputField';
@@ -44,7 +46,7 @@ export interface AppFormModalProps {
   children?: ReactNode;
   hideActions?: boolean;
   wrapInForm?: boolean;
-  paperSx?: object;
+  paperSx?: SxProps<Theme>;
   submitLabel?: string;
   cancelLabel?: string;
   submitStartIcon?: ReactNode;
@@ -235,7 +237,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ) : field.type === 'textarea' ? (
@@ -261,7 +263,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ) : (
@@ -289,7 +291,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ))}
@@ -304,7 +306,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
           sx={{
             p: 0,
             pt: 0,
-            px: 2, 
+            px: 2,
             pb: { xs: 1, sm: 2 },
             gap: 1,
             justifyContent: 'flex-end',

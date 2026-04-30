@@ -7,7 +7,6 @@ import {
   CircularProgress,
   useMediaQuery,
 } from '@mui/material';
-import { useIsDarkMode } from '../../theme';
 import { useCompany } from '../../context/CompanyContext';
 import { useUser } from '../../hooks/useUser';
 import { isManager, isEmployee } from '../../utils/roleUtils';
@@ -27,7 +26,6 @@ import { useErrorHandler } from '../../hooks/useErrorHandler';
 const SettingsPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const darkMode = useIsDarkMode();
   const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
   const { user } = useUser();
   const {
@@ -179,13 +177,13 @@ const SettingsPage: React.FC = () => {
   const controlBg =
     theme.palette.mode === 'dark'
       ? theme.palette.background.default
-      : '#F8F8F8';
+      : 'background.default';
 
   const hasCompanyChanges = Boolean(
     contextCompanyDetails &&
-      (editFormData.company_name !== contextCompanyDetails.company_name ||
-        editFormData.domain !== contextCompanyDetails.domain ||
-        Boolean(selectedLogoFile))
+    (editFormData.company_name !== contextCompanyDetails.company_name ||
+      editFormData.domain !== contextCompanyDetails.domain ||
+      Boolean(selectedLogoFile))
   );
 
   return (
@@ -204,7 +202,7 @@ const SettingsPage: React.FC = () => {
         <AppPageTitle
           sx={{
             mb: 0,
-            color: darkMode ? '#8f8f8f' : theme.palette.text.primary,
+            color: theme.palette.text.secondary,
           }}
         >
           Company Information
@@ -279,7 +277,7 @@ const SettingsPage: React.FC = () => {
                 alignItems: 'center',
                 mb: { xs: 3, sm: 4 },
                 pb: { xs: 3, sm: 4 },
-                borderBottom: `1px solid ${darkMode ? '#333' : '#eee'}`,
+                borderBottom: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -287,8 +285,8 @@ const SettingsPage: React.FC = () => {
                   width: { xs: 110, sm: 150 },
                   height: { xs: 110, sm: 150 },
                   borderRadius: '50%',
-                  backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
-                  border: `3px solid ${darkMode ? '#333' : '#e0e0e0'}`,
+                  backgroundColor: 'background.default',
+                  border: `3px solid ${theme.palette.divider}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -311,7 +309,7 @@ const SettingsPage: React.FC = () => {
                   <BusinessIcon
                     sx={{
                       fontSize: { xs: 52, sm: 70 },
-                      color: darkMode ? '#666' : '#999',
+                      color: theme.palette.text.disabled,
                     }}
                   />
                 )}
@@ -325,7 +323,7 @@ const SettingsPage: React.FC = () => {
                 alignItems: 'center',
                 mb: { xs: 2, sm: 3 },
                 pb: { xs: 2, sm: 3 },
-                borderBottom: `1px solid ${darkMode ? '#333' : '#eee'}`,
+                borderBottom: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -333,7 +331,7 @@ const SettingsPage: React.FC = () => {
                   width: { xs: 42, sm: 50 },
                   height: { xs: 42, sm: 50 },
                   borderRadius: '50%',
-                  backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
+                  backgroundColor: 'background.default',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -343,7 +341,7 @@ const SettingsPage: React.FC = () => {
                 <BusinessIcon
                   sx={{
                     fontSize: { xs: 22, sm: 28 },
-                    color: darkMode ? '#666' : '#999',
+                    color: theme.palette.text.disabled,
                   }}
                 />
               </Box>
@@ -351,7 +349,7 @@ const SettingsPage: React.FC = () => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#8f8f8f' : '#666',
+                    color: theme.palette.text.secondary,
                     mb: 0.5,
                     fontSize: { xs: '11px', sm: '12px' },
                     textTransform: 'uppercase',
@@ -383,7 +381,7 @@ const SettingsPage: React.FC = () => {
                   width: { xs: 42, sm: 50 },
                   height: { xs: 42, sm: 50 },
                   borderRadius: '50%',
-                  backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
+                  backgroundColor: 'background.default',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -393,7 +391,7 @@ const SettingsPage: React.FC = () => {
                 <LanguageIcon
                   sx={{
                     fontSize: { xs: 22, sm: 28 },
-                    color: darkMode ? '#666' : '#999',
+                    color: theme.palette.text.disabled,
                   }}
                 />
               </Box>
@@ -401,7 +399,7 @@ const SettingsPage: React.FC = () => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#8f8f8f' : '#666',
+                    color: theme.palette.text.secondary,
                     mb: 0.5,
                     fontSize: { xs: '11px', sm: '12px' },
                     textTransform: 'uppercase',

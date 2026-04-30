@@ -674,15 +674,17 @@ export default function DesignationManager() {
 
       {!isSystemAdmin && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="body2" 
-          sx={{
+          <Typography
+            variant='body2'
+            sx={{
               fontSize: { xs: '14px', lg: '16px' },
               lineHeight: 'var(--body-line-height)',
               color: theme.palette.text.secondary,
-              mb: 1
-            }}>
-          {getText('Filter by department', 'تصفية حسب القسم')}
-        </Typography>
+              mb: 1,
+            }}
+          >
+            {getText('Filter by department', 'تصفية حسب القسم')}
+          </Typography>
           <AppDropdown
             label={getText('Filter by department', 'تصفية حسب القسم')}
             showLabel={false}

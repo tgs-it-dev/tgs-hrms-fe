@@ -13,6 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

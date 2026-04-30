@@ -423,7 +423,10 @@ const Signup: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '30px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -468,10 +471,10 @@ const Signup: React.FC = () => {
           <Box
             sx={{
               // maxWidth: { xs: '100%', sm: '90%' },
-              maxWidth:"700px",
+              maxWidth: '700px',
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '20px', lg: 0 },
               p: { xs: 2, sm: 3, md: 0 },
               mt: { xs: 0, lg: 0 },
@@ -501,14 +504,14 @@ const Signup: React.FC = () => {
                 sx={{
                   mb: '6px',
                   fontWeight: 700,
-                  color: { xs: '#001218', lg: 'inherit' },
+                  color: { xs: 'text.primary', lg: 'inherit' },
                 }}
               >
                 Create Account
               </AppPageTitle>
               <Typography
                 sx={{
-                  color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                  color: { xs: 'text.secondary', lg: 'var(--dark-grey-color)' },
                   fontSize: { xs: '16px', lg: '24px' },
                   fontWeight: 400,
                 }}
@@ -873,7 +876,7 @@ const Signup: React.FC = () => {
                 {termsError && (
                   <Typography
                     sx={{
-                      color: '#d32f2f',
+                      color: 'error.main',
                       fontSize: { xs: '12px', sm: '14px' },
                       mb: 1,
                       textAlign: 'center',
@@ -923,7 +926,7 @@ const Signup: React.FC = () => {
                   align='center'
                   className='label'
                   sx={{
-                    color: '#2D3748',
+                    color: 'text.secondary',
                     fontSize: { xs: '14px', sm: '16px' },
                     fontWeight: 400,
                     mt: 2,

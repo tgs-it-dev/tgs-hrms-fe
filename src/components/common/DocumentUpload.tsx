@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import {
   Box,
   Typography,
@@ -7,9 +7,7 @@ import {
   useTheme,
   Button,
 } from '@mui/material';
-import {
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import { env } from '../../config/env';
 export interface DocumentItem {
   id: string;
@@ -60,7 +58,9 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   // Check if a file is an image
   const isImageFile = (fileName: string): boolean => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';
-    return ['jpeg', 'jpg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(extension);
+    return ['jpeg', 'jpg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(
+      extension
+    );
   };
 
   // Validate if file is an image
@@ -121,10 +121,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
-
-
   // Render document preview
- const renderDocument = (
+  const renderDocument = (
     doc: string | File,
     type: 'existing' | 'new',
     index: number
@@ -132,7 +130,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     const fileName = getFileName(doc);
     const isExisting = type === 'existing';
     const docUrlString = isExisting ? (doc as string) : '';
-    
+
     const imageUrl =
       typeof doc === 'string'
         ? getBaseDocumentUrl(doc)
@@ -167,7 +165,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             borderRadius: 1,
             overflow: 'hidden',
             position: 'relative',
-            border: '1px solid #ccc',
+            border: `1px solid ${theme.palette.divider}`,
             cursor: isExisting && docUrlString ? 'pointer' : 'default',
           }}
           onClick={() => {
@@ -178,10 +176,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           }}
         >
           <Box
-            component="img"
+            component='img'
             src={imageUrl}
             alt={fileName}
-            onError={(e) => {
+            onError={e => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
             sx={{
@@ -194,14 +192,14 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
         {/* File Name */}
         <Typography
-          variant="body2"
+          variant='body2'
           sx={{
             fontWeight: 500,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             fontSize: '12px',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
           title={fileName}
         >
@@ -212,11 +210,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           {!disabled && (
             <IconButton
-              size="small"
+              size='small'
               onClick={() => handleRemove(type, index)}
               sx={{ color: theme.palette.error.main }}
             >
-              <DeleteIcon fontSize="small" />
+              <DeleteIcon fontSize='small' />
             </IconButton>
           )}
         </Box>
@@ -275,7 +273,9 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             color='text.secondary'
             sx={{ mb: 1, display: 'block', fontSize: '12px' }}
           >
-            {existingDocuments.length > 0 ? 'New Documents to Add:' : 'Documents:'}
+            {existingDocuments.length > 0
+              ? 'New Documents to Add:'
+              : 'Documents:'}
           </Typography>
           <Box
             sx={{
@@ -338,4 +338,3 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 };
 
 export default DocumentUpload;
-

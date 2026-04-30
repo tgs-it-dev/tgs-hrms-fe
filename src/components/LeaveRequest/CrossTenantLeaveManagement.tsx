@@ -66,35 +66,13 @@ const CrossTenantLeaveManagement: React.FC = () => {
   const isSystemAdminUser = isSystemAdmin();
 
   const getTenantIdFromStorage = useCallback((): string => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to other sources
-    }
-
-    // Fallback: Get from user object in localStorage (login response format)
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId = userFromStorage?.tenant_id || '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to user context
-    }
-
-    // Last fallback: Get from user context
     if (user) {
       const userWithTenant = user as { tenant_id?: string; tenant?: string };
       const tenantId = userWithTenant.tenant_id || userWithTenant.tenant || '';
       if (tenantId) return String(tenantId).trim();
     }
-
-    return '';
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? String(storedTenantId).trim() : '';
   }, [user]);
 
   const userTenantId = getTenantIdFromStorage();
@@ -255,12 +233,12 @@ const CrossTenantLeaveManagement: React.FC = () => {
 
       try {
         const tenantIdStr = String(tenantId).trim();
-        const res = await departmentApiService.getAllTenantsWithDepartments(
-          tenantIdStr
-        );
+        const res =
+          await departmentApiService.getAllTenantsWithDepartments(tenantIdStr);
 
         const tenantData = res?.tenants?.find(
-          t => t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
+          t =>
+            t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
         );
 
         const deptList = tenantData?.departments ?? [];
@@ -423,7 +401,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
       const hasDepartmentFilter =
         apiFilters.departmentId && apiFilters.departmentId.trim() !== '';
       if (hasDepartmentFilter) {
-        const departmentIdToFilter = apiFilters.departmentId!.trim();
+        const departmentIdToFilter = apiFilters.departmentId?.trim() ?? '';
         mappedLeaves = mappedLeaves.filter(
           leave => String(leave.departmentId).trim() === departmentIdToFilter
         );
@@ -581,7 +559,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
         },
       },
       dataLabels: { enabled: false },
-      stroke: { show: true, width: 1, colors: ['#fff'] },
+      stroke: { show: true, width: 1, colors: [theme.palette.common.white] },
       xaxis: { categories: summary.map(item => item.tenantName) },
       yaxis: { labels: { formatter: val => `${val}` } },
       legend: { position: 'top', horizontalAlign: 'right' },
@@ -624,7 +602,6 @@ const CrossTenantLeaveManagement: React.FC = () => {
       departments,
       currentPage,
       totalPages,
-      totalRecords,
       isMobile,
       handleFilterChange,
       handlePageChange,
@@ -756,7 +733,9 @@ const CrossTenantLeaveManagement: React.FC = () => {
             {tableLoading ? (
               <TableRow>
                 <TableCell colSpan={8} align='center'>
-                  <CircularProgress sx={{ color: 'var(--primary-dark-color)' }} />
+                  <CircularProgress
+                    sx={{ color: 'var(--primary-dark-color)' }}
+                  />
                 </TableCell>
               </TableRow>
             ) : leaves.length > 0 ? (
@@ -782,8 +761,8 @@ const CrossTenantLeaveManagement: React.FC = () => {
                             ? 'red'
                             : leave.status === 'withdrawn' ||
                                 leave.status === 'cancelled'
-                              ? '#607d8b'
-                              : '#ff9800',
+                              ? theme.palette.text.secondary
+                              : theme.palette.warning.main,
                     }}
                   >
                     {leave.status === 'cancelled' ? 'withdrawn' : leave.status}
@@ -831,7 +810,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#FFFFFF',
+                  color: 'common.white',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },

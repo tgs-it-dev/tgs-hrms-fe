@@ -522,8 +522,8 @@ export default function Sidebar({
       >
         <List>
           {filteredMenuItems.map(item => {
-            const visibleSubItems = (item.subItems || []).filter(sub =>
-              !!(sub.label && String(sub.label).trim())
+            const visibleSubItems = (item.subItems || []).filter(
+              sub => !!(sub.label && String(sub.label).trim())
             );
             const hasSubMenu = visibleSubItems.length > 1;
             const isSingleSubItem = visibleSubItems.length === 1;
@@ -570,7 +570,7 @@ export default function Sidebar({
                       backgroundColor: isDirectLinkActive
                         ? theme.palette.mode === 'dark'
                           ? theme.palette.action.selected
-                          : '#efefef'
+                          : theme.palette.background.default
                         : 'transparent',
                       borderRadius: isDirectLinkActive
                         ? 'var(--border-radius-lg)'
@@ -630,7 +630,7 @@ export default function Sidebar({
                         backgroundColor: isParentActive
                           ? theme.palette.mode === 'dark'
                             ? theme.palette.action.selected
-                            : '#efefef'
+                            : theme.palette.background.default
                           : 'transparent',
                         borderRadius: isParentActive
                           ? 'var(--border-radius-lg)'
@@ -817,7 +817,7 @@ export default function Sidebar({
                 borderRadius: '12px',
                 backgroundColor: darkMode
                   ? 'var(--primary-dark-color)'
-                  : '#bdbdbd',
+                  : 'grey.400',
                 transition: 'background-color 300ms ease',
               }}
             />

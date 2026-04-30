@@ -1,5 +1,13 @@
 import axiosInstance from './axiosInstance';
 
+export interface AttendanceSummaryResponse {
+  items: Record<string, unknown>[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 class AttendanceSummaryApi {
   private baseUrl = '/reports/attendance-summary';
 
@@ -7,20 +15,14 @@ class AttendanceSummaryApi {
     tenantId: string,
     days: number = 30,
     page: number = 1
-  ): Promise<{
-    items: Record<string, unknown>[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
+  ): Promise<AttendanceSummaryResponse> {
     try {
       const params = new URLSearchParams({
         tenantId,
         days: days.toString(),
         page: page.toString(),
       });
-      const response = await axiosInstance.get(
+      const response = await axiosInstance.get<AttendanceSummaryResponse>(
         `${this.baseUrl}?${params.toString()}`
       );
       return response.data;

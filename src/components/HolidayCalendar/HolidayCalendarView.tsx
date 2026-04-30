@@ -30,10 +30,10 @@ const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
               return {
                 sx: holiday
                   ? {
-                      backgroundColor: '#1976d2',
-                      color: '#fff',
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                       borderRadius: '50%',
-                      '&:hover': { backgroundColor: '#1565c0' },
+                      '&:hover': { backgroundColor: 'primary.dark' },
                     }
                   : undefined,
                 children: holiday ? (

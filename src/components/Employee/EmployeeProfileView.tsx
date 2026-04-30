@@ -148,7 +148,9 @@ const EmployeeProfileView: React.FC = () => {
         }
 
         if (!targetUserId) {
-          setError('Unable to resolve user id from token or parameter. Please re-login.');
+          setError(
+            'Unable to resolve user id from token or parameter. Please re-login.'
+          );
           setIsLoading(false);
           return;
         }
@@ -251,8 +253,8 @@ const EmployeeProfileView: React.FC = () => {
                 mr: 1,
                 mb: 1,
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#fff',
-                '& .MuiChip-icon': { color: '#fff' },
+                color: 'common.white',
+                '& .MuiChip-icon': { color: 'common.white' },
               }}
             />
             <Chip
@@ -261,8 +263,8 @@ const EmployeeProfileView: React.FC = () => {
               sx={{
                 mb: 1,
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#fff',
-                '& .MuiChip-icon': { color: '#fff' },
+                color: 'common.white',
+                '& .MuiChip-icon': { color: 'common.white' },
               }}
             />
             <Typography variant='body2' color='text.secondary' mt={1}>
@@ -283,8 +285,7 @@ const EmployeeProfileView: React.FC = () => {
                   color: 'var(--primary-dark-color)',
                 }}
               />{' '}
-              Joined:{' '}
-              {new Date(profile.joinedAt).toLocaleDateString()}
+              Joined: {new Date(profile.joinedAt).toLocaleDateString()}
             </Typography>
           </Box>
         </Box>
@@ -411,7 +412,7 @@ const EmployeeProfileView: React.FC = () => {
                               : lv.status === 'Pending'
                                 ? 'primary.dark'
                                 : 'error.main',
-                          color: '#fff',
+                          color: 'common.white',
                           fontWeight: 600,
                         }}
                         size='small'

@@ -13,7 +13,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import type { Policy } from '../../types/policy';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 interface PolicyFormProps {
   open: boolean;
@@ -173,7 +172,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({
           variant='contained'
           text={initialData ? 'Update' : 'Add'}
           onClick={handleSubmit}
-          sx={{ backgroundColor: COLORS.PRIMARY }}
+          sx={{ backgroundColor: 'primary.main' }}
         />
       </DialogActions>
     </Dialog>

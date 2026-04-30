@@ -44,11 +44,11 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
     handleClose();
   };
 
-	const controlBg =
+  const controlBg =
     theme.palette.mode === 'dark'
       ? theme.palette.background.default
-      : '#F8F8F8';
-	  
+      : theme.palette.background.default;
+
   return (
     <AppFormModal
       open={open}
@@ -69,8 +69,11 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
       }}
     >
       <Box sx={{ mx: -2 }}>
-        <Typography sx={{ color: theme.palette.text.secondary, fontSize: '14px', mt: -1 }}>
-          See Workonnect.ai in action. A 30-minute walkthrough built around your team&apos;s needs.
+        <Typography
+          sx={{ color: theme.palette.text.secondary, fontSize: '14px', mt: -1 }}
+        >
+          See Workonnect.ai in action. A 30-minute walkthrough built around your
+          team&apos;s needs.
         </Typography>
 
         <Box
@@ -91,7 +94,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={fullName}
             placeholder='Name'
-			inputBackgroundColor={controlBg}
+            inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setFullName(String(value ?? ''))}
           />
           <AppInputField
@@ -99,7 +102,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={workEmail}
             placeholder='Email'
-			inputBackgroundColor={controlBg}
+            inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setWorkEmail(String(value ?? ''))}
           />
           <AppInputField
@@ -107,7 +110,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={companyName}
             placeholder='Company Name'
-			inputBackgroundColor={controlBg}
+            inputBackgroundColor={controlBg}
             onChange={(value: unknown) => setCompanyName(String(value ?? ''))}
           />
           <Box>
@@ -117,7 +120,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
               options={[...TEAM_SIZE_OPTIONS]}
               value={teamSize}
               placeholder='Select'
-			  inputBackgroundColor={controlBg}
+              inputBackgroundColor={controlBg}
               onChange={(e: SelectChangeEvent<string | number | string[]>) =>
                 setTeamSize(String(e.target.value ?? ''))
               }
@@ -131,17 +134,28 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             variant='contained'
             onClick={handleSubmit}
             sx={{
-              backgroundColor: '#2C2C2C',
+              backgroundColor: 'text.primary',
               borderRadius: '999px',
               py: 1.3,
               fontWeight: 700,
-              '&:hover': { backgroundColor: '#0b1220' },
-              '&:disabled': { backgroundColor: '#2C2C2C', opacity: 0.5, color: '#ffffff' },
+              '&:hover': { backgroundColor: 'text.primary', opacity: 0.85 },
+              '&:disabled': {
+                backgroundColor: 'text.primary',
+                opacity: 0.5,
+                color: 'common.white',
+              },
             }}
           >
             Book a Demo
           </AppButton>
-          <Typography sx={{ mt: 1.25, textAlign: 'center', color: theme.palette.text.secondary, fontSize: '13px' }}>
+          <Typography
+            sx={{
+              mt: 1.25,
+              textAlign: 'center',
+              color: theme.palette.text.secondary,
+              fontSize: '13px',
+            }}
+          >
             No commitment. Free 30 minutes.
           </Typography>
         </Box>
@@ -151,4 +165,3 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
 };
 
 export default BookDemoModal;
-

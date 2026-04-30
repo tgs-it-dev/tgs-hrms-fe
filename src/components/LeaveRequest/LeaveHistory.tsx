@@ -138,7 +138,6 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
   viewMode = 'you',
   currentPage: serverCurrentPage = 1,
   totalPages: serverTotalPages = 1,
-  totalItems: serverTotalItems = 0,
   onPageChange,
   isLoading = false,
   onExportAll,
@@ -155,7 +154,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
   const [loadingAllLeaves, setLoadingAllLeaves] = useState(false);
   const [openDocs, setOpenDocs] = useState(false);
   const [currentDocs, setCurrentDocs] = useState<string[]>([]);
-  const [currentLeaveId, setCurrentLeaveId] = useState<string>('');
+  const [, setCurrentLeaveId] = useState<string>('');
   const [openLeaveForm, setOpenLeaveForm] = useState(false);
   const [editingLeave, setEditingLeave] = useState<Leave | null>(null);
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
@@ -276,7 +275,13 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
     return leavesInSelectedMonth.filter(
       leave => leave.employee?.first_name === selectedEmployee
     );
-  }, [selectedEmployee, leavesInSelectedMonth, isManager, viewMode, currentUserId]);
+  }, [
+    selectedEmployee,
+    leavesInSelectedMonth,
+    isManager,
+    viewMode,
+    currentUserId,
+  ]);
 
   // Check if an employee is selected (for admin filtering)
   const isEmployeeFiltered = isAdmin && selectedEmployee !== '';
@@ -292,13 +297,6 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
   const totalPages = useServerPagination
     ? serverTotalPages
     : Math.max(1, Math.ceil(filteredTotalItems / ITEMS_PER_PAGE));
-
-  // When employee is filtered, use filtered count; otherwise use server total
-  const totalItems = isEmployeeFiltered
-    ? filteredTotalItems
-    : useServerPagination
-      ? serverTotalItems
-      : filteredTotalItems;
 
   // Use normal pagination for all cases
   const paginatedLeaves = useServerPagination
@@ -446,7 +444,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 2,
-          mt:1,
+          mt: 1,
           mb: 2,
           width: '100%',
         }}
@@ -528,7 +526,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 backgroundColor: 'var(--primary-dark-color)',
                 borderRadius: '6px',
                 padding: '6px',
-                color: 'white',
+                color: 'var(--white-color)',
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                 },
@@ -591,20 +589,15 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                   <TableCell>{leave.employee?.first_name || 'N/A'}</TableCell>
                 )}
                 <TableCell>
-                  {(leave.leaveType?.name || 'Unknown').replace(
-                    /^./,
-                    c => c.toUpperCase()
+                  {(leave.leaveType?.name || 'Unknown').replace(/^./, c =>
+                    c.toUpperCase()
                   )}
                 </TableCell>
                 <TableCell>{formatDate(leave.startDate)}</TableCell>
                 <TableCell>{formatDate(leave.endDate)}</TableCell>
                 <TableCell>{formatDate(leave.createdAt)}</TableCell>
                 <TableCell>
-                  <Tooltip
-                    title={leave.reason || 'N/A'}
-                    placement='top'
-                    arrow
-                  >
+                  <Tooltip title={leave.reason || 'N/A'} placement='top' arrow>
                     <Typography
                       sx={{
                         fontSize: 14,
@@ -621,7 +614,9 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 <TableCell>
                   {leave.documents && leave.documents.length > 0 ? (
                     <IconButton
-                      onClick={() => handleViewDocs(leave.id, leave.documents || [])}
+                      onClick={() =>
+                        handleViewDocs(leave.id, leave.documents || [])
+                      }
                     >
                       <img
                         src={getIcon('password')}
@@ -631,7 +626,12 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                       />
                     </IconButton>
                   ) : (
-                    <span style={{ fontStyle: 'italic', color: '#9e9e9e' }}>
+                    <span
+                      style={{
+                        fontStyle: 'italic',
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
                       No Documents
                     </span>
                   )}
@@ -664,7 +664,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                         <Typography
                           variant='body2'
                           sx={{
-                            color: '#9e9e9e',
+                            color: theme.palette.text.secondary,
                             fontStyle: 'italic',
                             fontSize: 13,
                           }}
@@ -715,131 +715,85 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                       {/* Show action menu icon if there are any actions available */}
                       {(() => {
                         const isManagerOwnLeave =
-                        isManager &&
-                        viewMode === 'you' &&
-                        (leave.employee?.id === currentUserId ||
-                          leave.employeeId === currentUserId);
+                          isManager &&
+                          viewMode === 'you' &&
+                          (leave.employee?.id === currentUserId ||
+                            leave.employeeId === currentUserId);
 
-                      const isPendingOrProcessing = [
-                        'pending',
-                        'processing',
-                      ].includes(leave.status);
+                        const isPendingOrProcessing = [
+                          'pending',
+                          'processing',
+                        ].includes(leave.status);
 
-                      const hasActions =
-                        // Admin actions
-                        (isAdmin &&
-                          isPendingOrProcessing &&
-                          (onAction || onWithdraw)) ||
-                        // Manager team actions
-                        (isManager &&
-                          viewMode === 'team' &&
-                          isPendingOrProcessing &&
-                          (onManagerAction ||
-                            onManagerResponse ||
-                            onWithdraw)) ||
-                        // Manager own leave actions (edit and withdraw)
-                        (isManagerOwnLeave &&
-                          isPendingOrProcessing &&
-                          (onWithdraw || true)) || // Always allow edit for manager's own leaves
-                        // Employee actions
-                        (!isAdmin &&
-                          !isManager &&
-                          isPendingOrProcessing &&
-                          onWithdraw);
+                        const hasActions =
+                          // Admin actions
+                          (isAdmin &&
+                            isPendingOrProcessing &&
+                            (onAction || onWithdraw)) ||
+                          // Manager team actions
+                          (isManager &&
+                            viewMode === 'team' &&
+                            isPendingOrProcessing &&
+                            (onManagerAction ||
+                              onManagerResponse ||
+                              onWithdraw)) ||
+                          // Manager own leave actions (edit and withdraw)
+                          (isManagerOwnLeave &&
+                            isPendingOrProcessing &&
+                            (onWithdraw || true)) || // Always allow edit for manager's own leaves
+                          // Employee actions
+                          (!isAdmin &&
+                            !isManager &&
+                            isPendingOrProcessing &&
+                            onWithdraw);
 
-                      if (!hasActions) return null;
+                        if (!hasActions) return null;
 
-                      return (
-                        <>
-                          <IconButton
-                            size='small'
-                            onClick={e => handleMenuClick(e, leave)}
-                            aria-label={`Actions for leave ${leave.id}`}
-                            aria-haspopup='true'
-                            aria-expanded={
-                              Boolean(menuAnchorEl) &&
-                              selectedLeaveForMenu?.id === leave.id
-                            }
-                            sx={{
-                              color: theme.palette.text.primary,
-                              '&:hover': {
-                                backgroundColor: 'transparent',
-                              },
-                            }}
-                          >
-                            <MoreVertIcon />
-                          </IconButton>
-                          <Menu
-                            anchorEl={menuAnchorEl}
-                            open={
-                              Boolean(menuAnchorEl) &&
-                              selectedLeaveForMenu?.id === leave.id
-                            }
-                            onClose={handleMenuClose}
-                          >
-                            {/* Admin actions for pending leaves */}
-                            {isAdmin && isPendingOrProcessing && onAction && (
-                              <>
-                                <MenuItem
-                                  onClick={() => {
-                                    onAction(leave.id, 'approved');
-                                    handleMenuClose();
-                                  }}
-                                >
-                                  <ListItemIcon>
-                                    <CheckCircleIcon fontSize='small' />
-                                  </ListItemIcon>
-                                  <ListItemText>Approve</ListItemText>
-                                </MenuItem>
-                                <MenuItem
-                                  onClick={() => {
-                                    onAction(leave.id, 'rejected');
-                                    handleMenuClose();
-                                  }}
-                                >
-                                  <ListItemIcon>
-                                    <CancelIcon fontSize='small' />
-                                  </ListItemIcon>
-                                  <ListItemText>Reject</ListItemText>
-                                </MenuItem>
-                              </>
-                            )}
-
-                            {/* Edit option for admin on pending leaves */}
-                            {isAdmin && isPendingOrProcessing && onWithdraw && (
-                              <MenuItem
-                                onClick={() => {
-                                  handleEditLeave(leave);
-                                  handleMenuClose();
-                                }}
-                              >
-                                <ListItemIcon>
-                                  <EditIcon fontSize='small' />
-                                </ListItemIcon>
-                                <ListItemText>Edit</ListItemText>
-                              </MenuItem>
-                            )}
-
-                            {/* Manager team actions */}
-                            {isManager &&
-                              viewMode === 'team' &&
-                              isPendingOrProcessing &&
-                              onManagerAction && (
+                        return (
+                          <>
+                            <IconButton
+                              size='small'
+                              onClick={e => handleMenuClick(e, leave)}
+                              aria-label={`Actions for leave ${leave.id}`}
+                              aria-haspopup='true'
+                              aria-expanded={
+                                Boolean(menuAnchorEl) &&
+                                selectedLeaveForMenu?.id === leave.id
+                              }
+                              sx={{
+                                color: theme.palette.text.primary,
+                                '&:hover': {
+                                  backgroundColor: 'transparent',
+                                },
+                              }}
+                            >
+                              <MoreVertIcon />
+                            </IconButton>
+                            <Menu
+                              anchorEl={menuAnchorEl}
+                              open={
+                                Boolean(menuAnchorEl) &&
+                                selectedLeaveForMenu?.id === leave.id
+                              }
+                              onClose={handleMenuClose}
+                            >
+                              {/* Admin actions for pending leaves */}
+                              {isAdmin && isPendingOrProcessing && onAction && (
                                 <>
                                   <MenuItem
                                     onClick={() => {
-                                      onManagerAction(leave.id, 'approved');
+                                      onAction(leave.id, 'approved');
                                       handleMenuClose();
                                     }}
                                   >
                                     <ListItemIcon>
                                       <CheckCircleIcon fontSize='small' />
                                     </ListItemIcon>
-                                    <ListItemText>Processing</ListItemText>
+                                    <ListItemText>Approve</ListItemText>
                                   </MenuItem>
                                   <MenuItem
                                     onClick={() => {
-                                      onManagerAction(leave.id, 'rejected');
+                                      onAction(leave.id, 'rejected');
                                       handleMenuClose();
                                     }}
                                   >
@@ -851,95 +805,145 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                                 </>
                               )}
 
-                            {/* Manager response option */}
-                            {isManager &&
-                              viewMode === 'team' &&
-                              isPendingOrProcessing &&
-                              !onManagerAction &&
-                              !leave.managerRemarks &&
-                              onManagerResponse && (
-                                <MenuItem
-                                  onClick={() => {
-                                    onManagerResponse(leave.id);
-                                    handleMenuClose();
-                                  }}
-                                >
-                                  <ListItemIcon>
-                                    <EditIcon fontSize='small' />
-                                  </ListItemIcon>
-                                  <ListItemText>Manager Response</ListItemText>
-                                </MenuItem>
-                              )}
+                              {/* Edit option for admin on pending leaves */}
+                              {isAdmin &&
+                                isPendingOrProcessing &&
+                                onWithdraw && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      handleEditLeave(leave);
+                                      handleMenuClose();
+                                    }}
+                                  >
+                                    <ListItemIcon>
+                                      <EditIcon fontSize='small' />
+                                    </ListItemIcon>
+                                    <ListItemText>Edit</ListItemText>
+                                  </MenuItem>
+                                )}
 
-                            {/* Edit option for manager's own pending leaves */}
-                            {isManager &&
-                              viewMode === 'you' &&
-                              isPendingOrProcessing &&
-                              (leave.employee?.id === currentUserId ||
-                                leave.employeeId === currentUserId) && (
-                                <MenuItem
-                                  onClick={() => {
-                                    handleEditLeave(leave);
-                                    handleMenuClose();
-                                  }}
-                                >
-                                  <ListItemIcon>
-                                    <EditIcon fontSize='small' />
-                                  </ListItemIcon>
-                                  <ListItemText>Edit</ListItemText>
-                                </MenuItem>
-                              )}
+                              {/* Manager team actions */}
+                              {isManager &&
+                                viewMode === 'team' &&
+                                isPendingOrProcessing &&
+                                onManagerAction && (
+                                  <>
+                                    <MenuItem
+                                      onClick={() => {
+                                        onManagerAction(leave.id, 'approved');
+                                        handleMenuClose();
+                                      }}
+                                    >
+                                      <ListItemIcon>
+                                        <CheckCircleIcon fontSize='small' />
+                                      </ListItemIcon>
+                                      <ListItemText>Processing</ListItemText>
+                                    </MenuItem>
+                                    <MenuItem
+                                      onClick={() => {
+                                        onManagerAction(leave.id, 'rejected');
+                                        handleMenuClose();
+                                      }}
+                                    >
+                                      <ListItemIcon>
+                                        <CancelIcon fontSize='small' />
+                                      </ListItemIcon>
+                                      <ListItemText>Reject</ListItemText>
+                                    </MenuItem>
+                                  </>
+                                )}
 
-                            {/* Withdraw option for pending leaves */}
-                            {((isAdmin &&
-                              isPendingOrProcessing &&
-                              onWithdraw) ||
-                              (isManager &&
+                              {/* Manager response option */}
+                              {isManager &&
+                                viewMode === 'team' &&
+                                isPendingOrProcessing &&
+                                !onManagerAction &&
+                                !leave.managerRemarks &&
+                                onManagerResponse && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      onManagerResponse(leave.id);
+                                      handleMenuClose();
+                                    }}
+                                  >
+                                    <ListItemIcon>
+                                      <EditIcon fontSize='small' />
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                      Manager Response
+                                    </ListItemText>
+                                  </MenuItem>
+                                )}
+
+                              {/* Edit option for manager's own pending leaves */}
+                              {isManager &&
                                 viewMode === 'you' &&
                                 isPendingOrProcessing &&
-                                onWithdraw) ||
-                              (!isAdmin &&
-                                !isManager &&
-                                isPendingOrProcessing &&
-                                onWithdraw)) && (
-                              <MenuItem
-                                onClick={() => {
-                                  if (onWithdraw) {
-                                    onWithdraw(leave.id);
-                                  }
-                                  handleMenuClose();
-                                }}
-                              >
-                                <ListItemIcon>
-                                  <UndoIcon fontSize='small' />
-                                </ListItemIcon>
-                                <ListItemText>Withdraw</ListItemText>
-                              </MenuItem>
-                            )}
+                                (leave.employee?.id === currentUserId ||
+                                  leave.employeeId === currentUserId) && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      handleEditLeave(leave);
+                                      handleMenuClose();
+                                    }}
+                                  >
+                                    <ListItemIcon>
+                                      <EditIcon fontSize='small' />
+                                    </ListItemIcon>
+                                    <ListItemText>Edit</ListItemText>
+                                  </MenuItem>
+                                )}
 
-                            {/* Edit option for employees on pending leaves */}
-                            {!isAdmin &&
-                              !isManager &&
-                              isPendingOrProcessing &&
-                              onWithdraw && (
+                              {/* Withdraw option for pending leaves */}
+                              {((isAdmin &&
+                                isPendingOrProcessing &&
+                                onWithdraw) ||
+                                (isManager &&
+                                  viewMode === 'you' &&
+                                  isPendingOrProcessing &&
+                                  onWithdraw) ||
+                                (!isAdmin &&
+                                  !isManager &&
+                                  isPendingOrProcessing &&
+                                  onWithdraw)) && (
                                 <MenuItem
                                   onClick={() => {
-                                    handleEditLeave(leave);
+                                    if (onWithdraw) {
+                                      onWithdraw(leave.id);
+                                    }
                                     handleMenuClose();
                                   }}
                                 >
                                   <ListItemIcon>
-                                    <EditIcon fontSize='small' />
+                                    <UndoIcon fontSize='small' />
                                   </ListItemIcon>
-                                  <ListItemText>Edit</ListItemText>
+                                  <ListItemText>Withdraw</ListItemText>
                                 </MenuItem>
                               )}
-                          </Menu>
-                        </>
-                      );
-                    })()}
-                  </Box>
-                </TableCell>
+
+                              {/* Edit option for employees on pending leaves */}
+                              {!isAdmin &&
+                                !isManager &&
+                                isPendingOrProcessing &&
+                                onWithdraw && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      handleEditLeave(leave);
+                                      handleMenuClose();
+                                    }}
+                                  >
+                                    <ListItemIcon>
+                                      <EditIcon fontSize='small' />
+                                    </ListItemIcon>
+                                    <ListItemText>Edit</ListItemText>
+                                  </MenuItem>
+                                )}
+                            </Menu>
+                          </>
+                        );
+                      })()}
+                    </Box>
+                  </TableCell>
                 )}
               </TableRow>
             ))}
@@ -975,7 +979,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#FFFFFF',
+                  color: 'var(--white-color)',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },
@@ -1022,70 +1026,81 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
           </IconButton>
         </DialogTitle>
 
-       <DialogContent>
-		  <Box sx={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, width: '100%', justifyContent: 'center',}}>
-			{currentDocs.map((doc, index) => {
-			  const imageUrl = getDocumentUrl(doc);
+        <DialogContent>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 2,
+              width: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            {currentDocs.map((doc, index) => {
+              const imageUrl = getDocumentUrl(doc);
 
-			  return (
-				<Box key={index}>
-          
-				  {!failedImages.has(index) ? (
-				  <>
-					<img
-					  src={imageUrl}
-					  alt={`document-${index}`}
-					  style={{
-						width: '100%',  
-						height: 120,
-						objectFit: 'cover',
-						borderRadius: 6,
-						border: '1px solid #eee',
-						cursor: 'pointer',
-					  }}
-					  onError={() => {
-						setFailedImages(prev => new Set(prev).add(index));
-					  }}
-					/>
-					<Box
-						sx={{
-						  display: 'flex',
-						  justifyContent: 'center',
-						  mt: 0.5,
-						}}
-					  >
-						<Typography
-						  variant="caption"
-						  sx={{ cursor: 'pointer', color: 'primary.main', mx:0.5 }}
-						  onClick={() => window.open(imageUrl, '_blank')}
-						>
-						  View  /
-						</Typography>
+              return (
+                <Box key={index}>
+                  {!failedImages.has(index) ? (
+                    <>
+                      <img
+                        src={imageUrl}
+                        alt={`document-${index}`}
+                        style={{
+                          width: '100%',
+                          height: 120,
+                          objectFit: 'cover',
+                          borderRadius: 6,
+                          border: `1px solid ${theme.palette.divider}`,
+                          cursor: 'pointer',
+                        }}
+                        onError={() => {
+                          setFailedImages(prev => new Set(prev).add(index));
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          mt: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant='caption'
+                          sx={{
+                            cursor: 'pointer',
+                            color: 'primary.main',
+                            mx: 0.5,
+                          }}
+                          onClick={() => window.open(imageUrl, '_blank')}
+                        >
+                          View /
+                        </Typography>
 
-						<Typography
-						  variant="caption"
-						  sx={{ cursor: 'pointer', color: 'primary.main'}}
-						  onClick={() => {
-							const link = document.createElement('a');
-							link.href = imageUrl;
-							link.download = `document-${index}`;
-							link.click();
-						  }}
-						>
-						  Download
-						</Typography>
-					  </Box>
-					</>
-				  ) : (
-					<Typography variant="caption" color="error">
-					  Failed to load
-					</Typography>
-				  )}
-				</Box>
-			  );
-			})}
-		  </Box>
-		</DialogContent>
+                        <Typography
+                          variant='caption'
+                          sx={{ cursor: 'pointer', color: 'primary.main' }}
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = imageUrl;
+                            link.download = `document-${index}`;
+                            link.click();
+                          }}
+                        >
+                          Download
+                        </Typography>
+                      </Box>
+                    </>
+                  ) : (
+                    <Typography variant='caption' color='error'>
+                      Failed to load
+                    </Typography>
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
+        </DialogContent>
       </Dialog>
       {openLeaveForm && editingLeave && (
         <Dialog

@@ -15,7 +15,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { validatePasswordStrength } from '../../utils/validation';
 import authApi from '../../api/authApi';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 const PasswordReset: React.FC = () => {
   const navigate = useNavigate();
@@ -113,7 +112,7 @@ const PasswordReset: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f5f5f5',
+          bgcolor: 'background.default',
           p: 2,
         }}
       >
@@ -128,7 +127,7 @@ const PasswordReset: React.FC = () => {
             variant='contained'
             text='Back to Login'
             onClick={() => navigate('/', { replace: true })}
-            sx={{ backgroundColor: COLORS.PRIMARY }}
+            sx={{ backgroundColor: 'primary.main' }}
           />
         </Paper>
       </Box>
@@ -142,7 +141,7 @@ const PasswordReset: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#f5f5f5',
+        bgcolor: 'background.default',
         p: 2,
       }}
     >
@@ -212,7 +211,7 @@ const PasswordReset: React.FC = () => {
             variant='contained'
             text={loading ? 'Resetting...' : 'Reset Password'}
             disabled={loading}
-            sx={{ mt: 2, mb: 2}}
+            sx={{ mt: 2, mb: 2 }}
             startIcon={loading ? <CircularProgress size={24} /> : undefined}
           />
         </Box>

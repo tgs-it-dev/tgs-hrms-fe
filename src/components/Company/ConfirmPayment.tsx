@@ -15,9 +15,7 @@ import billingApi from '../../api/billingApi';
 import { useUser } from '../../hooks/useUser';
 import { getStoredUser, persistAuthSession } from '../../utils/authSession';
 
-const isLoginResponsePayload = (
-  payload: unknown
-): payload is LoginResponse =>
+const isLoginResponsePayload = (payload: unknown): payload is LoginResponse =>
   typeof payload === 'object' &&
   payload !== null &&
   'accessToken' in payload &&
@@ -74,11 +72,15 @@ const readPendingEmployeePayment = (): PendingEmployeePayment | null => {
     const raw = sessionStorage.getItem('pendingEmployeePayment');
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<PendingEmployeePayment>;
-    if (!parsed.checkoutSessionId || typeof parsed.checkoutSessionId !== 'string')
+    if (
+      !parsed.checkoutSessionId ||
+      typeof parsed.checkoutSessionId !== 'string'
+    )
       return null;
     return {
       checkoutSessionId: parsed.checkoutSessionId,
-      returnTo: typeof parsed.returnTo === 'string' ? parsed.returnTo : undefined,
+      returnTo:
+        typeof parsed.returnTo === 'string' ? parsed.returnTo : undefined,
       createdAt:
         typeof parsed.createdAt === 'string' ? parsed.createdAt : undefined,
     };
@@ -95,7 +97,8 @@ const cleanupPendingEmployeePayment = () => {
   }
 };
 
-const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => setTimeout(resolve, ms));
 
 const ConfirmPayment: React.FC = () => {
   const navigate = useNavigate();
@@ -125,7 +128,9 @@ const ConfirmPayment: React.FC = () => {
     async (userPayload?: Record<string, unknown>) => {
       if (userPayload && Object.keys(userPayload).length) {
         try {
-          updateUser(userPayload as unknown as Parameters<typeof updateUser>[0]);
+          updateUser(
+            userPayload as unknown as Parameters<typeof updateUser>[0]
+          );
         } catch {
           // ignore, refreshUser will keep context consistent
         }
@@ -165,10 +170,13 @@ const ConfirmPayment: React.FC = () => {
       const isLoginFlow = Boolean(accessToken && !signupSessionId);
 
       if (isEmployeeFlow) {
-        const effectiveSessionId = sessionId || pendingEmployeePayment?.checkoutSessionId;
+        const effectiveSessionId =
+          sessionId || pendingEmployeePayment?.checkoutSessionId;
 
         if (!accessToken) {
-          throw new Error('Please login again to confirm the employee payment.');
+          throw new Error(
+            'Please login again to confirm the employee payment.'
+          );
         }
 
         if (!effectiveSessionId) {
@@ -194,7 +202,7 @@ const ConfirmPayment: React.FC = () => {
             const status =
               e && typeof e === 'object' && 'response' in e
                 ? ((e as { response?: { status?: number } }).response?.status ??
-                    null)
+                  null)
                 : null;
 
             const isRetriable = status === 400;
@@ -216,9 +224,11 @@ const ConfirmPayment: React.FC = () => {
             ? String((employeePaymentResult as Record<string, unknown>).status)
             : undefined;
         const ok =
-          (typeof (employeePaymentResult as Record<string, unknown>)?.success ===
-            'boolean' &&
-            Boolean((employeePaymentResult as Record<string, unknown>).success)) ||
+          (typeof (employeePaymentResult as Record<string, unknown>)
+            ?.success === 'boolean' &&
+            Boolean(
+              (employeePaymentResult as Record<string, unknown>).success
+            )) ||
           status === 'succeeded' ||
           status === 'success';
 
@@ -231,9 +241,12 @@ const ConfirmPayment: React.FC = () => {
 
         // Give the dashboard a brief moment to mount after context is updated
         await new Promise(resolve => setTimeout(resolve, 200));
-        navigate(pendingEmployeePayment?.returnTo || '/dashboard/employee-manager', {
-          replace: true,
-        });
+        navigate(
+          pendingEmployeePayment?.returnTo || '/dashboard/employee-manager',
+          {
+            replace: true,
+          }
+        );
         return;
       }
 
@@ -332,7 +345,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           flexDirection: 'column',
           gap: 2,
         }}
@@ -356,7 +369,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           p: 3,
         }}
       >
@@ -404,7 +417,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           p: 3,
         }}
       >
