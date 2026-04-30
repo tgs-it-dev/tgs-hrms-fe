@@ -23,7 +23,8 @@ import { Avatar } from '@mui/material';
 import { Group as GroupIcon, Close as CloseIcon } from '@mui/icons-material';
 import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
-
+import { getUserRole, isAdmin } from '../../utils/auth';
+import type { SvgIconProps } from '@mui/material';
 // Extended interface for admin team members with team info
 interface AdminTeamMember extends TeamMember {
   team?: {
@@ -31,8 +32,6 @@ interface AdminTeamMember extends TeamMember {
     name: string;
   };
 }
-import { getUserRole, isAdmin } from '../../utils/auth';
-import type { SvgIconProps } from '@mui/material/SvgIcon';
 
 const CustomSearchIcon = (props: SvgIconProps) => (
   <SvgIcon {...props} viewBox='0 0 17 17' sx={{ fontSize: 18, ...props.sx }}>
@@ -347,15 +346,11 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               color: theme.palette.text.primary,
               borderRadius: '30px',
               // Figma: 527x693, but responsive to viewport on small/short screens
-              width: { xs: 'calc(100vw - 32px)', sm: '527px' },
-              maxWidth: '527px',
-              height: {
-                xs: 'calc(100vh - 32px)',
-                sm: 'min(693px, calc(100vh - 64px))',
-              },
+              width: { xs: 'calc(100vw - 32px)', sm: 'var(--dialog-width)' },
+              maxWidth: 'var(--dialog-width)',
               maxHeight: {
                 xs: 'calc(100vh - 32px)',
-                sm: 'min(693px, calc(100vh - 64px))',
+                sm: 'min(var(--dialog-height), calc(100vh - 64px))',
               },
               // Prevent the dialog itself from scrolling (we scroll the list only)
               overflow: 'hidden',
@@ -744,12 +739,12 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               color: theme.palette.text.primary,
               borderRadius: '24px',
               width: '100%',
-              maxWidth: '527px',
+              maxWidth: 'var(--dialog-width)',
             },
           }}
           sx={{
             '& .MuiDialog-paper': {
-              borderRadius: '24px !important',
+              borderRadius: '24px',
             },
           }}
         >

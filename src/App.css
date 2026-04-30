@@ -139,6 +139,9 @@ html {
   }
 
   :root {
+    --dialog-width: 527px;
+    --dialog-height: 693px;
+    --dialog-radius: 30px;
     /* Headings */
     --h1-font-size: 32px;
     --h1-line-height: 38px;
