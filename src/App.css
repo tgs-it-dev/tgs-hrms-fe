@@ -122,19 +122,6 @@ body {
   letter-spacing: var(--body-letter-spacing);
   color: var(--text-color);
 }
-body.dark-mode {
-  background-color: #1e1f20;
-  --success-color: #66bb6a;
-  --success-dark-color: #43a047;
-  --error-color: #ef5350;
-  --error-dark-color: #e53935;
-  --primary-darker-color: #64b5f6;
-}
-
-body.light-mode {
-  background-color: var(--light-grey-200-color);
-  color: var(--text-color);
-}
 
 /* -------------------------------------------------------------------------- */
 /* Mobile typography scale                                                     */
@@ -200,7 +187,7 @@ html {
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
-  --primary-darker-color: #1565c0;
+  --primary-hover-color: #1565c0;
   --primary-color: #e0ecfa;
   --dark-black-color: #001218;
   --black-color: #2c2c2c;
@@ -263,6 +250,20 @@ html {
   --label-font-size: 14px;
   --label-line-height: 20px;
   --label-letter-spacing: -1%;
+}
+
+body.dark-mode {
+  background-color: #1e1f20;
+  --success-color: #66bb6a;
+  --success-dark-color: #43a047;
+  --error-color: #ef5350;
+  --error-dark-color: #e53935;
+  --primary-hover-color: #64b5f6;
+}
+
+body.light-mode {
+  background-color: var(--light-grey-200-color);
+  color: var(--text-color);
 }
 
 h1 {

@@ -29,7 +29,7 @@
   transition: background 0.2s;
 }
 .submit-btn:hover {
-  background: var(--primary-darker-color);
+  background: var(--primary-hover-color);
 }
 .leave-history {
   background: var(--white-color);
