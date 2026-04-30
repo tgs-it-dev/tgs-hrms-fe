@@ -238,12 +238,12 @@ const TeamList: React.FC<TeamListProps> = ({
           }
           aria-label='Export teams to CSV'
           sx={{
-            backgroundColor: '#3083DC',
+            backgroundColor: 'primary.main',
             borderRadius: '6px',
             padding: '6px',
-            color: '#FFFFFF',
+            color: 'common.white',
             '&:hover': {
-              backgroundColor: '#3083DC',
+              backgroundColor: 'primary.main',
             },
           }}
         >
@@ -485,7 +485,7 @@ const TeamList: React.FC<TeamListProps> = ({
                         <PersonIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
                       }
                       sx={{
-                        backgroundColor: '#3083DC',
+                        backgroundColor: 'primary.main',
                         color:
                           theme.palette.mode === 'dark'
                             ? theme.palette.text.primary
@@ -534,14 +534,14 @@ const TeamList: React.FC<TeamListProps> = ({
                         }
                         onClick={() => handleOpenEmployeePool(team)}
                         sx={{
-                          borderColor: '#3083DC',
-                          color: '#3083DC',
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
                           backgroundColor: 'transparent',
                           fontSize: { xs: '0.75rem', sm: '0.875rem' },
                           py: { xs: 0.5, sm: 0.75 },
                           px: { xs: 1, sm: 1.5 },
                           '&:hover': {
-                            borderColor: '#3083DC',
+                            borderColor: 'primary.main',
                             backgroundColor: 'rgba(48, 131, 220, 0.1)',
                           },
                         }}
@@ -558,14 +558,14 @@ const TeamList: React.FC<TeamListProps> = ({
                           }
                           onClick={() => handleViewMembers(team)}
                           sx={{
-                            borderColor: '#3083DC',
-                            color: '#3083DC',
+                            borderColor: 'primary.main',
+                            color: 'primary.main',
                             backgroundColor: 'transparent',
                             fontSize: { xs: '0.75rem', sm: '0.875rem' },
                             py: { xs: 0.5, sm: 0.75 },
                             px: { xs: 1, sm: 1.5 },
                             '&:hover': {
-                              borderColor: '#3083DC',
+                              borderColor: 'primary.main',
                               backgroundColor: 'rgba(48, 131, 220, 0.1)',
                             },
                           }}
@@ -582,14 +582,14 @@ const TeamList: React.FC<TeamListProps> = ({
                             }
                             onClick={() => handleAddMember(team)}
                             sx={{
-                              borderColor: '#3083DC',
-                              color: '#3083DC',
+                              borderColor: 'primary.main',
+                              color: 'primary.main',
                               backgroundColor: 'transparent',
                               fontSize: { xs: '0.75rem', sm: '0.875rem' },
                               py: { xs: 0.5, sm: 0.75 },
                               px: { xs: 1, sm: 1.5 },
                               '&:hover': {
-                                borderColor: '#3083DC',
+                                borderColor: 'primary.main',
                                 backgroundColor: 'rgba(48, 131, 220, 0.1)',
                               },
                             }}

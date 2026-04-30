@@ -236,7 +236,10 @@ const CompanyDetails: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -284,7 +287,7 @@ const CompanyDetails: React.FC = () => {
               // maxWidth: { xs: '100%', sm: '90%' },
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '20px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -317,7 +320,7 @@ const CompanyDetails: React.FC = () => {
                 sx={{
                   mb: '6px',
                   fontWeight: 700,
-                  color: { xs: '#001218', lg: 'inherit' },
+                  color: { xs: 'text.primary', lg: 'inherit' },
                 }}
               >
                 Company Details
@@ -325,7 +328,7 @@ const CompanyDetails: React.FC = () => {
               <Typography
                 className='body'
                 sx={{
-                  color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                  color: { xs: 'text.secondary', lg: 'var(--dark-grey-color)' },
                   fontSize: { xs: '16px', lg: '24px' },
                   fontWeight: 400,
                 }}
@@ -393,7 +396,10 @@ const CompanyDetails: React.FC = () => {
                       letterSpacing: { xs: '-1%', lg: 'normal' },
                       display: 'block',
                       mb: 0.5,
-                      color: { xs: '#001218', lg: 'var(--dark-black-color)' },
+                      color: {
+                        xs: 'text.primary',
+                        lg: 'var(--dark-black-color)',
+                      },
                     }}
                   >
                     Company Logo
@@ -446,7 +452,10 @@ const CompanyDetails: React.FC = () => {
                           fontWeight: { xs: 400, lg: 'inherit' },
                           lineHeight: { xs: '20px', lg: 'inherit' },
                           letterSpacing: { xs: '-1%', lg: 'inherit' },
-                          color: { xs: '#001218', lg: 'var(--text-color)' },
+                          color: {
+                            xs: 'text.primary',
+                            lg: 'var(--text-color)',
+                          },
                           mb: 1,
                         }}
                       >
@@ -458,7 +467,7 @@ const CompanyDetails: React.FC = () => {
                           fontWeight: { xs: 400, lg: 'inherit' },
                           lineHeight: { xs: '16px', lg: 'inherit' },
                           color: {
-                            xs: '#888888',
+                            xs: 'text.secondary',
                             lg: 'var(--dark-grey-color)',
                           },
                         }}
@@ -530,8 +539,8 @@ const CompanyDetails: React.FC = () => {
                   onClick={handleBack}
                   disabled={loading}
                   sx={{
-                    borderColor: '#2C2C2C',
-                    color: { xs: '#2C2C2C', lg: '#2C2C2C' },
+                    borderColor: 'text.primary',
+                    color: { xs: 'text.primary', lg: 'text.primary' },
                     backgroundColor: 'transparent',
                     borderRadius: '12px',
                     fontSize: { xs: '16px', lg: 'var(--body-font-size)' },

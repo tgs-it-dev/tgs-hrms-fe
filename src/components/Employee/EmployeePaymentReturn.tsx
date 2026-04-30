@@ -63,7 +63,7 @@ const EmployeePaymentReturn: React.FC = () => {
         justifyContent: 'center',
         flexDirection: 'column',
         gap: 2,
-        bgcolor: '#f3f4f6',
+        bgcolor: 'background.default',
       }}
     >
       <CircularProgress size={56} />

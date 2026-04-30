@@ -428,7 +428,10 @@ const Login: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -475,7 +478,7 @@ const Login: React.FC = () => {
               // maxWidth: { xs: '100%', sm: '90%' },
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '30px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -499,14 +502,14 @@ const Login: React.FC = () => {
               sx={{
                 mb: 0,
                 fontWeight: 700,
-                color: { xs: '#001218', lg: 'inherit' },
+                color: { xs: 'text.primary', lg: 'inherit' },
               }}
             >
               {lang === 'ar' ? 'تسجيل الدخول' : 'Login'}
             </AppPageTitle>
             <Typography
               sx={{
-                color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                color: { xs: 'text.secondary', lg: 'var(--dark-grey-color)' },
                 mb: 3,
                 fontSize: { xs: '14px', sm: '16px', lg: '24px' },
                 fontWeight: 400,
@@ -684,7 +687,7 @@ const Login: React.FC = () => {
                   sx={{
                     color: 'var(--dark-grey-color)',
                     my: 2,
-                    '&::before, &::after': { borderColor: '#BDBDBD' },
+                    '&::before, &::after': { borderColor: 'text.disabled' },
                   }}
                 >
                   <Box px={1.5} fontSize={{ xs: '14px', lg: '20px' }}>
@@ -704,7 +707,7 @@ const Login: React.FC = () => {
                     align='center'
                     className='label'
                     sx={{
-                      color: '#2D3748',
+                      color: 'text.primary',
                       fontSize: { xs: '12px', sm: 'var(--body-font-size)' },
                     }}
                   >
@@ -730,7 +733,7 @@ const Login: React.FC = () => {
                     onClick={initGoogleButton}
                     sx={{
                       color: 'var(--text-color)',
-                      borderColor: '#BDBDBD',
+                      borderColor: 'text.disabled',
                       textTransform: 'none',
                       fontSize: { xs: '12px', sm: '24px' },
                       fontWeight: 600,

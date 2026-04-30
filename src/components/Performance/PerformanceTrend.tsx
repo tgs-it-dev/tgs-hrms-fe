@@ -178,10 +178,10 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({ tenantId }) => {
           hollow: {
             margin: 0,
             size: '70%',
-            background: theme.palette.mode === 'dark' ? '#1e1e1e' : '#fff',
+            background: theme.palette.background.paper,
           },
           track: {
-            background: theme.palette.mode === 'dark' ? '#333' : '#e0e0e0',
+            background: theme.palette.divider,
             strokeWidth: '67%',
             margin: 0,
           },
@@ -210,10 +210,10 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({ tenantId }) => {
           shadeIntensity: 0.5,
           gradientToColors:
             gaugeScore >= 60
-              ? ['#4CAF50']
+              ? [theme.palette.success.main]
               : gaugeScore >= 30
-                ? ['#FFC371']
-                : ['#FF5F6D'],
+                ? [theme.palette.warning.light]
+                : [theme.palette.error.main],
           inverseColors: false,
           opacityFrom: 1,
           opacityTo: 1,
@@ -222,10 +222,10 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({ tenantId }) => {
       },
       colors:
         gaugeScore >= 60
-          ? ['#4CAF50']
+          ? [theme.palette.success.main]
           : gaugeScore >= 30
-            ? ['#FFC371']
-            : ['#FF5F6D'],
+            ? [theme.palette.warning.light]
+            : [theme.palette.error.main],
       stroke: {
         lineCap: 'round' as const,
       },
@@ -234,8 +234,12 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({ tenantId }) => {
     [
       gaugeScore,
       selectedEmployee,
-      theme.palette.mode,
       theme.palette.text.primary,
+      theme.palette.background.paper,
+      theme.palette.divider,
+      theme.palette.success.main,
+      theme.palette.warning.light,
+      theme.palette.error.main,
     ]
   );
 

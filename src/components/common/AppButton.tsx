@@ -60,8 +60,8 @@ export function AppButton({
           backgroundColor: 'primary.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       secondary: {
@@ -76,8 +76,8 @@ export function AppButton({
           backgroundColor: 'action.hover',
         },
         '&:disabled': {
-          borderColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#555555' : '#ccc',
+          borderColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       danger: {
@@ -88,8 +88,8 @@ export function AppButton({
           backgroundColor: 'error.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#5a3a3a' : '#f2b8b5',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'error.light',
+          color: 'action.disabled',
         },
       },
       ghost: {
@@ -97,7 +97,7 @@ export function AppButton({
         borderColor: 'transparent',
         color: 'text.primary',
         '&:disabled': {
-          color: isDark ? '#555555' : '#ccc',
+          color: 'action.disabled',
         },
         '&:hover': {
           backgroundColor: 'action.hover',

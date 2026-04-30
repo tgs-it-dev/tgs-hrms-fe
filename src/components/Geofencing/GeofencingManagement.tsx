@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useTheme,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -68,6 +69,7 @@ function MapController({ center, zoom }: MapControllerProps) {
 }
 
 const GeofencingManagement = () => {
+  const theme = useTheme();
   const [geofences, setGeofences] = useState<Geofence[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -272,7 +274,9 @@ const GeofencingManagement = () => {
                 flexDirection: 'column',
                 height: '100%',
                 borderLeft: `4px solid ${
-                  geofence.isActive ? '#3083dc' : '#888'
+                  geofence.isActive
+                    ? theme.palette.primary.main
+                    : theme.palette.text.secondary
                 }`,
               }}
             >
@@ -549,8 +553,8 @@ const GeofencingManagement = () => {
                         center={viewingGeofence.center}
                         radius={viewingGeofence.radius}
                         pathOptions={{
-                          color: '#3083dc',
-                          fillColor: '#3083dc',
+                          color: theme.palette.primary.main,
+                          fillColor: theme.palette.primary.main,
                           fillOpacity: 0.3,
                         }}
                       >
@@ -583,8 +587,8 @@ const GeofencingManagement = () => {
                           ] as [[number, number], [number, number]]
                         }
                         pathOptions={{
-                          color: '#3083dc',
-                          fillColor: '#3083dc',
+                          color: theme.palette.primary.main,
+                          fillColor: theme.palette.primary.main,
                           fillOpacity: 0.3,
                         }}
                       >
@@ -603,8 +607,8 @@ const GeofencingManagement = () => {
                       <Polygon
                         positions={viewingGeofence.coordinates}
                         pathOptions={{
-                          color: '#3083dc',
-                          fillColor: '#3083dc',
+                          color: theme.palette.primary.main,
+                          fillColor: theme.palette.primary.main,
                           fillOpacity: 0.3,
                         }}
                       >

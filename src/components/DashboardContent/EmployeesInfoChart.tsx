@@ -261,32 +261,13 @@ export default function EmployeesInfoChart() {
                 }}
                 height={isMobile ? 50 : 30}
                 interval={0}
-                axisLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : '#f0f0f0',
-                }}
-                tickLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : '#f0f0f0',
-                }}
+                axisLine={{ stroke: theme.palette.divider }}
+                tickLine={{ stroke: theme.palette.divider }}
               />
 
               <YAxis
-                stroke={
-                  theme.palette.mode === 'dark'
-                    ? theme.palette.divider
-                    : '#f0f0f0'
-                }
-                axisLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : '#f0f0f0',
-                }}
+                stroke={theme.palette.divider}
+                axisLine={{ stroke: theme.palette.divider }}
                 tickLine={false}
                 tick={false}
               />
@@ -308,9 +289,9 @@ export default function EmployeesInfoChart() {
               <Line
                 type='monotone'
                 dataKey='value'
-                stroke='#f5558d'
+                stroke={theme.palette.secondary.main}
                 strokeWidth={3}
-                dot={{ r: 3, fill: '#ffc107' }}
+                dot={{ r: 3, fill: theme.palette.warning.light }}
               />
             </LineChart>
           </ResponsiveContainer>

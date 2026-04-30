@@ -33,7 +33,7 @@ export const MarketingHeader: React.FC = () => {
 
   const outlineBtnSx = {
     border: '2px solid var(--Grey, #BDBDBD)',
-    color: '#111827',
+    color: 'text.primary',
     borderRadius: '999px',
     fontWeight: 400,
     px: 2,
@@ -45,7 +45,7 @@ export const MarketingHeader: React.FC = () => {
   } as const;
 
   const solidBtnSx = {
-    backgroundColor: '#2C2C2C',
+    backgroundColor: 'text.primary',
     borderRadius: '999px',
     fontWeight: 700,
     px: 2.2,
@@ -59,7 +59,7 @@ export const MarketingHeader: React.FC = () => {
     <Box
       component='header'
       sx={{
-        bgcolor: '#ffffff',
+        bgcolor: 'background.paper',
         borderBottom: '1px solid #e5e7eb',
         position: 'relative',
         zIndex: 20,
@@ -104,7 +104,7 @@ export const MarketingHeader: React.FC = () => {
             onClick={() => setMobileMenuOpen(prev => !prev)}
             sx={{
               display: { xs: 'inline-flex', md: 'none' },
-              color: '#111827',
+              color: 'text.primary',
               border: '1px solid #d1d5db',
               borderRadius: '10px',
               width: 36,
@@ -143,7 +143,7 @@ export const MarketingHeader: React.FC = () => {
             top: '100%',
             left: 0,
             right: 0,
-            bgcolor: '#ffffff',
+            bgcolor: 'background.paper',
             boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
           }}
         >
@@ -191,7 +191,7 @@ export const MarketingHeader: React.FC = () => {
 export const MarketingFooter: React.FC = () => {
   const footerBg = '#0b3551';
   const headingSx = {
-    color: '#ffffff',
+    color: 'common.white',
     fontWeight: 500,
     fontSize: '24px',
     mb: 1.5,
@@ -201,7 +201,7 @@ export const MarketingFooter: React.FC = () => {
     fontWeight: 400,
     fontSize: '16px',
     textDecoration: 'none',
-    '&:hover': { color: '#ffffff', textDecoration: 'underline' },
+    '&:hover': { color: 'common.white', textDecoration: 'underline' },
   } as const;
   const socialBtnSx = {
     width: '40px',
@@ -209,13 +209,16 @@ export const MarketingFooter: React.FC = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#ffffff',
+    color: 'common.white',
     cursor: 'pointer',
     '& svg': { opacity: 0.9 },
   } as const;
 
   return (
-    <Box component='footer' sx={{ bgcolor: footerBg, color: '#fff', mt: 6 }}>
+    <Box
+      component='footer'
+      sx={{ bgcolor: footerBg, color: 'common.white', mt: 6 }}
+    >
       <Container maxWidth='lg' sx={{ py: 5 }}>
         <Box
           sx={{
@@ -234,7 +237,7 @@ export const MarketingFooter: React.FC = () => {
             />
             <Typography
               sx={{
-                color: '#FFFFFF',
+                color: 'common.white',
                 fontWeight: 400,
                 fontStyle: 'normal',
                 fontSize: '16px',
@@ -386,7 +389,9 @@ export const MarketingFooter: React.FC = () => {
           </Box>
         </Box>
 
-        <Box sx={{ mt: 4, pt: 3, borderTop: '0.5px solid #FFFFFF' }}>
+        <Box
+          sx={{ mt: 4, pt: 3, borderTop: '0.5px solid rgba(255,255,255,0.3)' }}
+        >
           <Box
             sx={{
               display: 'flex',

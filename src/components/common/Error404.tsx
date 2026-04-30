@@ -14,8 +14,8 @@ const Error404: React.FC = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#f9fafb',
-        color: '#333',
+        bgcolor: 'background.default',
+        color: 'text.primary',
         textAlign: 'center',
         p: 3,
       }}
@@ -27,7 +27,7 @@ const Error404: React.FC = () => {
       <Typography variant='h5' sx={{ mb: 2 }}>
         Oops! Page Not Found
       </Typography>
-      <Typography variant='body1' sx={{ mb: 4, color: '#666' }}>
+      <Typography variant='body1' sx={{ mb: 4, color: 'text.secondary' }}>
         The page you are looking for does not exist or has been moved.
         <br />
         Please check the URL or return to the home page.

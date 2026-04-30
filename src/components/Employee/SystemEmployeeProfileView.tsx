@@ -260,7 +260,7 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
                                     : leave.status.toLowerCase() === 'pending'
                                       ? 'warning.main'
                                       : 'error.main',
-                                color: '#fff',
+                                color: 'common.white',
                                 fontWeight: 600,
                               }}
                             />
@@ -522,7 +522,7 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
                                 p.status.toLowerCase() === 'approved'
                                   ? 'success.main'
                                   : 'warning.main',
-                              color: '#fff',
+                              color: 'common.white',
                               fontWeight: 600,
                             }}
                           />
@@ -584,7 +584,7 @@ const SystemEmployeeProfileView: React.FC<Props> = ({
                                 pr.status.toLowerCase() === 'completed'
                                   ? 'success.main'
                                   : 'warning.main',
-                              color: '#fff',
+                              color: 'common.white',
                               fontWeight: 600,
                             }}
                           />

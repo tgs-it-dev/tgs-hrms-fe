@@ -56,7 +56,7 @@ const CustomTooltip = ({
       <Box
         sx={{
           backgroundColor: color,
-          color: '#ffffff',
+          color: theme.palette.common.white,
           p: '8px 12px',
           borderRadius: '8px',
           fontSize: '14px',
@@ -94,13 +94,13 @@ export default function GenderPercentageChart() {
           {
             name: 'Male',
             value: data.male,
-            color: '#2462A5',
+            color: theme.palette.primary.main,
             percentage: data.male,
           },
           {
             name: 'Female',
             value: data.female,
-            color: '#C61952',
+            color: theme.palette.secondary.main,
             percentage: data.female,
           },
         ];
@@ -109,8 +109,18 @@ export default function GenderPercentageChart() {
         // If there's an error (including tenant with zero employees), render zeros
         setError(null);
         setGenderData([
-          { name: 'Male', value: 0, color: '#2462A5', percentage: 0 },
-          { name: 'Female', value: 0, color: '#C61952', percentage: 0 },
+          {
+            name: 'Male',
+            value: 0,
+            color: theme.palette.primary.main,
+            percentage: 0,
+          },
+          {
+            name: 'Female',
+            value: 0,
+            color: theme.palette.secondary.main,
+            percentage: 0,
+          },
         ]);
       } finally {
         setLoading(false);

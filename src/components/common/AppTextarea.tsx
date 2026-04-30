@@ -108,7 +108,7 @@ const AppTextarea = React.forwardRef<HTMLDivElement, AppTextareaProps>(
               inputBackgroundColor ||
               (theme.palette.mode === 'dark'
                 ? theme.palette.background.default
-                : '#F8F8F8'),
+                : theme.palette.background.default),
             overflow: 'visible',
           }}
         >

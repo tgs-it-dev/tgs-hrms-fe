@@ -117,7 +117,7 @@ const TopPerformers: React.FC<TopPerformersProps> = ({
             }}
           >
             <CardContent>
-              <Avatar sx={{ margin: '0 auto', bgcolor: '#1976d2' }}>
+              <Avatar sx={{ margin: '0 auto', bgcolor: 'primary.main' }}>
                 {p.icon}
               </Avatar>
               <Typography
@@ -135,7 +135,7 @@ const TopPerformers: React.FC<TopPerformersProps> = ({
                 mt={1}
                 fontWeight={700}
                 sx={{ fontSize: { xs: '29px', md: '38px' } }}
-                color='#484c7f'
+                color='text.primary'
               >
                 {p.percentage.toLocaleString(language)}%
               </Typography>
