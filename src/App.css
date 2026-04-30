@@ -187,6 +187,7 @@ html {
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
+  --primary-focus-color: #1976d2;
   --primary-hover-color: #1565c0;
   --primary-color: #e0ecfa;
   --dark-black-color: #001218;
@@ -254,6 +255,8 @@ html {
 
 body.dark-mode {
   background-color: #1e1f20;
+  --white-color: #ffffff;
+  --primary-dark-color: #3083dc;
   --success-color: #66bb6a;
   --success-dark-color: #43a047;
   --error-color: #ef5350;

@@ -16,8 +16,8 @@
 }
 
 .custom-date-picker-input:focus {
-  border-color: var(--primary-dark-color) !important;
-  box-shadow: 0 0 0 1px var(--primary-dark-color) !important;
+  border-color: var(--primary-focus-color) !important;
+  box-shadow: 0 0 0 1px var(--primary-focus-color) !important;
 }
 
 .custom-date-picker-input:hover {
