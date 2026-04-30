@@ -124,6 +124,10 @@ body {
 }
 body.dark-mode {
   background-color: #1e1f20;
+  --success-color: #66bb6a;
+  --success-dark-color: #43a047;
+  --error-color: #ef5350;
+  --error-dark-color: #e53935;
 }
 
 body.light-mode {
@@ -195,6 +199,7 @@ html {
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
+  --primary-darker-color: #1565c0;
   --primary-color: #e0ecfa;
   --dark-black-color: #001218;
   --black-color: #2c2c2c;
