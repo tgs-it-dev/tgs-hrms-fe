@@ -261,32 +261,13 @@ export default function EmployeesInfoChart() {
                 }}
                 height={isMobile ? 50 : 30}
                 interval={0}
-                axisLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : theme.palette.divider,
-                }}
-                tickLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : theme.palette.divider,
-                }}
+                axisLine={{ stroke: theme.palette.divider }}
+                tickLine={{ stroke: theme.palette.divider }}
               />
 
               <YAxis
-                stroke={
-                  theme.palette.mode === 'dark'
-                    ? theme.palette.divider
-                    : theme.palette.divider
-                }
-                axisLine={{
-                  stroke:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.divider
-                      : theme.palette.divider,
-                }}
+                stroke={theme.palette.divider}
+                axisLine={{ stroke: theme.palette.divider }}
                 tickLine={false}
                 tick={false}
               />

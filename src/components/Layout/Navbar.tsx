@@ -1253,7 +1253,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 backgroundColor:
                   theme.palette.mode === 'dark'
                     ? theme.palette.action.hover
-                    : 'background.default',
+                    : theme.palette.background.default,
                 borderRadius: '16px',
                 p: { xs: 0.25, md: 0.5 },
                 display: 'flex',

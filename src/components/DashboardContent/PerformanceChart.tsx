@@ -3,6 +3,7 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
+import { colorTokens } from '../../theme';
 
 const PerformanceChart: React.FC = () => {
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
@@ -144,7 +145,7 @@ const PerformanceChart: React.FC = () => {
       },
     },
     colors: [
-      theme.palette.text.primary,
+      colorTokens.chart[0],
       theme.palette.warning.main,
       theme.palette.secondary.main,
       theme.palette.info.light,

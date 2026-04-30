@@ -60,7 +60,7 @@ const SignupSuccess: React.FC = () => {
         </Typography>
 
         <Box
-          sx={{ bgcolor: 'background.default', p: 3, borderRadius: 2, mb: 4 }}
+          sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, mb: 4 }}
         >
           <Typography variant='body1' sx={{ mb: 1 }}>
             ✅ Account created successfully

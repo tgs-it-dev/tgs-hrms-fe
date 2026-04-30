@@ -134,7 +134,7 @@ const UserList: React.FC = () => {
             paddingX: 2,
             fontSize: '14px',
             borderRadius: '4px',
-            backgroundColor: 'text.primary',
+            backgroundColor: 'primary.main',
             color: 'common.white',
             textTransform: 'none',
             marginLeft: { xs: '0', sm: 'auto' },
