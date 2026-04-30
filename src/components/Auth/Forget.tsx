@@ -144,7 +144,7 @@ const Forget = () => {
         sx={{
           width: '100%',
           maxWidth: '420px',
-          backgroundColor: '#F9FAFB',
+          backgroundColor: 'var(--white-color)',
           borderRadius: '32px',
           p: { xs: 3, sm: 5 },
           textAlign: 'center',
@@ -173,9 +173,11 @@ const Forget = () => {
           }}
         >
           {emailSent ? (
-            <CheckIcon sx={{ color: '#4CAF50', fontSize: 32 }} />
+            <CheckIcon sx={{ color: 'var(--success-color)', fontSize: 32 }} />
           ) : (
-            <LockOutlinedIcon sx={{ color: '#3083DC', fontSize: 28 }} />
+            <LockOutlinedIcon
+              sx={{ color: 'var(--primary-dark-color)', fontSize: 28 }}
+            />
           )}
         </Box>
 
