@@ -128,8 +128,7 @@ body.dark-mode {
   --success-dark-color: #43a047;
   --error-color: #ef5350;
   --error-dark-color: #e53935;
-  --primary-darker-color: #1976d2;
-  --light-grey-200-color: #444444;
+  --primary-darker-color: #64b5f6;
 }
 
 body.light-mode {
