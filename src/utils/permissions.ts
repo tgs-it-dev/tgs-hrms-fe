@@ -89,8 +89,21 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'leave-analytics',
     'recruitment',
   ],
-  manager: ['teams', 'attendance', 'report', 'leave-analytics', 'recruitment', 'request'],
-  employee: ['attendance', 'leave-analytics', 'teams', 'recruitment', 'request'],
+  manager: [
+    'teams',
+    'attendance',
+    'report',
+    'leave-analytics',
+    'recruitment',
+    'request',
+  ],
+  employee: [
+    'attendance',
+    'leave-analytics',
+    'teams',
+    'recruitment',
+    'request',
+  ],
   user: ['attendance', 'teams', 'recruitment'],
   unknown: ['recruitment'],
 };
@@ -116,7 +129,6 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
   },
   { key: 'request', patterns: ['request'] },
   { key: 'approval', patterns: ['approval'] },
-
 ];
 
 const getMenuKey = (label: string) => {
@@ -153,8 +165,6 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
   { key: 'request', patterns: ['request'] },
-
-
 ];
 
 const getParentKey = (label: string): ParentKey => {
@@ -222,7 +232,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     'audit logs': { denyAll: true },
     teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
     request: { allowOnly: ['request'] },
-
   },
   user: {
     employees: { deny: ['tenant employees'] },
@@ -396,7 +405,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-salary',
     'my-salary',
     'employee-profile-view',
-    'approvals'
+    'approvals',
   ],
   employee: [
     'attendance-check',
@@ -408,7 +417,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
-    'requests'
+    'requests',
   ],
   user: [
     'attendance-check',
@@ -420,7 +429,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
-    'requests'
+    'requests',
   ],
   unknown: [],
 };

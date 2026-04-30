@@ -199,18 +199,17 @@ html {
   --border-radius-xl: 12px;
   --border-radius-2xl: 20px;
 
-
   /* Pending */
-  --status-pending-bg: #FFFAE5;
-  --status-pending-text: #FFCC00;
+  --status-pending-bg: #fffae5;
+  --status-pending-text: #ffcc00;
 
   /* Approved */
-  --status-approved-bg: #EBFAEF;
-  --status-approved-text: #34C759;
+  --status-approved-bg: #ebfaef;
+  --status-approved-text: #34c759;
 
   /* Rejected */
-  --status-rejected-bg: #FFE5E6;
-  --status-rejected-text: #FF383C;
+  --status-rejected-bg: #ffe5e6;
+  --status-rejected-text: #ff383c;
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;

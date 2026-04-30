@@ -111,9 +111,7 @@ const HolidayList = lazy(
 const TimesheetLayout = lazy(
   () => import('./components/TimerTracker/TimesheetLayout')
 );
-const RequestPage = lazy(
-  () => import('./components/Request/RequestPage')
-);
+const RequestPage = lazy(() => import('./components/Request/RequestPage'));
 const TeamManager = lazy(() => import('./components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('./components/Teams/TeamList'));
 const TeamTasks = lazy(() => import('./components/TaskManagement/TeamTasks'));

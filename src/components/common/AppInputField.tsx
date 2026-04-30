@@ -145,23 +145,23 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               // If caller provided InputProps, keep them and merge
               isDateInput
                 ? {
-                  ...rest.InputProps,
-                  endAdornment:
-                    rest.InputProps && rest.InputProps.endAdornment ? (
-                      rest.InputProps.endAdornment
-                    ) : !isFirefox ? (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          size='small'
-                          onClick={handleAdornmentClick}
-                          aria-label='open date picker'
-                          sx={{ color: theme.palette.text.secondary }}
-                        >
-                          <CalendarTodayIcon fontSize='small' />
-                        </IconButton>
-                      </InputAdornment>
-                    ) : null,
-                }
+                    ...rest.InputProps,
+                    endAdornment:
+                      rest.InputProps && rest.InputProps.endAdornment ? (
+                        rest.InputProps.endAdornment
+                      ) : !isFirefox ? (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            size='small'
+                            onClick={handleAdornmentClick}
+                            aria-label='open date picker'
+                            sx={{ color: theme.palette.text.secondary }}
+                          >
+                            <CalendarTodayIcon fontSize='small' />
+                          </IconButton>
+                        </InputAdornment>
+                      ) : null,
+                  }
                 : rest.InputProps
             }
             inputRef={inputRef}
@@ -245,14 +245,14 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiInputAdornment-root': isPhoneInput
                 ? {
-                  width: '100%',
-                  margin: 0,
-                }
+                    width: '100%',
+                    margin: 0,
+                  }
                 : {},
               '& .MuiInputAdornment-positionStart': isPhoneInput
                 ? {
-                  marginRight: 0,
-                }
+                    marginRight: 0,
+                  }
                 : {},
               ...sx,
             }}

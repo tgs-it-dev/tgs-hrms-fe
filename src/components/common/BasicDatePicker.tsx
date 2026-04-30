@@ -29,7 +29,14 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   const theme = useTheme();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        width: '100%',
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
@@ -57,7 +64,9 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
             sx={{
               fontSize: { xs: '12px', sm: '14px' },
               lineHeight: 1.2,
-              color: error ? theme.palette.error.main : theme.palette.text.secondary,
+              color: error
+                ? theme.palette.error.main
+                : theme.palette.text.secondary,
               fontWeight: 400,
               textAlign: 'right',
               ml: 2,
@@ -92,7 +101,6 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
           onChange={onChange}
           placeholder={placeholder}
           containerStyle={{ width: '100%' }}
-
           render={(value, openCalendar) => (
             <Box
               onClick={openCalendar}
