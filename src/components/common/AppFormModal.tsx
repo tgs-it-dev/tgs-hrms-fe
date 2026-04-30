@@ -237,7 +237,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ) : field.type === 'textarea' ? (
@@ -263,7 +263,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ) : (
@@ -291,7 +291,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                         inputBackgroundColor={
                           theme.palette.mode === 'dark'
                             ? theme.palette.background.default
-                            : '#F8F8F8'
+                            : theme.palette.background.default
                         }
                       />
                     ))}

@@ -345,7 +345,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           flexDirection: 'column',
           gap: 2,
         }}
@@ -369,7 +369,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           p: 3,
         }}
       >
@@ -417,7 +417,7 @@ const ConfirmPayment: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f3f4f6',
+          bgcolor: 'background.default',
           p: 3,
         }}
       >

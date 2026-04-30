@@ -56,7 +56,7 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
           },
           desktopPaper: {
             sx: {
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'background.paper',
               maxHeight: 320,
               display: 'flex',
               flexDirection: 'column',

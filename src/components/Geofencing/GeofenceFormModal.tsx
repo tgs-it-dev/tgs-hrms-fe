@@ -18,6 +18,7 @@ import {
   ListItemText,
   Paper,
   CircularProgress,
+  useTheme,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -286,6 +287,7 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
   loading = false,
   availableTeams = [],
 }) => {
+  const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<LocationSearchResult[]>(
     []
@@ -1281,8 +1283,8 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
                           center={drawnShape.center}
                           radius={drawnShape.radius}
                           pathOptions={{
-                            color: '#3083dc',
-                            fillColor: '#3083dc',
+                            color: theme.palette.primary.main,
+                            fillColor: theme.palette.primary.main,
                             fillOpacity: 0.3,
                           }}
                         />
@@ -1303,8 +1305,8 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
                             ] as [[number, number], [number, number]]
                           }
                           pathOptions={{
-                            color: '#3083dc',
-                            fillColor: '#3083dc',
+                            color: theme.palette.primary.main,
+                            fillColor: theme.palette.primary.main,
                             fillOpacity: 0.3,
                           }}
                         />
@@ -1314,8 +1316,8 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
                         <Polygon
                           positions={drawnShape.coordinates}
                           pathOptions={{
-                            color: '#3083dc',
-                            fillColor: '#3083dc',
+                            color: theme.palette.primary.main,
+                            fillColor: theme.palette.primary.main,
                             fillOpacity: 0.3,
                           }}
                         />

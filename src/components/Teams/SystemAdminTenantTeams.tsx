@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { colorTokens } from '../../theme';
 import {
   Box,
   Card,
@@ -146,18 +147,7 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   const lang = labels[language];
 
   const generateAvatarColor = (name: string): string => {
-    const colors = [
-      '#1976d2',
-      '#388e3c',
-      '#f57c00',
-      '#d32f2f',
-      '#7b1fa2',
-      '#303f9f',
-      '#ff6f00',
-      '#388e3c',
-      '#c2185b',
-      '#0097a7',
-    ];
+    const colors = colorTokens.avatar;
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -444,7 +434,7 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
                         }
                         color='primary'
                         sx={{
-                          backgroundColor: '#3083DC',
+                          backgroundColor: 'primary.main',
                           color:
                             theme.palette.mode === 'dark'
                               ? theme.palette.text.primary
@@ -480,14 +470,14 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
                         onClick={() => handleViewMembers(team)}
                         fullWidth
                         sx={{
-                          borderColor: '#3083DC',
-                          color: '#3083DC',
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
                           backgroundColor: 'transparent',
                           fontSize: { xs: '0.75rem', sm: '0.875rem' },
                           py: { xs: 0.5, sm: 0.75 },
                           px: { xs: 1, sm: 1.5 },
                           '&:hover': {
-                            borderColor: '#3083DC',
+                            borderColor: 'primary.main',
                             backgroundColor: 'rgba(48, 131, 220, 0.1)',
                           },
                         }}

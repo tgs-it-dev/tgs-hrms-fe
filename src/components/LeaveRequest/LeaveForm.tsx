@@ -300,7 +300,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             },
             desktopPaper: {
               sx: {
-                backgroundColor: '#FFFFFF', // popup background
+                backgroundColor: 'background.paper',
               },
             },
             popper: {
@@ -315,11 +315,11 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: '#FFFFFF !important',
+                    color: '#fff !important',
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
+                  color: '#fff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',
@@ -354,7 +354,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
               },
             },
             desktopPaper: {
-              sx: { backgroundColor: '#FFFFFF' },
+              sx: { backgroundColor: 'background.paper' },
             },
             popper: {
               sx: { '& .MuiPaper-root': { borderRadius: '12px' } },
@@ -364,11 +364,11 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: '#FFFFFF !important',
+                    color: '#fff !important',
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
+                  color: '#fff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',

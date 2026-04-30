@@ -653,7 +653,7 @@ const LeaveRequestPage = () => {
             justifyContent: 'space-between',
             textAlign: { xs: 'start', sm: 'left' },
             gap: { xs: 1, sm: 0 },
-            color: '#fff',
+            color: 'common.white',
           }}
         >
           <Box>
@@ -690,10 +690,10 @@ const LeaveRequestPage = () => {
                   color:
                     activeTab === 'apply'
                       ? 'var(--primary-dark-color)'
-                      : '#fff',
+                      : 'common.white',
                   backgroundColor:
-                    activeTab === 'apply' ? '#fff' : 'transparent',
-                  borderColor: '#fff',
+                    activeTab === 'apply' ? 'background.paper' : 'transparent',
+                  borderColor: 'common.white',
                 }}
               >
                 Apply Leave
@@ -710,18 +710,22 @@ const LeaveRequestPage = () => {
                   color:
                     activeTab === 'history'
                       ? 'var(--primary-dark-color)'
-                      : '#fff',
+                      : 'common.white',
                   backgroundColor:
-                    activeTab === 'history' ? '#fff' : 'transparent',
-                  borderColor: '#fff',
+                    activeTab === 'history'
+                      ? 'background.paper'
+                      : 'transparent',
+                  borderColor: 'common.white',
                   '&:hover': {
                     color:
                       activeTab === 'history'
                         ? 'var(--primary-dark-color)'
-                        : '#fff',
+                        : 'common.white',
                     backgroundColor:
-                      activeTab === 'history' ? '#fff' : 'transparent',
-                    borderColor: '#fff',
+                      activeTab === 'history'
+                        ? 'background.paper'
+                        : 'transparent',
+                    borderColor: 'common.white',
                   },
                 }}
               >
@@ -743,8 +747,8 @@ const LeaveRequestPage = () => {
                     borderRadius: '20px',
                     width: { xs: '100%', sm: 'auto' },
                     backgroundColor: 'transparent',
-                    color: '#fff',
-                    borderColor: '#fff',
+                    color: 'common.white',
+                    borderColor: 'common.white',
                   }}
                 >
                   Create Leave Type
@@ -826,7 +830,9 @@ const LeaveRequestPage = () => {
                         ? 'var(--primary-dark-color)'
                         : 'transparent',
                     color:
-                      viewMode === 'you' ? '#fff' : 'var(--primary-dark-color)',
+                      viewMode === 'you'
+                        ? 'common.white'
+                        : 'var(--primary-dark-color)',
                     borderColor: 'var(--primary-dark-color)',
                     '&:hover': {
                       backgroundColor:
@@ -851,7 +857,7 @@ const LeaveRequestPage = () => {
                         : 'transparent',
                     color:
                       viewMode === 'team'
-                        ? '#fff'
+                        ? 'common.white'
                         : 'var(--primary-dark-color)',
                     borderColor: 'var(--primary-dark-color)',
                     '&:hover': {

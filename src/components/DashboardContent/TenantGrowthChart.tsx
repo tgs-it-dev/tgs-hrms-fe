@@ -137,7 +137,7 @@ const TenantGrowthChart: React.FC = () => {
       bar: { horizontal: false, columnWidth: '55%' },
     },
     dataLabels: { enabled: false },
-    stroke: { show: true, width: 1, colors: ['#fff'] },
+    stroke: { show: true, width: 1, colors: [theme.palette.common.white] },
     xaxis: {
       categories: months,
       labels: {
@@ -159,7 +159,11 @@ const TenantGrowthChart: React.FC = () => {
       borderColor: theme.palette.divider,
       padding: { top: 20, left: 10, right: 10, bottom: 10 },
     },
-    colors: ['#4E79A7', '#F28E2B', '#E15759'],
+    colors: [
+      theme.palette.primary.main,
+      theme.palette.warning.main,
+      theme.palette.error.main,
+    ],
     tooltip: {
       theme: darkMode ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val}` },
