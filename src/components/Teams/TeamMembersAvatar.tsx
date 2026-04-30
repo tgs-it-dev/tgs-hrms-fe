@@ -59,7 +59,6 @@ const generateAvatarColor = (name: string): string => {
     '#7b1fa2',
     '#303f9f',
     '#ff6f00',
-    '#388e3c',
     '#c2185b',
     '#0097a7',
     '#ff8f00',
@@ -316,7 +315,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               sx={{
                 width: 38,
                 height: 38,
-                backgroundColor: 'var( --primary-dark-color)',
+                backgroundColor: 'var(--primary-dark-color)',
                 color: theme.palette.common.white,
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -540,7 +539,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: 'transparent',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                      background: '#bdbdbd',
+                      background: theme.palette.action.disabled,
                       borderRadius: '4px',
                       '&:hover': {
                         background: '#9e9e9e',
@@ -616,7 +615,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                     backgroundColor: 'transparent',
                                     borderRadius: '999px',
                                     border: `0.5px solid ${theme.palette.divider}`,
-                                    color: 'var( --dark-grey-color)',
+                                    color: 'var(--dark-grey-color)',
                                     fontSize: '0.7rem',
                                     height: 22,
                                     fontWeight: 500,
@@ -932,7 +931,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: 'transparent',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                      background: '#bdbdbd',
+                      background: theme.palette.action.disabled,
                       borderRadius: '4px',
                       '&:hover': {
                         background: '#9e9e9e',
