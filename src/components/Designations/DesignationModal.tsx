@@ -303,7 +303,7 @@ export default function DesignationModal({
                 backgroundColor:
                   theme.palette.mode === 'dark'
                     ? theme.palette.background.default
-                    : '#F8F8F8',
+                    : 'background.default',
               },
             }}
           />

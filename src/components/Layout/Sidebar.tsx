@@ -570,7 +570,7 @@ export default function Sidebar({
                       backgroundColor: isDirectLinkActive
                         ? theme.palette.mode === 'dark'
                           ? theme.palette.action.selected
-                          : '#efefef'
+                          : 'background.default'
                         : 'transparent',
                       borderRadius: isDirectLinkActive
                         ? 'var(--border-radius-lg)'
@@ -630,7 +630,7 @@ export default function Sidebar({
                         backgroundColor: isParentActive
                           ? theme.palette.mode === 'dark'
                             ? theme.palette.action.selected
-                            : '#efefef'
+                            : 'background.default'
                           : 'transparent',
                         borderRadius: isParentActive
                           ? 'var(--border-radius-lg)'
@@ -817,7 +817,7 @@ export default function Sidebar({
                 borderRadius: '12px',
                 backgroundColor: darkMode
                   ? 'var(--primary-dark-color)'
-                  : '#bdbdbd',
+                  : 'text.disabled',
                 transition: 'background-color 300ms ease',
               }}
             />

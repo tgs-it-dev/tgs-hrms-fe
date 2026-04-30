@@ -694,7 +694,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   const controlBg =
     theme.palette.mode === 'dark'
       ? theme.palette.background.default
-      : '#F8F8F8';
+      : 'background.default';
 
   return (
     <Box component='form' onSubmit={handleSubmit} dir={dir}>
@@ -1448,7 +1448,8 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                     width: 16,
                     height: 16,
                     borderRadius: '50%',
-                    border: '2px solid #ffffff',
+                    border: '2px solid',
+                    borderColor: 'common.white',
                     borderTop: '2px solid transparent',
                     animation: 'spin 1s linear infinite',
                     '@keyframes spin': {

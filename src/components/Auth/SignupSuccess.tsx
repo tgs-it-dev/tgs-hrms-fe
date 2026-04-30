@@ -40,7 +40,7 @@ const SignupSuccess: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#f3f4f6',
+        bgcolor: 'background.default',
         p: 3,
       }}
     >
@@ -59,7 +59,9 @@ const SignupSuccess: React.FC = () => {
           now active.
         </Typography>
 
-        <Box sx={{ bgcolor: '#f8f9fa', p: 3, borderRadius: 2, mb: 4 }}>
+        <Box
+          sx={{ bgcolor: 'background.default', p: 3, borderRadius: 2, mb: 4 }}
+        >
           <Typography variant='body1' sx={{ mb: 1 }}>
             ✅ Account created successfully
           </Typography>

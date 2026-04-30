@@ -165,7 +165,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             borderRadius: 1,
             overflow: 'hidden',
             position: 'relative',
-            border: '1px solid #ccc',
+            border: `1px solid ${theme.palette.divider}`,
             cursor: isExisting && docUrlString ? 'pointer' : 'default',
           }}
           onClick={() => {

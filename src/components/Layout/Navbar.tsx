@@ -78,7 +78,9 @@ const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: '16px',
   backgroundColor:
-    theme.palette.mode === 'dark' ? theme.palette.action.hover : '#e0ecfa',
+    theme.palette.mode === 'dark'
+      ? theme.palette.action.hover
+      : theme.palette.primary.light,
   height: '36px',
   display: 'flex',
   alignItems: 'center',
@@ -1061,7 +1063,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   }}
                   sx={{
                     backgroundColor: 'var(--primary-dark-color)',
-                    color: '#ffffff',
+                    color: 'common.white',
                     borderRadius: '16px',
                     width: { xs: '36px', md: '44px' },
                     height: { xs: '36px', md: '44px' },
@@ -1144,7 +1146,7 @@ const Navbar: React.FC<NavbarProps> = ({
                               },
                               '&.Mui-selected': {
                                 backgroundColor: 'var(--primary-dark-color)',
-                                color: '#ffffff',
+                                color: 'common.white',
                               },
                             }}
                           >
@@ -1251,7 +1253,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 backgroundColor:
                   theme.palette.mode === 'dark'
                     ? theme.palette.action.hover
-                    : '#efefef',
+                    : 'background.default',
                 borderRadius: '16px',
                 p: { xs: 0.25, md: 0.5 },
                 display: 'flex',
@@ -1462,7 +1464,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   top: '50%',
                   transform: 'translateY(-50%)',
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#ffffff',
+                  color: 'common.white',
                   borderRadius: { xs: '8px', md: '12px' },
                   width: { xs: '28px', md: '36px' },
                   height: { xs: '28px', md: '36px' },

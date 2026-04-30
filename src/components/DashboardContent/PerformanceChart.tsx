@@ -109,7 +109,7 @@ const PerformanceChart: React.FC = () => {
     stroke: {
       show: true,
       width: 1,
-      colors: ['#fff'],
+      colors: [theme.palette.common.white],
     },
     xaxis: {
       categories: months[language],
@@ -143,7 +143,12 @@ const PerformanceChart: React.FC = () => {
         colors: textColor,
       },
     },
-    colors: ['#484c7f', '#f19828', '#f5558d', '#a7daff'],
+    colors: [
+      theme.palette.text.primary,
+      theme.palette.warning.main,
+      theme.palette.secondary.main,
+      theme.palette.info.light,
+    ],
     fill: {
       opacity: 1,
     },

@@ -37,6 +37,7 @@ import {
 } from '../../utils/roleUtils';
 import DateNavigation from './DateNavigation';
 import { useTheme } from '../../theme/hooks';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { formatDate } from '../../utils/dateUtils';
 // systemEmployeeApiService removed; not used after cleanup
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -102,6 +103,7 @@ const getApprovalStatus = (obj: unknown): string | null => {
 const AttendanceTable = () => {
   const { user: contextUser } = useUser();
   const { mode } = useTheme();
+  const muiTheme = useMuiTheme();
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [filteredData, setFilteredData] = useState<AttendanceRecord[]>([]);
@@ -1753,7 +1755,8 @@ const AttendanceTable = () => {
                         flexShrink: 0,
                         backgroundColor:
                           adminView === 'my' ? 'primary.dark' : undefined,
-                        color: adminView === 'my' ? '#fff' : 'primary.dark',
+                        color:
+                          adminView === 'my' ? 'common.white' : 'primary.dark',
                         borderColor: 'primary.dark',
                         '&:hover': {
                           backgroundColor:
@@ -1796,7 +1799,8 @@ const AttendanceTable = () => {
                       flexShrink: 0,
                       backgroundColor:
                         managerView === 'my' ? 'primary.dark' : undefined,
-                      color: managerView === 'my' ? '#fff' : 'primary.dark',
+                      color:
+                        managerView === 'my' ? 'common.white' : 'primary.dark',
                       borderColor: 'primary.dark',
                       '&:hover': {
                         backgroundColor:
@@ -1934,7 +1938,7 @@ const AttendanceTable = () => {
                     width: '100%',
                     height: '40px',
                     padding: '6.5px 14px',
-                    border: '1px solid #3083DC',
+                    border: `1px solid ${muiTheme.palette.primary.main}`,
                     borderRadius: '12px',
                     fontSize: '16px',
                     outline: 'none',
@@ -2074,12 +2078,12 @@ const AttendanceTable = () => {
                     }
                   }}
                   sx={{
-                    backgroundColor: '#3083DC',
+                    backgroundColor: 'primary.main',
                     borderRadius: '6px',
                     padding: '6px',
-                    color: 'white',
+                    color: 'common.white',
                     '&:hover': {
-                      backgroundColor: '#3083DC',
+                      backgroundColor: 'primary.main',
                     },
                   }}
                 >
@@ -2239,7 +2243,7 @@ const AttendanceTable = () => {
                 fontSize='16px'
                 lineHeight='24px'
                 letterSpacing='-1%'
-                color='#2C2C2C'
+                color='text.primary'
               >
                 Showing all {totalItems} records
               </Typography>
@@ -2263,7 +2267,7 @@ const AttendanceTable = () => {
               fontSize={{ xs: '20px', lg: '28px' }}
               lineHeight='36px'
               letterSpacing='-2%'
-              color='#2C2C2C'
+              color='text.primary'
             >
               Team Attendance
             </Typography>
@@ -2343,7 +2347,7 @@ const AttendanceTable = () => {
                   width: '100%',
                   height: '40px',
                   padding: '6.5px 14px',
-                  border: '1px solid #3083DC',
+                  border: `1px solid ${muiTheme.palette.primary.main}`,
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
@@ -2613,7 +2617,7 @@ const AttendanceTable = () => {
                   width: '100%',
                   height: '40px',
                   padding: '6.5px 14px',
-                  border: '1px solid #3083DC',
+                  border: `1px solid ${muiTheme.palette.primary.main}`,
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
@@ -2718,12 +2722,12 @@ const AttendanceTable = () => {
                   );
                 }}
                 sx={{
-                  backgroundColor: '#3083DC',
+                  backgroundColor: 'primary.main',
                   borderRadius: '6px',
                   padding: '6px',
-                  color: 'white',
+                  color: 'common.white',
                   '&:hover': {
-                    backgroundColor: '#3083DC',
+                    backgroundColor: 'primary.main',
                   },
                 }}
               >
@@ -2826,7 +2830,7 @@ const AttendanceTable = () => {
                   fontSize='16px'
                   lineHeight='24px'
                   letterSpacing='-1%'
-                  color='#2C2C2C'
+                  color='text.primary'
                 >
                   Showing all {teamRecordCount} records
                 </Typography>

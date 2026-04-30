@@ -559,7 +559,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
         },
       },
       dataLabels: { enabled: false },
-      stroke: { show: true, width: 1, colors: ['#fff'] },
+      stroke: { show: true, width: 1, colors: [theme.palette.common.white] },
       xaxis: { categories: summary.map(item => item.tenantName) },
       yaxis: { labels: { formatter: val => `${val}` } },
       legend: { position: 'top', horizontalAlign: 'right' },
@@ -761,8 +761,8 @@ const CrossTenantLeaveManagement: React.FC = () => {
                             ? 'red'
                             : leave.status === 'withdrawn' ||
                                 leave.status === 'cancelled'
-                              ? '#607d8b'
-                              : '#ff9800',
+                              ? theme.palette.info.main
+                              : theme.palette.warning.main,
                     }}
                   >
                     {leave.status === 'cancelled' ? 'withdrawn' : leave.status}
@@ -810,7 +810,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#FFFFFF',
+                  color: 'common.white',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },
