@@ -127,8 +127,8 @@ body.dark-mode {
 }
 
 body.light-mode {
-  background-color: #efefef;
-  color: #000000;
+  background-color: var(--light-grey-200-color);
+  color: var(--text-color);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -210,6 +210,10 @@ html {
   --text-color: #000000;
 
   --secondary-color: #c61952;
+  --success-color: #43a047;
+  --success-dark-color: #388e3c;
+  --error-color: #e53935;
+  --error-dark-color: #b71c1c;
   --border-radius: 12px;
 
   --h1-font-weight: 700;
@@ -319,7 +323,7 @@ h3 {
 }
 
 .MuiTooltip-arrow {
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Pagination — use app primary dark color for items & selected state */
@@ -329,7 +333,7 @@ h3 {
 
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected {
   background-color: var(--primary-dark-color);
-  color: #ffffff;
+  color: var(--white-color);
 }
 
 /* Prevent pagination hover from changing colors — keep consistent primary color */
@@ -343,7 +347,7 @@ h3 {
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:hover,
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:focus {
   background-color: var(--primary-dark-color) !important;
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Also prevent active/focus state from changing pagination item color */

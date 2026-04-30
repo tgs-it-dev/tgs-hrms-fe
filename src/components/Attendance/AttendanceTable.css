@@ -1,6 +1,6 @@
 /* Light mode styles - keep original default */
 .custom-date-picker-input {
-  border: 1px solid #3083dc !important;
+  border: 1px solid var(--primary-dark-color) !important;
   border-radius: 12px !important;
   padding: 21px 12px !important;
   font-size: 15px !important;
@@ -11,27 +11,27 @@
     border-color 0.15s ease-in-out,
     box-shadow 0.15s ease-in-out !important;
   cursor: pointer !important;
-  color: #3284dc !important;
+  color: var(--primary-dark-color) !important;
   text-align: center;
 }
 
 .custom-date-picker-input:focus {
-  border-color: #1976d2 !important;
-  box-shadow: 0 0 0 1px #1976d2 !important;
+  border-color: var(--primary-dark-color) !important;
+  box-shadow: 0 0 0 1px var(--primary-dark-color) !important;
 }
 
 .custom-date-picker-input:hover {
-  border-color: #3284dc !important;
+  border-color: var(--primary-dark-color) !important;
 }
 
 .custom-date-picker-input::placeholder {
-  color: #3284dc !important;
+  color: var(--primary-dark-color) !important;
 }
 
 /* Dark mode styles for date picker input - ONLY when dark mode is active */
 [data-theme='dark'] .custom-date-picker-input {
   border: 1px solid #555555 !important;
-  color: #ffffff !important;
+  color: white !important;
   background-color: #2e2e2e !important;
 }
 
@@ -74,7 +74,7 @@
 [data-theme='dark'] .rmdp-header {
   background-color: #2a2a2a !important;
   border-bottom: 1px solid #333333 !important;
-  color: #ffffff !important;
+  color: white !important;
 }
 
 [data-theme='dark'] .rmdp-header .rmdp-day-name {
@@ -82,7 +82,7 @@
 }
 
 [data-theme='dark'] .rmdp-day {
-  color: #ffffff !important;
+  color: white !important;
   background-color: transparent !important;
 }
 
@@ -92,28 +92,28 @@
 
 [data-theme='dark'] .rmdp-day.rmdp-today {
   background-color: rgba(48, 131, 220, 0.3) !important;
-  color: #ffffff !important;
-  border: 1px solid #3083dc !important;
+  color: white !important;
+  border: 1px solid var(--primary-dark-color) !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-selected {
-  background-color: #3083dc !important;
+  background-color: var(--primary-dark-color) !important;
   color: white !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-range {
-  background-color: #3083dc !important;
-  color: #fff !important;
+  background-color: var(--primary-dark-color) !important;
+  color: white !important;
 }
 
 [data-theme='dark'] .rmdp-day.rmdp-range-start,
 [data-theme='dark'] .rmdp-day.rmdp-range-end {
-  background-color: #3083dc !important;
+  background-color: var(--primary-dark-color) !important;
   color: white !important;
 }
 
 [data-theme='dark'] .rmdp-arrow {
-  color: #3083dc !important;
+  color: var(--primary-dark-color) !important;
 }
 
 [data-theme='dark'] .rmdp-arrow:hover {
@@ -121,11 +121,11 @@
 }
 
 [data-theme='dark'] .rmdp-month-name {
-  color: #ffffff !important;
+  color: white !important;
 }
 
 [data-theme='dark'] .rmdp-year-name {
-  color: #ffffff !important;
+  color: white !important;
 }
 
 [data-theme='dark'] .rmdp-week-day {
@@ -157,24 +157,24 @@
   background-color: rgba(25, 118, 210, 0.08) !important;
 } */
 .rmdp-day.rmdp-selected {
-  background-color: #3083dc !important;
+  background-color: var(--primary-dark-color) !important;
   color: white !important;
 }
 
 .rmdp-day.rmdp-range {
-  background-color: #3083dc;
+  background-color: var(--primary-dark-color);
   box-shadow: 0 0 3px rgba(48, 131, 220, 0.3);
-  color: #fff;
+  color: white;
 }
 
 .rmdp-day.rmdp-range-start,
 .rmdp-day.rmdp-range-end {
-  background-color: #3083dc !important;
+  background-color: var(--primary-dark-color) !important;
   color: white !important;
 }
 
 .rmdp-arrow {
-  color: #3083dc !important;
+  color: var(--primary-dark-color) !important;
 }
 
 .rmdp-arrow:hover {
