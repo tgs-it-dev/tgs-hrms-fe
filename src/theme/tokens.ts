@@ -33,7 +33,6 @@ export const colorTokens = {
   // Figma page: Foundations / Colors / Neutral
   neutral: {
     white: '#ffffff',
-    grey0: '#fafafa',
     grey50: '#f9f9f9',
     grey100: '#f5f5f5',
     grey200: '#f0f0f0',

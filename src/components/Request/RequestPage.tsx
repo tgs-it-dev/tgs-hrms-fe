@@ -8,17 +8,6 @@ import { useTheme } from "@mui/material";
 import RequestModal from "./RequestModal";
 
 import RequestCard from "../common/LeaveCard";
-interface Request {
-    id: number;
-    title: string;
-    type: string;
-    status: "pending" | "approved" | "rejected";
-    startDate: string;
-    endDate: string;
-    reason: string;
-    submittedDate: string;
-    message: string;
-}
 
 function RequestPage() {
     const theme = useTheme()
@@ -31,14 +20,14 @@ function RequestPage() {
     const [statusFilter, setStatusFilter] = useState('')
     const [typeFilter, setTypeFilter] = useState('')
     const [open, setOpen] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+    const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
     const handleClose = () => {
         setOpen(false);
         setSelectedRequest(null);
     };
 
-    const handleEdit = (request: Request) => {
+    const handleEdit = (request: any) => {
         setSelectedRequest(request);
         setOpen(true);
     };
@@ -184,11 +173,7 @@ function RequestPage() {
                             managerName={request.managerName}
                             managerMessageDate={request.managerMessageDate}
                             onEdit={() => handleEdit(request)}
-                            onDelete={() => {
-                                //pass function 
-                                //delete request with id {request.id}
-                                //show popup confirm delete request with title and message
-                            }}
+                            onDelete={() => console.log('Delete', request.id)}
                         />
                     ))}
                 </Box>
