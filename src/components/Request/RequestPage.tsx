@@ -8,6 +8,19 @@ import { useTheme } from "@mui/material";
 import RequestModal from "./RequestModal";
 
 import RequestCard from "../common/LeaveCard";
+interface Request {
+    id: number;
+    title: string;
+    type: string;
+    status: 'pending' | 'approved' | 'rejected';
+    startDate: string;
+    endDate: string;
+    reason: string;
+    submittedDate: string;
+    message: string;
+    managerName?: string;
+    managerMessageDate?: string;
+}
 
 function RequestPage() {
     const theme = useTheme()
@@ -20,14 +33,14 @@ function RequestPage() {
     const [statusFilter, setStatusFilter] = useState('')
     const [typeFilter, setTypeFilter] = useState('')
     const [open, setOpen] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
     const handleClose = () => {
         setOpen(false);
         setSelectedRequest(null);
     };
 
-    const handleEdit = (request: any) => {
+    const handleEdit = (request: Request) => {
         setSelectedRequest(request);
         setOpen(true);
     };
@@ -37,13 +50,12 @@ function RequestPage() {
         setOpen(true);
     };
 
-    // Dummy data for requests
-    const requests = [
+    const requests: Request[] = [
         {
             id: 1,
             title: 'Leave Request',
             type: 'Leave',
-            status: 'pending' as const,
+            status: 'pending',
             startDate: '29/04/2026',
             endDate: '29/04/2026',
             reason: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -54,7 +66,7 @@ function RequestPage() {
             id: 2,
             title: 'Leave Request',
             type: 'Leave',
-            status: 'approved' as const,
+            status: 'approved',
             startDate: '29/04/2026',
             endDate: '29/04/2026',
             reason: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -67,7 +79,7 @@ function RequestPage() {
             id: 3,
             title: 'WFH Request',
             type: 'WFH',
-            status: 'rejected' as const,
+            status: 'rejected',
             startDate: '29/04/2026',
             endDate: '29/04/2026',
             reason: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',

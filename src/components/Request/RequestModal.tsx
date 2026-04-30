@@ -5,7 +5,17 @@ import AppInputField from '../common/AppInputField'
 import AppDropdown from '../common/AppDropdown'
 import BasicDatePicker from '../common/BasicDatePicker'
 
-function RequestModal({ open, onClose, title, initialData }: { open: boolean, onClose: () => void, title: string, initialData?: any }) {
+interface Request {
+    id: number;
+    title: string;
+    type: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    reason: string;
+}
+
+function RequestModal({ open, onClose, title, initialData }: { open: boolean, onClose: () => void, title: string, initialData?: Request | null }) {
     const theme = useTheme()
 
     const controlBg = theme.palette.background.paper
@@ -14,8 +24,8 @@ function RequestModal({ open, onClose, title, initialData }: { open: boolean, on
     // State variables
     const [titleVal, setTitleVal] = useState('')
     const [reqType, setReqType] = useState('wfh')
-    const [fromDate, setFromDate] = useState<any>(null)
-    const [toDate, setToDate] = useState<any>(null)
+    const [fromDate, setFromDate] = useState<string | null>(null)
+    const [toDate, setToDate] = useState<string | null>(null)
     const [reason, setReason] = useState('')
     const [additionalDetails, setAdditionalDetails] = useState('')
 
@@ -25,9 +35,9 @@ function RequestModal({ open, onClose, title, initialData }: { open: boolean, on
             if (initialData) {
                 setTitleVal(initialData.title || '')
                 setReqType(initialData.type?.toLowerCase() === 'wfh' || initialData.type?.toLowerCase() === 'work from home' ? 'wfh' : 'leave')
-                setFromDate(initialData.startDate || null)
-                setToDate(initialData.endDate || null)
-                
+                setFromDate(initialData.startDate)
+                setToDate(initialData.endDate)
+
                 // Try to match reason if it's one of the keys, otherwise leave empty or handle mapping
                 const r = initialData.reason?.toLowerCase() || ''
                 if (['personal', 'official', 'other'].includes(r)) {
@@ -83,7 +93,7 @@ function RequestModal({ open, onClose, title, initialData }: { open: boolean, on
                     label={getLabel('Title', 'العنوان')}
                     labelClassName='label'
                     value={titleVal}
-                    onChange={(val: any) => setTitleVal(typeof val === 'string' ? val : val.target.value)}
+                    onChange={(val) => setTitleVal(typeof val === 'string' ? val : val.target.value)}
                     placeholder={getLabel('Title', 'العنوان')}
                 />
 
@@ -165,7 +175,7 @@ function RequestModal({ open, onClose, title, initialData }: { open: boolean, on
                     label={getLabel('Additional Details (Optional)', 'تفاصيل إضافية (اختياري)')}
                     labelClassName='label'
                     value={additionalDetails}
-                    onChange={(val: any) => setAdditionalDetails(typeof val === 'string' ? val : val.target.value)}
+                    onChange={(val) => setAdditionalDetails(typeof val === 'string' ? val : val.target.value)}
                     placeholder={getLabel('Enter any additional details...', 'أدخل أي تفاصيل إضافية...')}
                 />
 

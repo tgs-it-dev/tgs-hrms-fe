@@ -8,8 +8,8 @@ import '../Attendance/AttendanceTable.css';
 
 export interface BasicDatePickerProps {
   label: string;
-  value: any;
-  onChange: (date: any) => void;
+  value: string | null;
+  onChange: (date: string | null) => void;
   placeholder?: string;
   error?: boolean;
   helperText?: string;
@@ -24,7 +24,6 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   placeholder = 'Select date',
   error,
   helperText,
-  required,
   labelClassName = 'subheading2',
 }) => {
   const theme = useTheme();
