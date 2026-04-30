@@ -212,6 +212,9 @@ html {
   --status-rejected-bg: #FFE5E6;
   --status-rejected-text: #FF383C;
 
+  --bg-secondary: #FAFAFA;
+  --border-color: #888888;
+
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
   --primary-color: #e0ecfa;

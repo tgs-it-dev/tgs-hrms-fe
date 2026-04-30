@@ -181,7 +181,7 @@ const LeaveCard: React.FC<LeaveCardProps> = ({
                         backgroundColor: isDark ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
                         borderLeft: `4px solid ${managerName ? theme.palette.primary.main : (isDark ? theme.palette.divider : 'var(--border-color)')}`,
                         padding: '12px 16px',
-                        borderRadius: '4px',
+                        borderRadius: '0',
                     }}
                 >
                     {managerName && (
@@ -208,6 +208,7 @@ const LeaveCard: React.FC<LeaveCardProps> = ({
                 </Box>
 
             )}
+            {/* button for manager only when leave is pending */}
             {role === 'manager' && isPending && (
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
                     <AppButton
