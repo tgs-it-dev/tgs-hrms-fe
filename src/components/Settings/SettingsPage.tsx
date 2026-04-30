@@ -177,7 +177,7 @@ const SettingsPage: React.FC = () => {
   const controlBg =
     theme.palette.mode === 'dark'
       ? theme.palette.background.default
-      : '#F8F8F8';
+      : 'background.default';
 
   const hasCompanyChanges = Boolean(
     contextCompanyDetails &&

@@ -146,12 +146,12 @@ const EmployeeGrowthChart: React.FC = () => {
     stroke: {
       curve: 'smooth',
       width: 3,
-      colors: ['#C61952'],
+      colors: [theme.palette.secondary.main],
     },
     markers: {
       size: 5,
-      colors: ['#C61952'],
-      strokeColors: '#fff',
+      colors: [theme.palette.secondary.main],
+      strokeColors: theme.palette.common.white,
       strokeWidth: 2,
       hover: {
         size: 7,
@@ -186,7 +186,7 @@ const EmployeeGrowthChart: React.FC = () => {
       borderColor: theme.palette.divider,
       padding: { top: 20, left: 15, right: 15, bottom: 10 },
     },
-    colors: ['#C61952'],
+    colors: [theme.palette.secondary.main],
     tooltip: {
       theme: darkMode ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val}` },

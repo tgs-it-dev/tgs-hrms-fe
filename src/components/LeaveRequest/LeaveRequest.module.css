@@ -1,5 +1,5 @@
 .leave-form {
-  background: #fff;
+  background: var(--white-color);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -11,7 +11,7 @@
 }
 .leave-form h2 {
   margin-bottom: 1rem;
-  color: #1976d2;
+  color: var(--primary-dark-color);
 }
 .leave-form label {
   display: flex;
@@ -19,8 +19,8 @@
   font-weight: 500;
 }
 .submit-btn {
-  background: #1976d2;
-  color: #fff;
+  background: var(--primary-dark-color);
+  color: var(--white-color);
   border: none;
   padding: 0.75rem;
   border-radius: 6px;
@@ -29,10 +29,10 @@
   transition: background 0.2s;
 }
 .submit-btn:hover {
-  background: #1565c0;
+  background: var(--primary-hover-color);
 }
 .leave-history {
-  background: #fff;
+  background: var(--white-color);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -40,7 +40,7 @@
   margin: 2rem auto;
 }
 .leave-history h2 {
-  color: #1976d2;
+  color: var(--primary-dark-color);
   margin-bottom: 1rem;
 }
 table {
@@ -50,12 +50,12 @@ table {
 th,
 td {
   padding: 0.75rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--light-grey-100-color);
   text-align: left;
 }
 .approve-btn {
-  background: #43a047;
-  color: #fff;
+  background: var(--success-color);
+  color: var(--white-color);
   /* border: none; */
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -63,18 +63,18 @@ td {
   margin-right: 0.5rem;
 }
 .approve-btn:hover {
-  background: #388e3c;
+  background: var(--success-dark-color);
 }
 .reject-btn {
-  background: #e53935;
-  color: #fff;
+  background: var(--error-color);
+  color: var(--white-color);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
 }
 .reject-btn:hover {
-  background: #b71c1c;
+  background: var(--error-dark-color);
 }
 .dialog-overlay {
   position: fixed;
@@ -89,7 +89,7 @@ td {
   z-index: 1000;
 }
 .dialog {
-  background: #fff;
+  background: var(--white-color);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
@@ -97,8 +97,8 @@ td {
   text-align: center;
 }
 .confirm-btn {
-  background: #1976d2;
-  color: #fff;
+  background: var(--primary-dark-color);
+  color: var(--white-color);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -106,8 +106,8 @@ td {
   margin-right: 0.5rem;
 }
 .cancel-btn {
-  background: #eee;
-  color: #333;
+  background: var(--light-grey-100-color);
+  color: var(--black-color);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;

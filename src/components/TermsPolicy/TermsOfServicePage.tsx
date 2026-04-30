@@ -8,6 +8,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import AppCard from '../common/AppCard';
 import AppPageTitle from '../common/AppPageTitle';
 import { MarketingFooter, MarketingHeader } from './LegalPageChrome';
@@ -180,7 +181,7 @@ const TermsOfServicePage: React.FC = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#ffffff',
+        bgcolor: 'background.paper',
       }}
     >
       <MarketingHeader />
@@ -197,7 +198,10 @@ const TermsOfServicePage: React.FC = () => {
             <Paragraph>
               These Terms of Service (&quot;Terms&quot;) govern your access to
               and use of{' '}
-              <Box component='span' sx={{ fontWeight: 700, color: '#2680D9' }}>
+              <Box
+                component='span'
+                sx={{ fontWeight: 700, color: 'primary.main' }}
+              >
                 Workonnect.ai
               </Box>
               , including our website, applications, and Human Resource
@@ -239,7 +243,7 @@ const TermsOfServicePage: React.FC = () => {
                       mb: 1,
                       fontWeight: 700,
                       fontSize: { xs: '13px', sm: '14px' },
-                      color: '#2C2C2C',
+                      color: 'text.primary',
                     }}
                   >
                     Table of contents
@@ -279,12 +283,12 @@ const TermsOfServicePage: React.FC = () => {
                             width: { xs: 'auto', md: '100%' },
                             flex: '0 0 auto',
                             backgroundColor: isActive
-                              ? '#2680D90D'
+                              ? alpha(theme.palette.primary.main, 0.05)
                               : 'transparent',
                             '&:hover': {
                               backgroundColor: isActive
-                                ? '#2680D90D'
-                                : '#2680D90D',
+                                ? alpha(theme.palette.primary.main, 0.05)
+                                : alpha(theme.palette.primary.main, 0.05),
                             },
                           }}
                         >
@@ -294,7 +298,7 @@ const TermsOfServicePage: React.FC = () => {
                               lineHeight: 1.4,
                               whiteSpace: 'nowrap',
                               padding: '12px',
-                              color: isActive ? '#0059B2' : subTextColor,
+                              color: isActive ? 'primary.dark' : subTextColor,
                               fontWeight: isActive ? 400 : 400,
                             }}
                           >

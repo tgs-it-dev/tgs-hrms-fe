@@ -495,7 +495,7 @@ const SelectPlan: React.FC = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: '#f3f4f6',
+          backgroundColor: 'background.default',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -503,7 +503,7 @@ const SelectPlan: React.FC = () => {
         }}
       >
         <CircularProgress size={60} />
-        <Typography sx={{ color: '#4b5563', mt: 2 }}>
+        <Typography sx={{ color: 'text.secondary', mt: 2 }}>
           Loading subscription plans...
         </Typography>
       </Box>
@@ -530,6 +530,7 @@ const SelectPlan: React.FC = () => {
           fontWeight: 700,
           mb: 1,
           textAlign: 'center',
+          fontSize: { xs: '32px', md: '36px', lg: '52px' },
         }}
       >
         Choose Your Plan

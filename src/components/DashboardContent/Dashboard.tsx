@@ -380,8 +380,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -396,8 +396,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -516,8 +516,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -529,8 +528,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -542,8 +540,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -555,8 +552,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -568,8 +564,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >

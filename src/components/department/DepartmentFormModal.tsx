@@ -217,7 +217,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.default
         }
       />
 
