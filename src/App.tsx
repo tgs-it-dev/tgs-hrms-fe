@@ -13,6 +13,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { FeatureToggleProvider } from './context/FeatureToggleContext';
 import { ThemeProvider } from './theme';
 import './App.css';
+import ApprovalPage from './components/Approval/ApprovalPage';
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -109,6 +110,9 @@ const HolidayList = lazy(
 );
 const TimesheetLayout = lazy(
   () => import('./components/TimerTracker/TimesheetLayout')
+);
+const RequestPage = lazy(
+  () => import('./components/Request/RequestPage')
 );
 const TeamManager = lazy(() => import('./components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('./components/Teams/TeamList'));
@@ -306,6 +310,22 @@ function App() {
                       element={
                         <RouteErrorBoundary>
                           <ManagerTaskBoard />
+                        </RouteErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='requests'
+                      element={
+                        <RouteErrorBoundary>
+                          <RequestPage />
+                        </RouteErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='approvals'
+                      element={
+                        <RouteErrorBoundary>
+                          <ApprovalPage />
                         </RouteErrorBoundary>
                       }
                     />

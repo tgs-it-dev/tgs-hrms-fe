@@ -526,7 +526,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 backgroundColor: 'var(--primary-dark-color)',
                 borderRadius: '6px',
                 padding: '6px',
-                color: 'var(--white-color)',
+                color: 'white',
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                 },
@@ -626,12 +626,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                       />
                     </IconButton>
                   ) : (
-                    <span
-                      style={{
-                        fontStyle: 'italic',
-                        color: theme.palette.text.secondary,
-                      }}
-                    >
+                    <span style={{ fontStyle: 'italic', color: '#9e9e9e' }}>
                       No Documents
                     </span>
                   )}
@@ -664,7 +659,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                         <Typography
                           variant='body2'
                           sx={{
-                            color: theme.palette.text.secondary,
+                            color: '#9e9e9e',
                             fontStyle: 'italic',
                             fontSize: 13,
                           }}
@@ -979,7 +974,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: 'var(--white-color)',
+                  color: '#FFFFFF',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },
@@ -1051,7 +1046,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                           height: 120,
                           objectFit: 'cover',
                           borderRadius: 6,
-                          border: `1px solid ${theme.palette.divider}`,
+                          border: '1px solid #eee',
                           cursor: 'pointer',
                         }}
                         onError={() => {

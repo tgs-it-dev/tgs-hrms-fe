@@ -89,8 +89,8 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'leave-analytics',
     'recruitment',
   ],
-  manager: ['teams', 'attendance', 'report', 'leave-analytics', 'recruitment'],
-  employee: ['attendance', 'leave-analytics', 'teams', 'recruitment'],
+  manager: ['teams', 'attendance', 'report', 'leave-analytics', 'recruitment', 'request'],
+  employee: ['attendance', 'leave-analytics', 'teams', 'recruitment', 'request'],
   user: ['attendance', 'teams', 'recruitment'],
   unknown: ['recruitment'],
 };
@@ -114,6 +114,9 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
     key: 'feature-management',
     patterns: ['feature management', 'feature-management'],
   },
+  { key: 'request', patterns: ['request'] },
+  { key: 'approval', patterns: ['approval'] },
+
 ];
 
 const getMenuKey = (label: string) => {
@@ -138,6 +141,7 @@ type ParentKey =
   | 'teams'
   | 'audit logs'
   | 'recruitment'
+  | 'request'
   | 'misc';
 
 const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
@@ -148,6 +152,9 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'teams', patterns: ['team'] },
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
+  { key: 'request', patterns: ['request'] },
+
+
 ];
 
 const getParentKey = (label: string): ParentKey => {
@@ -206,6 +213,7 @@ const ROLE_SUBMENU_POLICIES: Record<
     'audit logs': { denyAll: true },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     teams: { deny: ['my tasks'] }, // Managers see Team Management and Manager Tasks only
+    request: { allowOnly: ['approval'] },
   },
   employee: {
     employees: { deny: ['tenant employees'] },
@@ -213,6 +221,8 @@ const ROLE_SUBMENU_POLICIES: Record<
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
     teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
+    request: { allowOnly: ['request'] },
+
   },
   user: {
     employees: { deny: ['tenant employees'] },
@@ -264,6 +274,7 @@ export const isSubMenuVisibleForRole = (
   }
 
   const policy = ROLE_SUBMENU_POLICIES[r]?.[parentKey];
+
   if (!policy) return true;
   if (policy.denyAll) return false;
   if (policy.allowOnly) {
@@ -385,6 +396,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-salary',
     'my-salary',
     'employee-profile-view',
+    'approvals'
   ],
   employee: [
     'attendance-check',
@@ -396,6 +408,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
+    'requests'
   ],
   user: [
     'attendance-check',
@@ -407,6 +420,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
+    'requests'
   ],
   unknown: [],
 };
