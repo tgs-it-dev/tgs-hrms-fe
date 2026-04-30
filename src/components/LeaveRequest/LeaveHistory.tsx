@@ -979,7 +979,7 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: 'common.white',
+                  color: 'white',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },
