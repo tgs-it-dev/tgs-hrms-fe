@@ -363,7 +363,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
           }}
           sx={{
             '& .MuiDialog-paper': {
-              borderRadius: '30px !important',
+              borderRadius: '30px',
               m: { xs: 2, sm: 3 },
             },
           }}
