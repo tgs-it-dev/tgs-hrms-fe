@@ -42,7 +42,6 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
   };
 
   const formatDate = (date: Date) => {
-    
     return dayjs(date).format('Do MMM');
   };
 
@@ -114,7 +113,7 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
 
       {/* Date Sequence */}
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-        {dateSequence.map((date) => {
+        {dateSequence.map(date => {
           const dateStr = formatDateToString(date);
           const isToday = dateStr === todayStr;
           const isSelected = currentDate !== 'all' && dateStr === currentDate;
@@ -151,10 +150,10 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
                 sx={{
                   fontWeight: isSelected ? 600 : isToday ? 500 : 400,
                   color: isSelected
-                    ? 'primary.main' 
+                    ? 'primary.main'
                     : isToday
                       ? 'primary.dark'
-                    : 'text.primary',
+                      : 'text.primary',
                   fontSize: '0.875rem',
                 }}
               >
