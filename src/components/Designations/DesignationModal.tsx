@@ -300,10 +300,7 @@ export default function DesignationModal({
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor:
-                  theme.palette.mode === 'dark'
-                    ? theme.palette.background.default
-                    : 'background.default',
+                backgroundColor: theme.palette.background.default,
               },
             }}
           />

@@ -761,7 +761,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
                             ? 'red'
                             : leave.status === 'withdrawn' ||
                                 leave.status === 'cancelled'
-                              ? theme.palette.info.main
+                              ? theme.palette.text.secondary
                               : theme.palette.warning.main,
                     }}
                   >

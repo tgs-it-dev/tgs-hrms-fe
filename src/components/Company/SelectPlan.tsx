@@ -495,7 +495,7 @@ const SelectPlan: React.FC = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: 'background.default',
+          backgroundColor: 'background.default',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',

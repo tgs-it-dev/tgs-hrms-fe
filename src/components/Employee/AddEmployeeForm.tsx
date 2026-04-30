@@ -691,10 +691,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   } as const;
 
   // Match the common form control background used across modals (e.g., Designation modal/AppFormModal)
-  const controlBg =
-    theme.palette.mode === 'dark'
-      ? theme.palette.background.default
-      : 'background.default';
+  const controlBg = theme.palette.background.default;
 
   return (
     <Box component='form' onSubmit={handleSubmit} dir={dir}>
