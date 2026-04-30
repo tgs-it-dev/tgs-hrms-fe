@@ -10,6 +10,7 @@ import { Icons } from '../../assets/icons';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { useTheme } from '@mui/material/styles';
 
 const Forget = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ const Forget = () => {
   const [emailSent, setEmailSent] = useState(false);
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [lang] = useState<'en' | 'ar'>('en');
+  const theme = useTheme();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -109,19 +111,21 @@ const Forget = () => {
     }
   };
 
+  const isDisabled = !email || !!emailError || loading;
+
   return (
     <Box
       sx={{
-        height: '100vh',
+        height: '100dvh',
         width: '100vw',
         maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--primary-dark-color)',
+        backgroundColor: theme.palette.primary.dark,
         overflowX: 'hidden',
-        overflowY: 'hidden',
+        overflowY: 'auto',
         p: { xs: 2, sm: 3 },
         boxSizing: 'border-box',
       }}
@@ -144,7 +148,7 @@ const Forget = () => {
         sx={{
           width: '100%',
           maxWidth: '420px',
-          backgroundColor: 'var(--white-color)',
+          backgroundColor: theme.palette.background.paper,
           borderRadius: '32px',
           p: { xs: 3, sm: 5 },
           textAlign: 'center',
@@ -185,13 +189,17 @@ const Forget = () => {
           <Box>
             <Typography
               variant='h5'
-              sx={{ fontWeight: 700, mb: 1, color: '#2C2C2C' }}
+              sx={{
+                fontWeight: 700,
+                mb: 1,
+                color: 'theme.palette.text.primary',
+              }}
             >
               {lang === 'ar' ? 'تم إرسال البريد الإلكتروني' : 'Email Sent'}
             </Typography>
             <Typography
               sx={{
-                color: '#888',
+                color: theme.palette.text.secondary,
                 mb: 3,
                 fontSize: { xs: '14px', sm: '16px' },
               }}
@@ -208,7 +216,7 @@ const Forget = () => {
               sx={{
                 fontWeight: 700,
                 mb: 1,
-                color: '#2C2C2C',
+                color: theme.palette.text.primary,
                 fontSize: { xs: '1.4rem', sm: '1.6rem' },
               }}
             >
@@ -217,7 +225,7 @@ const Forget = () => {
 
             <Typography
               sx={{
-                color: '#888',
+                color: theme.palette.text.secondary,
                 mb: 3,
                 fontSize: { xs: '14px', sm: '16px' },
               }}
@@ -254,9 +262,9 @@ const Forget = () => {
                 type='submit'
                 variant='contained'
                 fullWidth
-                disabled={!email || Boolean(emailError) || loading}
+                disabled={isDisabled}
                 sx={{
-                  backgroundColor: '#3083DC',
+                  backgroundColor: theme.palette.primary.main,
                   color: '#fff',
                   fontWeight: 600,
                   borderRadius: '12px',
@@ -264,7 +272,9 @@ const Forget = () => {
                   textTransform: 'none',
                   fontSize: '16px',
                   mb: 2.5,
-                  '&:hover': { backgroundColor: '#2669B2' },
+                  '&:hover': {
+                    backgroundColor: theme.palette.primary.dark,
+                  },
                 }}
               >
                 {loading ? (
