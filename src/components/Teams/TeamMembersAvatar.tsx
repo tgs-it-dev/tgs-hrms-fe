@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { colorTokens } from '../../theme';
 import {
   Stack,
   Box,
@@ -25,7 +24,7 @@ import { Group as GroupIcon, Close as CloseIcon } from '@mui/icons-material';
 import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
 import { getUserRole, isAdmin } from '../../utils/auth';
-import type { SvgIconProps } from '@mui/material';
+import type { SvgIconProps } from '@mui/material/SvgIcon';
 // Extended interface for admin team members with team info
 interface AdminTeamMember extends TeamMember {
   team?: {
@@ -38,7 +37,7 @@ const CustomSearchIcon = (props: SvgIconProps) => (
   <SvgIcon {...props} viewBox='0 0 17 17' sx={{ fontSize: 18, ...props.sx }}>
     <path
       d='M16.0845 15.2001L12.1727 11.2891C13.3065 9.92798 13.8719 8.18211 13.7512 6.41472C13.6305 4.64733 12.8331 2.9945 11.5249 1.80006C10.2166 0.605618 8.49824 -0.038471 6.7272 0.00177892C4.95615 0.0420288 3.2688 0.763519 2.01616 2.01616C0.763519 3.2688 0.0420288 4.95615 0.00177892 6.7272C-0.038471 8.49824 0.605618 10.2166 1.80006 11.5249C2.9945 12.8331 4.64733 13.6305 6.41472 13.7512C8.18211 13.8719 9.92798 13.3065 11.2891 12.1727L15.2001 16.0845C15.2582 16.1425 15.3271 16.1886 15.403 16.22C15.4788 16.2514 15.5601 16.2676 15.6423 16.2676C15.7244 16.2676 15.8057 16.2514 15.8816 16.22C15.9575 16.1886 16.0264 16.1425 16.0845 16.0845C16.1425 16.0264 16.1886 15.9575 16.22 15.8816C16.2514 15.8057 16.2676 15.7244 16.2676 15.6423C16.2676 15.5601 16.2514 15.4788 16.22 15.403C16.1886 15.3271 16.1425 15.2582 16.0845 15.2001ZM1.26727 6.89227C1.26727 5.77975 1.59717 4.69221 2.21525 3.76719C2.83333 2.84216 3.71184 2.12119 4.73967 1.69545C5.76751 1.2697 6.89851 1.15831 7.98965 1.37535C9.0808 1.59239 10.0831 2.12812 10.8697 2.91479C11.6564 3.70146 12.1921 4.70374 12.4092 5.79489C12.6262 6.88603 12.5148 8.01703 12.0891 9.04486C11.6634 10.0727 10.9424 10.9512 10.0174 11.5693C9.09233 12.1874 8.00479 12.5173 6.89227 12.5173C5.40093 12.5156 3.97115 11.9225 2.91662 10.8679C1.86209 9.81339 1.26892 8.3836 1.26727 6.89227Z'
-      fill='currentColor'
+      fill='#888888'
     />
   </SvgIcon>
 );
@@ -102,7 +101,23 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
 
   // Generate avatar color based on name
   const generateAvatarColor = (name: string): string => {
-    const colors = colorTokens.avatar;
+    const colors = [
+      '#1976d2',
+      '#388e3c',
+      '#f57c00',
+      '#d32f2f',
+      '#7b1fa2',
+      '#303f9f',
+      '#ff6f00',
+      '#388e3c',
+      '#c2185b',
+      '#0097a7',
+      '#ff8f00',
+      '#6d4c41',
+      '#455a64',
+      '#5d4037',
+      '#424242',
+    ];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -300,7 +315,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               sx={{
                 width: 38,
                 height: 38,
-                backgroundColor: 'primary.main',
+                backgroundColor: '#3083DC',
                 color: theme.palette.common.white,
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -308,7 +323,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 cursor: 'pointer',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: '#2669b8',
                   transform: 'scale(1.05)',
                   border: '2px solid #000',
                   boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
@@ -335,7 +350,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               maxWidth: 'var(--dialog-width)',
               maxHeight: {
                 xs: 'calc(100vh - 32px)',
-                sm: 'min(var(--dialog-height), calc(100vh - 64px))',
+                sm: 'min(calc(100vh - 64px))',
               },
               // Prevent the dialog itself from scrolling (we scroll the list only)
               overflow: 'hidden',
@@ -454,7 +469,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
+                      borderColor: '#a0a0a0',
                       boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
                   },
@@ -463,7 +478,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     fontSize: '0.9rem',
                   },
                   '& .MuiInputBase-input::placeholder': {
-                    color: 'text.secondary',
+                    color: 'var(--Dark-Grey, #888888)',
                     opacity: 1,
                   },
                 }}
@@ -524,14 +539,14 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: 'transparent',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                      background: theme.palette.text.disabled,
+                      background: '#bdbdbd',
                       borderRadius: '4px',
                       '&:hover': {
-                        background: theme.palette.text.secondary,
+                        background: '#9e9e9e',
                       },
                     },
                     scrollbarWidth: 'thin',
-                    scrollbarColor: `${theme.palette.text.disabled} transparent`,
+                    scrollbarColor: '#bdbdbd transparent',
                   }}
                 >
                   {filteredMembers.map(member => (
@@ -600,7 +615,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                     backgroundColor: 'transparent',
                                     borderRadius: '999px',
                                     border: `0.5px solid ${theme.palette.divider}`,
-                                    color: 'text.secondary',
+                                    color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,
                                     fontWeight: 500,
@@ -615,7 +630,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   size='small'
                                   sx={{
                                     backgroundColor: '#6155F5',
-                                    color: 'common.white',
+                                    color: '#ffffff',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -693,7 +708,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               sx={{
                 width: 38,
                 height: 38,
-                backgroundColor: 'primary.main',
+                backgroundColor: '#3083DC',
                 color: theme.palette.common.white,
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -701,7 +716,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 cursor: 'pointer',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: '#2669b8',
                   transform: 'scale(1.05)',
                   border: '2px solid #000',
                   boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
@@ -834,7 +849,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
+                      borderColor: '#a0a0a0',
                       boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
                   },
@@ -843,7 +858,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     fontSize: '0.9rem',
                   },
                   '& .MuiInputBase-input::placeholder': {
-                    color: 'text.secondary',
+                    color: 'var(--Dark-Grey, #888888)',
                     opacity: 1,
                   },
                 }}
@@ -904,14 +919,14 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: 'transparent',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                      background: theme.palette.text.disabled,
+                      background: '#bdbdbd',
                       borderRadius: '4px',
                       '&:hover': {
-                        background: theme.palette.text.secondary,
+                        background: '#9e9e9e',
                       },
                     },
                     scrollbarWidth: 'thin',
-                    scrollbarColor: `${theme.palette.text.disabled} transparent`,
+                    scrollbarColor: '#bdbdbd transparent',
                   }}
                 >
                   {filteredMembers.map(member => (
@@ -979,7 +994,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                     backgroundColor: 'transparent',
                                     borderRadius: '999px',
                                     border: `0.5px solid ${theme.palette.divider}`,
-                                    color: 'text.secondary',
+                                    color: '#888888',
                                     fontSize: '0.7rem',
                                     height: 22,
                                     fontWeight: 500,
@@ -994,7 +1009,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   size='small'
                                   sx={{
                                     backgroundColor: '#6155F5',
-                                    color: 'common.white',
+                                    color: '#ffffff',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -1010,7 +1025,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   size='small'
                                   sx={{
                                     backgroundColor: '#008C95',
-                                    color: 'common.white',
+                                    color: '#ffffff',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
