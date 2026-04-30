@@ -13,7 +13,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { FeatureToggleProvider } from './context/FeatureToggleContext';
 import { ThemeProvider } from './theme';
 import './App.css';
-import ApprovalPage from './components/Approval/ApprovalPage';
+
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -138,6 +138,7 @@ const EmployeeTasks = lazy(
 const FeatureManagementPage = lazy(
   () => import('./components/Settings/FeatureManagementPage')
 );
+const ApprovalPage = lazy(() => import('./components/Approval/ApprovalPage'));
 
 function App() {
   return (
