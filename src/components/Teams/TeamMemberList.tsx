@@ -304,7 +304,7 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({ teamId }) => {
                 borderColor: 'divider',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#484c7f',
+                borderColor: 'primary.main',
               },
             },
             '& .MuiInputBase-input::placeholder': {
@@ -383,8 +383,8 @@ const TeamMemberList: React.FC<TeamMemberListProps> = ({ teamId }) => {
                     label={member.designation?.title || 'N/A'}
                     size='small'
                     sx={{
-                      backgroundColor: '#3083DC',
-                      color: '#FFFFFF',
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                       fontSize: '0.75rem',
                     }}
                   />

@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useLanguage } from '../../hooks/useLanguage';
 import type { Team } from '../../api/teamApi';
+import { colorTokens } from '../../theme';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import { isAdmin, isManager } from '../../utils/auth';
@@ -85,18 +86,7 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams }) => {
 
   // Generate avatar color
   const generateAvatarColor = (name: string): string => {
-    const colors = [
-      '#1976d2',
-      '#388e3c',
-      '#f57c00',
-      '#d32f2f',
-      '#7b1fa2',
-      '#303f9f',
-      '#ff6f00',
-      '#388e3c',
-      '#c2185b',
-      '#0097a7',
-    ];
+    const colors = [...colorTokens.avatar];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -215,11 +205,11 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams }) => {
                   size='small'
                   icon={<PersonIcon />}
                   sx={{
-                    backgroundColor: '#3083DC',
-                    color: theme.palette.common.white,
+                    backgroundColor: 'primary.main',
+                    color: 'common.white',
                     fontSize: '0.75rem',
                     '& .MuiChip-icon': {
-                      color: theme.palette.common.white,
+                      color: 'common.white',
                     },
                   }}
                 />
@@ -236,15 +226,15 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams }) => {
                   onClick={() => handleViewMembers(team)}
                   sx={{
                     flex: 1,
-                    borderColor: '#3083DC',
-                    color: '#3083DC',
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
                     backgroundColor: 'transparent',
                     fontSize: { xs: '0.75rem', sm: '0.875rem' },
                     py: { xs: 0.75, sm: 1 },
                     px: { xs: 1, sm: 1.5 },
                     minWidth: 0,
                     '&:hover': {
-                      borderColor: '#3083DC',
+                      borderColor: 'primary.main',
                       backgroundColor: 'rgba(48, 131, 220, 0.1)',
                     },
                   }}
@@ -262,15 +252,15 @@ const MyTeams: React.FC<MyTeamsProps> = ({ teams }) => {
                     onClick={() => handleAddMember(team)}
                     sx={{
                       flex: 1,
-                      borderColor: '#3083DC',
-                      color: '#3083DC',
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
                       backgroundColor: 'transparent',
                       fontSize: { xs: '0.75rem', sm: '0.875rem' },
                       py: { xs: 0.75, sm: 1 },
                       px: { xs: 1, sm: 1.5 },
                       minWidth: 0,
                       '&:hover': {
-                        borderColor: '#3083DC',
+                        borderColor: 'primary.main',
                         backgroundColor: 'rgba(48, 131, 220, 0.1)',
                       },
                     }}

@@ -269,10 +269,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
   };
 
-  const controlBg =
-    theme.palette.mode === 'dark'
-      ? theme.palette.background.default
-      : '#F8F8F8';
+  const controlBg = theme.palette.background.default;
   const submitDisabled =
     loading || (!hasChanges && !selectedPictureFile && !removeRequested);
   const submitTitle =

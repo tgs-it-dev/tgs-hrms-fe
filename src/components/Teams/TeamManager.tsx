@@ -413,7 +413,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                 <BusinessIcon
                   sx={{
                     fontSize: { xs: 32, sm: 40 },
-                    color: '#3083DC',
+                    color: 'primary.main',
                   }}
                 />
               </Box>
@@ -488,9 +488,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                   minHeight: { xs: 48, sm: 56 },
                   minWidth: 'auto',
                   '&.Mui-selected': {
-                    color: '#3083DC',
+                    color: 'primary.main',
                     '& .MuiSvgIcon-root': {
-                      color: '#3083DC',
+                      color: 'primary.main',
                     },
                   },
                   '& .MuiSvgIcon-root': {

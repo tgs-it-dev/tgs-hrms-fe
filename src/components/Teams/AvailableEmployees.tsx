@@ -411,7 +411,7 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
                     borderColor: 'divider',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#484c7f',
+                    borderColor: 'text.primary',
                   },
                 },
                 '& .MuiInputBase-input::placeholder': {
@@ -492,8 +492,8 @@ const AvailableEmployees: React.FC<AvailableEmployeesProps> = ({
                         label={employee.designation?.title || 'N/A'}
                         size='small'
                         sx={{
-                          backgroundColor: '#3083DC',
-                          color: '#FFFFFF',
+                          backgroundColor: 'primary.main',
+                          color: 'common.white',
                           fontSize: '0.75rem',
                         }}
                       />

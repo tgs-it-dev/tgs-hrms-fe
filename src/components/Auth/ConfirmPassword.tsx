@@ -112,7 +112,7 @@ const PasswordReset: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: '#f5f5f5',
+          bgcolor: 'background.default',
           p: 2,
         }}
       >
@@ -141,7 +141,7 @@ const PasswordReset: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#f5f5f5',
+        bgcolor: 'background.default',
         p: 2,
       }}
     >

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Box, Typography, IconButton, Tooltip, useTheme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import timesheetApi, { type TimesheetEntry } from '../../api/timesheetApi';
@@ -24,7 +25,7 @@ interface MyTimerCardProps {
 const MyTimerCard: React.FC<MyTimerCardProps> = ({
   attendanceRefreshToken,
 }) => {
-  const { darkMode } = useOutletContext<AppOutletContext>();
+  useOutletContext<AppOutletContext>();
   const [currentSession, setCurrentSession] = useState<TimesheetEntry | null>(
     null
   );
@@ -330,16 +331,14 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
             left: 16,
             backgroundColor:
               currentSession && !currentSession.end_time
-                ? darkMode
-                  ? '#2e4a2e'
-                  : '#e8f5e8'
+                ? alpha(theme.palette.success.main, 0.15)
                 : 'background.default',
             borderRadius: 2,
             px: 2,
             py: 1,
             border:
               currentSession && !currentSession.end_time
-                ? '1px solid #4CAF50'
+                ? `1px solid ${theme.palette.success.main}`
                 : `1px solid ${theme.palette.divider}`,
             zIndex: 1,
             display: 'flex',
@@ -352,7 +351,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
               fontSize: '0.75rem',
               color:
                 currentSession && !currentSession.end_time
-                  ? '#4CAF50'
+                  ? theme.palette.success.main
                   : theme.palette.text.secondary,
             }}
           />
@@ -360,7 +359,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
             variant='caption'
             color={
               currentSession && !currentSession.end_time
-                ? '#4CAF50'
+                ? theme.palette.success.main
                 : theme.palette.text.secondary
             }
             sx={{ fontSize: '0.75rem', fontWeight: 500 }}
@@ -462,8 +461,8 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                   width: 28,
                   height: 28,
                   borderRadius: '50%',
-                  backgroundColor: '#4CAF50',
-                  border: '2px solid #4CAF50',
+                  backgroundColor: theme.palette.success.main,
+                  border: `2px solid ${theme.palette.success.main}`,
                   position: 'relative',
                   overflow: 'hidden',
                   display: 'flex',
@@ -478,7 +477,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                     width: '100%',
                     height: '100%',
                     borderRadius: '50%',
-                    background: `conic-gradient(from ${(elapsed % 60) * 6}deg, #ffffff 0deg, #ffffff 180deg, transparent 180deg, transparent 360deg)`,
+                    background: `conic-gradient(from ${(elapsed % 60) * 6}deg, ${theme.palette.common.white} 0deg, ${theme.palette.common.white} 180deg, transparent 180deg, transparent 360deg)`,
                     animation:
                       currentSession && !currentSession.end_time
                         ? 'spin 1s linear infinite'
@@ -502,7 +501,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                   top: -1,
                   width: 5,
                   height: 4,
-                  backgroundColor: '#2E7D32',
+                  backgroundColor: theme.palette.success.dark,
                   borderRadius: '3px 3px 0 0',
                   zIndex: 1,
                 }}
@@ -517,7 +516,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                   rotate: '-42deg',
                   width: 3,
                   height: 7,
-                  backgroundColor: '#2E7D32',
+                  backgroundColor: theme.palette.success.dark,
                   borderRadius: '0 2px 2px 0',
                   zIndex: 1,
                 }}
@@ -569,8 +568,8 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                 boxShadow: 'none',
 
                 '&:disabled': {
-                  backgroundColor: '#cccccc',
-                  color: '#666666',
+                  backgroundColor: 'action.disabledBackground',
+                  color: 'action.disabled',
                 },
               }}
               startIcon={
@@ -580,7 +579,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                       width: 16,
                       height: 16,
                       borderRadius: '50%',
-                      border: '2px solid #ffffff',
+                      border: `2px solid ${theme.palette.common.white}`,
                       borderTop: '2px solid transparent',
                       animation: 'spin 1s linear infinite',
                       '@keyframes spin': {
@@ -615,7 +614,7 @@ const MyTimerCard: React.FC<MyTimerCardProps> = ({
                       width: 16,
                       height: 16,
                       borderRadius: '50%',
-                      border: '2px solid #ffffff',
+                      border: `2px solid ${theme.palette.common.white}`,
                       borderTop: '2px solid transparent',
                       animation: 'spin 1s linear infinite',
                       '@keyframes spin': {

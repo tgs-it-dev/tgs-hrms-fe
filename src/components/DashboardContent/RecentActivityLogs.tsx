@@ -79,14 +79,14 @@ const RecentActivityLogs: React.FC<RecentActivityLogsProps> = ({ logs }) => {
               width: '8px',
             },
             '&::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ccc',
+              backgroundColor: theme.palette.divider,
               borderRadius: '4px',
             },
             '&::-webkit-scrollbar-track': {
               backgroundColor:
                 theme.palette.mode === 'dark'
                   ? theme.palette.background.default
-                  : '#f5f5f5',
+                  : theme.palette.background.default,
               borderRadius: '4px',
             },
           }}

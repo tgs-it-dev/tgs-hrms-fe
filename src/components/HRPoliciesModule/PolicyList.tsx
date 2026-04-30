@@ -114,7 +114,9 @@ const PolicyList: React.FC = () => {
                     size='small'
                     aria-label={`Edit policy ${policy.name}`}
                     sx={{
-                      border: '1px solid #f0f0f0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderTopLeftRadius: '3px',
                       borderBottomLeftRadius: '3px',
                       borderTopRightRadius: 0,
@@ -145,7 +147,9 @@ const PolicyList: React.FC = () => {
                     size='small'
                     aria-label={`Delete policy ${policy.name}`}
                     sx={{
-                      border: '1px solid #f0f0f0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderTopLeftRadius: '0px',
                       borderBottomLeftRadius: '0px',
                       borderTopRightRadius: '3px',
