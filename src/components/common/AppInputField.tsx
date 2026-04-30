@@ -234,7 +234,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiOutlinedInput-input:-webkit-autofill': {
                 padding: rest.multiline ? undefined : '10px 16px !important',
-                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : '#EFEFEF')} inset`,
+                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.default)} inset`,
                 WebkitTextFillColor: theme.palette.text.primary,
               },
               '& .MuiInputLabel-root': {

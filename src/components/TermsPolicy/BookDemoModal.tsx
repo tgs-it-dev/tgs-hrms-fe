@@ -47,7 +47,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   const controlBg =
     theme.palette.mode === 'dark'
       ? theme.palette.background.default
-      : '#F8F8F8';
+      : theme.palette.background.default;
 
   return (
     <AppFormModal
@@ -134,15 +134,15 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             variant='contained'
             onClick={handleSubmit}
             sx={{
-              backgroundColor: '#2C2C2C',
+              backgroundColor: 'text.primary',
               borderRadius: '999px',
               py: 1.3,
               fontWeight: 700,
-              '&:hover': { backgroundColor: '#0b1220' },
+              '&:hover': { backgroundColor: 'text.primary', opacity: 0.85 },
               '&:disabled': {
-                backgroundColor: '#2C2C2C',
+                backgroundColor: 'text.primary',
                 opacity: 0.5,
-                color: '#ffffff',
+                color: 'common.white',
               },
             }}
           >

@@ -7,6 +7,7 @@ import {
   IconButton,
   Alert,
   Collapse,
+  useTheme,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -123,6 +124,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onRemove,
 }) => {
+  const theme = useTheme();
   const isCheckIn = notification.type === 'check-in';
   const timestamp = new Date(notification.timestamp);
 
@@ -134,7 +136,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         alignItems: 'flex-start',
         gap: 1,
         backgroundColor: 'background.default',
-        borderLeft: `4px solid ${isCheckIn ? '#4caf50' : '#ff9800'}`,
+        borderLeft: `4px solid ${isCheckIn ? theme.palette.success.main : theme.palette.warning.main}`,
       }}
     >
       <Box sx={{ mt: 0.5 }}>

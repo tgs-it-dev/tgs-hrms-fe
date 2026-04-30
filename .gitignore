@@ -21,6 +21,9 @@ storybook-static/
 *.swp
 *.swo
 
+# Claude Code AI tool — local permissions and absolute paths
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db

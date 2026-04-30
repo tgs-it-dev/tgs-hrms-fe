@@ -272,13 +272,13 @@ const AttendanceSummaryReport: React.FC = () => {
             color='primary'
             onClick={handleDownload}
             sx={{
-              backgroundColor: '#3083DC',
+              backgroundColor: 'primary.main',
               borderRadius: '6px',
               padding: '6px',
-              color: 'white',
+              color: 'common.white',
               width: 40,
               '&:hover': {
-                backgroundColor: '#3083DC',
+                backgroundColor: 'primary.main',
               },
             }}
           >
@@ -377,7 +377,7 @@ const AttendanceSummaryReport: React.FC = () => {
             fontSize='16px'
             lineHeight='24px'
             letterSpacing='-1%'
-            color='#2C2C2C'
+            color='text.primary'
           >
             Showing page {currentPage} of {totalPages} ({totalRecords} total
             records)

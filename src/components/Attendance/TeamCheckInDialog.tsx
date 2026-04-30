@@ -71,7 +71,7 @@ const TeamCheckInDialog: React.FC<TeamCheckInDialogProps> = ({
             fontWeight: 700,
             fontSize: '24px',
             lineHeight: '32px',
-            color: '#2C2C2C',
+            color: 'text.primary',
             padding: 0,
           }}
         >

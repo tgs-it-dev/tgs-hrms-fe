@@ -783,7 +783,7 @@ export const TenantPage: React.FC = () => {
                               height: 70,
                               borderRadius: '10px',
                               objectFit: 'cover',
-                              border: '1px solid #ddd',
+                              border: `1px solid ${theme.palette.divider}`,
                             }}
                             onError={() => {
                               setDetailLogoFailed(true);
@@ -795,8 +795,8 @@ export const TenantPage: React.FC = () => {
                               width: 70,
                               height: 70,
                               borderRadius: '10px',
-                              bgcolor: '#3f51b5',
-                              color: '#fff',
+                              bgcolor: 'primary.main',
+                              color: 'common.white',
                               fontWeight: 600,
                               fontSize: 20,
                             }}
@@ -1037,7 +1037,9 @@ export const TenantPage: React.FC = () => {
                       gap: 2,
                       mt: 2,
                       p: 2,
-                      border: '1px solid #e0e0e0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderRadius: 1,
                     }}
                   >
@@ -1199,7 +1201,9 @@ export const TenantPage: React.FC = () => {
                       gap: 2,
                       mt: 2,
                       p: 2,
-                      border: '1px solid #e0e0e0',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                       borderRadius: 1,
                     }}
                   >

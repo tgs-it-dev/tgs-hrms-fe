@@ -379,7 +379,7 @@ export default function AnnouncementModal({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.paper
         }
       />
 
@@ -403,7 +403,7 @@ export default function AnnouncementModal({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.paper
         }
       />
 
@@ -416,7 +416,7 @@ export default function AnnouncementModal({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.paper
         }
       />
 
@@ -431,7 +431,7 @@ export default function AnnouncementModal({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.paper
         }
       />
 
