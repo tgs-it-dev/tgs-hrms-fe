@@ -14,7 +14,6 @@ import { FeatureToggleProvider } from './context/FeatureToggleContext';
 import { ThemeProvider } from './theme';
 import './App.css';
 
-
 // Create a QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,7 +110,6 @@ const HolidayList = lazy(
 const TimesheetLayout = lazy(
   () => import('./components/TimerTracker/TimesheetLayout')
 );
-const RequestPage = lazy(() => import('./components/Request/RequestPage'));
 const TeamManager = lazy(() => import('./components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('./components/Teams/TeamList'));
 const TeamTasks = lazy(() => import('./components/TaskManagement/TeamTasks'));
@@ -138,7 +136,10 @@ const EmployeeTasks = lazy(
 const FeatureManagementPage = lazy(
   () => import('./components/Settings/FeatureManagementPage')
 );
-const ApprovalPage = lazy(() => import('./components/Approval/ApprovalPage'));
+const RequestsPage = lazy(() => import('./components/Requests/RequestsPage'));
+const ReviewRequestsPage = lazy(
+  () => import('./components/ReviewRequests/ReviewRequestsPage')
+);
 
 function App() {
   return (
@@ -313,26 +314,26 @@ function App() {
                       }
                     />
                     <Route
-                      path='requests'
-                      element={
-                        <RouteErrorBoundary>
-                          <RequestPage />
-                        </RouteErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path='approvals'
-                      element={
-                        <RouteErrorBoundary>
-                          <ApprovalPage />
-                        </RouteErrorBoundary>
-                      }
-                    />
-                    <Route
                       path='teams/employee/:employeeId'
                       element={
                         <RouteErrorBoundary>
                           <EmployeeTasks />
+                        </RouteErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='requests'
+                      element={
+                        <RouteErrorBoundary>
+                          <RequestsPage />
+                        </RouteErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='review-requests'
+                      element={
+                        <RouteErrorBoundary>
+                          <ReviewRequestsPage />
                         </RouteErrorBoundary>
                       }
                     />

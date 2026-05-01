@@ -1,12 +1,29 @@
 import { Box } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
+import AppButton from '../common/AppButton';
+import { AddOutlined } from '@mui/icons-material';
 import AppDropdown from '../common/AppDropdown';
 import { useState } from 'react';
 import { useTheme } from '@mui/material';
+import RequestModal from './RequestModal';
+import { requests as AllRequests } from './mockData';
+import RequestLeaveCard from '../common/RequestLeaveCard';
 
-import RequestCard from '../common/LeaveCard';
+interface Request {
+    id: number;
+    title: string;
+    type: string;
+    status: 'pending' | 'approved' | 'rejected';
+    startDate: string;
+    endDate: string;
+    reason: string;
+    submittedDate: string;
+    message: string;
+    managerName?: string;
+    managerMessageDate?: string;
+}
 
-function ApprovalPage() {
+function RequestPage() {
     const theme = useTheme();
 
     const controlBg = theme.palette.background.paper;
@@ -16,50 +33,25 @@ function ApprovalPage() {
 
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
+    const [open, setOpen] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
-    // Dummy data for requests
-    const requests = [
-        {
-            id: 1,
-            title: 'Leave Request',
-            type: 'Leave',
-            status: 'pending' as const,
-            startDate: '29/04/2026',
-            endDate: '29/04/2026',
-            reason:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            submittedDate: 'Apr 28, 10:30 AM',
-            message: 'Waiting for manager’s approval',
-        },
-        {
-            id: 2,
-            title: 'Leave Request',
-            type: 'Leave',
-            status: 'approved' as const,
-            startDate: '29/04/2026',
-            endDate: '29/04/2026',
-            reason:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            submittedDate: 'Apr 28, 10:30 AM',
-            managerName: 'Saad Qureshi',
-            managerMessageDate: 'Apr 28, 3:15 PM',
-            message: 'Sounds good, approved. Let me know if you need anything.',
-        },
-        {
-            id: 3,
-            title: 'WFH Request',
-            type: 'WFH',
-            status: 'rejected' as const,
-            startDate: '29/04/2026',
-            endDate: '29/04/2026',
-            reason:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            submittedDate: 'Apr 28, 10:30 AM',
-            message:
-                'I am not feeling well, so I cannot come to the office today. I will try to work from home if possible.',
-        },
-    ];
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedRequest(null);
+    };
 
+    const handleEdit = (request: Request) => {
+        setSelectedRequest(request);
+        setOpen(true);
+    };
+
+    const handleAddNew = () => {
+        setSelectedRequest(null);
+        setOpen(true);
+    };
+
+    const requests: Request[] = AllRequests;
     return (
         <Box sx={{ pb: 4 }}>
             {/* title and actions */}
@@ -76,6 +68,18 @@ function ApprovalPage() {
                 }}
             >
                 <AppPageTitle>Requests</AppPageTitle>
+
+                <AppButton
+                    variant='contained'
+                    variantType='primary'
+                    text='New Request'
+                    startIcon={<AddOutlined />}
+                    onClick={handleAddNew}
+                    sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        minWidth: { xs: 'auto', sm: 120, md: 140 },
+                    }}
+                />
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -131,13 +135,17 @@ function ApprovalPage() {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(513px, 1fr))',
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            md: 'repeat(auto-fill, minmax(450px, 1fr))',
+                            lg: 'repeat(auto-fill, minmax(513px, 1fr))'
+                        },
                         gap: 3,
                         width: '100%',
                     }}
                 >
                     {requests.map(request => (
-                        <RequestCard
+                        <RequestLeaveCard
                             key={request.id}
                             title={request.title}
                             type={request.type}
@@ -149,14 +157,25 @@ function ApprovalPage() {
                             message={request.message}
                             managerName={request.managerName}
                             managerMessageDate={request.managerMessageDate}
-                            onEdit={() => { }}
+                            onEdit={() => handleEdit(request)}
                             onDelete={() => console.log('Delete', request.id)}
                         />
                     ))}
                 </Box>
             </Box>
+
+            <RequestModal
+                open={open}
+                onClose={handleClose}
+                title={
+                    selectedRequest
+                        ? getLabel('Edit Request', 'تعديل الطلب')
+                        : getLabel('New Request', 'طلب جديد')
+                }
+                initialData={selectedRequest}
+            />
         </Box>
     );
 }
 
-export default ApprovalPage;
+export default RequestPage;

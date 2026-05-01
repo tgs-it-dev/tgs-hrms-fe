@@ -154,6 +154,7 @@ type ParentKey =
   | 'audit logs'
   | 'recruitment'
   | 'request'
+  | 'approval'
   | 'misc';
 
 const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
@@ -165,6 +166,7 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
   { key: 'request', patterns: ['request'] },
+  { key: 'approval', patterns: ['approval'] },
 ];
 
 const getParentKey = (label: string): ParentKey => {
@@ -405,7 +407,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-salary',
     'my-salary',
     'employee-profile-view',
-    'approvals',
+    'review-requests',
   ],
   employee: [
     'attendance-check',

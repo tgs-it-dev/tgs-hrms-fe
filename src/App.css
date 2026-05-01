@@ -124,15 +124,6 @@ body {
   color: var(--text-color);
 }
 
-body.dark-mode {
-  background-color: #1e1f20;
-}
-
-body.light-mode {
-  background-color: #efefef;
-  color: #000000;
-}
-
 /* -------------------------------------------------------------------------- */
 /* Mobile typography scale                                                     */
 /* -------------------------------------------------------------------------- */
@@ -149,6 +140,9 @@ html {
   }
 
   :root {
+    --dialog-width: 527px;
+    --dialog-height: 693px;
+    --dialog-radius: 30px;
     /* Headings */
     --h1-font-size: 32px;
     --h1-line-height: 38px;
@@ -190,10 +184,9 @@ html {
     sans-serif !important;
 
   --dark-color: #484c7f;
-  --background-dark: #6c757d;
   --yellow-color: #f19828;
+  --background-dark: #6c757d;
   --text-color: #2d3748;
-  /* border radius  */
   --border-radius: 4px;
   --border-radius-lg: 8px;
   --border-radius-xl: 12px;
@@ -213,6 +206,8 @@ html {
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
+  --primary-focus-color: #1976d2;
+  --primary-hover-color: #1565c0;
   --primary-color: #e0ecfa;
   --dark-black-color: #001218;
   --black-color: #2c2c2c;
@@ -228,6 +223,10 @@ html {
   --text-color: #000000;
 
   --secondary-color: #c61952;
+  --success-color: #43a047;
+  --success-dark-color: #388e3c;
+  --error-color: #e53935;
+  --error-dark-color: #b71c1c;
   --border-radius: 12px;
 
   --h1-font-weight: 700;
@@ -271,6 +270,22 @@ html {
   --label-font-size: 14px;
   --label-line-height: 20px;
   --label-letter-spacing: -1%;
+}
+
+body.dark-mode {
+  background-color: #1e1f20;
+  --white-color: #ffffff;
+  --primary-dark-color: #3083dc;
+  --success-color: #66bb6a;
+  --success-dark-color: #43a047;
+  --error-color: #ef5350;
+  --error-dark-color: #e53935;
+  --primary-hover-color: #64b5f6;
+}
+
+body.light-mode {
+  background-color: var(--light-grey-200-color);
+  color: var(--text-color);
 }
 
 h1 {
@@ -337,7 +352,7 @@ h3 {
 }
 
 .MuiTooltip-arrow {
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Pagination — use app primary dark color for items & selected state */
@@ -347,7 +362,7 @@ h3 {
 
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected {
   background-color: var(--primary-dark-color);
-  color: #ffffff;
+  color: var(--white-color);
 }
 
 /* Prevent pagination hover from changing colors — keep consistent primary color */
@@ -361,7 +376,7 @@ h3 {
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:hover,
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:focus {
   background-color: var(--primary-dark-color) !important;
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Also prevent active/focus state from changing pagination item color */

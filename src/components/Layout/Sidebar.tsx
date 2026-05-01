@@ -71,25 +71,95 @@ const MenuIcon: React.FC<{
   size = 24,
   useOriginalColor = false,
 }) => {
-  const theme = useMuiTheme();
-  // Normalize size to handle both number and responsive object
-  const iconSize =
-    typeof size === 'number'
-      ? size
-      : typeof size === 'object'
-        ? size.xs || 20
-        : 20;
-  const iconSizeLg =
-    typeof size === 'number'
-      ? size
-      : typeof size === 'object'
-        ? size.lg || 24
-        : 24;
+    const theme = useMuiTheme();
+    // Normalize size to handle both number and responsive object
+    const iconSize =
+      typeof size === 'number'
+        ? size
+        : typeof size === 'object'
+          ? size.xs || 20
+          : 20;
+    const iconSizeLg =
+      typeof size === 'number'
+        ? size
+        : typeof size === 'object'
+          ? size.lg || 24
+          : 24;
 
-  // If icon is a React component, render it directly
-  if (React.isValidElement(icon)) {
+    // If icon is a React component, render it directly
+    if (React.isValidElement(icon)) {
+      return (
+        <Box
+          sx={{
+            width:
+              typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
+            height:
+              typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
+            minWidth:
+              typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
+            minHeight:
+              typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isActive
+              ? theme.palette.mode === 'dark'
+                ? 'var(--primary-light-color)'
+                : theme.palette.primary.main
+              : theme.palette.text.primary,
+            transition: 'color 0.2s ease',
+          }}
+        >
+          {React.cloneElement(icon, {
+            sx: {
+              fontSize:
+                typeof size === 'number'
+                  ? size
+                  : { xs: iconSize, lg: iconSizeLg },
+              color: 'inherit',
+            },
+          } as Record<string, unknown>)}
+        </Box>
+      );
+    }
+
+    // If icon is a string (image path), render as image
+    // CSS filter to convert fill icon to primary color
+    // Light mode: #3083dc (primary-dark-color)
+    // Dark mode: #2462a5 (primary-light-color)
+    const primaryColorFilterLight =
+      'brightness(0) saturate(100%) invert(48%) sepia(95%) saturate(2476%) hue-rotate(195deg) brightness(98%) contrast(101%)';
+
+    // CSS filter for #2462a5 (primary-light-color) - darker blue for dark mode
+    const primaryColorFilterDark =
+      'brightness(0) saturate(100%) invert(32%) sepia(98%) saturate(1495%) hue-rotate(190deg) brightness(92%) contrast(92%)';
+
+    // CSS filter for inactive icons - theme-aware
+    // Light mode: black (#000000)
+    // Dark mode: light gray (#8f8f8f) - using brightness to convert to appropriate gray
+    const inactiveFilter =
+      theme.palette.mode === 'dark'
+        ? 'brightness(0) saturate(100%) invert(56%)'
+        : 'brightness(0) saturate(100%)';
+
+    const iconSrc =
+      isActive && iconFill && typeof iconFill === 'string'
+        ? iconFill
+        : (icon as string);
+
+    const iconFilter = useOriginalColor
+      ? 'none'
+      : isActive && iconFill && typeof iconFill === 'string'
+        ? theme.palette.mode === 'dark'
+          ? primaryColorFilterDark
+          : primaryColorFilterLight
+        : inactiveFilter;
+
     return (
       <Box
+        component='img'
+        src={iconSrc}
+        alt=''
         sx={{
           width:
             typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
@@ -99,83 +169,13 @@ const MenuIcon: React.FC<{
             typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
           minHeight:
             typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: isActive
-            ? theme.palette.mode === 'dark'
-              ? 'var(--primary-light-color)'
-              : theme.palette.primary.main
-            : theme.palette.text.primary,
-          transition: 'color 0.2s ease',
+          objectFit: 'contain',
+          filter: iconFilter,
+          transition: 'filter 0.2s ease',
         }}
-      >
-        {React.cloneElement(icon, {
-          sx: {
-            fontSize:
-              typeof size === 'number'
-                ? size
-                : { xs: iconSize, lg: iconSizeLg },
-            color: 'inherit',
-          },
-        } as Record<string, unknown>)}
-      </Box>
+      />
     );
-  }
-
-  // If icon is a string (image path), render as image
-  // CSS filter to convert fill icon to primary color
-  // Light mode: #3083dc (primary-dark-color)
-  // Dark mode: #2462a5 (primary-light-color)
-  const primaryColorFilterLight =
-    'brightness(0) saturate(100%) invert(48%) sepia(95%) saturate(2476%) hue-rotate(195deg) brightness(98%) contrast(101%)';
-
-  // CSS filter for #2462a5 (primary-light-color) - darker blue for dark mode
-  const primaryColorFilterDark =
-    'brightness(0) saturate(100%) invert(32%) sepia(98%) saturate(1495%) hue-rotate(190deg) brightness(92%) contrast(92%)';
-
-  // CSS filter for inactive icons - theme-aware
-  // Light mode: black (#000000)
-  // Dark mode: light gray (#8f8f8f) - using brightness to convert to appropriate gray
-  const inactiveFilter =
-    theme.palette.mode === 'dark'
-      ? 'brightness(0) saturate(100%) invert(56%)'
-      : 'brightness(0) saturate(100%)';
-
-  const iconSrc =
-    isActive && iconFill && typeof iconFill === 'string'
-      ? iconFill
-      : (icon as string);
-
-  const iconFilter = useOriginalColor
-    ? 'none'
-    : isActive && iconFill && typeof iconFill === 'string'
-      ? theme.palette.mode === 'dark'
-        ? primaryColorFilterDark
-        : primaryColorFilterLight
-      : inactiveFilter;
-
-  return (
-    <Box
-      component='img'
-      src={iconSrc}
-      alt=''
-      sx={{
-        width:
-          typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
-        height:
-          typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
-        minWidth:
-          typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
-        minHeight:
-          typeof size === 'number' ? size : { xs: iconSize, lg: iconSizeLg },
-        objectFit: 'contain',
-        filter: iconFilter,
-        transition: 'filter 0.2s ease',
-      }}
-    />
-  );
-};
+  };
 interface SidebarProps {
   rtlMode: boolean;
   setRtlMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -313,7 +313,7 @@ const menuItems: MenuItem[] = [
     iconFill: <Mail />,
     subItems: [
       { label: 'Request', path: 'requests' },
-      { label: 'Approval', path: 'approvals' },
+      { label: 'Approval', path: 'review-requests' },
     ],
   },
 ];
