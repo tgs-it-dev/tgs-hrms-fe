@@ -1,5 +1,6 @@
 import React from 'react';
-import DatePicker, { DateObject } from 'react-multi-date-picker';
+import DatePicker from 'react-multi-date-picker';
+import type { DateObject } from 'react-multi-date-picker';
 import { Box, Typography, useTheme } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import 'react-multi-date-picker/styles/layouts/mobile.css';
@@ -8,8 +9,6 @@ import '../Attendance/AttendanceTable.css';
 
 export interface BasicDatePickerProps {
   label: string;
-  // value: string | null;
-  // onChange: (date: string | null) => void;
   value: DateObject | null; // Change to DateObject
   onChange: (date: DateObject | null) => void; // Change to DateObject
   placeholder?: string;

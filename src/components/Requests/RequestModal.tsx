@@ -132,7 +132,7 @@ function RequestModal({
         </Box>
       ),
       value: '',
-      onChange: () => {},
+      onChange: () => { },
     },
     {
       name: 'reason',
@@ -206,7 +206,7 @@ function RequestModal({
           </Box>
         ) : null,
       value: '',
-      onChange: () => {},
+      onChange: () => { },
     },
   ];
 
