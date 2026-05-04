@@ -209,6 +209,8 @@ function RequestModal({
       onChange: () => {},
     },
   ];
+  const filterFields =
+    (initialData && fields.filter(f => f?.name !== 'wfhInfo')) || fields;
 
   const handleSubmit = () => {
     onClose();
@@ -220,7 +222,7 @@ function RequestModal({
       open={open}
       onClose={onClose}
       onSubmit={handleSubmit}
-      fields={fields}
+      fields={filterFields}
       submitLabel={
         initialData
           ? getLabel('Save Changes', 'حفظ التغييرات')

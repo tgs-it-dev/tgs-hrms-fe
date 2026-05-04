@@ -12,6 +12,8 @@ import { EditOutlined, DeleteOutline, Check, Close } from '@mui/icons-material';
 import AppButton from './AppButton';
 import AppTextField from './AppTextField';
 import AppCard from './AppCard';
+import { useUser } from '../../hooks/useUser';
+import { getRoleName } from '../../utils/roleUtils';
 
 export interface RequestLeaveCardProps {
   title: string;
@@ -45,21 +47,25 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
   } = props;
 
   const theme = useTheme();
+  const { user } = useUser();
 
-  const role = JSON.parse(
-    localStorage.getItem('user') || '{}'
-  )?.role?.name?.toLowerCase();
+  const role = getRoleName(user?.role).toLowerCase();
+  const isDarkMode = theme.palette.mode === 'dark';
 
   const statusConfig = {
     pending: {
       label: 'Pending',
       bg: 'var(--status-pending-bg)',
-      color: 'var(--status-pending-text)',
+      color: isDarkMode
+        ? 'var(--status-pending-text)'
+        : 'var(--status-pending-text)',
     },
     approved: {
       label: 'Approved',
       bg: 'var(--status-approved-bg)',
-      color: 'var(--status-approved-text)',
+      color: isDarkMode
+        ? 'var(--status-approved-text)'
+        : 'var(--status-approved-text)',
     },
     rejected: {
       label: 'Rejected',
@@ -252,6 +258,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 flex: 1,
                 backgroundColor: 'var(--status-rejected-bg)',
                 color: 'var(--status-rejected-text)',
+                ':hover': {
+                  backgroundColor: 'var(--status-rejected-bg)',
+                  color: 'var(--status-rejected-text)',
+                },
               }}
             />
             <AppButton
@@ -263,6 +273,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 flex: 1,
                 backgroundColor: 'var(--status-approved-bg)',
                 color: 'var(--status-approved-text)',
+                ':hover': {
+                  backgroundColor: 'var(--status-approved-bg)',
+                  color: 'var(--status-approved-text)',
+                },
               }}
             />
           </Box>
