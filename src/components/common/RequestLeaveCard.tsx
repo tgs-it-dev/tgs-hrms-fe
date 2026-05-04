@@ -8,7 +8,7 @@ import {
   Divider,
   CardContent,
 } from '@mui/material';
-import { EditOutlined, DeleteOutline, Check, Close } from '@mui/icons-material';
+import { Check, Close } from '@mui/icons-material';
 import AppButton from './AppButton';
 import AppTextField from './AppTextField';
 import AppCard from './AppCard';
@@ -56,7 +56,6 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
   const { user } = useUser();
 
   const role = getRoleName(user?.role).toLowerCase();
-  const isDarkMode = theme.palette.mode === 'dark';
 
   const statusConfig = {
     pending: {
