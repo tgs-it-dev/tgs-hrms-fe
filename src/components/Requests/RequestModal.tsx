@@ -4,6 +4,7 @@ import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import type { Request } from './mockData';
+import { DateObject } from 'react-multi-date-picker';
 
 function RequestModal({
   open,
@@ -23,10 +24,19 @@ function RequestModal({
   // State variables
   const [titleVal, setTitleVal] = useState('');
   const [reqType, setReqType] = useState('wfh');
-  const [fromDate, setFromDate] = useState<string | null>(null);
-  const [toDate, setToDate] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
+  const [fromDate, setFromDate] = useState<DateObject | null>(null);
+  const [toDate, setToDate] = useState<DateObject | null>(null);
+
+  // Handle date change
+  const handleFromDateChange = (date: DateObject | null) => {
+    setFromDate(date);
+  };
+
+  const handleToDateChange = (date: DateObject | null) => {
+    setToDate(date);
+  };
 
   // Sync state when initialData or open status changes
   useEffect(() => {
@@ -39,8 +49,13 @@ function RequestModal({
             ? 'wfh'
             : 'leave'
         );
-        setFromDate(initialData.startDate);
-        setToDate(initialData.endDate);
+        // Convert string date to DateObject
+        setFromDate(
+          initialData.startDate ? new DateObject(initialData.startDate) : null
+        );
+        setToDate(
+          initialData.endDate ? new DateObject(initialData.endDate) : null
+        );
 
         // Try to match reason if it's one of the keys, otherwise leave empty or handle mapping
         const r = initialData.reason?.toLowerCase() || '';
@@ -104,14 +119,14 @@ function RequestModal({
             label={getLabel('From Date', 'تاريخ البدء')}
             value={fromDate}
             labelClassName='label'
-            onChange={date => setFromDate(date)}
+            onChange={handleFromDateChange}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
           />
           <BasicDatePicker
             label={getLabel('To Date', 'تاريخ الانتهاء')}
             value={toDate}
             labelClassName='label'
-            onChange={date => setToDate(date)}
+            onChange={handleToDateChange}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
           />
         </Box>
@@ -130,7 +145,7 @@ function RequestModal({
         { value: 'other', label: getLabel('Other', 'أخرى') },
       ],
       value: reason,
-      onChange: (val: string) => setReason(String(val)),
+      onChange: (val: string | number) => setReason(String(val)),
       required: true,
     },
     {
@@ -145,7 +160,7 @@ function RequestModal({
         'أدخل أي تفاصيل إضافية...'
       ),
       value: additionalDetails,
-      onChange: (val: string) => setAdditionalDetails(String(val)),
+      onChange: (val: string | number) => setAdditionalDetails(String(val)),
     },
     {
       name: 'wfhInfo',
