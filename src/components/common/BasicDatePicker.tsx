@@ -184,10 +184,10 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
           value={value}
           onChange={handleChange}
           slots={{
-            field: CustomDatePickerField as any,
+            field: CustomDatePickerField,
           }}
           slotProps={{
-            field: fieldSlotProps as any,
+            field: fieldSlotProps,
             popper: {
               anchorEl: () => anchorRef.current!,
               placement: 'bottom-start',
