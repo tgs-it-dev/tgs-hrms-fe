@@ -4,7 +4,10 @@ import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import type { Request } from './mockData';
-import { DateObject } from 'react-multi-date-picker';
+import dayjs, { type Dayjs } from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 function RequestModal({
   open,
@@ -26,15 +29,15 @@ function RequestModal({
   const [reqType, setReqType] = useState('wfh');
   const [reason, setReason] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
-  const [fromDate, setFromDate] = useState<DateObject | null>(null);
-  const [toDate, setToDate] = useState<DateObject | null>(null);
+  const [fromDate, setFromDate] = useState<Dayjs | null>(null);
+  const [toDate, setToDate] = useState<Dayjs | null>(null);
 
   // Handle date change
-  const handleFromDateChange = (date: DateObject | null) => {
+  const handleFromDateChange = (date: Dayjs | null) => {
     setFromDate(date);
   };
 
-  const handleToDateChange = (date: DateObject | null) => {
+  const handleToDateChange = (date: Dayjs | null) => {
     setToDate(date);
   };
 
@@ -49,12 +52,14 @@ function RequestModal({
             ? 'wfh'
             : 'leave'
         );
-        // Convert string date to DateObject
+        // Convert string date to Dayjs (mock data uses DD/MM/YYYY)
         setFromDate(
-          initialData.startDate ? new DateObject(initialData.startDate) : null
+          initialData.startDate
+            ? dayjs(initialData.startDate, 'DD/MM/YYYY')
+            : null
         );
         setToDate(
-          initialData.endDate ? new DateObject(initialData.endDate) : null
+          initialData.endDate ? dayjs(initialData.endDate, 'DD/MM/YYYY') : null
         );
 
         // Try to match reason if it's one of the keys, otherwise leave empty or handle mapping
@@ -165,55 +170,54 @@ function RequestModal({
     {
       name: 'wfhInfo',
       label: '',
-      component:
-        reqType === 'wfh' ? (
-          <Box
+      component: (
+        <Box
+          sx={{
+            backgroundColor: 'background.default',
+            borderLeft: `4px solid ${theme.palette.primary.main}`,
+            borderRadius: 'var(--border-radius-2xl)',
+            padding: '12px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5,
+            mt: 1,
+          }}
+        >
+          <Typography
             sx={{
-              backgroundColor: 'background.default',
-              borderLeft: `4px solid ${theme.palette.primary.main}`,
-              borderRadius: 'var(--border-radius-2xl)',
-              padding: '12px 16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0.5,
-              mt: 1,
+              fontSize: '14px',
+              fontWeight: 600,
+              color: theme.palette.text.secondary,
             }}
           >
-            <Typography
-              sx={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: theme.palette.text.secondary,
-              }}
-            >
-              {getLabel(
-                'Your availability during WFH',
-                'تواجدك خلال العمل من المنزل'
-              )}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '13px',
-                color: theme.palette.text.primary,
-                lineHeight: '1.4',
-              }}
-            >
-              {getLabel(
-                "You'll remain available on Slack, email, and video calls as per office hours (9 AM - 6 PM).",
-                'ستبقى متاحاً على Slack والبريد الإلكتروني ومكالمات الفيديو حسب ساعات العمل (9 صباحاً - 6 مساءً).'
-              )}
-            </Typography>
-          </Box>
-        ) : null,
+            {getLabel(
+              'Your availability during WFH',
+              'تواجدك خلال العمل من المنزل'
+            )}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '13px',
+              color: theme.palette.text.primary,
+              lineHeight: '1.4',
+            }}
+          >
+            {getLabel(
+              "You'll remain available on Slack, email, and video calls as per office hours (9 AM - 6 PM).",
+              'ستبقى متاحاً على Slack والبريد الإلكتروني ومكالمات الفيديو حسب ساعات العمل (9 صباحاً - 6 مساءً).'
+            )}
+          </Typography>
+        </Box>
+      ),
       value: '',
       onChange: () => {},
     },
   ];
-  // Hide the WFH informational box when editing an existing request
-  // (we assume the user already knows the policy or the request is finalized)
-  const filterFields = initialData
-    ? fields.filter(f => f.name !== 'wfhInfo')
-    : fields;
+
+  const filterFields =
+    initialData || reqType === 'leave'
+      ? fields.filter(f => f.name !== 'wfhInfo')
+      : fields;
 
   const handleSubmit = () => {
     onClose();

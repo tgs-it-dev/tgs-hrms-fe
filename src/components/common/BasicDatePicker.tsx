@@ -1,15 +1,15 @@
-import React from 'react';
-import DatePicker from 'react-multi-date-picker';
-import type { DateObject } from 'react-multi-date-picker';
+import React, { useState, useRef } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import 'react-multi-date-picker/styles/layouts/mobile.css';
-import 'react-multi-date-picker/styles/colors/teal.css';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import type { Dayjs } from 'dayjs';
 
 export interface BasicDatePickerProps {
   label: string;
-  value: DateObject | null; // Change to DateObject
-  onChange: (date: DateObject | null) => void; // Change to DateObject
+  value: Dayjs | null;
+  onChange: (date: Dayjs | null) => void;
   placeholder?: string;
   error?: boolean;
   helperText?: string;
@@ -26,128 +26,152 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   labelClassName = '',
 }) => {
   const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        width: '100%',
-      }}
-    >
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'nowrap',
+          flexDirection: 'column',
+          gap: '8px',
+          width: '100%',
         }}
       >
-        <Typography
-          component='label'
-          className={labelClassName}
+        <Box
           sx={{
-            fontWeight: 500,
-            fontSize: {
-              xs: 'var(--body-font-size)',
-              sm: 'var(--subheading2-font-size)',
-            },
-            lineHeight: {
-              xs: 'var(--body-line-height)',
-              sm: 'var(--subheading2-line-height)',
-            },
-            color: theme.palette.text.primary,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'nowrap',
           }}
         >
-          {label}
-        </Typography>
-        {helperText && (
           <Typography
+            component='label'
+            className={labelClassName}
             sx={{
+              fontWeight: 500,
               fontSize: {
-                xs: 'var(--label-font-size)',
-                sm: 'var(--body-font-size)',
+                xs: 'var(--body-font-size)',
+                sm: 'var(--subheading2-font-size)',
               },
-              lineHeight: 1.2,
-              color: error
-                ? theme.palette.error.main
-                : theme.palette.text.secondary,
-              fontWeight: 'var(--subheading1-font-weight)',
-              textAlign: 'right',
-              ml: 2,
+              lineHeight: {
+                xs: 'var(--body-line-height)',
+                sm: 'var(--subheading2-line-height)',
+              },
+              color: theme.palette.text.primary,
             }}
           >
-            {helperText}
+            {label}
           </Typography>
-        )}
-      </Box>
-      <Box
-        sx={{
-          position: 'relative',
-          borderRadius: 'var(--border-radius-xl)',
-          border: {
-            xs: `0.5px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
-            sm: `1px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
-          },
-          backgroundColor: theme.palette.background.default,
-          overflow: 'visible',
-          '&:hover': {
-            borderColor: error
-              ? theme.palette.error.main
-              : theme.palette.text.primary,
-          },
-        }}
-      >
-        <DatePicker
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          containerStyle={{ width: '100%' }}
-          render={(value, openCalendar) => (
-            <Box
-              onClick={openCalendar}
+          {helperText && (
+            <Typography
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                height: { xs: 40, sm: 44 },
-                padding: { xs: '8px 12px', sm: '10px 16px' },
-                cursor: 'pointer',
+                fontSize: {
+                  xs: 'var(--label-font-size)',
+                  sm: 'var(--body-font-size)',
+                },
+                lineHeight: 1.2,
+                color: error
+                  ? theme.palette.error.main
+                  : theme.palette.text.secondary,
+                fontWeight: 'var(--subheading1-font-weight)',
+                textAlign: 'right',
+                ml: 2,
               }}
             >
-              <Typography
-                sx={{
-                  color: value
-                    ? theme.palette.text.primary
-                    : theme.palette.text.secondary,
-                  fontSize: {
-                    xs: 'var(--label-font-size)',
-                    sm: 'var(--body-font-size)',
-                  },
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {value || placeholder}
-              </Typography>
-              <CalendarTodayIcon
-                sx={{
-                  fontSize: {
-                    xs: 'var(--label-font-size)',
-                    sm: 'var(--body-font-size)',
-                  },
-                  color: theme.palette.text.secondary,
-                  ml: 1,
-                }}
-              />
-            </Box>
+              {helperText}
+            </Typography>
           )}
-        />
+        </Box>
+        <Box
+          ref={anchorRef} // 👈 attach ref here
+          sx={{
+            position: 'relative',
+            borderRadius: 'var(--border-radius-xl)',
+            border: {
+              xs: `0.5px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
+              sm: `1px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
+            },
+            backgroundColor: theme.palette.background.default,
+            overflow: 'visible',
+            '&:hover': {
+              borderColor: error
+                ? theme.palette.error.main
+                : theme.palette.text.primary,
+            },
+          }}
+        >
+          <DatePicker
+            open={open}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
+            value={value}
+            onChange={(newValue: Dayjs | null) => {
+              onChange(newValue);
+              setOpen(false);
+            }}
+            slots={{
+              field: () => (
+                <Box
+                  onClick={() => setOpen(true)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    height: { xs: 40, sm: 44 },
+                    padding: { xs: '8px 12px', sm: '10px 16px' },
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: value
+                        ? theme.palette.text.primary
+                        : theme.palette.text.secondary,
+                      fontSize: {
+                        xs: 'var(--label-font-size)',
+                        sm: 'var(--body-font-size)',
+                      },
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {value ? value.format('DD/MM/YYYY') : placeholder}
+                  </Typography>
+                  <CalendarTodayIcon
+                    sx={{
+                      fontSize: {
+                        xs: 'var(--label-font-size)',
+                        sm: 'var(--body-font-size)',
+                      },
+                      color: theme.palette.text.secondary,
+                      ml: 1,
+                    }}
+                  />
+                </Box>
+              ),
+            }}
+            slotProps={{
+              popper: {
+                anchorEl: anchorRef.current,
+                placement: 'bottom-start',
+                sx: {
+                  '& .MuiPaper-root': {
+                    borderRadius: 'var(--border-radius-xl)',
+                    border: `1px solid ${theme.palette.divider}`,
+                    boxShadow: 'var(--box-shadow-md)',
+                  },
+                },
+              },
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </LocalizationProvider>
   );
 };
 
