@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import type { Dayjs } from 'dayjs';
 
@@ -30,148 +28,146 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   const anchorRef = useRef<HTMLDivElement>(null);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        width: '100%',
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          width: '100%',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'nowrap',
         }}
       >
-        <Box
+        <Typography
+          component='label'
+          className={labelClassName}
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'nowrap',
+            fontWeight: 500,
+            fontSize: {
+              xs: 'var(--body-font-size)',
+              sm: 'var(--subheading2-font-size)',
+            },
+            lineHeight: {
+              xs: 'var(--body-line-height)',
+              sm: 'var(--subheading2-line-height)',
+            },
+            color: theme.palette.text.primary,
           }}
         >
+          {label}
+        </Typography>
+        {helperText && (
           <Typography
-            component='label'
-            className={labelClassName}
             sx={{
-              fontWeight: 500,
               fontSize: {
-                xs: 'var(--body-font-size)',
-                sm: 'var(--subheading2-font-size)',
+                xs: 'var(--label-font-size)',
+                sm: 'var(--body-font-size)',
               },
-              lineHeight: {
-                xs: 'var(--body-line-height)',
-                sm: 'var(--subheading2-line-height)',
-              },
-              color: theme.palette.text.primary,
+              lineHeight: 1.2,
+              color: error
+                ? theme.palette.error.main
+                : theme.palette.text.secondary,
+              fontWeight: 'var(--subheading1-font-weight)',
+              textAlign: 'right',
+              ml: 2,
             }}
           >
-            {label}
+            {helperText}
           </Typography>
-          {helperText && (
-            <Typography
-              sx={{
-                fontSize: {
-                  xs: 'var(--label-font-size)',
-                  sm: 'var(--body-font-size)',
-                },
-                lineHeight: 1.2,
-                color: error
-                  ? theme.palette.error.main
-                  : theme.palette.text.secondary,
-                fontWeight: 'var(--subheading1-font-weight)',
-                textAlign: 'right',
-                ml: 2,
-              }}
-            >
-              {helperText}
-            </Typography>
-          )}
-        </Box>
-        <Box
-          ref={anchorRef} // 👈 attach ref here
-          sx={{
-            position: 'relative',
-            borderRadius: 'var(--border-radius-xl)',
-            border: {
-              xs: `0.5px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
-              sm: `1px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
-            },
-            backgroundColor: theme.palette.background.default,
-            overflow: 'visible',
-            '&:hover': {
-              borderColor: error
-                ? theme.palette.error.main
-                : theme.palette.text.primary,
-            },
+        )}
+      </Box>
+      <Box
+        ref={anchorRef} // 👈 attach ref here
+        sx={{
+          position: 'relative',
+          borderRadius: 'var(--border-radius-xl)',
+          border: {
+            xs: `0.5px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
+            sm: `1px solid ${error ? theme.palette.error.main : theme.palette.divider}`,
+          },
+          backgroundColor: theme.palette.background.default,
+          overflow: 'visible',
+          '&:hover': {
+            borderColor: error
+              ? theme.palette.error.main
+              : theme.palette.text.primary,
+          },
+        }}
+      >
+        <DatePicker
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+          value={value}
+          onChange={(newValue: Dayjs | null) => {
+            onChange(newValue);
+            setOpen(false);
           }}
-        >
-          <DatePicker
-            open={open}
-            onOpen={() => setOpen(true)}
-            onClose={() => setOpen(false)}
-            value={value}
-            onChange={(newValue: Dayjs | null) => {
-              onChange(newValue);
-              setOpen(false);
-            }}
-            slots={{
-              field: () => (
-                <Box
-                  onClick={() => setOpen(true)}
+          slots={{
+            field: () => (
+              <Box
+                onClick={() => setOpen(true)}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  height: { xs: 40, sm: 44 },
+                  padding: { xs: '8px 12px', sm: '10px 16px' },
+                  cursor: 'pointer',
+                }}
+              >
+                <Typography
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    height: { xs: 40, sm: 44 },
-                    padding: { xs: '8px 12px', sm: '10px 16px' },
-                    cursor: 'pointer',
+                    color: value
+                      ? theme.palette.text.primary
+                      : theme.palette.text.secondary,
+                    fontSize: {
+                      xs: 'var(--label-font-size)',
+                      sm: 'var(--body-font-size)',
+                    },
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      color: value
-                        ? theme.palette.text.primary
-                        : theme.palette.text.secondary,
-                      fontSize: {
-                        xs: 'var(--label-font-size)',
-                        sm: 'var(--body-font-size)',
-                      },
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {value ? value.format('DD/MM/YYYY') : placeholder}
-                  </Typography>
-                  <CalendarTodayIcon
-                    sx={{
-                      fontSize: {
-                        xs: 'var(--label-font-size)',
-                        sm: 'var(--body-font-size)',
-                      },
-                      color: theme.palette.text.secondary,
-                      ml: 1,
-                    }}
-                  />
-                </Box>
-              ),
-            }}
-            slotProps={{
-              popper: {
-                anchorEl: anchorRef.current,
-                placement: 'bottom-start',
-                sx: {
-                  '& .MuiPaper-root': {
-                    borderRadius: 'var(--border-radius-xl)',
-                    border: `1px solid ${theme.palette.divider}`,
-                    boxShadow: 'var(--box-shadow-md)',
-                  },
+                  {value ? value.format('DD/MM/YYYY') : placeholder}
+                </Typography>
+                <CalendarTodayIcon
+                  sx={{
+                    fontSize: {
+                      xs: 'var(--label-font-size)',
+                      sm: 'var(--body-font-size)',
+                    },
+                    color: theme.palette.text.secondary,
+                    ml: 1,
+                  }}
+                />
+              </Box>
+            ),
+          }}
+          slotProps={{
+            popper: {
+              anchorEl: anchorRef.current,
+              placement: 'bottom-start',
+              sx: {
+                '& .MuiPaper-root': {
+                  borderRadius: 'var(--border-radius-xl)',
+                  border: `1px solid ${theme.palette.divider}`,
+                  boxShadow: 'var(--box-shadow-md)',
                 },
               },
-            }}
-          />
-        </Box>
+            },
+          }}
+        />
       </Box>
-    </LocalizationProvider>
+    </Box>
   );
 };
 

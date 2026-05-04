@@ -6,6 +6,8 @@ import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import type { Request } from './mockData';
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 dayjs.extend(customParseFormat);
 
@@ -224,19 +226,21 @@ function RequestModal({
   };
 
   return (
-    <AppFormModal
-      title={title}
-      open={open}
-      onClose={onClose}
-      onSubmit={handleSubmit}
-      fields={filterFields}
-      submitLabel={
-        initialData
-          ? getLabel('Save Changes', 'حفظ التغييرات')
-          : getLabel('Submit Request', 'إرسال الطلب')
-      }
-      cancelLabel={getLabel('Cancel', 'إلغاء')}
-    />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <AppFormModal
+        title={title}
+        open={open}
+        onClose={onClose}
+        onSubmit={handleSubmit}
+        fields={filterFields}
+        submitLabel={
+          initialData
+            ? getLabel('Save Changes', 'حفظ التغييرات')
+            : getLabel('Submit Request', 'إرسال الطلب')
+        }
+        cancelLabel={getLabel('Cancel', 'إلغاء')}
+      />
+    </LocalizationProvider>
   );
 }
 
