@@ -5,7 +5,6 @@ import { Box, Typography, useTheme } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import 'react-multi-date-picker/styles/layouts/mobile.css';
 import 'react-multi-date-picker/styles/colors/teal.css';
-import '../Attendance/AttendanceTable.css';
 
 export interface BasicDatePickerProps {
   label: string;
