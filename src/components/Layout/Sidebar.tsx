@@ -27,6 +27,8 @@ import {
   Apps,
   BusinessCenter,
   Campaign,
+  CheckCircle,
+  CheckCircleOutline,
   Code,
   ConfirmationNumber,
   History,
@@ -311,10 +313,13 @@ const menuItems: MenuItem[] = [
     label: 'Request',
     icon: <MailOutline />,
     iconFill: <Mail />,
-    subItems: [
-      { label: 'Request', path: 'requests' },
-      { label: 'Approval', path: 'review-requests' },
-    ],
+    path: 'requests',
+  },
+  {
+    label: 'Approval',
+    icon: <CheckCircleOutline />,
+    iconFill: <CheckCircle />,
+    path: 'review-requests',
   },
 ];
 

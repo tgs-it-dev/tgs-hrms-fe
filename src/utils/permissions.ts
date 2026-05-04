@@ -95,7 +95,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'leave-analytics',
     'recruitment',
-    'request',
+    'approval',
   ],
   employee: [
     'attendance',
@@ -225,7 +225,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     'audit logs': { denyAll: true },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     teams: { deny: ['my tasks'] }, // Managers see Team Management and Manager Tasks only
-    request: { allowOnly: ['approval'] },
   },
   employee: {
     employees: { deny: ['tenant employees'] },
@@ -233,7 +232,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
     teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
-    request: { allowOnly: ['request'] },
   },
   user: {
     employees: { deny: ['tenant employees'] },
