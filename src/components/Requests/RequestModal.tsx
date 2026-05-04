@@ -62,7 +62,6 @@ function RequestModal({
     }
   }, [initialData, open]);
 
-
   const fields: FormField[] = [
     {
       name: 'title',
@@ -107,7 +106,6 @@ function RequestModal({
             labelClassName='label'
             onChange={date => setFromDate(date)}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
-
           />
           <BasicDatePicker
             label={getLabel('To Date', 'تاريخ الانتهاء')}
@@ -115,12 +113,11 @@ function RequestModal({
             labelClassName='label'
             onChange={date => setToDate(date)}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
-
           />
         </Box>
       ),
       value: '',
-      onChange: () => { },
+      onChange: () => {},
     },
     {
       name: 'reason',
@@ -194,7 +191,7 @@ function RequestModal({
           </Box>
         ) : null,
       value: '',
-      onChange: () => { },
+      onChange: () => {},
     },
   ];
 
