@@ -2,6 +2,7 @@ import { Box, useTheme, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
+import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import type { Request } from './mockData';
 
 function RequestModal({
@@ -17,7 +18,7 @@ function RequestModal({
 }) {
   const theme = useTheme();
 
-  const direction = theme.direction;
+  const getLabel = useDirectionLabel();
 
   // State variables
   const [titleVal, setTitleVal] = useState('');
@@ -61,7 +62,6 @@ function RequestModal({
     }
   }, [initialData, open]);
 
-  const getLabel = (en: string, ar: string) => (direction === 'rtl' ? ar : en);
 
   const fields: FormField[] = [
     {
@@ -107,7 +107,7 @@ function RequestModal({
             labelClassName='label'
             onChange={date => setFromDate(date)}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
-            required
+
           />
           <BasicDatePicker
             label={getLabel('To Date', 'تاريخ الانتهاء')}
@@ -115,12 +115,12 @@ function RequestModal({
             labelClassName='label'
             onChange={date => setToDate(date)}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
-            required
+
           />
         </Box>
       ),
       value: '',
-      onChange: () => {},
+      onChange: () => { },
     },
     {
       name: 'reason',
@@ -194,7 +194,7 @@ function RequestModal({
           </Box>
         ) : null,
       value: '',
-      onChange: () => {},
+      onChange: () => { },
     },
   ];
 

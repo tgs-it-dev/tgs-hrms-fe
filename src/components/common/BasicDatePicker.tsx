@@ -13,7 +13,6 @@ export interface BasicDatePickerProps {
   placeholder?: string;
   error?: boolean;
   helperText?: string;
-  required?: boolean;
   labelClassName?: string;
 }
 
@@ -24,6 +23,7 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   placeholder = 'Select date',
   error,
   helperText,
+  labelClassName = '',
 }) => {
   const theme = useTheme();
 
@@ -46,6 +46,7 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
       >
         <Typography
           component='label'
+          className={labelClassName}
           sx={{
             fontWeight: 500,
             fontSize: {

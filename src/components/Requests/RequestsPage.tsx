@@ -8,14 +8,14 @@ import { useTheme } from '@mui/material';
 import RequestModal from './RequestModal';
 import { requests as AllRequests, type Request } from './mockData';
 import RequestLeaveCard from '../common/RequestLeaveCard';
+import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 
 function RequestPage() {
   const theme = useTheme();
 
   const controlBg = theme.palette.background.paper;
-  const direction = theme.direction;
 
-  const getLabel = (en: string, ar: string) => (direction === 'rtl' ? ar : en);
+  const getLabel = useDirectionLabel();
 
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
