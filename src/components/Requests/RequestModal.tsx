@@ -209,8 +209,11 @@ function RequestModal({
       onChange: () => {},
     },
   ];
-  const filterFields =
-    (initialData && fields.filter(f => f?.name !== 'wfhInfo')) || fields;
+  // Hide the WFH informational box when editing an existing request
+  // (we assume the user already knows the policy or the request is finalized)
+  const filterFields = initialData
+    ? fields.filter(f => f.name !== 'wfhInfo')
+    : fields;
 
   const handleSubmit = () => {
     onClose();

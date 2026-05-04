@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import {
   Box,
   Typography,
@@ -14,6 +14,8 @@ import AppTextField from './AppTextField';
 import AppCard from './AppCard';
 import { useUser } from '../../hooks/useUser';
 import { getRoleName } from '../../utils/roleUtils';
+import { Icons } from '../../assets/icons';
+import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 export interface RequestLeaveCardProps {
   title: string;
@@ -28,6 +30,8 @@ export interface RequestLeaveCardProps {
   managerMessageDate?: string;
   onEdit?: () => void;
   onDelete?: () => void;
+  onApprove?: () => void;
+  onReject?: () => void;
 }
 
 const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
@@ -44,6 +48,8 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
     managerMessageDate,
     onEdit,
     onDelete,
+    onApprove,
+    onReject,
   } = props;
 
   const theme = useTheme();
@@ -56,16 +62,12 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
     pending: {
       label: 'Pending',
       bg: 'var(--status-pending-bg)',
-      color: isDarkMode
-        ? 'var(--status-pending-text)'
-        : 'var(--status-pending-text)',
+      color: 'var(--status-pending-text)',
     },
     approved: {
       label: 'Approved',
       bg: 'var(--status-approved-bg)',
-      color: isDarkMode
-        ? 'var(--status-approved-text)'
-        : 'var(--status-approved-text)',
+      color: 'var(--status-approved-text)',
     },
     rejected: {
       label: 'Rejected',
@@ -76,6 +78,21 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
   const currentStatus = statusConfig[status] || statusConfig.pending;
   const isPending = status === 'pending';
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (role === 'manager' && isPending) {
+      onReject?.();
+    } else {
+      onDelete?.();
+    }
+    setDeleteDialogOpen(false);
+  };
 
   return (
     <AppCard
@@ -253,7 +270,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
               variant='contained'
               text='Reject'
               startIcon={<Close />}
-              onClick={onDelete}
+              onClick={handleDeleteClick}
               sx={{
                 flex: 1,
                 backgroundColor: 'var(--status-rejected-bg)',
@@ -268,7 +285,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
               variant='contained'
               text='Approve'
               startIcon={<Check />}
-              onClick={onEdit}
+              onClick={onApprove}
               sx={{
                 flex: 1,
                 backgroundColor: 'var(--status-approved-bg)',
@@ -304,15 +321,44 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           {role !== 'manager' && isPending && (
             <Box display='flex' gap={0.5}>
               <IconButton size='small' onClick={onEdit}>
-                <EditOutlined fontSize='small' />
+                <Box
+                  component='img'
+                  src={Icons.edit}
+                  alt='Edit'
+                  sx={{
+                    width: { xs: 16, sm: 20 },
+                    height: { xs: 16, sm: 20 },
+                  }}
+                />
               </IconButton>
-              <IconButton size='small' onClick={onDelete}>
-                <DeleteOutline fontSize='small' />
+              <IconButton size='small' onClick={handleDeleteClick}>
+                <Box
+                  component='img'
+                  src={Icons.delete}
+                  alt='Delete'
+                  sx={{
+                    width: { xs: 16, sm: 20 },
+                    height: { xs: 16, sm: 20 },
+                  }}
+                />
               </IconButton>
             </Box>
           )}
         </Box>
       </CardContent>
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={role === 'manager' ? 'Confirm Rejection' : 'Confirm Deletion'}
+        message={
+          role === 'manager'
+            ? 'Are you sure you want to reject this request?'
+            : 'Are you sure you want to delete this request? This action cannot be undone.'
+        }
+        confirmText={role === 'manager' ? 'Reject' : 'Delete'}
+      />
     </AppCard>
   );
 };

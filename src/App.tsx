@@ -136,7 +136,7 @@ const EmployeeTasks = lazy(
 const FeatureManagementPage = lazy(
   () => import('./components/Settings/FeatureManagementPage')
 );
-const RequestsPage = lazy(() => import('./components/Requests/RequestsPage'));
+const RequestsPage = lazy(() => import('./components/Requests/RequestPage'));
 const ReviewRequestsPage = lazy(
   () => import('./components/ReviewRequests/ReviewRequestsPage')
 );

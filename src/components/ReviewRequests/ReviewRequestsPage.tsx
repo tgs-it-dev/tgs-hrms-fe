@@ -113,8 +113,8 @@ function ReviewRequestsPage() {
               message={request.message || ''}
               managerName={request.managerName || ''}
               managerMessageDate={request.managerMessageDate || ''}
-              onEdit={() => {}}
-              onDelete={() => console.warn('Delete', request.id)}
+              onApprove={() => {}}
+              onReject={() => request.id}
             />
           ))}
         </Box>

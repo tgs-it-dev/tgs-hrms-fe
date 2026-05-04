@@ -1,10 +1,9 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppButton from '../common/AppButton';
 import { AddOutlined } from '@mui/icons-material';
 import AppDropdown from '../common/AppDropdown';
 import { useState } from 'react';
-import { useTheme } from '@mui/material';
 import RequestModal from './RequestModal';
 import { requests as AllRequests, type Request } from './mockData';
 import RequestLeaveCard from '../common/RequestLeaveCard';
@@ -144,7 +143,7 @@ function RequestPage() {
               managerName={request.managerName}
               managerMessageDate={request.managerMessageDate}
               onEdit={() => handleEdit(request)}
-              onDelete={() => console.log('Delete', request.id)}
+              onDelete={() => request.id}
             />
           ))}
         </Box>
