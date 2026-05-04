@@ -649,7 +649,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               );
             })()}
           </DialogContent>
-        </Dialog >
+        </Dialog>
       </>
     );
   }
