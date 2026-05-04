@@ -2,16 +2,7 @@ import { Box, useTheme, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
-
-interface Request {
-  id: number;
-  title: string;
-  type: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  reason: string;
-}
+import type { Request } from './mockData';
 
 function RequestModal({
   open,

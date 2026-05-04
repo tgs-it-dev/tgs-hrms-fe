@@ -6,22 +6,8 @@ import AppDropdown from '../common/AppDropdown';
 import { useState } from 'react';
 import { useTheme } from '@mui/material';
 import RequestModal from './RequestModal';
-import { requests as AllRequests } from './mockData';
+import { requests as AllRequests, type Request } from './mockData';
 import RequestLeaveCard from '../common/RequestLeaveCard';
-
-interface Request {
-  id: number;
-  title: string;
-  type: string;
-  status: 'pending' | 'approved' | 'rejected';
-  startDate: string;
-  endDate: string;
-  reason: string;
-  submittedDate: string;
-  message: string;
-  managerName?: string;
-  managerMessageDate?: string;
-}
 
 function RequestPage() {
   const theme = useTheme();
@@ -153,8 +139,8 @@ function RequestPage() {
               startDate={request.startDate}
               endDate={request.endDate}
               reason={request.reason}
-              submittedDate={request.submittedDate}
-              message={request.message}
+              submittedDate={request.submittedDate ?? ''}
+              message={request.message ?? ''}
               managerName={request.managerName}
               managerMessageDate={request.managerMessageDate}
               onEdit={() => handleEdit(request)}

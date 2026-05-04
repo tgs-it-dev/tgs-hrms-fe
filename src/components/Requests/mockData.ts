@@ -6,8 +6,8 @@ export interface Request {
   startDate: string;
   endDate: string;
   reason: string;
-  submittedDate: string;
-  message: string;
+  submittedDate?: string;
+  message?: string;
   managerName?: string;
   managerMessageDate?: string;
 }
