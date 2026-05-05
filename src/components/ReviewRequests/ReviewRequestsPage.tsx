@@ -133,7 +133,6 @@ function ReviewRequestsPage() {
                 managerName={request.managerName || ''}
                 managerMessageDate={request.managerMessageDate || ''}
                 isManagerView
-                onDelete={() => handleReject(request.id)}
                 actions={
                   request.status === 'pending' ? (
                     <Box>

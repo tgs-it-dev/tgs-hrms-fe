@@ -90,63 +90,93 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
         maxWidth: '100%',
         borderRadius: 'var(--border-radius-2xl)',
         border: `1px solid ${theme.palette.divider}`,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
       }}
     >
-      <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-        {/* Header */}
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='flex-start'
-        >
-          <Box>
-            <Typography
+      <CardContent
+        sx={{
+          p: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          justifyContent: 'space-between',
+          '&:last-child': { pb: 0 },
+        }}
+      >
+        <Box>
+          {/* Header */}
+          <Box
+            display='flex'
+            justifyContent='space-between'
+            alignItems='flex-start'
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: { xs: '18px', lg: 'var(--subheading2-font-size)' },
+                  fontWeight: 600,
+                  lineHeight: 'var(--body-line-height)',
+                  letterSpacing: 'var(--body-letter-spacing)',
+                  color: theme.palette.text.primary,
+                }}
+              >
+                {title}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 'var(--body-font-size)',
+                  color: 'text.secondary',
+                  mt: 0.5,
+                  lineHeight: 'var(--body-line-height)',
+                  letterSpacing: 'var(--body-letter-spacing)',
+                }}
+              >
+                {type}
+              </Typography>
+            </Box>
+
+            <Chip
+              label={currentStatus.label}
               sx={{
-                fontSize: { xs: '18px', lg: 'var(--subheading2-font-size)' },
+                backgroundColor: currentStatus.bg,
+                color: currentStatus.color,
                 fontWeight: 600,
-                lineHeight: 'var(--body-line-height)',
-                letterSpacing: 'var(--body-letter-spacing)',
-                color: theme.palette.text.primary,
+                borderRadius: '100px',
+                height: '28px',
+                fontSize: 'var(--label-font-size)',
               }}
-            >
-              {title}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 'var(--body-font-size)',
-                color: 'text.secondary',
-                mt: 0.5,
-                lineHeight: 'var(--body-line-height)',
-                letterSpacing: 'var(--body-letter-spacing)',
-              }}
-            >
-              {type}
-            </Typography>
+            />
           </Box>
 
-          <Chip
-            label={currentStatus.label}
-            sx={{
-              backgroundColor: currentStatus.bg,
-              color: currentStatus.color,
-              fontWeight: 600,
-              borderRadius: '100px',
-              height: '28px',
-              fontSize: 'var(--label-font-size)',
-            }}
+          <Divider
+            sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 1.5 }}
           />
-        </Box>
 
-        <Divider
-          sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 1.5 }}
-        />
-
-        {/* Content */}
-        <Box display='flex' flexDirection='column' gap={1.5}>
-          {isManagerView && (
+          {/* Content */}
+          <Box display='flex' flexDirection='column' gap={1.5}>
+            {isManagerView && (
+              <Box display='flex' gap={2}>
+                <Typography
+                  sx={{
+                    minWidth: '80px',
+                    fontWeight: 500,
+                    fontSize: 'var(--body-font-size)',
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  {getLabel('Title:', 'العنوان:')}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: 'var(--body-font-size)',
+                    lineHeight: 'var(--body-line-height)',
+                    letterSpacing: 'var(--body-letter-spacing)',
+                  }}
+                >
+                  {title}
+                </Typography>
+              </Box>
+            )}
             <Box display='flex' gap={2}>
               <Typography
                 sx={{
@@ -156,7 +186,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                   color: theme.palette.text.primary,
                 }}
               >
-                {getLabel('Title:', 'العنوان:')}
+                {getLabel('Date:', 'التاريخ:')}
               </Typography>
               <Typography
                 sx={{
@@ -166,158 +196,144 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                   letterSpacing: 'var(--body-letter-spacing)',
                 }}
               >
-                {title}
+                {startDate} - {endDate}
               </Typography>
             </Box>
-          )}
-          <Box display='flex' gap={2}>
-            <Typography
-              sx={{
-                minWidth: '80px',
-                fontWeight: 500,
-                fontSize: 'var(--body-font-size)',
-                color: theme.palette.text.primary,
-              }}
-            >
-              {getLabel('Date:', 'التاريخ:')}
-            </Typography>
-            <Typography
-              sx={{
-                color: 'text.secondary',
-                fontSize: 'var(--body-font-size)',
-                lineHeight: 'var(--body-line-height)',
-                letterSpacing: 'var(--body-letter-spacing)',
-              }}
-            >
-              {startDate} - {endDate}
-            </Typography>
-          </Box>
 
-          <Box display='flex' gap={2}>
-            <Typography
-              sx={{
-                minWidth: '80px',
-                fontWeight: 500,
-                fontSize: 'var(--body-font-size)',
-                color: theme.palette.text.primary,
-              }}
-            >
-              {getLabel('Reason:', 'السبب:')}
-            </Typography>
-            <Typography
-              sx={{
-                color: 'text.secondary',
-                flex: 1,
-                fontSize: 'var(--body-font-size)',
-                lineHeight: 'var(--body-line-height)',
-                letterSpacing: 'var(--body-letter-spacing)',
-              }}
-            >
-              {reason}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Divider
-          sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
-        />
-
-        {/* Message / Remarks Section */}
-        <Box
-          sx={{
-            backgroundColor: 'var(--app-table-header-bg)',
-            borderLeft: `4px solid ${theme.palette.primary.main}`,
-            p: '12px 16px',
-            borderRadius: '4px',
-          }}
-        >
-          {managerName && (
-            <Box display='flex' justifyContent='space-between' mb={0.5}>
+            <Box display='flex' gap={2}>
               <Typography
-                fontWeight={600}
                 sx={{
+                  minWidth: '80px',
+                  fontWeight: 500,
                   fontSize: 'var(--body-font-size)',
                   color: theme.palette.text.primary,
                 }}
               >
-                {managerName}:
+                {getLabel('Reason:', 'السبب:')}
               </Typography>
-              {managerMessageDate && (
-                <Typography
-                  sx={{
-                    fontSize: 'var(--label-font-size)',
-                    color: 'text.secondary',
-                  }}
-                >
-                  {managerMessageDate}
-                </Typography>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  flex: 1,
+                  fontSize: 'var(--body-font-size)',
+                  lineHeight: 'var(--body-line-height)',
+                  letterSpacing: 'var(--body-letter-spacing)',
+                }}
+              >
+                {reason}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Divider
+            sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
+          />
+
+          {/* Message / Remarks Section */}
+          {!isPending && (
+            <Box
+              sx={{
+                backgroundColor: 'var(--app-table-header-bg)',
+                borderLeft: `4px solid ${theme.palette.primary.main}`,
+                p: '12px 16px',
+                borderRadius: '4px',
+              }}
+            >
+              {managerName && (
+                <Box display='flex' justifyContent='space-between' mb={0.5}>
+                  <Typography
+                    fontWeight={600}
+                    sx={{
+                      fontSize: 'var(--body-font-size)',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
+                    {managerName}:
+                  </Typography>
+                  {managerMessageDate && (
+                    <Typography
+                      sx={{
+                        fontSize: 'var(--label-font-size)',
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {managerMessageDate}
+                    </Typography>
+                  )}
+                </Box>
               )}
+
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  color: 'text.secondary',
+                  fontStyle: message
+                    ? managerName
+                      ? 'normal'
+                      : 'italic'
+                    : 'italic',
+                  lineHeight: 'var(--body-line-height)',
+                  letterSpacing: 'var(--body-letter-spacing)',
+                }}
+              >
+                {message || getLabel('No remarks yet', 'لا توجد ملاحظات بعد')}
+              </Typography>
             </Box>
           )}
 
-          <Typography
-            sx={{
-              fontSize: '14px',
-              color: 'text.secondary',
-              fontStyle: managerName ? 'normal' : 'italic',
-              lineHeight: 'var(--body-line-height)',
-              letterSpacing: 'var(--body-letter-spacing)',
-            }}
-          >
-            {message}
-          </Typography>
+          {/* Actions Slot (Manager controls or Employee remarks input) */}
+          {actions && <Box mt={2}>{actions}</Box>}
         </Box>
 
-        {/* Actions Slot (Manager controls or Employee remarks input) */}
-        {actions && <Box mt={2}>{actions}</Box>}
+        <Box>
+          <Divider
+            sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
+          />
 
-        <Divider
-          sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
-        />
-
-        {/* Footer */}
-        <Box
-          display='flex'
-          justifyContent={
-            isPending && !isManagerView ? 'space-between' : 'center'
-          }
-          alignItems='center'
-        >
-          <Typography
-            sx={{
-              fontSize: 'var(--label-font-size)',
-              color: 'text.secondary',
-            }}
+          {/* Footer */}
+          <Box
+            display='flex'
+            justifyContent={
+              isPending && !isManagerView ? 'space-between' : 'left'
+            }
+            alignItems='center'
           >
-            {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
-          </Typography>
+            <Typography
+              sx={{
+                fontSize: 'var(--label-font-size)',
+                color: 'text.secondary',
+              }}
+            >
+              {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
+            </Typography>
 
-          {!isManagerView && isPending && (
-            <Box display='flex' gap={0.5}>
-              <IconButton size='small' onClick={onEdit}>
-                <Box
-                  component='img'
-                  src={Icons.edit}
-                  alt='Edit'
-                  sx={{
-                    width: { xs: 16, sm: 20 },
-                    height: { xs: 16, sm: 20 },
-                  }}
-                />
-              </IconButton>
-              <IconButton size='small' onClick={handleDeleteClick}>
-                <Box
-                  component='img'
-                  src={Icons.delete}
-                  alt='Delete'
-                  sx={{
-                    width: { xs: 16, sm: 20 },
-                    height: { xs: 16, sm: 20 },
-                  }}
-                />
-              </IconButton>
-            </Box>
-          )}
+            {!isManagerView && isPending && (
+              <Box display='flex' gap={0.5}>
+                <IconButton size='small' onClick={onEdit}>
+                  <Box
+                    component='img'
+                    src={Icons.edit}
+                    alt='Edit'
+                    sx={{
+                      width: { xs: 16, sm: 20 },
+                      height: { xs: 16, sm: 20 },
+                    }}
+                  />
+                </IconButton>
+                <IconButton size='small' onClick={handleDeleteClick}>
+                  <Box
+                    component='img'
+                    src={Icons.delete}
+                    alt='Delete'
+                    sx={{
+                      width: { xs: 16, sm: 20 },
+                      height: { xs: 16, sm: 20 },
+                    }}
+                  />
+                </IconButton>
+              </Box>
+            )}
+          </Box>
         </Box>
       </CardContent>
 
