@@ -13,11 +13,13 @@ dayjs.extend(customParseFormat);
 function RequestModal({
   open,
   onClose,
+  onSuccess,
   title,
   initialData,
 }: {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (msg: string) => void;
   title: string;
   initialData?: Request | null;
 }) {
@@ -55,6 +57,9 @@ function RequestModal({
   // Sync state when initialData or open status changes
   useEffect(() => {
     if (open) {
+      // Reset snackbar on open
+      setSnackbar({ open: false, message: '', severity: 'success' });
+
       if (initialData) {
         setTitleVal(initialData.title || '');
         setReqType(
@@ -290,21 +295,20 @@ function RequestModal({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      setSnackbar({
-        open: true,
-        message: initialData
-          ? getLabel('Request updated successfully!', 'تم تحديث الطلب بنجاح!')
-          : getLabel(
-              'Request submitted successfully!',
-              'تم تقديم الطلب بنجاح!'
-            ),
-        severity: 'success',
-      });
+      const msg = initialData
+        ? getLabel('Request updated successfully!', 'تم تحديث الطلب بنجاح!')
+        : getLabel('Request submitted successfully!', 'تم تقديم الطلب بنجاح!');
 
-      // Close modal after success
-      setTimeout(() => {
-        onClose();
-      }, 500);
+      if (onSuccess) {
+        onSuccess(msg);
+      } else {
+        setSnackbar({
+          open: true,
+          message: msg,
+          severity: 'success',
+        });
+        setTimeout(onClose, 500);
+      }
     } catch (error) {
       setSnackbar({
         open: true,
@@ -313,7 +317,16 @@ function RequestModal({
       });
       console.error(error);
     }
-  }, [titleVal, fromDate, toDate, reason, initialData, onClose, getLabel]);
+  }, [
+    titleVal,
+    fromDate,
+    toDate,
+    reason,
+    initialData,
+    onClose,
+    onSuccess,
+    getLabel,
+  ]);
 
   return (
     <>

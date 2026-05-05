@@ -1,6 +1,10 @@
 import { useTheme } from '@mui/material';
+import { useCallback } from 'react';
 
 export function useDirectionLabel() {
   const { direction } = useTheme();
-  return (en: string, ar: string) => (direction === 'rtl' ? ar : en);
+  return useCallback(
+    (en: string, ar: string) => (direction === 'rtl' ? ar : en),
+    [direction]
+  );
 }

@@ -13,6 +13,7 @@ import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import ErrorSnackbar from '../common/ErrorSnackbar';
 
 function RequestPage() {
   const theme = useTheme();
@@ -27,10 +28,32 @@ function RequestPage() {
 
   const [requests, setRequests] = useState<Request[]>(AllRequests);
 
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const handleClose = useCallback(() => {
     setOpen(false);
     setSelectedRequest(null);
   }, []);
+
+  const handleSuccess = useCallback(
+    (msg: string) => {
+      setSnackbar({
+        open: true,
+        message: msg,
+        severity: 'success',
+      });
+      handleClose();
+    },
+    [handleClose]
+  );
 
   const handleEdit = useCallback((request: Request) => {
     setSelectedRequest(request);
@@ -200,12 +223,20 @@ function RequestPage() {
         <RequestModal
           open={open}
           onClose={handleClose}
+          onSuccess={handleSuccess}
           title={
             selectedRequest
               ? getLabel('Edit Request', 'تعديل الطلب')
               : getLabel('New Request', 'طلب جديد')
           }
           initialData={selectedRequest}
+        />
+
+        <ErrorSnackbar
+          open={snackbar.open}
+          message={snackbar.message}
+          severity={snackbar.severity}
+          onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
         />
       </Box>
     </LocalizationProvider>
