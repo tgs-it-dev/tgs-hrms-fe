@@ -95,7 +95,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'leave-analytics',
     'recruitment',
-    'approval',
+    'review-requests',
   ],
   employee: [
     'attendance',
@@ -128,7 +128,7 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
     patterns: ['feature management', 'feature-management'],
   },
   { key: 'request', patterns: ['request'] },
-  { key: 'approval', patterns: ['approval'] },
+  { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 
 const getMenuKey = (label: string) => {
@@ -154,7 +154,7 @@ type ParentKey =
   | 'audit logs'
   | 'recruitment'
   | 'request'
-  | 'approval'
+  | 'review-requests'
   | 'misc';
 
 const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
@@ -166,7 +166,7 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
   { key: 'request', patterns: ['request'] },
-  { key: 'approval', patterns: ['approval'] },
+  { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 
 const getParentKey = (label: string): ParentKey => {

@@ -6,8 +6,6 @@ import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import type { Request } from '../../data/mock-leaves';
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 
 dayjs.extend(customParseFormat);
@@ -276,6 +274,8 @@ function RequestModal({
       return;
     }
 
+    // .isBefore() returns false for the same day, which is correct for single-day requests.
+    // The null-check earlier (line 267) ensures fromDate and toDate are defined here.
     if (toDate.isBefore(fromDate)) {
       setSnackbar({
         open: true,
@@ -318,7 +318,7 @@ function RequestModal({
   }, [titleVal, fromDate, toDate, reason, initialData, onClose, getLabel]);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <>
       <AppFormModal
         title={title}
         open={open}
@@ -338,7 +338,7 @@ function RequestModal({
         severity={snackbar.severity}
         onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
-    </LocalizationProvider>
+    </>
   );
 }
 

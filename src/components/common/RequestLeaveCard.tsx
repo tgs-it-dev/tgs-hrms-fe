@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Box,
   Typography,
@@ -74,14 +74,14 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     onDelete?.();
     setDeleteDialogOpen(false);
-  };
+  }, [onDelete]);
 
   return (
     <AppCard

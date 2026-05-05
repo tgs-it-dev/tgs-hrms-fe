@@ -8,6 +8,8 @@ import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import AppButton from '../common/AppButton';
 import AppTextField from '../common/AppTextField';
 import { Check, Close } from '@mui/icons-material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function ReviewRequestsPage() {
   const theme = useTheme();
@@ -34,153 +36,158 @@ function ReviewRequestsPage() {
   }, []);
 
   return (
-    <Box sx={{ pb: 4 }}>
-      {/* title and actions */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexWrap: 'wrap',
-          gap: 1,
-          mb: 3,
-          width: '100%',
-        }}
-      >
-        <AppPageTitle>{getLabel('Requests', 'الطلبات')}</AppPageTitle>
-      </Box>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {/* Filters Row */}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box sx={{ pb: 4 }}>
+        {/* title and actions */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
-            gap: 2,
-            justifyContent: 'end',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 3,
             width: '100%',
           }}
         >
-          <AppDropdown
-            label={getLabel('Status', 'الحالة')}
-            showLabel={false}
-            placeholder={getLabel('Status', 'الحالة')}
-            inputBackgroundColor={controlBg}
-            value={statusFilter === '' ? 'all' : statusFilter}
-            onChange={e => setStatusFilter(String(e.target.value))}
-            options={[
-              { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
-              { value: 'pending', label: getLabel('Pending', 'قيد الانتظار') },
-              { value: 'approved', label: getLabel('Approved', 'مقبول') },
-              { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
-            ]}
-            containerSx={{
-              minWidth: { xs: '120px', md: '160px' },
-            }}
-          />
-          <AppDropdown
-            label={getLabel('Type', 'النوع')}
-            showLabel={false}
-            placeholder={getLabel('Type', 'النوع')}
-            inputBackgroundColor={controlBg}
-            value={typeFilter === '' ? 'all' : typeFilter}
-            onChange={e => setTypeFilter(String(e.target.value))}
-            options={[
-              { value: 'all', label: getLabel('All Types', 'كل الأنواع') },
-              {
-                value: 'work-from-home',
-                label: getLabel('Work From Home', 'العمل من المنزل'),
-              },
-              { value: 'leave', label: getLabel('Leave', 'إجازة') },
-            ]}
-            containerSx={{
-              minWidth: { xs: '120px', md: '160px' },
-            }}
-          />
+          <AppPageTitle>{getLabel('Requests', 'الطلبات')}</AppPageTitle>
         </Box>
 
-        {/* Request Cards Grid */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              md: 'repeat(auto-fill, minmax(450px, 1fr))',
-              lg: 'repeat(auto-fill, minmax(513px, 1fr))',
-            },
-            gap: 3,
-            width: '100%',
-          }}
-        >
-          {requests.map(request => (
-            <RequestLeaveCard
-              key={request.id}
-              title={request.title}
-              type={request.type}
-              status={request.status}
-              startDate={request.startDate}
-              endDate={request.endDate}
-              reason={request.reason}
-              submittedDate={request.submittedDate || ''}
-              message={request.message || ''}
-              managerName={request.managerName || ''}
-              managerMessageDate={request.managerMessageDate || ''}
-              isManagerView
-              onDelete={() => handleReject(request.id)}
-              actions={
-                request.status === 'pending' ? (
-                  <Box>
-                    <AppTextField
-                      placeholder={getLabel(
-                        'Add your remarks...',
-                        'أضف ملاحظاتك...'
-                      )}
-                      multiline
-                      rows={2}
-                      fullWidth
-                      sx={{ mb: 2 }}
-                    />
-                    <Box display='flex' gap={3}>
-                      <AppButton
-                        variant='contained'
-                        text={getLabel('Reject', 'رفض')}
-                        startIcon={<Close />}
-                        onClick={() => handleReject(request.id)}
-                        sx={{
-                          flex: 1,
-                          backgroundColor: 'var(--status-rejected-bg)',
-                          color: 'var(--status-rejected-text)',
-                          ':hover': {
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {/* Filters Row */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 2,
+              justifyContent: 'end',
+              width: '100%',
+            }}
+          >
+            <AppDropdown
+              label={getLabel('Status', 'الحالة')}
+              showLabel={false}
+              placeholder={getLabel('Status', 'الحالة')}
+              inputBackgroundColor={controlBg}
+              value={statusFilter === '' ? 'all' : statusFilter}
+              onChange={e => setStatusFilter(String(e.target.value))}
+              options={[
+                { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
+                {
+                  value: 'pending',
+                  label: getLabel('Pending', 'قيد الانتظار'),
+                },
+                { value: 'approved', label: getLabel('Approved', 'مقبول') },
+                { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
+              ]}
+              containerSx={{
+                minWidth: { xs: '120px', md: '160px' },
+              }}
+            />
+            <AppDropdown
+              label={getLabel('Type', 'النوع')}
+              showLabel={false}
+              placeholder={getLabel('Type', 'النوع')}
+              inputBackgroundColor={controlBg}
+              value={typeFilter === '' ? 'all' : typeFilter}
+              onChange={e => setTypeFilter(String(e.target.value))}
+              options={[
+                { value: 'all', label: getLabel('All Types', 'كل الأنواع') },
+                {
+                  value: 'work-from-home',
+                  label: getLabel('Work From Home', 'العمل من المنزل'),
+                },
+                { value: 'leave', label: getLabel('Leave', 'إجازة') },
+              ]}
+              containerSx={{
+                minWidth: { xs: '120px', md: '160px' },
+              }}
+            />
+          </Box>
+
+          {/* Request Cards Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'repeat(auto-fill, minmax(450px, 1fr))',
+                lg: 'repeat(auto-fill, minmax(513px, 1fr))',
+              },
+              gap: 3,
+              width: '100%',
+            }}
+          >
+            {requests.map(request => (
+              <RequestLeaveCard
+                key={request.id}
+                title={request.title}
+                type={request.type}
+                status={request.status}
+                startDate={request.startDate}
+                endDate={request.endDate}
+                reason={request.reason}
+                submittedDate={request.submittedDate || ''}
+                message={request.message || ''}
+                managerName={request.managerName || ''}
+                managerMessageDate={request.managerMessageDate || ''}
+                isManagerView
+                onDelete={() => handleReject(request.id)}
+                actions={
+                  request.status === 'pending' ? (
+                    <Box>
+                      <AppTextField
+                        placeholder={getLabel(
+                          'Add your remarks...',
+                          'أضف ملاحظاتك...'
+                        )}
+                        multiline
+                        rows={2}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                      />
+                      <Box display='flex' gap={3}>
+                        <AppButton
+                          variant='contained'
+                          text={getLabel('Reject', 'رفض')}
+                          startIcon={<Close />}
+                          onClick={() => handleReject(request.id)}
+                          sx={{
+                            flex: 1,
                             backgroundColor: 'var(--status-rejected-bg)',
                             color: 'var(--status-rejected-text)',
-                          },
-                        }}
-                      />
-                      <AppButton
-                        variant='contained'
-                        text={getLabel('Approve', 'موافقة')}
-                        startIcon={<Check />}
-                        onClick={() => handleApprove(request.id)}
-                        sx={{
-                          flex: 1,
-                          backgroundColor: 'var(--status-approved-bg)',
-                          color: 'var(--status-approved-text)',
-                          ':hover': {
+                            ':hover': {
+                              backgroundColor: 'var(--status-rejected-bg)',
+                              color: 'var(--status-rejected-text)',
+                            },
+                          }}
+                        />
+                        <AppButton
+                          variant='contained'
+                          text={getLabel('Approve', 'موافقة')}
+                          startIcon={<Check />}
+                          onClick={() => handleApprove(request.id)}
+                          sx={{
+                            flex: 1,
                             backgroundColor: 'var(--status-approved-bg)',
                             color: 'var(--status-approved-text)',
-                          },
-                        }}
-                      />
+                            ':hover': {
+                              backgroundColor: 'var(--status-approved-bg)',
+                              color: 'var(--status-approved-text)',
+                            },
+                          }}
+                        />
+                      </Box>
                     </Box>
-                  </Box>
-                ) : null
-              }
-            />
-          ))}
+                  ) : null
+                }
+              />
+            ))}
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </LocalizationProvider>
   );
 }
 
