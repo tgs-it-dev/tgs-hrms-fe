@@ -1,8 +1,7 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
 import { useState } from 'react';
-import { useTheme } from '@mui/material';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { requests as AllRequests } from '../Requests/mockData';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
@@ -113,7 +112,7 @@ function ReviewRequestsPage() {
               message={request.message || ''}
               managerName={request.managerName || ''}
               managerMessageDate={request.managerMessageDate || ''}
-              onApprove={() => {}}
+              onApprove={() => { }}
               onReject={() => request.id}
             />
           ))}

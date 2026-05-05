@@ -156,6 +156,29 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
         {/* Content */}
         <Box display='flex' flexDirection='column' gap={1.5}>
+          {/* title visible to manager only */}
+          {role === 'manager' && <Box display='flex' gap={2}>
+            <Typography
+              sx={{
+                minWidth: '80px',
+                fontWeight: 500,
+                fontSize: 'var(--body-font-size)',
+                color: theme.palette.text.primary,
+              }}
+            >
+              Title:
+            </Typography>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                fontSize: 'var(--body-font-size)',
+                lineHeight: 'var(--body-line-height)',
+                letterSpacing: 'var(--body-letter-spacing)',
+              }}
+            >
+              {title}
+            </Typography>
+          </Box>}
           <Box display='flex' gap={2}>
             <Typography
               sx={{

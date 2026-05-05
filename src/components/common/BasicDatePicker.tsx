@@ -189,7 +189,7 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
           slotProps={{
             field: fieldSlotProps,
             popper: {
-              anchorEl: () => anchorRef.current!,
+              anchorEl: () => anchorRef.current ?? document.body,
               placement: 'bottom-start',
               sx: {
                 '& .MuiPaper-root': {
