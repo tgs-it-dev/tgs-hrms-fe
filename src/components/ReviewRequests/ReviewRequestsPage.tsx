@@ -24,7 +24,7 @@ function ReviewRequestsPage() {
 
   // Update a single request's remark text as the manager types
   function handleRemarkChange(id: string | number, text: string) {
-    setRemarks({ ...remarks, [id]: text });
+    setRemarks(prev => ({ ...prev, [id]: text }));
   }
 
   // Approve: just flip the status to 'approved'
@@ -49,8 +49,10 @@ function ReviewRequestsPage() {
 
   // Filter the list — show only requests that match both dropdowns
   const filteredRequests = requests.filter(req => {
-    const matchStatus = statusFilter === 'all' || req.status === statusFilter;
-    const matchType = typeFilter === 'all' || req.type === typeFilter;
+    const matchStatus =
+      !statusFilter || statusFilter === 'all' || req.status === statusFilter;
+    const matchType =
+      !typeFilter || typeFilter === 'all' || req.type === typeFilter;
     return matchStatus && matchType;
   });
 
