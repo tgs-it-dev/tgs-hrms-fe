@@ -112,7 +112,7 @@ function ReviewRequestsPage() {
               message={request.message || ''}
               managerName={request.managerName || ''}
               managerMessageDate={request.managerMessageDate || ''}
-              onApprove={() => { }}
+              onApprove={() => {}}
               onReject={() => request.id}
             />
           ))}
