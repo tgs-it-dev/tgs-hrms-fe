@@ -17,7 +17,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 function RequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
-
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [open, setOpen] = useState(false);
