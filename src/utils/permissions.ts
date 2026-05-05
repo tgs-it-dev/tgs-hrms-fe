@@ -102,7 +102,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'leave-analytics',
     'teams',
     'recruitment',
-    'requests',
+    'request',
   ],
   user: ['attendance', 'teams', 'recruitment'],
   unknown: ['recruitment'],
@@ -127,7 +127,7 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
     key: 'feature-management',
     patterns: ['feature management', 'feature-management'],
   },
-  { key: 'requests', patterns: ['request', 'requests'] },
+  { key: 'request', patterns: ['request'] },
   { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 
@@ -153,7 +153,7 @@ type ParentKey =
   | 'teams'
   | 'audit logs'
   | 'recruitment'
-  | 'requests'
+  | 'request'
   | 'review-requests'
   | 'misc';
 
@@ -165,7 +165,7 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'teams', patterns: ['team'] },
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
-  { key: 'requests', patterns: ['request', 'requests'] },
+  { key: 'request', patterns: ['request'] },
   { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 

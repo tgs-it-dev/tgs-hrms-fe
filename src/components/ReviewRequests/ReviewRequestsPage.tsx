@@ -22,45 +22,18 @@ function ReviewRequestsPage() {
 
   // Dummy data for requests
   const [requests, setRequests] = useState(AllRequests);
-  const [remarks, setRemarks] = useState<Record<string | number, string>>({});
 
-  const handleRemarkChange = useCallback((id: number | string, val: string) => {
-    setRemarks(prev => ({ ...prev, [id]: val }));
+  const handleApprove = useCallback((id: number | string) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, status: 'approved' } : req))
+    );
   }, []);
 
-  const handleApprove = useCallback(
-    (id: number | string) => {
-      setRequests(prev =>
-        prev.map(req =>
-          req.id === id
-            ? {
-                ...req,
-                status: 'approved',
-                message: remarks[id] || req.message,
-              }
-            : req
-        )
-      );
-    },
-    [remarks]
-  );
-
-  const handleReject = useCallback(
-    (id: number | string) => {
-      setRequests(prev =>
-        prev.map(req =>
-          req.id === id
-            ? {
-                ...req,
-                status: 'rejected',
-                message: remarks[id] || req.message,
-              }
-            : req
-        )
-      );
-    },
-    [remarks]
-  );
+  const handleReject = useCallback((id: number | string) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, status: 'rejected' } : req))
+    );
+  }, []);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -160,6 +133,7 @@ function ReviewRequestsPage() {
                 managerName={request.managerName || ''}
                 managerMessageDate={request.managerMessageDate || ''}
                 isManagerView
+                onDelete={() => handleReject(request.id)}
                 actions={
                   request.status === 'pending' ? (
                     <Box>
@@ -172,10 +146,6 @@ function ReviewRequestsPage() {
                         rows={2}
                         fullWidth
                         sx={{ mb: 2 }}
-                        value={remarks[request.id] || ''}
-                        onChange={e =>
-                          handleRemarkChange(request.id, String(e.target.value))
-                        }
                       />
                       <Box display='flex' gap={3}>
                         <AppButton

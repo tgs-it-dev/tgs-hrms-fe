@@ -254,8 +254,10 @@ function RequestModal({
 
   const filterFields = useMemo(
     () =>
-      reqType === 'leave' ? fields.filter(f => f.name !== 'wfhInfo') : fields,
-    [reqType, fields]
+      initialData || reqType === 'leave'
+        ? fields.filter(f => f.name !== 'wfhInfo')
+        : fields,
+    [initialData, reqType, fields]
   );
 
   const handleSubmit = useCallback(async () => {
