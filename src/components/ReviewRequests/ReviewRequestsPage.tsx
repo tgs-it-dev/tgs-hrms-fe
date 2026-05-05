@@ -1,6 +1,5 @@
 import { Box, useTheme, Typography } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
-import AppDropdown from '../common/AppDropdown';
 import { useState } from 'react';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { requests as AllRequests } from '../../data/mock-requests';
@@ -10,12 +9,11 @@ import AppTextField from '../common/AppTextField';
 import { Check, Close } from '@mui/icons-material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import RequestFilters from '../Requests/RequestFilters';
 
 function ReviewRequestsPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
-
-  const controlBg = theme.palette.background.paper;
 
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -77,51 +75,12 @@ function ReviewRequestsPage() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Filters Row */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 2,
-              justifyContent: 'end',
-              width: '100%',
-            }}
-          >
-            <AppDropdown
-              label={getLabel('Status', 'الحالة')}
-              showLabel={false}
-              placeholder={getLabel('Status', 'الحالة')}
-              inputBackgroundColor={controlBg}
-              value={statusFilter}
-              onChange={e => setStatusFilter(String(e.target.value))}
-              options={[
-                { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
-                {
-                  value: 'pending',
-                  label: getLabel('Pending', 'قيد الانتظار'),
-                },
-                { value: 'approved', label: getLabel('Approved', 'مقبول') },
-                { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
-              ]}
-              containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
-            />
-            <AppDropdown
-              label={getLabel('Type', 'النوع')}
-              showLabel={false}
-              placeholder={getLabel('Type', 'النوع')}
-              inputBackgroundColor={controlBg}
-              value={typeFilter}
-              onChange={e => setTypeFilter(String(e.target.value))}
-              options={[
-                { value: 'all', label: getLabel('All Types', 'كل الأنواع') },
-                {
-                  value: 'wfh',
-                  label: getLabel('Work From Home', 'العمل من المنزل'),
-                },
-                { value: 'leave', label: getLabel('Leave', 'إجازة') },
-              ]}
-              containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
-            />
-          </Box>
+          <RequestFilters
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+          />
 
           {/* Request Cards Grid */}
           <Box

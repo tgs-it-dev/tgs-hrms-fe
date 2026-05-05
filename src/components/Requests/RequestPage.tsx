@@ -2,13 +2,13 @@ import { Box, Typography, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppButton from '../common/AppButton';
 import { AddOutlined } from '@mui/icons-material';
-import AppDropdown from '../common/AppDropdown';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import RequestModal from './RequestModal';
 import {
   requests as AllRequests,
   type Request,
 } from '../../data/mock-requests';
+import RequestFilters from './RequestFilters';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -17,8 +17,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 function RequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
-
-  const controlBg = theme.palette.background.paper;
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -46,13 +44,13 @@ function RequestPage() {
     setRequests(prev => prev.filter(req => req.id !== id));
   }, []);
 
-  const filteredRequests = useMemo(() => {
-    return requests.filter(req => {
-      const matchStatus = statusFilter === 'all' || req.status === statusFilter;
-      const matchType = typeFilter === 'all' || req.type === typeFilter;
-      return matchStatus && matchType;
-    });
-  }, [requests, statusFilter, typeFilter]);
+  const filteredRequests = requests.filter(req => {
+    const matchStatus =
+      !statusFilter || statusFilter === 'all' || req.status === statusFilter;
+    const matchType =
+      !typeFilter || typeFilter === 'all' || req.type === typeFilter;
+    return matchStatus && matchType;
+  });
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -87,55 +85,12 @@ function RequestPage() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Filters Row */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 2,
-              justifyContent: 'end',
-              width: '100%',
-            }}
-          >
-            <AppDropdown
-              label={getLabel('Status', 'الحالة')}
-              showLabel={false}
-              placeholder={getLabel('Status', 'الحالة')}
-              inputBackgroundColor={controlBg}
-              value={statusFilter}
-              onChange={e => setStatusFilter(String(e.target.value))}
-              options={[
-                { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
-                {
-                  value: 'pending',
-                  label: getLabel('Pending', 'قيد الانتظار'),
-                },
-                { value: 'approved', label: getLabel('Approved', 'مقبول') },
-                { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
-              ]}
-              containerSx={{
-                minWidth: { xs: '120px', md: '160px' },
-              }}
-            />
-            <AppDropdown
-              label={getLabel('Type', 'النوع')}
-              showLabel={false}
-              placeholder={getLabel('Type', 'النوع')}
-              inputBackgroundColor={controlBg}
-              value={typeFilter}
-              onChange={e => setTypeFilter(String(e.target.value))}
-              options={[
-                { value: 'all', label: getLabel('All Types', 'كل الأنواع') },
-                {
-                  value: 'wfh',
-                  label: getLabel('Work From Home', 'العمل من المنزل'),
-                },
-                { value: 'leave', label: getLabel('Leave', 'إجازة') },
-              ]}
-              containerSx={{
-                minWidth: { xs: '120px', md: '160px' },
-              }}
-            />
-          </Box>
+          <RequestFilters
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+          />
 
           {/* Request Cards Grid */}
           <Box
