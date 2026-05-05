@@ -35,7 +35,6 @@ function RequestModal({
   const [toDate, setToDate] = useState<Dayjs | null>(null);
 
   // Status/Feedback states
-  const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -289,8 +288,6 @@ function RequestModal({
       return;
     }
 
-    setLoading(true);
-
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -309,7 +306,6 @@ function RequestModal({
       // Close modal after success
       setTimeout(() => {
         onClose();
-        setLoading(false);
       }, 500);
     } catch (error) {
       setSnackbar({
@@ -318,7 +314,6 @@ function RequestModal({
         severity: 'error',
       });
       console.error(error);
-      setLoading(false);
     }
   }, [titleVal, fromDate, toDate, reason, initialData, onClose, getLabel]);
 
@@ -330,7 +325,6 @@ function RequestModal({
         onClose={onClose}
         onSubmit={handleSubmit}
         fields={filterFields}
-        // loading={loading}
         submitLabel={
           initialData
             ? getLabel('Save Changes', 'حفظ التغييرات')
