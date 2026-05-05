@@ -3,11 +3,12 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
-import type { Request } from './mockData';
+import type { Request } from '../../data/mock-leaves';
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import ErrorSnackbar from '../common/ErrorSnackbar';
 
 dayjs.extend(customParseFormat);
 
@@ -23,7 +24,6 @@ function RequestModal({
   initialData?: Request | null;
 }) {
   const theme = useTheme();
-
   const getLabel = useDirectionLabel();
 
   // State variables
@@ -33,6 +33,18 @@ function RequestModal({
   const [additionalDetails, setAdditionalDetails] = useState('');
   const [fromDate, setFromDate] = useState<Dayjs | null>(null);
   const [toDate, setToDate] = useState<Dayjs | null>(null);
+
+  // Status/Feedback states
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   // Handle date change
   const handleFromDateChange = useCallback((date: Dayjs | null) => {
@@ -251,9 +263,64 @@ function RequestModal({
     [initialData, reqType, fields]
   );
 
-  const handleSubmit = useCallback(() => {
-    onClose();
-  }, [onClose]);
+  const handleSubmit = useCallback(async () => {
+    // Basic validation
+    if (!titleVal || !fromDate || !toDate || !reason) {
+      setSnackbar({
+        open: true,
+        message: getLabel(
+          'Please fill all required fields.',
+          'يرجى ملء جميع الحقول المطلوبة.'
+        ),
+        severity: 'error',
+      });
+      return;
+    }
+
+    if (toDate.isBefore(fromDate)) {
+      setSnackbar({
+        open: true,
+        message: getLabel(
+          'End date cannot be before start date.',
+          'لا يمكن أن يكون تاريخ الانتهاء قبل تاريخ البدء.'
+        ),
+        severity: 'error',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      setSnackbar({
+        open: true,
+        message: initialData
+          ? getLabel('Request updated successfully!', 'تم تحديث الطلب بنجاح!')
+          : getLabel(
+              'Request submitted successfully!',
+              'تم تقديم الطلب بنجاح!'
+            ),
+        severity: 'success',
+      });
+
+      // Close modal after success
+      setTimeout(() => {
+        onClose();
+        setLoading(false);
+      }, 500);
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: getLabel('Something went wrong.', 'حدث خطأ ما.'),
+        severity: 'error',
+      });
+      console.error(error);
+      setLoading(false);
+    }
+  }, [titleVal, fromDate, toDate, reason, initialData, onClose, getLabel]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -263,12 +330,19 @@ function RequestModal({
         onClose={onClose}
         onSubmit={handleSubmit}
         fields={filterFields}
+        // loading={loading}
         submitLabel={
           initialData
             ? getLabel('Save Changes', 'حفظ التغييرات')
             : getLabel('Submit Request', 'إرسال الطلب')
         }
         cancelLabel={getLabel('Cancel', 'إلغاء')}
+      />
+      <ErrorSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
     </LocalizationProvider>
   );

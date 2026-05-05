@@ -8,14 +8,10 @@ import {
   Divider,
   CardContent,
 } from '@mui/material';
-import { Check, Close } from '@mui/icons-material';
-import AppButton from './AppButton';
-import AppTextField from './AppTextField';
-import AppCard from './AppCard';
-import { useUser } from '../../hooks/useUser';
-import { getRoleName } from '../../utils/roleUtils';
 import { Icons } from '../../assets/icons';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import { useDirectionLabel } from '../../hooks/useDirectionLabel';
+import AppCard from './AppCard';
 
 export interface RequestLeaveCardProps {
   title: string;
@@ -30,8 +26,8 @@ export interface RequestLeaveCardProps {
   managerMessageDate?: string;
   onEdit?: () => void;
   onDelete?: () => void;
-  onApprove?: () => void;
-  onReject?: () => void;
+  actions?: React.ReactNode;
+  isManagerView?: boolean;
 }
 
 const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
@@ -48,28 +44,26 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
     managerMessageDate,
     onEdit,
     onDelete,
-    onApprove,
-    onReject,
+    actions,
+    isManagerView = false,
   } = props;
 
   const theme = useTheme();
-  const { user } = useUser();
-
-  const role = getRoleName(user?.role).toLowerCase();
+  const getLabel = useDirectionLabel();
 
   const statusConfig = {
     pending: {
-      label: 'Pending',
+      label: getLabel('Pending', 'قيد الانتظار'),
       bg: 'var(--status-pending-bg)',
       color: 'var(--status-pending-text)',
     },
     approved: {
-      label: 'Approved',
+      label: getLabel('Approved', 'مقبول'),
       bg: 'var(--status-approved-bg)',
       color: 'var(--status-approved-text)',
     },
     rejected: {
-      label: 'Rejected',
+      label: getLabel('Rejected', 'مرفوض'),
       bg: 'var(--status-rejected-bg)',
       color: 'var(--status-rejected-text)',
     },
@@ -85,11 +79,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
   };
 
   const handleConfirmDelete = () => {
-    if (role === 'manager' && isPending) {
-      onReject?.();
-    } else {
-      onDelete?.();
-    }
+    onDelete?.();
     setDeleteDialogOpen(false);
   };
 
@@ -156,8 +146,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
         {/* Content */}
         <Box display='flex' flexDirection='column' gap={1.5}>
-          {/* title visible to manager only */}
-          {role === 'manager' && (
+          {isManagerView && (
             <Box display='flex' gap={2}>
               <Typography
                 sx={{
@@ -167,7 +156,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                   color: theme.palette.text.primary,
                 }}
               >
-                Title:
+                {getLabel('Title:', 'العنوان:')}
               </Typography>
               <Typography
                 sx={{
@@ -190,7 +179,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 color: theme.palette.text.primary,
               }}
             >
-              Date:
+              {getLabel('Date:', 'التاريخ:')}
             </Typography>
             <Typography
               sx={{
@@ -213,7 +202,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 color: theme.palette.text.primary,
               }}
             >
-              Reason:
+              {getLabel('Reason:', 'السبب:')}
             </Typography>
             <Typography
               sx={{
@@ -233,95 +222,54 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
         />
 
-        {/* Message */}
-        {role === 'manager' && isPending ? (
-          <AppTextField
-            placeholder='Add your remarks...'
-            multiline
-            rows={2}
-            fullWidth
-          />
-        ) : (
-          <Box
-            sx={{
-              backgroundColor: 'var(--app-table-header-bg)',
-              borderLeft: `4px solid ${theme.palette.primary.main}`,
-              p: '12px 16px',
-              borderRadius: '4px',
-            }}
-          >
-            {managerName && (
-              <Box display='flex' justifyContent='space-between' mb={0.5}>
+        {/* Message / Remarks Section */}
+        <Box
+          sx={{
+            backgroundColor: 'var(--app-table-header-bg)',
+            borderLeft: `4px solid ${theme.palette.primary.main}`,
+            p: '12px 16px',
+            borderRadius: '4px',
+          }}
+        >
+          {managerName && (
+            <Box display='flex' justifyContent='space-between' mb={0.5}>
+              <Typography
+                fontWeight={600}
+                sx={{
+                  fontSize: 'var(--body-font-size)',
+                  color: theme.palette.text.primary,
+                }}
+              >
+                {managerName}:
+              </Typography>
+              {managerMessageDate && (
                 <Typography
-                  fontWeight={600}
                   sx={{
-                    fontSize: 'var(--body-font-size)',
-                    color: theme.palette.text.primary,
+                    fontSize: 'var(--label-font-size)',
+                    color: 'text.secondary',
                   }}
                 >
-                  {managerName}:
+                  {managerMessageDate}
                 </Typography>
-                {managerMessageDate && (
-                  <Typography
-                    sx={{
-                      fontSize: 'var(--label-font-size)',
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {managerMessageDate}
-                  </Typography>
-                )}
-              </Box>
-            )}
+              )}
+            </Box>
+          )}
 
-            <Typography
-              sx={{
-                fontSize: '14px',
-                color: 'text.secondary',
-                fontStyle: managerName ? 'normal' : 'italic',
-                lineHeight: 'var(--body-line-height)',
-                letterSpacing: 'var(--body-letter-spacing)',
-              }}
-            >
-              {message}
-            </Typography>
-          </Box>
-        )}
+          <Typography
+            sx={{
+              fontSize: '14px',
+              color: 'text.secondary',
+              fontStyle: managerName ? 'normal' : 'italic',
+              lineHeight: 'var(--body-line-height)',
+              letterSpacing: 'var(--body-letter-spacing)',
+            }}
+          >
+            {message}
+          </Typography>
+        </Box>
 
-        {role === 'manager' && isPending && (
-          <Box display='flex' gap={3} mt={2}>
-            <AppButton
-              variant='contained'
-              text='Reject'
-              startIcon={<Close />}
-              onClick={handleDeleteClick}
-              sx={{
-                flex: 1,
-                backgroundColor: 'var(--status-rejected-bg)',
-                color: 'var(--status-rejected-text)',
-                ':hover': {
-                  backgroundColor: 'var(--status-rejected-bg)',
-                  color: 'var(--status-rejected-text)',
-                },
-              }}
-            />
-            <AppButton
-              variant='contained'
-              text='Approve'
-              startIcon={<Check />}
-              onClick={onApprove}
-              sx={{
-                flex: 1,
-                backgroundColor: 'var(--status-approved-bg)',
-                color: 'var(--status-approved-text)',
-                ':hover': {
-                  backgroundColor: 'var(--status-approved-bg)',
-                  color: 'var(--status-approved-text)',
-                },
-              }}
-            />
-          </Box>
-        )}
+        {/* Actions Slot (Manager controls or Employee remarks input) */}
+        {actions && <Box mt={2}>{actions}</Box>}
 
         <Divider
           sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
@@ -330,7 +278,9 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
         {/* Footer */}
         <Box
           display='flex'
-          justifyContent={isPending ? 'space-between' : 'center'}
+          justifyContent={
+            isPending && !isManagerView ? 'space-between' : 'center'
+          }
           alignItems='center'
         >
           <Typography
@@ -339,10 +289,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
               color: 'text.secondary',
             }}
           >
-            Submitted: {submittedDate}
+            {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
           </Typography>
 
-          {role !== 'manager' && isPending && (
+          {!isManagerView && isPending && (
             <Box display='flex' gap={0.5}>
               <IconButton size='small' onClick={onEdit}>
                 <Box
@@ -375,13 +325,12 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={role === 'manager' ? 'Confirm Rejection' : 'Confirm Deletion'}
-        message={
-          role === 'manager'
-            ? 'Are you sure you want to reject this request?'
-            : 'Are you sure you want to delete this request? This action cannot be undone.'
-        }
-        confirmText={role === 'manager' ? 'Reject' : 'Delete'}
+        title={getLabel('Confirm Deletion', 'تأكيد الحذف')}
+        message={getLabel(
+          'Are you sure you want to delete this request? This action cannot be undone.',
+          'هل أنت متأكد أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.'
+        )}
+        confirmText={getLabel('Delete', 'حذف')}
       />
     </AppCard>
   );

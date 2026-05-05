@@ -1,23 +1,37 @@
 import { Box, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import RequestLeaveCard from '../common/RequestLeaveCard';
-import { requests as AllRequests } from '../Requests/mockData';
+import { requests as AllRequests } from '../../data/mock-leaves';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
+import AppButton from '../common/AppButton';
+import AppTextField from '../common/AppTextField';
+import { Check, Close } from '@mui/icons-material';
 
 function ReviewRequestsPage() {
   const theme = useTheme();
+  const getLabel = useDirectionLabel();
 
   const controlBg = theme.palette.background.paper;
-
-  const getLabel = useDirectionLabel();
 
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<string>('');
 
   // Dummy data for requests
-  const requests = AllRequests;
+  const [requests, setRequests] = useState(AllRequests);
+
+  const handleApprove = useCallback((id: number | string) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, status: 'approved' } : req))
+    );
+  }, []);
+
+  const handleReject = useCallback((id: number | string) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, status: 'rejected' } : req))
+    );
+  }, []);
 
   return (
     <Box sx={{ pb: 4 }}>
@@ -34,7 +48,7 @@ function ReviewRequestsPage() {
           width: '100%',
         }}
       >
-        <AppPageTitle>Requests</AppPageTitle>
+        <AppPageTitle>{getLabel('Requests', 'الطلبات')}</AppPageTitle>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -112,8 +126,56 @@ function ReviewRequestsPage() {
               message={request.message || ''}
               managerName={request.managerName || ''}
               managerMessageDate={request.managerMessageDate || ''}
-              onApprove={() => {}}
-              onReject={() => request.id}
+              isManagerView
+              onDelete={() => handleReject(request.id)}
+              actions={
+                request.status === 'pending' ? (
+                  <Box>
+                    <AppTextField
+                      placeholder={getLabel(
+                        'Add your remarks...',
+                        'أضف ملاحظاتك...'
+                      )}
+                      multiline
+                      rows={2}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                    />
+                    <Box display='flex' gap={3}>
+                      <AppButton
+                        variant='contained'
+                        text={getLabel('Reject', 'رفض')}
+                        startIcon={<Close />}
+                        onClick={() => handleReject(request.id)}
+                        sx={{
+                          flex: 1,
+                          backgroundColor: 'var(--status-rejected-bg)',
+                          color: 'var(--status-rejected-text)',
+                          ':hover': {
+                            backgroundColor: 'var(--status-rejected-bg)',
+                            color: 'var(--status-rejected-text)',
+                          },
+                        }}
+                      />
+                      <AppButton
+                        variant='contained'
+                        text={getLabel('Approve', 'موافقة')}
+                        startIcon={<Check />}
+                        onClick={() => handleApprove(request.id)}
+                        sx={{
+                          flex: 1,
+                          backgroundColor: 'var(--status-approved-bg)',
+                          color: 'var(--status-approved-text)',
+                          ':hover': {
+                            backgroundColor: 'var(--status-approved-bg)',
+                            color: 'var(--status-approved-text)',
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                ) : null
+              }
             />
           ))}
         </Box>

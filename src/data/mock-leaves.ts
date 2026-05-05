@@ -1,7 +1,7 @@
 export interface Request {
   id: number;
   title: string;
-  type: string;
+  type: 'Leave' | 'WFH';
   status: 'pending' | 'approved' | 'rejected';
   startDate: string;
   endDate: string;

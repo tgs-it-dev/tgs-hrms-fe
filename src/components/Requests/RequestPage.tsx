@@ -3,40 +3,44 @@ import AppPageTitle from '../common/AppPageTitle';
 import AppButton from '../common/AppButton';
 import { AddOutlined } from '@mui/icons-material';
 import AppDropdown from '../common/AppDropdown';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import RequestModal from './RequestModal';
-import { requests as AllRequests, type Request } from './mockData';
+import { requests as AllRequests, type Request } from '../../data/mock-leaves';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 
 function RequestPage() {
   const theme = useTheme();
+  const getLabel = useDirectionLabel();
 
   const controlBg = theme.palette.background.paper;
-
-  const getLabel = useDirectionLabel();
 
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
-  const handleClose = () => {
+  const [requests, setRequests] = useState<Request[]>(AllRequests);
+
+  const handleClose = useCallback(() => {
     setOpen(false);
     setSelectedRequest(null);
-  };
+  }, []);
 
-  const handleEdit = (request: Request) => {
+  const handleEdit = useCallback((request: Request) => {
     setSelectedRequest(request);
     setOpen(true);
-  };
+  }, []);
 
-  const handleAddNew = () => {
+  const handleAddNew = useCallback(() => {
     setSelectedRequest(null);
     setOpen(true);
-  };
+  }, []);
 
-  const requests: Request[] = AllRequests;
+  const handleDelete = useCallback((id: number | string) => {
+    setRequests(prev => prev.filter(req => req.id !== id));
+  }, []);
+
   return (
     <Box sx={{ pb: 4 }}>
       {/* title and actions */}
@@ -52,12 +56,12 @@ function RequestPage() {
           width: '100%',
         }}
       >
-        <AppPageTitle>Requests</AppPageTitle>
+        <AppPageTitle>{getLabel('Requests', 'الطلبات')}</AppPageTitle>
 
         <AppButton
           variant='contained'
           variantType='primary'
-          text='New Request'
+          text={getLabel('New Request', 'طلب جديد')}
           startIcon={<AddOutlined />}
           onClick={handleAddNew}
           sx={{
@@ -143,7 +147,7 @@ function RequestPage() {
               managerName={request.managerName}
               managerMessageDate={request.managerMessageDate}
               onEdit={() => handleEdit(request)}
-              onDelete={() => request.id}
+              onDelete={() => handleDelete(request.id)}
             />
           ))}
         </Box>
