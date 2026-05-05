@@ -5,7 +5,10 @@ import { AddOutlined } from '@mui/icons-material';
 import AppDropdown from '../common/AppDropdown';
 import { useState, useCallback } from 'react';
 import RequestModal from './RequestModal';
-import { requests as AllRequests, type Request } from '../../data/mock-leaves';
+import {
+  requests as AllRequests,
+  type Request,
+} from '../../data/mock-requests';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';

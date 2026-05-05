@@ -3,7 +3,7 @@ import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
 import { useState, useCallback } from 'react';
 import RequestLeaveCard from '../common/RequestLeaveCard';
-import { requests as AllRequests } from '../../data/mock-leaves';
+import { requests as AllRequests } from '../../data/mock-requests';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import AppButton from '../common/AppButton';
 import AppTextField from '../common/AppTextField';
@@ -22,18 +22,45 @@ function ReviewRequestsPage() {
 
   // Dummy data for requests
   const [requests, setRequests] = useState(AllRequests);
+  const [remarks, setRemarks] = useState<Record<string | number, string>>({});
 
-  const handleApprove = useCallback((id: number | string) => {
-    setRequests(prev =>
-      prev.map(req => (req.id === id ? { ...req, status: 'approved' } : req))
-    );
+  const handleRemarkChange = useCallback((id: number | string, val: string) => {
+    setRemarks(prev => ({ ...prev, [id]: val }));
   }, []);
 
-  const handleReject = useCallback((id: number | string) => {
-    setRequests(prev =>
-      prev.map(req => (req.id === id ? { ...req, status: 'rejected' } : req))
-    );
-  }, []);
+  const handleApprove = useCallback(
+    (id: number | string) => {
+      setRequests(prev =>
+        prev.map(req =>
+          req.id === id
+            ? {
+                ...req,
+                status: 'approved',
+                message: remarks[id] || req.message,
+              }
+            : req
+        )
+      );
+    },
+    [remarks]
+  );
+
+  const handleReject = useCallback(
+    (id: number | string) => {
+      setRequests(prev =>
+        prev.map(req =>
+          req.id === id
+            ? {
+                ...req,
+                status: 'rejected',
+                message: remarks[id] || req.message,
+              }
+            : req
+        )
+      );
+    },
+    [remarks]
+  );
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -133,7 +160,6 @@ function ReviewRequestsPage() {
                 managerName={request.managerName || ''}
                 managerMessageDate={request.managerMessageDate || ''}
                 isManagerView
-                onDelete={() => handleReject(request.id)}
                 actions={
                   request.status === 'pending' ? (
                     <Box>
@@ -146,6 +172,10 @@ function ReviewRequestsPage() {
                         rows={2}
                         fullWidth
                         sx={{ mb: 2 }}
+                        value={remarks[request.id] || ''}
+                        onChange={e =>
+                          handleRemarkChange(request.id, String(e.target.value))
+                        }
                       />
                       <Box display='flex' gap={3}>
                         <AppButton

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
-import type { Request } from '../../data/mock-leaves';
+import type { Request } from '../../data/mock-requests';
 import dayjs, { type Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import ErrorSnackbar from '../common/ErrorSnackbar';
@@ -254,10 +254,8 @@ function RequestModal({
 
   const filterFields = useMemo(
     () =>
-      initialData || reqType === 'leave'
-        ? fields.filter(f => f.name !== 'wfhInfo')
-        : fields,
-    [initialData, reqType, fields]
+      reqType === 'leave' ? fields.filter(f => f.name !== 'wfhInfo') : fields,
+    [reqType, fields]
   );
 
   const handleSubmit = useCallback(async () => {
