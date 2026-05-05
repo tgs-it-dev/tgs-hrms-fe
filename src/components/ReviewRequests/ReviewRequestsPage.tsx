@@ -19,60 +19,24 @@ function ReviewRequestsPage() {
 
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [remarks, setRemarks] = useState<Record<number | string, string>>({});
+  const [remarks, setRemarks] = useState<Record<string | number, string>>({});
 
   // Dummy data for requests
   const [requests, setRequests] = useState(AllRequests);
 
-  const handleApprove = useCallback(
-    (id: number | string) => {
-      setRequests(prev =>
-        prev.map(req =>
-          req.id === id
-            ? {
-                ...req,
-                status: 'approved',
-                message: remarks[id] || req.message,
-              }
-            : req
-        )
-      );
-      // Clear remarks for this ID after action
-      setRemarks(prev => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    },
-    [remarks]
-  );
+  const handleApprove = useCallback((id: number | string) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, status: 'approved' } : req))
+    );
+  }, []);
 
-  const handleReject = useCallback(
-    (id: number | string) => {
-      setRequests(prev =>
-        prev.map(req =>
-          req.id === id
-            ? {
-                ...req,
-                status: 'rejected',
-                message: remarks[id] || req.message,
-              }
-            : req
-        )
-      );
-      // Clear remarks for this ID after action
-      setRemarks(prev => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    },
-    [remarks]
-  );
-
-  const handleRemarksChange = (id: number | string, val: string) => {
-    setRemarks(prev => ({ ...prev, [id]: val }));
-  };
+  const handleReject = useCallback((id: number | string, remark: string) => {
+    setRequests(prev =>
+      prev.map(req =>
+        req.id === id ? { ...req, status: 'rejected', message: remark } : req
+      )
+    );
+  }, []);
 
   const filteredRequests = useMemo(() => {
     return requests.filter(req => {
@@ -194,9 +158,11 @@ function ReviewRequestsPage() {
                           rows={2}
                           fullWidth
                           sx={{ mb: 2 }}
-                          value={remarks[request.id] || ''}
                           onChange={e =>
-                            handleRemarksChange(request.id, e.target.value)
+                            setRemarks(prev => ({
+                              ...prev,
+                              [request.id]: e.target.value,
+                            }))
                           }
                         />
                         <Box display='flex' gap={3}>
@@ -204,7 +170,12 @@ function ReviewRequestsPage() {
                             variant='contained'
                             text={getLabel('Reject', 'رفض')}
                             startIcon={<Close />}
-                            onClick={() => handleReject(request.id)}
+                            onClick={() =>
+                              handleReject(
+                                request.id,
+                                remarks[request.id] || ''
+                              )
+                            }
                             sx={{
                               flex: 1,
                               backgroundColor: 'var(--status-rejected-bg)',
