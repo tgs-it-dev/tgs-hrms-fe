@@ -1,7 +1,7 @@
 export interface Request {
   id: number;
   title: string;
-  type: 'Leave' | 'WFH';
+  type: 'leave' | 'wfh';
   status: 'pending' | 'approved' | 'rejected';
   startDate: string;
   endDate: string;
@@ -16,7 +16,7 @@ export const requests: Request[] = [
   {
     id: 1,
     title: 'Leave Request',
-    type: 'Leave',
+    type: 'leave',
     status: 'pending',
     startDate: '29/04/2026',
     endDate: '29/04/2026',
@@ -28,7 +28,7 @@ export const requests: Request[] = [
   {
     id: 2,
     title: 'Leave Request',
-    type: 'Leave',
+    type: 'leave',
     status: 'approved',
     startDate: '29/04/2026',
     endDate: '29/04/2026',
@@ -42,7 +42,7 @@ export const requests: Request[] = [
   {
     id: 3,
     title: 'WFH Request',
-    type: 'WFH',
+    type: 'wfh',
     status: 'rejected',
     startDate: '29/04/2026',
     endDate: '29/04/2026',

@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { requests as AllRequests } from '../../data/mock-requests';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
@@ -17,8 +17,8 @@ function ReviewRequestsPage() {
 
   const controlBg = theme.palette.background.paper;
 
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   // Dummy data for requests
   const [requests, setRequests] = useState(AllRequests);
@@ -34,6 +34,14 @@ function ReviewRequestsPage() {
       prev.map(req => (req.id === id ? { ...req, status: 'rejected' } : req))
     );
   }, []);
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter(req => {
+      const matchStatus = statusFilter === 'all' || req.status === statusFilter;
+      const matchType = typeFilter === 'all' || req.type === typeFilter;
+      return matchStatus && matchType;
+    });
+  }, [requests, statusFilter, typeFilter]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -70,7 +78,7 @@ function ReviewRequestsPage() {
               showLabel={false}
               placeholder={getLabel('Status', 'الحالة')}
               inputBackgroundColor={controlBg}
-              value={statusFilter === '' ? 'all' : statusFilter}
+              value={statusFilter}
               onChange={e => setStatusFilter(String(e.target.value))}
               options={[
                 { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
@@ -90,12 +98,12 @@ function ReviewRequestsPage() {
               showLabel={false}
               placeholder={getLabel('Type', 'النوع')}
               inputBackgroundColor={controlBg}
-              value={typeFilter === '' ? 'all' : typeFilter}
+              value={typeFilter}
               onChange={e => setTypeFilter(String(e.target.value))}
               options={[
                 { value: 'all', label: getLabel('All Types', 'كل الأنواع') },
                 {
-                  value: 'work-from-home',
+                  value: 'wfh',
                   label: getLabel('Work From Home', 'العمل من المنزل'),
                 },
                 { value: 'leave', label: getLabel('Leave', 'إجازة') },
@@ -119,11 +127,11 @@ function ReviewRequestsPage() {
               width: '100%',
             }}
           >
-            {requests.map(request => (
+            {filteredRequests.map(request => (
               <RequestLeaveCard
                 key={request.id}
                 title={request.title}
-                type={request.type}
+                type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
                 status={request.status}
                 startDate={request.startDate}
                 endDate={request.endDate}

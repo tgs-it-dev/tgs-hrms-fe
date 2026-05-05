@@ -230,7 +230,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           />
 
           {/* Message / Remarks Section */}
-          {!isManagerView && (
+          {(!isManagerView || status !== 'pending') && (
             <Box
               sx={{
                 backgroundColor: 'var(--app-table-header-bg)',
@@ -294,7 +294,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           <Box
             display='flex'
             justifyContent={
-              isPending && !isManagerView ? 'space-between' : 'left'
+              isPending && !isManagerView ? 'space-between' : 'flex-start'
             }
             alignItems='center'
           >
