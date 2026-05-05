@@ -125,72 +125,99 @@ function ReviewRequestsPage() {
               },
               gap: 3,
               width: '100%',
+              minHeight: '200px',
             }}
           >
-            {filteredRequests.map(request => (
-              <RequestLeaveCard
-                key={request.id}
-                title={request.title}
-                type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
-                status={request.status}
-                startDate={request.startDate}
-                endDate={request.endDate}
-                reason={request.reason}
-                submittedDate={request.submittedDate || ''}
-                message={request.message || ''}
-                managerName={request.managerName || ''}
-                managerMessageDate={request.managerMessageDate || ''}
-                isManagerView
-                actions={
-                  request.status === 'pending' ? (
-                    <Box>
-                      <AppTextField
-                        placeholder={getLabel(
-                          'Add your remarks...',
-                          'أضف ملاحظاتك...'
-                        )}
-                        multiline
-                        rows={2}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                      />
-                      <Box display='flex' gap={3}>
-                        <AppButton
-                          variant='contained'
-                          text={getLabel('Reject', 'رفض')}
-                          startIcon={<Close />}
-                          onClick={() => handleReject(request.id)}
-                          sx={{
-                            flex: 1,
-                            backgroundColor: 'var(--status-rejected-bg)',
-                            color: 'var(--status-rejected-text)',
-                            ':hover': {
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map(request => (
+                <RequestLeaveCard
+                  key={request.id}
+                  title={request.title}
+                  type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
+                  status={request.status}
+                  startDate={request.startDate}
+                  endDate={request.endDate}
+                  reason={request.reason}
+                  submittedDate={request.submittedDate || ''}
+                  message={request.message || ''}
+                  managerName={request.managerName || ''}
+                  managerMessageDate={request.managerMessageDate || ''}
+                  isManagerView
+                  actions={
+                    request.status === 'pending' ? (
+                      <Box>
+                        <AppTextField
+                          placeholder={getLabel(
+                            'Add your remarks...',
+                            'أضف ملاحظاتك...'
+                          )}
+                          multiline
+                          rows={2}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+                        <Box display='flex' gap={3}>
+                          <AppButton
+                            variant='contained'
+                            text={getLabel('Reject', 'رفض')}
+                            startIcon={<Close />}
+                            onClick={() => handleReject(request.id)}
+                            sx={{
+                              flex: 1,
                               backgroundColor: 'var(--status-rejected-bg)',
                               color: 'var(--status-rejected-text)',
-                            },
-                          }}
-                        />
-                        <AppButton
-                          variant='contained'
-                          text={getLabel('Approve', 'موافقة')}
-                          startIcon={<Check />}
-                          onClick={() => handleApprove(request.id)}
-                          sx={{
-                            flex: 1,
-                            backgroundColor: 'var(--status-approved-bg)',
-                            color: 'var(--status-approved-text)',
-                            ':hover': {
+                              ':hover': {
+                                backgroundColor: 'var(--status-rejected-bg)',
+                                color: 'var(--status-rejected-text)',
+                              },
+                            }}
+                          />
+                          <AppButton
+                            variant='contained'
+                            text={getLabel('Approve', 'موافقة')}
+                            startIcon={<Check />}
+                            onClick={() => handleApprove(request.id)}
+                            sx={{
+                              flex: 1,
                               backgroundColor: 'var(--status-approved-bg)',
                               color: 'var(--status-approved-text)',
-                            },
-                          }}
-                        />
+                              ':hover': {
+                                backgroundColor: 'var(--status-approved-bg)',
+                                color: 'var(--status-approved-text)',
+                              },
+                            }}
+                          />
+                        </Box>
                       </Box>
-                    </Box>
-                  ) : null
-                }
-              />
-            ))}
+                    ) : null
+                  }
+                />
+              ))
+            ) : (
+              <Box
+                sx={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  py: 8,
+                  backgroundColor: 'background.paper',
+                  borderRadius: 'var(--border-radius-2xl)',
+                  border: `1px dashed ${theme.palette.divider}`,
+                }}
+              >
+                <Typography variant='h6' color='text.secondary'>
+                  {getLabel('No requests found', 'لم يتم العثور على طلبات')}
+                </Typography>
+                <Typography variant='body2' color='text.secondary' mt={1}>
+                  {getLabel(
+                    'Try adjusting your filters',
+                    'جرب تعديل الفلاتر الخاصة بك'
+                  )}
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppButton from '../common/AppButton';
 import { AddOutlined } from '@mui/icons-material';
@@ -148,25 +148,52 @@ function RequestPage() {
               },
               gap: 3,
               width: '100%',
+              minHeight: '200px',
             }}
           >
-            {filteredRequests.map(request => (
-              <RequestLeaveCard
-                key={request.id}
-                title={request.title}
-                type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
-                status={request.status}
-                startDate={request.startDate}
-                endDate={request.endDate}
-                reason={request.reason}
-                submittedDate={request.submittedDate ?? ''}
-                message={request.message ?? ''}
-                managerName={request.managerName}
-                managerMessageDate={request.managerMessageDate}
-                onEdit={() => handleEdit(request)}
-                onDelete={() => handleDelete(request.id)}
-              />
-            ))}
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map(request => (
+                <RequestLeaveCard
+                  key={request.id}
+                  title={request.title}
+                  type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
+                  status={request.status}
+                  startDate={request.startDate}
+                  endDate={request.endDate}
+                  reason={request.reason}
+                  submittedDate={request.submittedDate ?? ''}
+                  message={request.message ?? ''}
+                  managerName={request.managerName}
+                  managerMessageDate={request.managerMessageDate}
+                  onEdit={() => handleEdit(request)}
+                  onDelete={() => handleDelete(request.id)}
+                />
+              ))
+            ) : (
+              <Box
+                sx={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  py: 8,
+                  backgroundColor: 'background.paper',
+                  borderRadius: 'var(--border-radius-2xl)',
+                  border: `1px dashed ${theme.palette.divider}`,
+                }}
+              >
+                <Typography variant='h6' color='text.secondary'>
+                  {getLabel('No requests found', 'لم يتم العثور على طلبات')}
+                </Typography>
+                <Typography variant='body2' color='text.secondary' mt={1}>
+                  {getLabel(
+                    'Try adjusting your filters',
+                    'جرب تعديل الفلاتر الخاصة بك'
+                  )}
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
 
