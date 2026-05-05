@@ -1,7 +1,7 @@
 import { Box, useTheme, Typography } from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
-import { useState, useCallback, useMemo } from 'react';
+import { useState } from 'react';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { requests as AllRequests } from '../../data/mock-requests';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
@@ -20,31 +20,39 @@ function ReviewRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [remarks, setRemarks] = useState<Record<string | number, string>>({});
-
-  // Dummy data for requests
   const [requests, setRequests] = useState(AllRequests);
 
-  const handleApprove = useCallback((id: number | string) => {
-    setRequests(prev =>
-      prev.map(req => (req.id === id ? { ...req, status: 'approved' } : req))
-    );
-  }, []);
+  // Update a single request's remark text as the manager types
+  function handleRemarkChange(id: string | number, text: string) {
+    setRemarks({ ...remarks, [id]: text });
+  }
 
-  const handleReject = useCallback((id: number | string, remark: string) => {
-    setRequests(prev =>
-      prev.map(req =>
-        req.id === id ? { ...req, status: 'rejected', message: remark } : req
+  // Approve: just flip the status to 'approved'
+  function handleApprove(id: string | number) {
+    setRequests(
+      requests.map(req =>
+        req.id === id ? { ...req, status: 'approved' } : req
       )
     );
-  }, []);
+  }
 
-  const filteredRequests = useMemo(() => {
-    return requests.filter(req => {
-      const matchStatus = statusFilter === 'all' || req.status === statusFilter;
-      const matchType = typeFilter === 'all' || req.type === typeFilter;
-      return matchStatus && matchType;
-    });
-  }, [requests, statusFilter, typeFilter]);
+  // Reject: flip the status and save the remark as a message
+  function handleReject(id: string | number) {
+    setRequests(
+      requests.map(req =>
+        req.id === id
+          ? { ...req, status: 'rejected', message: remarks[id] || '' }
+          : req
+      )
+    );
+  }
+
+  // Filter the list — show only requests that match both dropdowns
+  const filteredRequests = requests.filter(req => {
+    const matchStatus = statusFilter === 'all' || req.status === statusFilter;
+    const matchType = typeFilter === 'all' || req.type === typeFilter;
+    return matchStatus && matchType;
+  });
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -92,9 +100,7 @@ function ReviewRequestsPage() {
                 { value: 'approved', label: getLabel('Approved', 'مقبول') },
                 { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
               ]}
-              containerSx={{
-                minWidth: { xs: '120px', md: '160px' },
-              }}
+              containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
             />
             <AppDropdown
               label={getLabel('Type', 'النوع')}
@@ -111,9 +117,7 @@ function ReviewRequestsPage() {
                 },
                 { value: 'leave', label: getLabel('Leave', 'إجازة') },
               ]}
-              containerSx={{
-                minWidth: { xs: '120px', md: '160px' },
-              }}
+              containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
             />
           </Box>
 
@@ -159,10 +163,7 @@ function ReviewRequestsPage() {
                           fullWidth
                           sx={{ mb: 2 }}
                           onChange={e =>
-                            setRemarks(prev => ({
-                              ...prev,
-                              [request.id]: e.target.value,
-                            }))
+                            handleRemarkChange(request.id, e.target.value)
                           }
                         />
                         <Box display='flex' gap={3}>
@@ -170,12 +171,7 @@ function ReviewRequestsPage() {
                             variant='contained'
                             text={getLabel('Reject', 'رفض')}
                             startIcon={<Close />}
-                            onClick={() =>
-                              handleReject(
-                                request.id,
-                                remarks[request.id] || ''
-                              )
-                            }
+                            onClick={() => handleReject(request.id)}
                             sx={{
                               flex: 1,
                               backgroundColor: 'var(--status-rejected-bg)',

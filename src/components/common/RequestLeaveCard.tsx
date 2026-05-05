@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -72,16 +72,8 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
   const currentStatus = statusConfig[status] || statusConfig.pending;
   const isPending = status === 'pending';
 
+  // Controls whether the delete confirmation dialog is visible
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  const handleDeleteClick = useCallback(() => {
-    setDeleteDialogOpen(true);
-  }, []);
-
-  const handleConfirmDelete = useCallback(() => {
-    onDelete?.();
-    setDeleteDialogOpen(false);
-  }, [onDelete]);
 
   return (
     <AppCard
@@ -229,7 +221,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
             sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
           />
 
-          {/* Message / Remarks Section */}
+          {/* Message / Remarks Section — hidden for manager on pending requests */}
           {(!isManagerView || status !== 'pending') && (
             <Box
               sx={{
@@ -281,16 +273,16 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
             </Box>
           )}
 
-          {/* Actions Slot (Manager controls or Employee remarks input) */}
+          {/* Extra actions passed in from the parent (e.g. Approve / Reject buttons) */}
           {actions && <Box mt={2}>{actions}</Box>}
         </Box>
 
+        {/* Footer */}
         <Box>
           <Divider
             sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
           />
 
-          {/* Footer */}
           <Box
             display='flex'
             justifyContent={
@@ -307,6 +299,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
               {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
             </Typography>
 
+            {/* Edit / Delete — only visible to employees on pending requests */}
             {!isManagerView && isPending && (
               <Box display='flex' gap={0.5}>
                 <IconButton size='small' onClick={onEdit}>
@@ -320,7 +313,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                     }}
                   />
                 </IconButton>
-                <IconButton size='small' onClick={handleDeleteClick}>
+                <IconButton
+                  size='small'
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
                   <Box
                     component='img'
                     src={Icons.delete}
@@ -340,7 +336,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
       <DeleteConfirmationDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => {
+          onDelete?.();
+          setDeleteDialogOpen(false);
+        }}
         title={getLabel('Confirm Deletion', 'تأكيد الحذف')}
         message={getLabel(
           'Are you sure you want to delete this request? This action cannot be undone.',
