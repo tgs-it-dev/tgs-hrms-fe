@@ -230,7 +230,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           />
 
           {/* Message / Remarks Section */}
-          {!isPending && (
+          {!isManagerView && (
             <Box
               sx={{
                 backgroundColor: 'var(--app-table-header-bg)',
