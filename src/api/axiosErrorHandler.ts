@@ -36,51 +36,20 @@ class AxiosErrorHandler {
     return axios.isAxiosError(error);
   }
 
-  formatError(error: unknown): unknown {
-    if (!this.isAxiosError(error)) {
-      return error;
-    }
-
-    const axiosError = error as AxiosError;
-    if (
-      axiosError.response?.data &&
-      typeof axiosError.response.data === 'object'
-    ) {
-      const data = axiosError.response.data as { message?: string };
-      if (data.message) {
-        return error;
-      }
-    }
-
-    return error;
-  }
-
   handleError(
     error: unknown,
     originalRequest?: AxiosRequestConfig & { _retry?: boolean }
   ): ErrorHandlerResult {
     if (this.shouldTriggerLogout(error)) {
       this.handleLogout();
-      return {
-        shouldRetry: false,
-        shouldLogout: true,
-        error: this.formatError(error),
-      };
+      return { shouldRetry: false, shouldLogout: true, error };
     }
 
     if (this.shouldRefreshToken(error, originalRequest)) {
-      return {
-        shouldRetry: true,
-        shouldLogout: false,
-        error: this.formatError(error),
-      };
+      return { shouldRetry: true, shouldLogout: false, error };
     }
 
-    return {
-      shouldRetry: false,
-      shouldLogout: false,
-      error: this.formatError(error),
-    };
+    return { shouldRetry: false, shouldLogout: false, error };
   }
 }
 

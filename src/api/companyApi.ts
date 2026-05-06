@@ -134,11 +134,7 @@ class CompanyApiService {
     const formData = new FormData();
     formData.append('logo', logoFile);
 
-    const response = await axiosInstance.post('/company/logo', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axiosInstance.post('/company/logo', formData);
     return response.data.logo_url || response.data;
   }
 

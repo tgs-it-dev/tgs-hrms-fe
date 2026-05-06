@@ -225,12 +225,7 @@ class SignupApiService {
 
     const response = await axiosInstance.post(
       `${this.baseUrl}/upload-logo`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     return response.data;
   }

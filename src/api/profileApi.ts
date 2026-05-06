@@ -40,12 +40,7 @@ class ProfileApiService {
 
       const response = await axiosInstance.post<ProfilePictureResponse>(
         `/users/${authenticatedUserId}/profile-picture`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return response.data;
     } catch (err) {
