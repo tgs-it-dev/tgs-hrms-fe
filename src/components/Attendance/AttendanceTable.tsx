@@ -1765,16 +1765,6 @@ const AttendanceTable = () => {
                         maxWidth: { sm: '200px' },
                         boxSizing: 'border-box',
                         flexShrink: 0,
-                        backgroundColor:
-                          adminView === 'my' ? 'primary.dark' : undefined,
-                        color:
-                          adminView === 'my' ? 'common.white' : 'primary.dark',
-                        borderColor: 'primary.dark',
-                        '&:hover': {
-                          backgroundColor:
-                            adminView === 'my' ? 'primary.dark' : undefined,
-                          borderColor: 'primary.dark',
-                        },
                       }}
                     >
                       My Attendance
@@ -1809,16 +1799,6 @@ const AttendanceTable = () => {
                       maxWidth: { sm: '200px' },
                       boxSizing: 'border-box',
                       flexShrink: 0,
-                      backgroundColor:
-                        managerView === 'my' ? 'primary.dark' : undefined,
-                      color:
-                        managerView === 'my' ? 'common.white' : 'primary.dark',
-                      borderColor: 'primary.dark',
-                      '&:hover': {
-                        backgroundColor:
-                          managerView === 'my' ? 'primary.dark' : undefined,
-                        borderColor: 'primary.dark',
-                      },
                     }}
                   >
                     My Attendance
