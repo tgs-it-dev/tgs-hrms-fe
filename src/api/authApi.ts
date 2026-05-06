@@ -79,7 +79,5 @@ class AuthApiService {
   }
 }
 
-export const authApiService = new AuthApiService();
-
-export const authApi = authApiService;
+const authApi = new AuthApiService();
 export default authApi;
