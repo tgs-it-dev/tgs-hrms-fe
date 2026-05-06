@@ -12,3 +12,9 @@ export interface LanguageContextType {
   language: 'en' | 'ar';
   setLanguage: (lang: 'en' | 'ar') => void;
 }
+
+export interface ProfilePictureContextType {
+  profilePictureUrl: string | null;
+  updateProfilePicture: (url: string | null) => void;
+  clearProfilePicture: () => void;
+}

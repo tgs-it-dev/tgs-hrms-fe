@@ -6,7 +6,8 @@ import React, {
   useMemo,
   type ReactNode,
 } from 'react';
-import { profileApiService, type UserProfile } from '../api/profileApi';
+import { profileApiService } from '../api/profileApi';
+import type { UserProfile } from '../types/user';
 import type { UserContextType } from '../types/context';
 import { setupTokenValidation, clearAuthData } from '../utils/authValidation';
 

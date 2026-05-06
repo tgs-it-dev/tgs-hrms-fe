@@ -17,7 +17,7 @@ import type { UINotification } from '../types/notification';
 export type Notification = UINotification;
 
 // AlertsResponse not used — removed to satisfy lint rules
-interface NotificationContextType {
+export interface NotificationContextType {
   notifications: Notification[];
   addNotification: (
     notification: Omit<Notification, 'id' | 'timestamp' | 'read'>
@@ -220,7 +220,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
       const newNotification: Notification = {
         ...notification,
-        id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         timestamp: new Date().toISOString(),
         read: false,
       };

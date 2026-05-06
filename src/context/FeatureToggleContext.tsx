@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -86,12 +87,10 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
     setFeatures(defaultFeatures);
   }, []);
 
-  const value: FeatureToggleContextValue = {
-    features,
-    isFeatureEnabled,
-    setFeatureEnabled,
-    resetToDefaults,
-  };
+  const value: FeatureToggleContextValue = useMemo(
+    () => ({ features, isFeatureEnabled, setFeatureEnabled, resetToDefaults }),
+    [features, isFeatureEnabled, setFeatureEnabled, resetToDefaults]
+  );
 
   return (
     <FeatureToggleContext.Provider value={value}>
