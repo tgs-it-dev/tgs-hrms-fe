@@ -88,6 +88,7 @@ export default function DesignationManager() {
   const [allTenants, setAllTenants] = useState<SystemTenant[]>([]);
   const [selectedTenantId, setSelectedTenantId] = useState<string>('all');
   const [loadingTenants, setLoadingTenants] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
   const { snackbar, showError, showSuccess, closeSnackbar } = useErrorHandler();
 
@@ -318,8 +319,8 @@ export default function DesignationManager() {
 
   const hasChanges = editingDesignation
     ? title !== originalTitle ||
-      titleAr !== originalTitleAr ||
-      departmentId !== originalDepartmentId
+    titleAr !== originalTitleAr ||
+    departmentId !== originalDepartmentId
     : title.trim() !== '' || titleAr.trim() !== '' || departmentId !== '';
 
   // Disable Create/Update until required fields are present (and basic validation passes)
@@ -417,6 +418,7 @@ export default function DesignationManager() {
     departmentId: string;
   }) => {
     try {
+      setIsSubmitting(true);
       if (editingDesignation) {
         const designationDto = {
           title: data.title,
@@ -465,6 +467,8 @@ export default function DesignationManager() {
       setEditingDesignation(null);
     } catch (error: unknown) {
       showError(error, { operation: 'create', resource: 'designation' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -497,9 +501,9 @@ export default function DesignationManager() {
   const paginatedData = isServerSidePagination
     ? filteredDesignations
     : filteredDesignations.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      );
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
@@ -535,24 +539,24 @@ export default function DesignationManager() {
                 options={
                   loadingTenants
                     ? [
-                        {
-                          value: '',
-                          label: getText(
-                            'Loading tenants...',
-                            'جاري تحميل المستأجرين...'
-                          ),
-                        },
-                      ]
+                      {
+                        value: '',
+                        label: getText(
+                          'Loading tenants...',
+                          'جاري تحميل المستأجرين...'
+                        ),
+                      },
+                    ]
                     : [
-                        {
-                          value: 'all',
-                          label: getText('All Tenants', 'جميع المستأجرين'),
-                        },
-                        ...allTenants.map((tenant: SystemTenant) => ({
-                          value: tenant.id,
-                          label: tenant.name,
-                        })),
-                      ]
+                      {
+                        value: 'all',
+                        label: getText('All Tenants', 'جميع المستأجرين'),
+                      },
+                      ...allTenants.map((tenant: SystemTenant) => ({
+                        value: tenant.id,
+                        label: tenant.name,
+                      })),
+                    ]
                 }
                 value={selectedTenantId}
                 onChange={e => {
@@ -576,12 +580,12 @@ export default function DesignationManager() {
                     paddingRight: '44px !important',
                   },
                   '& .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiOutlinedInput-input':
-                    {
-                      justifyContent: 'flex-start',
-                      textAlign: 'left',
-                      paddingLeft: '16px !important',
-                      paddingRight: '44px !important',
-                    },
+                  {
+                    justifyContent: 'flex-start',
+                    textAlign: 'left',
+                    paddingLeft: '16px !important',
+                    paddingRight: '44px !important',
+                  },
                 }}
               />
               <AppDropdown
@@ -619,12 +623,12 @@ export default function DesignationManager() {
                     paddingRight: '44px !important',
                   },
                   '& .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiOutlinedInput-input':
-                    {
-                      justifyContent: 'flex-start',
-                      textAlign: 'left',
-                      paddingLeft: '16px !important',
-                      paddingRight: '44px !important',
-                    },
+                  {
+                    justifyContent: 'flex-start',
+                    textAlign: 'left',
+                    paddingLeft: '16px !important',
+                    paddingRight: '44px !important',
+                  },
                 }}
               />
             </>
@@ -693,9 +697,9 @@ export default function DesignationManager() {
               ...(departmentsLoading
                 ? []
                 : departments.map(d => ({
-                    value: d.id,
-                    label: getText(d.name, d.nameAr),
-                  }))),
+                  value: d.id,
+                  label: getText(d.name, d.nameAr),
+                }))),
             ]}
             value={selectedDepartmentId}
             onChange={e => {
@@ -719,12 +723,12 @@ export default function DesignationManager() {
                 paddingRight: '44px !important',
               },
               '& .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiOutlinedInput-input':
-                {
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
-                  paddingLeft: '16px !important',
-                  paddingRight: '44px !important',
-                },
+              {
+                justifyContent: 'flex-start',
+                textAlign: 'left',
+                paddingLeft: '16px !important',
+                paddingRight: '44px !important',
+              },
             }}
           />
 
@@ -831,9 +835,9 @@ export default function DesignationManager() {
                 {selectedDepartmentId === 'all'
                   ? getText('No designations found', 'لا توجد مسميات وظيفية')
                   : getText(
-                      'No designations found for this department',
-                      'لا توجد مسميات وظيفية لهذا القسم'
-                    )}
+                    'No designations found for this department',
+                    'لا توجد مسميات وظيفية لهذا القسم'
+                  )}
               </TableCell>
             </TableRow>
           ) : (
@@ -1030,9 +1034,10 @@ export default function DesignationManager() {
             ? getText('Update', 'تحديث')
             : getText('Create', 'إنشاء')
         }
+        isSubmitting={isSubmitting}
         cancelLabel={getText('Cancel', 'إلغاء')}
         hasChanges={hasChanges}
-        submitDisabled={!hasChanges || !isFormValid}
+        submitDisabled={isSubmitting || !hasChanges || !isFormValid}
         isRtl={isRTL}
       />
 
@@ -1046,9 +1051,9 @@ export default function DesignationManager() {
         message={
           designationToDelete
             ? getText(
-                `Are you sure you want to delete "${getText(designationToDelete.title, designationToDelete.titleAr)}"? This action cannot be undone.`,
-                `هل أنت متأكد أنك تريد حذف "${getText(designationToDelete.title, designationToDelete.titleAr)}"؟ لا يمكن التراجع عن هذا الإجراء.`
-              )
+              `Are you sure you want to delete "${getText(designationToDelete.title, designationToDelete.titleAr)}"? This action cannot be undone.`,
+              `هل أنت متأكد أنك تريد حذف "${getText(designationToDelete.title, designationToDelete.titleAr)}"؟ لا يمكن التراجع عن هذا الإجراء.`
+            )
             : ''
         }
         itemName={
