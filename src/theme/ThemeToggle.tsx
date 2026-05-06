@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconButton, Tooltip, useTheme as useMuiTheme } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { useTheme } from './hooks';
 interface ThemeToggleProps {
   size?: 'small' | 'medium' | 'large';
   showTooltip?: boolean;
