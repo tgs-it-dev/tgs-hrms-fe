@@ -1364,14 +1364,6 @@ const AttendanceTable = () => {
     setTeamEndDate('');
     fetchAttendanceByDate(todayStr, 'team');
   };
-  useEffect(() => {
-    if (mode === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-    } else {
-      document.body.removeAttribute('data-theme');
-    }
-  }, [mode]);
-
   // Sync role flags from context user and set initial attendance view once.
   // Computes role booleans once per contextUser change and reuses them for
   // both setState calls and the initial view decision — avoids redundant checks.
