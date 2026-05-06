@@ -192,7 +192,7 @@ const Forget = () => {
               sx={{
                 fontWeight: 700,
                 mb: 1,
-                color: 'theme.palette.text.primary',
+                color: theme.palette.text.primary,
               }}
             >
               {lang === 'ar' ? 'تم إرسال البريد الإلكتروني' : 'Email Sent'}
