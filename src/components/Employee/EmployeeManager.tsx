@@ -28,7 +28,7 @@ import AddEmployeeForm from './AddEmployeeForm';
 import EmployeeList from './EmployeeList';
 import EmployeeViewModal from './EmployeeViewModal';
 import employeeApi from '../../api/employeeApi';
-import type { BackendEmployee, EmployeeDto } from '../../api/employeeApi';
+import type { BackendEmployee, EmployeeDto } from '../../types/employee';
 import {
   departmentApiService,
   type BackendDepartment,
@@ -85,7 +85,8 @@ interface Employee {
 
 import { useUser } from '../../hooks/useUser';
 import { isManager } from '../../utils/roleUtils';
-import { teamApiService, type TeamMember } from '../../api/teamApi';
+import teamApiService from '../../api/teamApi';
+import type { TeamMember } from '../../types/team';
 
 // ... existing imports
 
@@ -807,6 +808,9 @@ const EmployeeManager: React.FC = () => {
       // Update local state
       const updatedEditing = { ...editing };
       if (type === 'profile') updatedEditing.profile_picture = undefined;
+      else if (type === 'cnicFront') updatedEditing.cnic_picture = undefined;
+      else if (type === 'cnicBack')
+        updatedEditing.cnic_back_picture = undefined;
 
       setEditing(updatedEditing);
       setAllEmployees(prev =>

@@ -1,4 +1,4 @@
-import type { UserProfile } from '../api/profileApi';
+import type { UserProfile } from './user';
 
 export interface UserContextType {
   user: UserProfile | null;

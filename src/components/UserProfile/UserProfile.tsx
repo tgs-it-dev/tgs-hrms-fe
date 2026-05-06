@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 // UserProfile type available if needed
 import { useUser } from '../../hooks/useUser';
-import type { UserProfile } from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import { profileApiService } from '../../api/profileApi';
 import { useProfilePicture } from '../../context/ProfilePictureContext';
 import { env } from '../../config/env';

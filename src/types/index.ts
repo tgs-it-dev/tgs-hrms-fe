@@ -24,7 +24,19 @@ export type {
   GenderPercentage,
   FormData,
   FormErrors,
+  EmployeeDto,
+  EmployeeUpdateDto,
+  EmployeePerformance,
 } from './employee';
+
+// Attendance domain types
+export * from './attendance';
+
+// Timesheet domain types
+export * from './timesheet';
+
+// Audit / system-dashboard types
+export * from './audit';
 
 export * from './leave';
 export * from './holiday';

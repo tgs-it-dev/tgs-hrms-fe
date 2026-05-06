@@ -1,111 +1,30 @@
 import axiosInstance from './axiosInstance';
-import type { UserShort } from '../types/user';
 import type { AttendanceTeamMember } from '../types/team';
+import type {
+  AttendanceEvent,
+  AttendanceResponse,
+  SystemAllAttendanceResponse,
+  TodayTeamAttendanceResponse,
+  TeamAttendanceResponse,
+} from '../types/attendance';
 
 export type { UserShort } from '../types/user';
 export type { AttendanceTeamMember } from '../types/team';
-
-export interface AttendanceEvent {
-  id: string;
-  user_id: string;
-  timestamp: string;
-  type: 'check-in' | 'check-out' | string;
-  near_boundary?: boolean;
-  user?: UserShort;
-  approvalStatus?: string | null;
-}
-
-/** Single attendance row in AttendanceTeamMember.attendance. */
-export interface TeamAttendanceEntry {
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workedHours: number;
-}
+export type {
+  AttendanceEvent,
+  TeamAttendanceEntry,
+  AttendanceRecord,
+  AttendanceResponse,
+  SystemTenantEmployeeAttendance,
+  SystemTenantAttendance,
+  SystemAllAttendanceResponse,
+  TodayTeamAttendanceMember,
+  TodayTeamAttendanceResponse,
+  TeamAttendanceResponse,
+} from '../types/attendance';
 
 /** @deprecated Use AttendanceTeamMember from src/types/team.ts */
 export type TeamMember = AttendanceTeamMember;
-
-export interface AttendanceRecord {
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workedHours: number;
-}
-
-export interface AttendanceResponse {
-  items: AttendanceEvent[] | AttendanceRecord[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface SystemTenantEmployeeAttendance {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  profile_pic: string;
-  attendance: {
-    date: string;
-    checkIn: string | null;
-    checkOut: string | null;
-    workedHours: number;
-  }[];
-  totalDaysWorked: number;
-  totalHoursWorked: number;
-}
-
-export interface SystemTenantAttendance {
-  tenant_id: string;
-  tenant_name: string;
-  tenant_status: string;
-  employees: SystemTenantEmployeeAttendance[];
-  totalEmployees: number;
-  totalAttendanceRecords: number;
-}
-
-export interface SystemAllAttendanceResponse {
-  tenants: SystemTenantAttendance[];
-  totalTenants: number;
-}
-
-export interface TodayTeamAttendanceMember {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  profile_pic?: string;
-  designation?: string;
-  department?: string;
-  attendance: {
-    date: string;
-    checkIn: string;
-    checkInId: string;
-    checkOut: string | null;
-    checkOutId: string | null;
-    workedHours: number;
-    approvalStatus: string;
-    approvalRemarks: string | null;
-    approvedBy: string | null;
-    approvedAt: string | null;
-  }[];
-  totalDaysWorked: number;
-  totalHoursWorked: number;
-}
-
-export interface TodayTeamAttendanceResponse {
-  items: TodayTeamAttendanceMember[];
-  total: number;
-}
-
-export interface TeamAttendanceResponse {
-  items: AttendanceEvent[];
-  total: number;
-  page: number;
-  totalPages: number;
-}
 
 class AttendanceApiService {
   private baseUrl = '/attendance';
@@ -250,7 +169,7 @@ class AttendanceApiService {
         params.append('tenantId', tenantId);
       }
 
-      const url = `${this.baseUrl}?${params.toString()}`; // This hits the /attendance endpoint for daily summaries
+      const url = `${this.baseUrl}?${params.toString()}`;
 
       const response = await axiosInstance.get<AttendanceResponse>(url);
 
@@ -316,9 +235,6 @@ class AttendanceApiService {
       | { type: 'check-in' | 'check-out' | string }
       | { type: string; latitude?: number; longitude?: number }
   ): Promise<AttendanceEvent> {
-    // Normalize type to backend expected format (prefer uppercase with underscore)
-    // Normalize type to backend expected format (prefer uppercase with underscore)
-    // Use an intersection type to safely access properties that might exist
     const input = payload as {
       type: string;
       latitude?: number;
@@ -361,12 +277,7 @@ class AttendanceApiService {
     startDate?: string,
     endDate?: string,
     tenantId?: string
-  ): Promise<{
-    items: AttendanceEvent[];
-    total: number;
-    page: number;
-    totalPages: number;
-  }> {
+  ): Promise<TeamAttendanceResponse> {
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());

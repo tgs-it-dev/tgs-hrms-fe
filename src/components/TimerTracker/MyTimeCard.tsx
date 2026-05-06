@@ -3,7 +3,8 @@ import { Box, Typography, IconButton, Tooltip, useTheme } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import timesheetApi, { type TimesheetEntry } from '../../api/timesheetApi';
+import timesheetApi from '../../api/timesheetApi';
+import type { TimesheetEntry } from '../../types/timesheet';
 
 import attendanceApi from '../../api/attendanceApi';
 import { Link as RouterLink } from 'react-router-dom';

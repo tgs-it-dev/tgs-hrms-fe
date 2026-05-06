@@ -29,7 +29,7 @@ import {
   isSystemAdmin as isSystemAdminFn,
   isHRAdmin as isHrAdminFn,
 } from '../../utils/roleUtils';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 // COLORS not required here
 import AppDropdown from '../common/AppDropdown';
 

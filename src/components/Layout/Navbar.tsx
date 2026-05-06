@@ -46,7 +46,8 @@ import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { Icons } from '../../assets/icons';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
-import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
+import teamApiService from '../../api/teamApi';
+import type { Team, TeamMember } from '../../types/team';
 import { isDashboardPathAllowedForRole } from '../../utils/permissions';
 import {
   useFeatureToggles,
