@@ -139,51 +139,47 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       if (mode === 'edit' && leaveId && initialData) {
         const payload: Record<string, unknown> = {};
 
+        // 1. Basic Field Comparisons
         if (leaveTypeId !== initialData.leaveTypeId)
           payload.leaveTypeId = leaveTypeId;
-
         if (formatDate(startDate) !== initialData.startDate)
           payload.startDate = formatDate(startDate);
-
         if (formatDate(endDate) !== initialData.endDate)
           payload.endDate = formatDate(endDate);
-
         if (reason.trim() !== initialData.reason)
           payload.reason = reason.trim();
 
-        // Handle removed documents explicitly
+        // 2. Sequential Deletion (The Fix)
         if (documentsToRemove.length > 0) {
-          try {
-            await Promise.all(
-              documentsToRemove.map(doc =>
-                leaveApi.deleteDocument(leaveId, doc)
-              )
-            );
-          } catch (error) {
-            console.error('Failed to delete some documents', error);
-            // We continue even if delete fails, implicitly relying on backend or user creates another request?
-            // Ideally we should warn, but for now we proceed.
+          for (const doc of documentsToRemove) {
+            try {
+              await leaveApi.deleteDocument(leaveId, doc);
+            } catch (_error) {
+              // Log individual failure but don't stop the whole process
+              onError?.(`Failed to delete document: ${doc}`);
+            }
           }
+          // Clear list so we don't try to delete them again if user hits Save twice
+          setDocumentsToRemove([]);
         }
 
-        const hasNewDocuments = documents.length > 0;
-
-        if (hasNewDocuments) {
-          // Send new documents
+        // 3. New Document Handling
+        if (documents.length > 0) {
           payload.documents = documents;
         }
 
+        // 4. Final Update call
         const updatesAvailable = Object.keys(payload).length > 0;
-        const removalsProcessed = documentsToRemove.length > 0;
-
-        if (!updatesAvailable && !removalsProcessed) {
-          onError?.('No changes to update.');
-          return;
-        }
 
         if (updatesAvailable) {
           await leaveApi.updateLeave(leaveId, payload);
+        } else if (documentsToRemove.length === 0) {
+          // This catches the case where user removed docs but changed nothing else
+          onError?.('No changes to update.');
+          setLoading(false);
+          return;
         }
+
         onSuccess?.();
         return;
       }
