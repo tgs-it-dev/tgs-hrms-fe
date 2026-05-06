@@ -774,7 +774,6 @@ class LeaveApiService {
           err
         );
       }
-
     })();
 
     return res;
