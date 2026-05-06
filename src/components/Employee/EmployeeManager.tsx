@@ -983,19 +983,6 @@ const EmployeeManager: React.FC = () => {
   if (designationFilter && designationFilter !== 'all')
     filters.designation_id = designationFilter;
 
-  // Build absolute media URL from backend path
-  const API_BASE_URL = env.apiBaseUrl;
-  const toAbsoluteUrl = (path?: string | null) => {
-    if (!path) return '';
-    const trimmed = path.trim();
-    const isAbsolute = /^https?:\/\//i.test(trimmed);
-    const base = API_BASE_URL.replace(/\/$/, '');
-    const url = isAbsolute
-      ? trimmed
-      : `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-    return `${url}?t=${Date.now()}`;
-  };
-
   return (
     <Box>
       <AppPageTitle>Employee List</AppPageTitle>

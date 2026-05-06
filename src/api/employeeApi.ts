@@ -4,8 +4,6 @@ import type {
   BackendEmployee,
   GenderPercentage,
   EmployeeJoiningReport,
-  EmployeeProfileAttendanceSummaryItem,
-  EmployeeProfileLeaveHistoryItem,
   EmployeeFullProfile,
   EmployeeDto,
   EmployeeUpdateDto,
