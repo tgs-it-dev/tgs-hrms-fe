@@ -52,10 +52,13 @@ import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
-import { useUser } from '../../hooks/useUser';
 import { authService } from '../../api/authService';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { useUser } from '../../hooks/useUser';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
+dayjs.extend(duration);
 
 type TenantOption = { id: string; name: string };
 interface AttendanceRecord {
@@ -152,9 +155,41 @@ const AttendanceTable = () => {
   const [teamStartDate, setTeamStartDate] = useState('');
   const [teamEndDate, setTeamEndDate] = useState('');
 
-  const toDisplayTime = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleTimeString() : null;
+  const toDisplayTime = (iso: string | null) => {
+    if (!iso) return '-';
+    const d = dayjs(iso);
+    return d.isValid() ? d.format('hh:mm A') : '-';
+  };
   const token = authService.getAccessToken();
+
+  /**
+   * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
+   * using Day.js Duration plugin
+   */
+  const formatWorkedHours = (
+    decimalHours: number | null | undefined
+  ): string => {
+    if (
+      decimalHours === null ||
+      decimalHours === undefined ||
+      isNaN(decimalHours)
+    ) {
+      return '-';
+    }
+
+    const dur = dayjs.duration(decimalHours, 'hours');
+
+    const hours = Math.floor(dur.asHours());
+    const minutes = dur.minutes();
+    const seconds = dur.seconds();
+
+    const parts = [];
+    if (hours > 0) parts.push(`${hours} hr`);
+    if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+    parts.push(`${seconds} sec`);
+
+    return parts.join(' ') || '0 sec';
+  };
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
@@ -355,8 +390,8 @@ const AttendanceTable = () => {
         }
       }
       for (const session of openSessions) {
-        const checkInDate = new Date(session.checkIn.timestamp);
-        const shiftDate = formatLocalYMD(checkInDate); // Use check-in date as the shift date
+        const checkInDate = dayjs(session.checkIn.timestamp);
+        const shiftDate = checkInDate.format('YYYY-MM-DD');
 
         let workedHours = null;
         let checkOutISO = null;
@@ -366,43 +401,28 @@ const AttendanceTable = () => {
           checkOutISO = session.checkOut.timestamp;
           checkOutDisplay = toDisplayTime(checkOutISO);
 
-          const inTime = new Date(session.checkIn.timestamp).getTime();
-          const outTime = new Date(checkOutISO).getTime();
+          const inTime = dayjs(session.checkIn.timestamp);
+          const outTime = dayjs(checkOutISO);
 
-          if (outTime > inTime) {
-            workedHours = parseFloat(((outTime - inTime) / 3600000).toFixed(2));
+          if (outTime.isAfter(inTime)) {
+            workedHours = parseFloat(
+              outTime.diff(inTime, 'hour', true).toFixed(2)
+            );
           }
         }
 
         sessions.push({
           id: `${session.checkIn.id}-${session.checkOut ? session.checkOut.id : 'open'}`,
-          userId: userId, // Use the userId from the map key (this is the user_id from events)
+          userId: userId,
           date: shiftDate,
           checkInISO: session.checkIn.timestamp,
           checkOutISO,
           checkIn: toDisplayTime(session.checkIn.timestamp),
-          checkOut: checkOutDisplay,
+          checkOut: checkOutDisplay || '-',
           workedHours,
-          near_boundary:
-            session.checkIn.near_boundary ||
-            session.checkOut?.near_boundary ||
-            false,
-          user: {
-            first_name: session.checkIn.user?.first_name || 'N/A',
-            last_name: session.checkIn.user?.last_name || '',
-          },
-          approvalStatus:
-            (session.checkIn as { approvalStatus?: string | null })
-              .approvalStatus ?? null,
         });
       }
     }
-    sessions.sort((a, b) => {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      const at = a.checkInISO ? new Date(a.checkInISO).getTime() : 0;
-      const bt = b.checkInISO ? new Date(b.checkInISO).getTime() : 0;
-      return bt - at;
-    });
 
     return sessions;
   };
@@ -2124,7 +2144,12 @@ const AttendanceTable = () => {
                     </TableCell>
                     <TableCell>{record.checkIn || '--'}</TableCell>
                     <TableCell>{record.checkOut || '--'}</TableCell>
-                    <TableCell>{record.workedHours ?? '--'}</TableCell>
+                    <TableCell>
+                      <Typography variant='body2'>
+                        {/* Use the formatter here */}
+                        {formatWorkedHours(record.workedHours)}
+                      </Typography>
+                    </TableCell>
                     <TableCell>
                       <Box
                         sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
