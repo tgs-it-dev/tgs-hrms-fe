@@ -598,11 +598,13 @@ const Navbar: React.FC<NavbarProps> = ({
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    // ... other removals
+    localStorage.removeItem('permissions');
+    localStorage.removeItem('rememberedLogin');
+    localStorage.removeItem('companyDetails');
+    localStorage.removeItem('signupSessionId');
 
-    // Clear user context
     clearUser();
-    clearProfilePicture(); // Your fix
+    clearProfilePicture();
 
     // Navigate to login page
     navigate('/', { replace: true });
