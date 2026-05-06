@@ -46,8 +46,8 @@ import KPICard from './KPICard';
 
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+// import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+// import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import TenantGrowthChart from './TenantGrowthChart';
 import EmployeeGrowthChart from './EmployeeGrowthChart';
@@ -780,7 +780,7 @@ const Dashboard: React.FC = () => {
                 </AppCard>
               </Box>
 
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
+              {/* <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
                 <AppCard
                   sx={{
                     borderRadius: '20px',
@@ -867,9 +867,9 @@ const Dashboard: React.FC = () => {
                     </Avatar>
                   </CardContent>
                 </AppCard>
-              </Box>
+              </Box> */}
 
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
+              {/* <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
                 <AppCard
                   sx={{
                     borderRadius: '20px',
@@ -956,7 +956,7 @@ const Dashboard: React.FC = () => {
                     </Avatar>
                   </CardContent>
                 </AppCard>
-              </Box>
+              </Box> */}
 
               <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
                 <AppCard
