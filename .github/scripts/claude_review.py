@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+import urllib.error
 import urllib.request
 
 
@@ -107,8 +108,18 @@ def call_claude(prompt: str, api_key: str) -> str:
         method="POST",
     )
 
-    with urllib.request.urlopen(req) as resp:
-        response = json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req) as resp:
+            response = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        try:
+            detail = json.loads(body).get("error", {}).get("message", body)
+        except Exception:
+            detail = body
+        return f"⚠️ Claude API returned HTTP {e.code}: {detail}"
+    except urllib.error.URLError as e:
+        return f"⚠️ Could not reach Claude API: {e.reason}"
 
     if "error" in response:
         err = response["error"]
@@ -138,7 +149,8 @@ def main() -> None:
     if not pr_number:
         sys.exit("PR_NUMBER is required")
     if not api_key:
-        sys.exit("ANTHROPIC_API_KEY is required")
+        print("ANTHROPIC_API_KEY is not set — skipping Claude review", file=sys.stderr)
+        sys.exit(0)
 
     print(f"Fetching PR metadata for #{pr_number}...")
     meta     = fetch_pr_metadata(pr_number)
