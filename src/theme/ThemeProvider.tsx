@@ -45,10 +45,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setMode(newMode);
   };
 
-  // Save theme preference to localStorage
+  // Save theme preference to localStorage and sync body class for CSS var overrides
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme-mode', mode);
+      document.body.classList.toggle('dark-mode', mode === 'dark');
+      document.body.classList.toggle('light-mode', mode === 'light');
     }
   }, [mode]);
 

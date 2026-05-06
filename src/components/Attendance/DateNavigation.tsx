@@ -93,6 +93,8 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
         mb: 3,
         justifyContent: 'center',
         mt: 3,
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {/* Previous Button */}
