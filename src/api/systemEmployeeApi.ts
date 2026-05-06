@@ -1,4 +1,7 @@
 import axiosInstance from './axiosInstance';
+import type { EmployeePerformance } from '../types/employee';
+
+export type { EmployeePerformance } from '../types/employee';
 
 export type SystemEmployee = {
   id: string;
@@ -62,28 +65,6 @@ export type EmployeeAsset = {
   tenant_id: string;
   created_at: string;
 };
-
-export interface EmployeePerformance {
-  id: string;
-  employee_id: string;
-  kpi_id: string;
-  targetValue?: number | null;
-  achievedValue?: number | null;
-  score?: number | null;
-  reviewCycle?: string | null;
-  reviewedBy: string;
-  remarks: string;
-  tenant_id: string;
-  createdAt: string;
-  kpi?: {
-    id: string;
-    title: string;
-    description: string;
-    weight: number;
-    category: string;
-    status: string;
-  } | null;
-}
 
 export interface EmployeePromotion {
   id?: string;

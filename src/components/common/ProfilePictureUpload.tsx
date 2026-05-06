@@ -16,7 +16,8 @@ import {
 } from '@mui/material';
 import { colorTokens } from '../../theme';
 import { PhotoCamera, Delete, Close, Edit } from '@mui/icons-material';
-import { profileApiService, type UserProfile } from '../../api/profileApi';
+import profileApiService from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import { useUser } from '../../hooks/useUser';
 import { useProfilePicture } from '../../context/ProfilePictureContext';
 import { useErrorHandler } from '../../hooks/useErrorHandler';

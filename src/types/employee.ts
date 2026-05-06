@@ -106,3 +106,58 @@ export interface GenderPercentage {
   female: number;
   total: number;
 }
+
+export interface EmployeeDto {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  password?: string;
+  designationId: string;
+  gender: string;
+  role_name?: string;
+  role_id?: string;
+  team_id?: string;
+  cnicNumber?: string;
+  profilePicture?: File | null;
+  cnicFrontPicture?: File | null;
+  cnicBackPicture?: File | null;
+}
+
+export interface EmployeeUpdateDto {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  designationId?: string;
+  role_id?: string;
+  role_name?: string;
+  gender?: string;
+  cnicNumber?: string;
+  profilePicture?: File | null;
+  cnicFrontPicture?: File | null;
+  cnicBackPicture?: File | null;
+}
+
+export interface EmployeePerformance {
+  id: string;
+  employee_id: string;
+  kpi_id: string;
+  targetValue?: number | null;
+  achievedValue?: number | null;
+  score?: number | null;
+  reviewCycle?: string | null;
+  reviewedBy: string;
+  remarks: string;
+  tenant_id: string;
+  createdAt: string;
+  kpi?: {
+    id: string;
+    title: string;
+    description: string;
+    weight: number;
+    category: string;
+    status: string;
+  } | null;
+}

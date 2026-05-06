@@ -12,7 +12,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 // useOutletContext removed (darkMode not used)
 import { useLanguage } from '../../hooks/useLanguage';
 import employeeApi from '../../api/employeeApi';
-import type { GenderPercentage } from '../../api/employeeApi';
+import type { GenderPercentage } from '../../types/employee';
 
 type GenderDataItem = {
   name: 'Male' | 'Female';

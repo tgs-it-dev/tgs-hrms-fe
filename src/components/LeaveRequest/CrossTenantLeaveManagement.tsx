@@ -37,7 +37,7 @@ import type {
 } from '../../api/TenantLeaveApi';
 import { departmentApiService } from '../../api/departmentApi';
 import { SystemTenantApi } from '../../api/systemTenantApi';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/auth';
 import { formatDate } from '../../utils/dateUtils';

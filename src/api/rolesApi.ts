@@ -1,13 +1,7 @@
 import axiosInstance from './axiosInstance';
+import type { Role } from '../types/user';
 
-// Role interface
-export interface Role {
-  id: string;
-  name: string;
-  description?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+export type { Role } from '../types/user';
 
 class RolesApiService {
   private baseUrl = '/roles';

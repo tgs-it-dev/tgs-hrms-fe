@@ -10,7 +10,7 @@ import {
   Pagination,
 } from '@mui/material';
 import timesheetApi from '../../api/timesheetApi';
-import type { TimesheetEntry } from '../../api/timesheetApi';
+import type { TimesheetEntry } from '../../types/timesheet';
 import { formatDate } from '../../utils/dateUtils';
 import AppTable from '../common/AppTable';
 

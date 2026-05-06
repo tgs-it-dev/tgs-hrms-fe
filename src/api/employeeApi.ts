@@ -2,77 +2,25 @@ import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
 import type {
   BackendEmployee,
-  EmployeeJoiningReport,
   GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeProfileAttendanceSummaryItem,
+  EmployeeProfileLeaveHistoryItem,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
 } from '../types/employee';
 
 export type {
   BackendEmployee,
-  EmployeeJoiningReport,
   GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeProfileAttendanceSummaryItem,
+  EmployeeProfileLeaveHistoryItem,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
 } from '../types/employee';
-
-export interface EmployeeProfileAttendanceSummaryItem {
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workedHours: number;
-}
-
-export interface EmployeeProfileLeaveHistoryItem {
-  id: string;
-  fromDate: string;
-  toDate: string;
-  reason: string;
-  type: string;
-  status: string;
-}
-
-export interface EmployeeFullProfile {
-  id: string; // user id
-  name: string;
-  email: string;
-  role: string;
-  designation: string | null;
-  department: string | null;
-  joinedAt: string;
-  profile_pic?: string | null;
-  attendanceSummary: EmployeeProfileAttendanceSummaryItem[];
-  leaveHistory: EmployeeProfileLeaveHistoryItem[];
-}
-
-export interface EmployeeDto {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  password?: string; // Made optional since backend will generate temporary password
-  designationId: string; // UX carries department selection separately
-  gender: string; // <-- Add gender
-  role_name?: string; // Role name for employee creation
-  role_id?: string; // Role ID (optional)
-  team_id?: string; // Team ID (optional)
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
-
-export interface EmployeeUpdateDto {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  designationId?: string;
-  role_id?: string;
-  role_name?: string;
-  gender?: string; // <-- Optionally add gender for updates
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
 
 type EmployeeFilters = {
   departmentId?: string;
