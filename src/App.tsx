@@ -136,10 +136,6 @@ const EmployeeTasks = lazy(
 const FeatureManagementPage = lazy(
   () => import('./components/Settings/FeatureManagementPage')
 );
-const RequestsPage = lazy(() => import('./components/Requests/RequestPage'));
-const ReviewRequestsPage = lazy(
-  () => import('./components/ReviewRequests/ReviewRequestsPage')
-);
 
 function App() {
   return (
@@ -318,22 +314,6 @@ function App() {
                       element={
                         <RouteErrorBoundary>
                           <EmployeeTasks />
-                        </RouteErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path='requests'
-                      element={
-                        <RouteErrorBoundary>
-                          <RequestsPage />
-                        </RouteErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path='review-requests'
-                      element={
-                        <RouteErrorBoundary>
-                          <ReviewRequestsPage />
                         </RouteErrorBoundary>
                       }
                     />

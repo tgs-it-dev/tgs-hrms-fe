@@ -113,12 +113,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.post<LeaveResponse>(
       this.baseUrl,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     const res = response.data;
 
@@ -204,22 +199,6 @@ class LeaveApiService {
           err
         );
       }
-      // Dispatch an in-app event to update local UI immediately
-      /* 
-      try {
-        const detail = {
-          title: 'Leave Applied',
-          message: `${employeeName} has applied for leave`,
-          employeeName,
-          data: res,
-          actorId: getCurrentUser()?.id ?? undefined,
-        };
-        const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
-        window.dispatchEvent(ev);
-      } catch {
-        // ignore
-      }
-      */
     })();
 
     return res;
@@ -360,8 +339,8 @@ class LeaveApiService {
           // Dispatch in-app event for immediate UI update
           try {
             const detail = {
-              title: 'Leave Applied',
-              message: `${employeeName} has applied for leave`,
+              title: 'Leave Approved',
+              message: `Your leave has been approved`,
               employeeName,
               data: res,
               actorId: getCurrentUser()?.id ?? undefined,
@@ -392,7 +371,6 @@ class LeaveApiService {
     );
     const res = response.data;
 
-    // Notify employee about rejection (non-blocking)
     // Notify employee about rejection (non-blocking)
     (async () => {
       try {
@@ -713,12 +691,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.post<LeaveResponse>(
       `${this.baseUrl}/for-employee`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     const res = response.data;
 
@@ -801,28 +774,6 @@ class LeaveApiService {
           err
         );
       }
-
-      // Dispatch an in-app event to update local UI immediately
-      /*
-      try {
-        const resTyped = res as LeaveResWithRelations;
-        const employeeName =
-          resTyped.employee?.first_name ||
-          resTyped.user?.first_name ||
-          getCurrentUser()?.first_name ||
-          'Employee';
-        const detail = {
-          title: 'Leave Applied',
-          message: `${employeeName} has applied for leave`,
-          employeeName,
-          data: res,
-        } as Record<string, unknown>;
-        const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
-        window.dispatchEvent(ev);
-      } catch {
-        // ignore
-      }
-      */
     })();
 
     return res;
@@ -859,12 +810,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.patch<LeaveResponse>(
       `${this.baseUrl}/${id}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
 
     return response.data;
@@ -888,5 +834,4 @@ class LeaveApiService {
   }
 }
 
-export const leaveApiService = new LeaveApiService();
-export const leaveApi = leaveApiService;
+export const leaveApi = new LeaveApiService();

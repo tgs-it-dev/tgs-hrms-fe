@@ -27,14 +27,10 @@ import {
   Apps,
   BusinessCenter,
   Campaign,
-  CheckCircle,
-  CheckCircleOutline,
   Code,
   ConfirmationNumber,
   History,
   Insights,
-  Mail,
-  MailOutline,
   Receipt,
   Widgets,
 } from '@mui/icons-material';
@@ -308,18 +304,6 @@ const menuItems: MenuItem[] = [
       { label: 'Cards', path: 'cards' },
       { label: 'Modals', path: 'modals' },
     ],
-  },
-  {
-    label: 'Request',
-    icon: <MailOutline />,
-    iconFill: <Mail />,
-    path: 'requests',
-  },
-  {
-    label: 'Approval',
-    icon: <CheckCircleOutline />,
-    iconFill: <CheckCircle />,
-    path: 'review-requests',
   },
 ];
 

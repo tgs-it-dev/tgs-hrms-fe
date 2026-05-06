@@ -106,7 +106,6 @@
   margin: 0 auto;
   overflow: hidden;
 }
-
 body {
   padding: 0;
   margin: 0;
@@ -174,7 +173,6 @@ html {
     font-size: 13px;
   }
 }
-
 :root {
   font-family:
     'SF Pro Rounded',
@@ -189,20 +187,6 @@ html {
   --text-color: #2d3748;
   --border-radius: 4px;
   --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
-  --border-radius-2xl: 20px;
-
-  /* Pending */
-  --status-pending-bg: #fffae5;
-  --status-pending-text: #ffcc00;
-
-  /* Approved */
-  --status-approved-bg: #ebfaef;
-  --status-approved-text: #34c759;
-
-  /* Rejected */
-  --status-rejected-bg: #ffe5e6;
-  --status-rejected-text: #ff383c;
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
@@ -227,6 +211,7 @@ html {
   --success-dark-color: #388e3c;
   --error-color: #e53935;
   --error-dark-color: #b71c1c;
+  --border-radius: 12px;
 
   --h1-font-weight: 700;
   --h1-font-style: normal;

@@ -43,6 +43,7 @@ const CustomSearchIcon = (props: SvgIconProps) => (
     />
   </SvgIcon>
 );
+
 interface TeamMembersAvatarProps {
   maxAvatars?: number;
   darkMode?: boolean;
