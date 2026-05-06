@@ -52,6 +52,7 @@ import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
+import { authService } from '../../api/authService';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { useUser } from '../../hooks/useUser';
@@ -159,7 +160,7 @@ const AttendanceTable = () => {
     const d = dayjs(iso);
     return d.isValid() ? d.format('hh:mm A') : '-';
   };
-  const token = localStorage.getItem('token');
+  const token = authService.getAccessToken();
 
   /**
    * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
