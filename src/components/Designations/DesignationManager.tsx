@@ -88,6 +88,7 @@ export default function DesignationManager() {
   const [allTenants, setAllTenants] = useState<SystemTenant[]>([]);
   const [selectedTenantId, setSelectedTenantId] = useState<string>('all');
   const [loadingTenants, setLoadingTenants] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
   const { snackbar, showError, showSuccess, closeSnackbar } = useErrorHandler();
 
@@ -417,6 +418,7 @@ export default function DesignationManager() {
     departmentId: string;
   }) => {
     try {
+      setIsSubmitting(true);
       if (editingDesignation) {
         const designationDto = {
           title: data.title,
@@ -465,6 +467,8 @@ export default function DesignationManager() {
       setEditingDesignation(null);
     } catch (error: unknown) {
       showError(error, { operation: 'create', resource: 'designation' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1030,9 +1034,10 @@ export default function DesignationManager() {
             ? getText('Update', 'تحديث')
             : getText('Create', 'إنشاء')
         }
+        isSubmitting={isSubmitting}
         cancelLabel={getText('Cancel', 'إلغاء')}
         hasChanges={hasChanges}
-        submitDisabled={!hasChanges || !isFormValid}
+        submitDisabled={!hasChanges || !isFormValid || isSubmitting}
         isRtl={isRTL}
       />
 
