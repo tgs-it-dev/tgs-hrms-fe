@@ -8,7 +8,7 @@ import {
   Collapse,
   useTheme as useMuiTheme,
 } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -23,6 +23,7 @@ import {
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
 import { isUser as isEmployeeUser } from '../../utils/auth';
+import { sidebarLabelAr } from '../../utils/i18n';
 import { Icons } from '../../assets/icons';
 import {
   Apps,
@@ -319,59 +320,6 @@ const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
   App: 'app',
 };
 
-/** Arabic translations for every sidebar label. */
-const menuLabelAr: Record<string, string> = {
-  Dashboard: 'لوحة التحكم',
-  Announcements: 'الإعلانات',
-  Projects: 'المشاريع',
-  'Project List': 'قائمة المشاريع',
-  'Add Project': 'إضافة مشروع',
-  Tenant: 'المستأجر',
-  'Add Tenant': 'إضافة مستأجر',
-  Department: 'القسم',
-  'Department List': 'قائمة الأقسام',
-  Designation: 'المسمى الوظيفي',
-  'User List': 'قائمة المستخدمين',
-  Policies: 'السياسات',
-  Holidays: 'الإجازات الرسمية',
-  Employees: 'الموظفون',
-  'Employee List': 'قائمة الموظفين',
-  'Tenant Employees': 'موظفو المستأجر',
-  Teams: 'الفرق',
-  'Team Management': 'إدارة الفرق',
-  'Manager Tasks': 'مهام المدير',
-  'My Tasks': 'مهامي',
-  Attendance: 'الحضور',
-  Geofencing: 'الجيوفنسينج',
-  'Daily Attendance': 'الحضور اليومي',
-  Report: 'التقرير',
-  'Leave Request': 'طلب إجازة',
-  'Leave Analytics': 'تحليلات الإجازات',
-  Reports: 'التقارير',
-  'Cross Tenant Leaves': 'إجازات المستأجرين',
-  Performance: 'الأداء',
-  'Employee Performance': 'أداء الموظف',
-  Accounts: 'الحسابات',
-  Invoice: 'الفاتورة',
-  Payments: 'المدفوعات',
-  'Audit Logs': 'سجلات التدقيق',
-  App: 'التطبيق',
-  Chat: 'المحادثة',
-  Calendar: 'التقويم',
-  Settings: 'الإعدادات',
-  'Log out': 'تسجيل الخروج',
-  'Dark Mode': 'الوضع الداكن',
-  'Feature Management': 'إدارة الميزات',
-  'Other Pages': 'صفحات أخرى',
-  Login: 'تسجيل الدخول',
-  Register: 'تسجيل',
-  Error: 'خطأ',
-  'UI Components': 'مكونات الواجهة',
-  Buttons: 'الأزرار',
-  Cards: 'البطاقات',
-  Modals: 'النوافذ المنبثقة',
-};
-
 export default function Sidebar({
   darkMode,
   onMenuItemClick,
@@ -391,8 +339,21 @@ export default function Sidebar({
   const isRtl = language === 'ar';
 
   /** Translate a menu label to the current language. */
-  const translateLabel = (label: string): string =>
-    isRtl ? (menuLabelAr[label] ?? label) : label;
+  const translateLabel = useCallback(
+    (label: string): string => {
+      if (!isRtl) return label;
+      if (!(label in sidebarLabelAr)) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[i18n] Missing Arabic translation for sidebar label: "${label}"`
+          );
+        }
+        return label;
+      }
+      return sidebarLabelAr[label];
+    },
+    [isRtl]
+  );
   const role = user?.role;
   const userRoleName = getRoleName(role).toLowerCase();
   const isEmployee =

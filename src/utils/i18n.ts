@@ -3,15 +3,17 @@
  *
  * ⚠️  SINGLE SOURCE OF TRUTH for all UI strings.
  * Do NOT add inline translation strings elsewhere in the codebase.
- * All new string pairs must be added here first, then consumed via
- * `useGetText` (src/hooks/useGetText.ts) or the standalone `getText` helper.
+ * All new string pairs must be added here first, then consumed via one of:
  *
- * Pattern used throughout the project:
- *   getText(en, ar) → returns `ar` when language === 'ar', otherwise `en`
+ *   1. `useGetText` hook  — for React components (src/hooks/useGetText.ts)
+ *   2. `getText(lang, en, ar)` — for plain TS utilities outside React
+ *   3. `sidebarLabelAr`  — auto-derived Record used by Sidebar.translateLabel()
+ *   4. `translations.navbar` — auto-derived into Navbar `labels` at module load
  *
- * Sidebar menu labels are an exception — they live in `menuLabelAr` inside
- * Sidebar.tsx because they are keyed by the English label string at render
- * time. Any new menu entries must be added there AND here for audit parity.
+ * Migration guide for legacy inline ternaries (`isRtl ? 'ar' : 'en'`):
+ *   a. Add the string pair to the appropriate section below.
+ *   b. Replace the ternary with `getText(en, ar)` (or the hook equivalent).
+ *   c. Delete the inline string — do not leave both in place.
  */
 
 // ---------------------------------------------------------------------------
@@ -74,6 +76,7 @@ export const translations = {
     settings: { en: 'Settings', ar: 'الإعدادات' },
     signout: { en: 'Log out', ar: 'تسجيل الخروج' },
     profile: { en: 'Profile', ar: 'الملف الشخصي' },
+    adminProfile: { en: 'Admin Profile', ar: 'ملف المشرف' },
   },
 
   // ── Sidebar ──────────────────────────────────────────────────────────────
@@ -100,6 +103,8 @@ export const translations = {
     myTasks: { en: 'My Tasks', ar: 'مهامي' },
     attendance: { en: 'Attendance', ar: 'الحضور' },
     geofencing: { en: 'Geofencing', ar: 'الجيوفنسينج' },
+    featureManagement: { en: 'Feature Management', ar: 'إدارة الميزات' },
+    darkMode: { en: 'Dark Mode', ar: 'الوضع الداكن' },
     dailyAttendance: { en: 'Daily Attendance', ar: 'الحضور اليومي' },
     report: { en: 'Report', ar: 'التقرير' },
     leaveRequest: { en: 'Leave Request', ar: 'طلب إجازة' },
@@ -116,7 +121,7 @@ export const translations = {
     chat: { en: 'Chat', ar: 'المحادثة' },
     calendar: { en: 'Calendar', ar: 'التقويم' },
     settings: { en: 'Settings', ar: 'الإعدادات' },
-    logout: { en: 'Log Out', ar: 'تسجيل الخروج' },
+    logout: { en: 'Log out', ar: 'تسجيل الخروج' },
     otherPages: { en: 'Other Pages', ar: 'صفحات أخرى' },
     login: { en: 'Login', ar: 'تسجيل الدخول' },
     register: { en: 'Register', ar: 'تسجيل' },
@@ -355,3 +360,17 @@ export const translations = {
 } as const;
 
 export type TranslationCatalogue = typeof translations;
+
+// ---------------------------------------------------------------------------
+// Derived helpers — do NOT hand-edit; they are auto-computed from `translations`
+// ---------------------------------------------------------------------------
+
+/**
+ * Flat Record<englishLabel, arabicLabel> for every sidebar menu entry.
+ * Sidebar.tsx uses this as the lookup table inside `translateLabel()`.
+ * Adding a new menu item? Add it to `translations.sidebar` above — this
+ * record updates automatically.
+ */
+export const sidebarLabelAr: Record<string, string> = Object.fromEntries(
+  Object.values(translations.sidebar).map(({ en, ar }) => [en, ar])
+);

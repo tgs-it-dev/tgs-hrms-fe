@@ -54,34 +54,16 @@ import {
   useFeatureToggles,
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
+import { translations } from '../../utils/i18n';
 
+const { navbar: _n } = translations;
 const labels = {
-  en: {
-    search: 'Search',
-    members: 'Members',
-    settings: 'Settings',
-    signout: 'Log out',
-    adminProfile: 'Admin Profile',
-    profile: 'Profile',
-    notifications: 'Notifications',
-    markAllRead: 'Mark all read',
-    clear: 'Clear',
-    noNotifications: 'No notifications',
-    noResults: 'No results found',
-  },
-  ar: {
-    search: 'بحث',
-    members: 'الأعضاء',
-    settings: 'الإعدادات',
-    signout: 'تسجيل الخروج',
-    adminProfile: 'ملف المشرف',
-    profile: 'الملف الشخصي',
-    notifications: 'الإشعارات',
-    markAllRead: 'تعليم الكل كمقروء',
-    clear: 'مسح',
-    noNotifications: 'لا توجد إشعارات',
-    noResults: 'لا توجد نتائج',
-  },
+  en: Object.fromEntries(
+    Object.entries(_n).map(([k, v]) => [k, v.en])
+  ) as Record<keyof typeof _n, string>,
+  ar: Object.fromEntries(
+    Object.entries(_n).map(([k, v]) => [k, v.ar])
+  ) as Record<keyof typeof _n, string>,
 };
 
 const Search = styled('div')(({ theme }) => ({
