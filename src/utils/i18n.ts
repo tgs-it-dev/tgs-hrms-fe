@@ -366,18 +366,3 @@ export const translations = {
 
 export type TranslationCatalogue = typeof translations;
 
-// ---------------------------------------------------------------------------
-// Derived helpers — do NOT hand-edit; they are auto-computed from `translations`
-// ---------------------------------------------------------------------------
-
-/**
- * Flat Record<englishLabel, arabicLabel> for every sidebar menu entry.
- * Sidebar.tsx uses this as the lookup table inside `translateLabel()`.
- * Adding a new menu item? Add it to `translations.sidebar` above — this
- * record updates automatically.
- */
-export const sidebarLabelAr = Object.freeze(
-  Object.fromEntries(
-    Object.entries(translations.sidebar).map(([, { en, ar }]) => [en, ar])
-  )
-) satisfies Record<string, string>;
