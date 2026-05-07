@@ -57,14 +57,35 @@ import {
 import { translations } from '../../utils/i18n';
 
 const { navbar: _n } = translations;
+// Explicit typed literal keeps per-key autocomplete and makes missing/extra keys a compile error.
 const labels = {
-  en: Object.fromEntries(
-    Object.entries(_n).map(([k, v]) => [k, v.en])
-  ) as Record<keyof typeof _n, string>,
-  ar: Object.fromEntries(
-    Object.entries(_n).map(([k, v]) => [k, v.ar])
-  ) as Record<keyof typeof _n, string>,
-};
+  en: {
+    search: _n.search.en,
+    notifications: _n.notifications.en,
+    markAllRead: _n.markAllRead.en,
+    clear: _n.clear.en,
+    noNotifications: _n.noNotifications.en,
+    noResults: _n.noResults.en,
+    members: _n.members.en,
+    settings: _n.settings.en,
+    signout: _n.signout.en,
+    profile: _n.profile.en,
+    adminProfile: _n.adminProfile.en,
+  },
+  ar: {
+    search: _n.search.ar,
+    notifications: _n.notifications.ar,
+    markAllRead: _n.markAllRead.ar,
+    clear: _n.clear.ar,
+    noNotifications: _n.noNotifications.ar,
+    noResults: _n.noResults.ar,
+    members: _n.members.ar,
+    settings: _n.settings.ar,
+    signout: _n.signout.ar,
+    profile: _n.profile.ar,
+    adminProfile: _n.adminProfile.ar,
+  },
+} satisfies Record<'en' | 'ar', Record<keyof typeof _n, string>>;
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -335,7 +356,6 @@ const NotificationButton: React.FC = () => {
             component='img'
             src={Icons.notification}
             alt=''
-            role='presentation'
             sx={{
               width: { xs: 18, md: 24 },
               height: { xs: 18, md: 24 },

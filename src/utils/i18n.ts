@@ -371,6 +371,8 @@ export type TranslationCatalogue = typeof translations;
  * Adding a new menu item? Add it to `translations.sidebar` above — this
  * record updates automatically.
  */
-export const sidebarLabelAr: Record<string, string> = Object.fromEntries(
-  Object.values(translations.sidebar).map(({ en, ar }) => [en, ar])
+export const sidebarLabelAr: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(
+    Object.values(translations.sidebar).map(({ en, ar }) => [en, ar])
+  )
 );
