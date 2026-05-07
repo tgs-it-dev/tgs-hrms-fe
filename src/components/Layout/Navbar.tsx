@@ -61,8 +61,12 @@ const labels = {
     settings: 'Settings',
     signout: 'Log out',
     adminProfile: 'Admin Profile',
-    dylan: 'Dylan Hunter',
-    email: 'Dylan.hunter@gmail.com',
+    profile: 'Profile',
+    notifications: 'Notifications',
+    markAllRead: 'Mark all read',
+    clear: 'Clear',
+    noNotifications: 'No notifications',
+    noResults: 'No results found',
   },
   ar: {
     search: 'بحث',
@@ -70,8 +74,12 @@ const labels = {
     settings: 'الإعدادات',
     signout: 'تسجيل الخروج',
     adminProfile: 'ملف المشرف',
-    dylan: 'ديلان هنتر',
-    email: 'Dylan.hunter@gmail.com',
+    profile: 'الملف الشخصي',
+    notifications: 'الإشعارات',
+    markAllRead: 'تعليم الكل كمقروء',
+    clear: 'مسح',
+    noNotifications: 'لا توجد إشعارات',
+    noResults: 'لا توجد نتائج',
   },
 };
 
@@ -300,6 +308,8 @@ interface NavbarProps {
  */
 const NotificationButton: React.FC = () => {
   const theme = useTheme();
+  const { language } = useLanguage();
+  const notifLabels = labels[language];
   const {
     notifications,
     unreadCount,
@@ -321,7 +331,7 @@ const NotificationButton: React.FC = () => {
       <IconButton
         onClick={handleOpen}
         sx={{ padding: { xs: '6px', md: '8px' } }}
-        aria-label='Notifications'
+        aria-label={notifLabels.notifications}
         aria-haspopup='true'
         aria-expanded={open ? 'true' : undefined}
       >
@@ -341,7 +351,7 @@ const NotificationButton: React.FC = () => {
           <Box
             component='img'
             src={Icons.notification}
-            alt='Notifications'
+            alt={notifLabels.notifications}
             sx={{
               width: { xs: 18, md: 24 },
               height: { xs: 18, md: 24 },
@@ -372,7 +382,7 @@ const NotificationButton: React.FC = () => {
           sx={{ px: 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
         >
           <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-            Notifications
+            {notifLabels.notifications}
           </Typography>
           <Box sx={{ flex: 1 }} />
           <Button
@@ -381,7 +391,7 @@ const NotificationButton: React.FC = () => {
               markAllAsRead();
             }}
           >
-            Mark all read
+            {notifLabels.markAllRead}
           </Button>
           <Button
             size='small'
@@ -389,7 +399,7 @@ const NotificationButton: React.FC = () => {
               clearAllNotifications();
             }}
           >
-            Clear
+            {notifLabels.clear}
           </Button>
         </Box>
         <Divider />
@@ -399,7 +409,7 @@ const NotificationButton: React.FC = () => {
             <List sx={{ p: 2 }}>
               <ListItem>
                 <ListItemText
-                  primary='No notifications'
+                  primary={notifLabels.noNotifications}
                   primaryTypographyProps={{ color: 'text.secondary' }}
                 />
               </ListItem>
@@ -1212,7 +1222,7 @@ const Navbar: React.FC<NavbarProps> = ({
                           color: theme.palette.text.secondary,
                         }}
                       >
-                        No results found
+                        {lang.noResults}
                       </Typography>
                     </Paper>
                   )}
@@ -1615,7 +1625,7 @@ const Navbar: React.FC<NavbarProps> = ({
                       color: theme.palette.text.secondary,
                     }}
                   >
-                    No results found
+                    {lang.noResults}
                   </Typography>
                 </Paper>
               )}
@@ -1748,7 +1758,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={theme.palette.text.primary}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            Profile
+            {lang.profile}
           </Typography>
         </MenuItem>
         <MenuItem

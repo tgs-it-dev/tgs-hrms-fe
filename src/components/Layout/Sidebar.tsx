@@ -11,6 +11,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../theme/hooks';
 import {
   isMenuVisibleForRole,
@@ -318,6 +319,58 @@ const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
   App: 'app',
 };
 
+/** Arabic translations for every sidebar label. */
+const menuLabelAr: Record<string, string> = {
+  Dashboard: 'لوحة التحكم',
+  Announcements: 'الإعلانات',
+  Projects: 'المشاريع',
+  'Project List': 'قائمة المشاريع',
+  'Add Project': 'إضافة مشروع',
+  Tenant: 'المستأجر',
+  'Add Tenant': 'إضافة مستأجر',
+  Department: 'القسم',
+  'Department List': 'قائمة الأقسام',
+  Designation: 'المسمى الوظيفي',
+  'User List': 'قائمة المستخدمين',
+  Policies: 'السياسات',
+  Holidays: 'الإجازات الرسمية',
+  Employees: 'الموظفون',
+  'Employee List': 'قائمة الموظفين',
+  'Tenant Employees': 'موظفو المستأجر',
+  Teams: 'الفرق',
+  'Team Management': 'إدارة الفرق',
+  'Manager Tasks': 'مهام المدير',
+  'My Tasks': 'مهامي',
+  Attendance: 'الحضور',
+  Geofencing: 'الجيوفنسينج',
+  'Daily Attendance': 'الحضور اليومي',
+  Report: 'التقرير',
+  'Leave Request': 'طلب إجازة',
+  'Leave Analytics': 'تحليلات الإجازات',
+  Reports: 'التقارير',
+  'Cross Tenant Leaves': 'إجازات المستأجرين',
+  Performance: 'الأداء',
+  'Employee Performance': 'أداء الموظف',
+  Accounts: 'الحسابات',
+  Invoice: 'الفاتورة',
+  Payments: 'المدفوعات',
+  'Audit Logs': 'سجلات التدقيق',
+  App: 'التطبيق',
+  Chat: 'المحادثة',
+  Calendar: 'التقويم',
+  Settings: 'الإعدادات',
+  'Log Out': 'تسجيل الخروج',
+  'Feature Management': 'إدارة الميزات',
+  'Other Pages': 'صفحات أخرى',
+  Login: 'تسجيل الدخول',
+  Register: 'تسجيل',
+  Error: 'خطأ',
+  'UI Components': 'مكونات الواجهة',
+  Buttons: 'الأزرار',
+  Cards: 'البطاقات',
+  Modals: 'النوافذ المنبثقة',
+};
+
 export default function Sidebar({
   darkMode,
   onMenuItemClick,
@@ -333,6 +386,12 @@ export default function Sidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser();
+  const { language } = useLanguage();
+  const isRtl = language === 'ar';
+
+  /** Translate a menu label to the current language. */
+  const translateLabel = (label: string): string =>
+    isRtl ? (menuLabelAr[label] ?? label) : label;
   const role = user?.role;
   const userRoleName = getRoleName(role).toLowerCase();
   const isEmployee =
@@ -454,6 +513,7 @@ export default function Sidebar({
 
   return (
     <Box
+      dir={isRtl ? 'rtl' : 'ltr'}
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
@@ -599,7 +659,7 @@ export default function Sidebar({
                       />
                     </ListItemIcon>
                     <ListItemText
-                      primary={directLabel}
+                      primary={translateLabel(directLabel)}
                       primaryTypographyProps={{
                         fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                         fontWeight: isDirectLinkActive ? 600 : 400,
@@ -642,7 +702,7 @@ export default function Sidebar({
                         //   borderRadius: 'var(--border-radius-lg)',
                         // },
                       }}
-                      aria-label={`${item.label} menu`}
+                      aria-label={`${translateLabel(item.label)} menu`}
                       aria-expanded={isParentActive}
                       aria-controls={`${item.label}-submenu`}
                     >
@@ -663,7 +723,7 @@ export default function Sidebar({
                         />
                       </ListItemIcon>
                       <ListItemText
-                        primary={item.label}
+                        primary={translateLabel(item.label)}
                         primaryTypographyProps={{
                           fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                           fontWeight: isParentActive ? 600 : 400,
@@ -733,10 +793,10 @@ export default function Sidebar({
                                 // },
                               }}
                               role='menuitem'
-                              aria-label={`Navigate to ${sub.label}`}
+                              aria-label={`Navigate to ${translateLabel(sub.label)}`}
                             >
                               <ListItemText
-                                primary={sub.label}
+                                primary={translateLabel(sub.label)}
                                 primaryTypographyProps={{
                                   fontSize: {
                                     xs: '14px',
@@ -782,7 +842,7 @@ export default function Sidebar({
               cursor: 'pointer',
             }}
           >
-            Dark Mode
+            {isRtl ? 'الوضع الداكن' : 'Dark Mode'}
           </Typography>
           <Box
             component='button'
@@ -874,7 +934,7 @@ export default function Sidebar({
             />
           </ListItemIcon>
           <ListItemText
-            primary='Log out'
+            primary={isRtl ? 'تسجيل الخروج' : 'Log out'}
             primaryTypographyProps={{
               fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
               fontWeight: 500,
