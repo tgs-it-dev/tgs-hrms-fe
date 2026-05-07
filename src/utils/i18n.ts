@@ -1,13 +1,17 @@
 /**
  * Centralised i18n utility for TGS HRMS.
  *
+ * ⚠️  SINGLE SOURCE OF TRUTH for all UI strings.
+ * Do NOT add inline translation strings elsewhere in the codebase.
+ * All new string pairs must be added here first, then consumed via
+ * `useGetText` (src/hooks/useGetText.ts) or the standalone `getText` helper.
+ *
  * Pattern used throughout the project:
  *   getText(en, ar) → returns `ar` when language === 'ar', otherwise `en`
  *
- * All UI string pairs live here so they can be audited and updated in one place.
- * Components should import `useGetText` from this module (or from the re-export
- * in `src/hooks/useGetText.ts`) to get a `getText` function that is already bound
- * to the current language.
+ * Sidebar menu labels are an exception — they live in `menuLabelAr` inside
+ * Sidebar.tsx because they are keyed by the English label string at render
+ * time. Any new menu entries must be added there AND here for audit parity.
  */
 
 // ---------------------------------------------------------------------------

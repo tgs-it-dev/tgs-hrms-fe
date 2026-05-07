@@ -352,7 +352,8 @@ const NotificationButton: React.FC = () => {
           <Box
             component='img'
             src={Icons.notification}
-            alt={notifLabels.notifications}
+            alt=''
+            role='presentation'
             sx={{
               width: { xs: 18, md: 24 },
               height: { xs: 18, md: 24 },

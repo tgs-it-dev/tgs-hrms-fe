@@ -359,7 +359,8 @@ const menuLabelAr: Record<string, string> = {
   Chat: 'المحادثة',
   Calendar: 'التقويم',
   Settings: 'الإعدادات',
-  'Log Out': 'تسجيل الخروج',
+  'Log out': 'تسجيل الخروج',
+  'Dark Mode': 'الوضع الداكن',
   'Feature Management': 'إدارة الميزات',
   'Other Pages': 'صفحات أخرى',
   Login: 'تسجيل الدخول',
@@ -842,7 +843,7 @@ export default function Sidebar({
               cursor: 'pointer',
             }}
           >
-            {isRtl ? 'الوضع الداكن' : 'Dark Mode'}
+            {translateLabel('Dark Mode')}
           </Typography>
           <Box
             component='button'
@@ -934,7 +935,7 @@ export default function Sidebar({
             />
           </ListItemIcon>
           <ListItemText
-            primary={isRtl ? 'تسجيل الخروج' : 'Log out'}
+            primary={translateLabel('Log out')}
             primaryTypographyProps={{
               fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
               fontWeight: 500,
