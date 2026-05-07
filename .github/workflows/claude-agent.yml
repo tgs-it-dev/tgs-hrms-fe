@@ -1,0 +1,58 @@
+name: Claude Frontend Engineer Agent
+
+on:
+  # Trigger when someone comments @claude on a PR or issue
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  # Trigger on new PRs for automatic review
+  pull_request:
+    types: [opened, synchronize]
+    branches: [dev, main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude-agent:
+    # Only run if comment contains @claude, OR on new/updated PRs
+    if: |
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Claude Frontend Engineer Agent
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.FE_ANTHROPIC_API_KEY }}
+          # Use the frontend-engineer subagent defined in .claude/agents/
+          model: claude-sonnet-4-6
+          # On PRs: auto-review. On @claude comments: follow instructions.
+          direct_prompt: |
+            You are acting as the frontend-engineer agent defined in .claude/agents/frontend-engineer.md.
+
+            ${{ github.event_name == 'pull_request' &&
+              'Review this PR as a senior frontend engineer. Check for: hardcoded colors, missing theme tokens, direct fetch calls outside src/api/, missing Zod validation, TypeScript errors, and lint issues. Post a concise review comment with specific line references.' ||
+              github.event.comment.body }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
