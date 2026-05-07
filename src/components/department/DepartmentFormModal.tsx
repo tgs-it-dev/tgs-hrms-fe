@@ -301,11 +301,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
             </IconButton>
           </Box>
           {formContent}
-          <Box
-            sx={{ display: 'flex', gap: 1, mt: 3 }}
-          >
-            {actionButtons}
-          </Box>
+          <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>{actionButtons}</Box>
         </Box>
       </Drawer>
     );
