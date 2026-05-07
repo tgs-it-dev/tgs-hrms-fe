@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from '../../hooks/useLanguage';
 import { useUser } from '../../hooks/useUser';
@@ -521,6 +522,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const { language, setLanguage } = useLanguage();
   const lang = labels[language];
   const { user, clearUser } = useUser();
+  const queryClient = useQueryClient();
   const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
     if (!user) return '';
@@ -607,7 +609,6 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
-    // Clear all authentication and signup data
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -616,10 +617,12 @@ const Navbar: React.FC<NavbarProps> = ({
     localStorage.removeItem('companyDetails');
     localStorage.removeItem('signupSessionId');
 
+    // Clear TanStack Query cache so the next user never sees stale data
+    queryClient.clear();
+
     clearUser();
     clearProfilePicture();
 
-    // Navigate to login page
     navigate('/', { replace: true });
   };
 
