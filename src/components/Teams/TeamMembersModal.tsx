@@ -203,8 +203,10 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
       PaperProps={{
         sx: {
           backgroundColor: theme.palette.background.paper,
-          // color: theme.palette.text.primary,
           borderRadius: 2,
+          maxHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -273,7 +275,8 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          paddingBottom: 500,
+          p: 0,
+          minHeight: 400,
         }}
       >
         {loading ? (
