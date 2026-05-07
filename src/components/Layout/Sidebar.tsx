@@ -23,7 +23,7 @@ import {
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
 import { isUser as isEmployeeUser } from '../../utils/auth';
-import { sidebarLabelAr } from '../../utils/i18n';
+import { translations } from '../../utils/i18n';
 import { Icons } from '../../assets/icons';
 import {
   Apps,
@@ -41,9 +41,12 @@ import {
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
 
+type SidebarKey = keyof typeof translations.sidebar;
+
 interface SubItem {
   label: string;
   path: string;
+  i18nKey?: SidebarKey;
 }
 interface MenuItem {
   label: string;
@@ -51,6 +54,7 @@ interface MenuItem {
   iconFill?: string | React.ReactNode;
   path?: string;
   subItems?: SubItem[];
+  i18nKey?: SidebarKey;
 }
 
 type IconSize =
@@ -187,124 +191,141 @@ interface SidebarProps {
 const menuItems: MenuItem[] = [
   {
     label: 'Dashboard',
+    i18nKey: 'dashboard',
     icon: Icons.dashboard,
     iconFill: Icons.dashboardFill,
-    subItems: [{ label: 'Dashboard', path: '' }],
+    subItems: [{ label: 'Dashboard', i18nKey: 'dashboard', path: '' }],
   },
   {
     label: 'Announcements',
+    i18nKey: 'announcements',
     icon: <Campaign />,
-    subItems: [{ label: 'Announcements', path: 'announcements' }],
+    subItems: [
+      { label: 'Announcements', i18nKey: 'announcements', path: 'announcements' },
+    ],
   },
   {
     label: 'Projects',
+    i18nKey: 'projects',
     icon: <BusinessCenter />,
     subItems: [
-      { label: 'Project List', path: 'project-list' },
-      { label: 'Add Project', path: 'add-project' },
+      { label: 'Project List', i18nKey: 'projectList', path: 'project-list' },
+      { label: 'Add Project', i18nKey: 'addProject', path: 'add-project' },
     ],
   },
   {
     label: 'Tenant',
+    i18nKey: 'tenant',
     icon: <ConfirmationNumber />,
-    subItems: [{ label: 'Add Tenant', path: 'tenant' }],
+    subItems: [{ label: 'Add Tenant', i18nKey: 'addTenant', path: 'tenant' }],
   },
   {
     label: 'Department',
+    i18nKey: 'department',
     icon: Icons.department,
     iconFill: Icons.departmentFill,
     subItems: [
-      { label: 'Department List', path: 'departments' },
-      { label: 'Designation', path: 'designations' },
-      { label: 'User List', path: 'user-list' },
-      { label: 'Policies', path: 'policies' },
-      { label: 'Holidays', path: 'holidays' },
+      { label: 'Department List', i18nKey: 'departmentList', path: 'departments' },
+      { label: 'Designation', i18nKey: 'designation', path: 'designations' },
+      { label: 'User List', i18nKey: 'userList', path: 'user-list' },
+      { label: 'Policies', i18nKey: 'policies', path: 'policies' },
+      { label: 'Holidays', i18nKey: 'holidays', path: 'holidays' },
     ],
   },
   {
     label: 'Employees',
+    i18nKey: 'employees',
     icon: Icons.employee,
     iconFill: Icons.employeeFill,
     subItems: [
-      { label: 'Employee List', path: 'employee-manager' },
-      { label: 'Tenant Employees', path: 'tenant-employees' },
+      { label: 'Employee List', i18nKey: 'employeeList', path: 'employee-manager' },
+      { label: 'Tenant Employees', i18nKey: 'tenantEmployees', path: 'tenant-employees' },
     ],
   },
   {
     label: 'Teams',
+    i18nKey: 'teams',
     icon: Icons.teams,
     iconFill: Icons.teamsFill,
     subItems: [
-      { label: 'Team Management', path: 'teams' },
-      { label: 'Manager Tasks', path: 'manager-tasks' },
-      { label: 'My Tasks', path: 'my-tasks' },
+      { label: 'Team Management', i18nKey: 'teamManagement', path: 'teams' },
+      { label: 'Manager Tasks', i18nKey: 'managerTasks', path: 'manager-tasks' },
+      { label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' },
     ],
   },
   {
     label: 'Attendance',
+    i18nKey: 'attendance',
     icon: Icons.attendance,
     iconFill: Icons.attendanceFill,
     subItems: [
-      { label: 'Geofencing', path: 'geofencing' },
-      { label: 'Attendance', path: 'attendance-check' },
-      { label: 'Daily Attendance', path: 'attendance-table' },
-      { label: 'Report', path: 'attendance-summary' },
-      { label: 'Leave Request', path: 'leaves' },
+      { label: 'Geofencing', i18nKey: 'geofencing', path: 'geofencing' },
+      { label: 'Attendance', i18nKey: 'attendance', path: 'attendance-check' },
+      { label: 'Daily Attendance', i18nKey: 'dailyAttendance', path: 'attendance-table' },
+      { label: 'Report', i18nKey: 'report', path: 'attendance-summary' },
+      { label: 'Leave Request', i18nKey: 'leaveRequest', path: 'leaves' },
     ],
   },
   {
     label: 'Leave Analytics',
+    i18nKey: 'leaveAnalytics',
     icon: Icons.leaveAnalytics,
     iconFill: Icons.leaveAnalyticsFill,
     subItems: [
-      { label: 'Reports', path: 'reports' },
-      { label: 'Cross Tenant Leaves', path: 'cross-tenant-leaves' },
+      { label: 'Reports', i18nKey: 'reports', path: 'reports' },
+      { label: 'Cross Tenant Leaves', i18nKey: 'crossTenantLeaves', path: 'cross-tenant-leaves' },
     ],
   },
   {
     label: 'Performance',
+    i18nKey: 'performance',
     icon: <Insights />,
     subItems: [
-      { label: 'Employee Performance', path: 'performance-dashboard' },
+      { label: 'Employee Performance', i18nKey: 'employeePerformance', path: 'performance-dashboard' },
     ],
   },
   {
     label: 'Accounts',
+    i18nKey: 'accounts',
     icon: <Receipt />,
     subItems: [
-      { label: 'Invoice', path: 'invoice' },
-      { label: 'Payments', path: 'payments' },
+      { label: 'Invoice', i18nKey: 'invoice', path: 'invoice' },
+      { label: 'Payments', i18nKey: 'payments', path: 'payments' },
     ],
   },
   {
     label: 'Audit Logs',
+    i18nKey: 'auditLogs',
     icon: <History />,
-    subItems: [{ label: 'Audit Logs', path: 'audit-logs' }],
+    subItems: [{ label: 'Audit Logs', i18nKey: 'auditLogs', path: 'audit-logs' }],
   },
   {
     label: 'App',
+    i18nKey: 'app',
     icon: <Apps />,
     subItems: [
-      { label: 'Chat', path: 'chat' },
-      { label: 'Calendar', path: 'calendar' },
+      { label: 'Chat', i18nKey: 'chat', path: 'chat' },
+      { label: 'Calendar', i18nKey: 'calendar', path: 'calendar' },
     ],
   },
   {
     label: 'Other Pages',
+    i18nKey: 'otherPages',
     icon: <Code />,
     subItems: [
-      { label: 'Login', path: 'login' },
-      { label: 'Register', path: 'register' },
-      { label: 'Error', path: 'error' },
+      { label: 'Login', i18nKey: 'login', path: 'login' },
+      { label: 'Register', i18nKey: 'register', path: 'register' },
+      { label: 'Error', i18nKey: 'error', path: 'error' },
     ],
   },
   {
     label: 'UI Components',
+    i18nKey: 'uiComponents',
     icon: <Widgets />,
     subItems: [
-      { label: 'Buttons', path: 'buttons' },
-      { label: 'Cards', path: 'cards' },
-      { label: 'Modals', path: 'modals' },
+      { label: 'Buttons', i18nKey: 'buttons', path: 'buttons' },
+      { label: 'Cards', i18nKey: 'cards', path: 'cards' },
+      { label: 'Modals', i18nKey: 'modals', path: 'modals' },
     ],
   },
 ];
@@ -338,19 +359,10 @@ export default function Sidebar({
   const { language } = useLanguage();
   const isRtl = language === 'ar';
 
-  /** Translate a menu label to the current language. */
   const translateLabel = useCallback(
-    (label: string): string => {
-      if (!isRtl) return label;
-      if (!(label in sidebarLabelAr)) {
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[i18n] Missing Arabic translation for sidebar label: "${label}"`
-          );
-        }
-        return label;
-      }
-      return sidebarLabelAr[label];
+    (key: SidebarKey | undefined, fallback = ''): string => {
+      if (!key) return fallback;
+      return translations.sidebar[key][isRtl ? 'ar' : 'en'];
     },
     [isRtl]
   );
@@ -404,7 +416,8 @@ export default function Sidebar({
           return {
             ...item,
             label: 'My Tasks',
-            subItems: [{ label: 'My Tasks', path: 'my-tasks' }],
+            i18nKey: 'myTasks' as SidebarKey,
+            subItems: [{ label: 'My Tasks', i18nKey: 'myTasks' as SidebarKey, path: 'my-tasks' }],
           } as MenuItem;
         }
         return item;
@@ -418,9 +431,10 @@ export default function Sidebar({
         ...filtered,
         {
           label: 'Feature Management',
+          i18nKey: 'featureManagement' as SidebarKey,
           icon: <Apps />,
           subItems: [
-            { label: 'Feature Management', path: 'feature-management' },
+            { label: 'Feature Management', i18nKey: 'featureManagement' as SidebarKey, path: 'feature-management' },
           ],
         },
       ];
@@ -475,7 +489,6 @@ export default function Sidebar({
 
   return (
     <Box
-      dir={isRtl ? 'rtl' : 'ltr'}
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
@@ -558,6 +571,9 @@ export default function Sidebar({
             const directLabel = isSingleSubItem
               ? visibleSubItems[0].label
               : item.label;
+            const directI18nKey = isSingleSubItem
+              ? visibleSubItems[0].i18nKey
+              : item.i18nKey;
 
             // Match current route for highlight (same logic as useEffect)
             const currentPath =
@@ -621,7 +637,7 @@ export default function Sidebar({
                       />
                     </ListItemIcon>
                     <ListItemText
-                      primary={translateLabel(directLabel)}
+                      primary={translateLabel(directI18nKey, directLabel)}
                       primaryTypographyProps={{
                         fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                         fontWeight: isDirectLinkActive ? 600 : 400,
@@ -664,7 +680,7 @@ export default function Sidebar({
                         //   borderRadius: 'var(--border-radius-lg)',
                         // },
                       }}
-                      aria-label={`${translateLabel(item.label)} menu`}
+                      aria-label={`${translateLabel(item.i18nKey, item.label)} menu`}
                       aria-expanded={isParentActive}
                       aria-controls={`${item.label}-submenu`}
                     >
@@ -685,7 +701,7 @@ export default function Sidebar({
                         />
                       </ListItemIcon>
                       <ListItemText
-                        primary={translateLabel(item.label)}
+                        primary={translateLabel(item.i18nKey, item.label)}
                         primaryTypographyProps={{
                           fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                           fontWeight: isParentActive ? 600 : 400,
@@ -755,10 +771,10 @@ export default function Sidebar({
                                 // },
                               }}
                               role='menuitem'
-                              aria-label={`Navigate to ${translateLabel(sub.label)}`}
+                              aria-label={`Navigate to ${translateLabel(sub.i18nKey, sub.label)}`}
                             >
                               <ListItemText
-                                primary={translateLabel(sub.label)}
+                                primary={translateLabel(sub.i18nKey, sub.label)}
                                 primaryTypographyProps={{
                                   fontSize: {
                                     xs: '14px',
@@ -804,7 +820,7 @@ export default function Sidebar({
               cursor: 'pointer',
             }}
           >
-            {translateLabel('Dark Mode')}
+            {translateLabel('darkMode')}
           </Typography>
           <Box
             component='button'
@@ -896,7 +912,7 @@ export default function Sidebar({
             />
           </ListItemIcon>
           <ListItemText
-            primary={translateLabel('Log out')}
+            primary={translateLabel('logout')}
             primaryTypographyProps={{
               fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
               fontWeight: 500,

@@ -3,17 +3,22 @@
  *
  * ⚠️  SINGLE SOURCE OF TRUTH for all UI strings.
  * Do NOT add inline translation strings elsewhere in the codebase.
- * All new string pairs must be added here first, then consumed via one of:
+ * All new string pairs must be added here first, then consumed via:
  *
- *   1. `useGetText` hook  — for React components (src/hooks/useGetText.ts)
+ *   1. `useGetText` hook  — canonical pattern for React components
  *   2. `getText(lang, en, ar)` — for plain TS utilities outside React
- *   3. `sidebarLabelAr`  — auto-derived Record used by Sidebar.translateLabel()
- *   4. `translations.navbar` — auto-derived into Navbar `labels` at module load
+ *
+ * The `labels[language]` object pattern (used in Navbar) is being retired
+ * in favour of `useGetText`. New components should not adopt it.
  *
  * Migration guide for legacy inline ternaries (`isRtl ? 'ar' : 'en'`):
  *   a. Add the string pair to the appropriate section below.
  *   b. Replace the ternary with `getText(en, ar)` (or the hook equivalent).
  *   c. Delete the inline string — do not leave both in place.
+ *
+ * TODO: Arabic has 6 grammatical number forms; this catalogue uses singular
+ * only. Replace with a pluralisation-aware library (e.g. Intl.PluralRules)
+ * before any count-bearing string is displayed in Arabic.
  */
 
 // ---------------------------------------------------------------------------
@@ -371,8 +376,8 @@ export type TranslationCatalogue = typeof translations;
  * Adding a new menu item? Add it to `translations.sidebar` above — this
  * record updates automatically.
  */
-export const sidebarLabelAr: Readonly<Record<string, string>> = Object.freeze(
+export const sidebarLabelAr = Object.freeze(
   Object.fromEntries(
-    Object.values(translations.sidebar).map(({ en, ar }) => [en, ar])
+    Object.entries(translations.sidebar).map(([, { en, ar }]) => [en, ar])
   )
-);
+) satisfies Record<string, string>;
