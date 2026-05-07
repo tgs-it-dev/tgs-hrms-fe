@@ -566,7 +566,7 @@ const SelectPlan: React.FC = () => {
             onClick={() => handlePlanSelect(plan.id)}
             sx={{
               flex: 1,
-              borderRadius: '24px',
+              borderRadius: '16px',
               overflow: 'hidden',
               boxShadow:
                 selectedPlan === plan.id
@@ -701,7 +701,6 @@ const SelectPlan: React.FC = () => {
                   handlePlanSelect(plan.id);
                 }}
                 sx={{
-                  maxWidth: '130px',
                   backgroundColor:
                     selectedPlan === plan.id
                       ? 'var(--black-color)'

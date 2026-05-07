@@ -14,3 +14,43 @@ export interface Company {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface SystemTenant {
+  id: string;
+  name: string;
+  status: 'active' | 'suspended' | 'delelted';
+  isDeleted: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface SystemTenantDetail {
+  id: string;
+  name: string;
+  status: 'active' | 'suspended' | 'delelted';
+  created_at: string;
+  departmentCount: number;
+  employeeCount: number;
+  logo?: string;
+  domain?: string;
+  company?: {
+    id: string;
+    company_name: string;
+    domain: string;
+    logo_url: string;
+    is_paid: boolean;
+    plan_id: string;
+    tenant_id: string;
+  };
+  departments: Array<{
+    id?: string;
+    name?: string;
+  }>;
+}
+
+export interface SystemTenantFilters {
+  page?: number;
+  limit?: number;
+  includeDeleted?: boolean;
+}

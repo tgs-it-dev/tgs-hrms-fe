@@ -16,7 +16,7 @@ import LoopIcon from '@mui/icons-material/Loop';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import { Close } from '@mui/icons-material';
-import type { EmployeePerformance } from '../../api/systemEmployeeApi';
+import type { EmployeePerformance } from '../../types/employee';
 
 interface KpiDetailCardProps {
   open: boolean;

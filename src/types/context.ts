@@ -1,4 +1,4 @@
-import type { UserProfile } from '../api/profileApi';
+import type { UserProfile } from './user';
 
 export interface UserContextType {
   user: UserProfile | null;
@@ -11,4 +11,10 @@ export interface UserContextType {
 export interface LanguageContextType {
   language: 'en' | 'ar';
   setLanguage: (lang: 'en' | 'ar') => void;
+}
+
+export interface ProfilePictureContextType {
+  profilePictureUrl: string | null;
+  updateProfilePicture: (url: string | null) => void;
+  clearProfilePicture: () => void;
 }

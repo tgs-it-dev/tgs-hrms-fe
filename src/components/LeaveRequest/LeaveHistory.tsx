@@ -245,8 +245,11 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
         : leavesToUse;
     source.forEach(l => {
       const empId = l.employee?.id || l.employeeId;
-      const name = l.employee?.first_name;
-      if (empId && name && empId !== currentUserId) names.add(name);
+      const fullName = [l.employee?.first_name, l.employee?.last_name]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+      if (empId && fullName && empId !== currentUserId) names.add(fullName);
     });
     return Array.from(names);
   }, [leavesToUse, allLeavesForFilter, isAdmin, currentUserId]);
@@ -272,9 +275,13 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
 
     if (selectedEmployee === '') return leavesInSelectedMonth;
 
-    return leavesInSelectedMonth.filter(
-      leave => leave.employee?.first_name === selectedEmployee
-    );
+    return leavesInSelectedMonth.filter(leave => {
+      const fullName = [leave.employee?.first_name, leave.employee?.last_name]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+      return fullName === selectedEmployee;
+    });
   }, [
     selectedEmployee,
     leavesInSelectedMonth,
@@ -586,7 +593,11 @@ const LeaveHistory: React.FC<LeaveHistoryProps> = ({
             {paginatedLeaves.map((leave, index) => (
               <TableRow key={leave.id || index}>
                 {!hideNameColumn && (isAdmin || isManager || showNames) && (
-                  <TableCell>{leave.employee?.first_name || 'N/A'}</TableCell>
+                  <TableCell>
+                    {[leave.employee?.first_name, leave.employee?.last_name]
+                      .filter(Boolean)
+                      .join(' ') || 'N/A'}
+                  </TableCell>
                 )}
                 <TableCell>
                   {(leave.leaveType?.name || 'Unknown').replace(/^./, c =>

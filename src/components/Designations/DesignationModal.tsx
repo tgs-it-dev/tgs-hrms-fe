@@ -326,14 +326,17 @@ export default function DesignationModal({
         sx={{
           p: 0,
           pt: 0,
-          px: 2,
-          pb: 2,
+          px: 0,
+          pb: 0,
+          gap: 1,
+          display: 'flex',
         }}
       >
         <AppButton
           variantType='secondary'
           onClick={handleClose}
           text={getText('Cancel', 'إلغاء')}
+          sx={{ flex: 1 }}
         />
         <AppButton
           variantType='primary'
@@ -344,6 +347,7 @@ export default function DesignationModal({
               ? getText('Update', 'تحديث')
               : getText('Create', 'إنشاء')
           }
+          sx={{ flex: 1 }}
         />
       </DialogActions>
     </Dialog>

@@ -13,7 +13,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 // useOutletContext removed (darkMode not used)
-import type { RecentLog } from '../../api/systemDashboardApi';
+import type { RecentLog } from '../../types/audit';
 
 const timeAgo = (dateString: string) => {
   const now = new Date();

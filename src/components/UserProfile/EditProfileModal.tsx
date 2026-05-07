@@ -7,7 +7,7 @@ import {
   profileApiService,
   type UpdateProfileRequest,
 } from '../../api/profileApi';
-import type { UserProfile } from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import ProfilePictureUpload from '../common/ProfilePictureUpload';
 import { useProfilePicture } from '../../context/ProfilePictureContext';
 import { validateEmailAddress } from '../../utils/validation';

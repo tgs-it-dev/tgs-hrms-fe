@@ -17,7 +17,7 @@ import '../UserProfile/PhoneInput.css';
 import { useOutletContext } from 'react-router-dom';
 import type { AppOutletContext } from '../../types/outletContexts';
 import { env } from '../../config/env';
-import type { EmployeeDto } from '../../api/employeeApi';
+import type { EmployeeDto } from '../../types/employee';
 import {
   departmentApiService,
   type BackendDepartment,
@@ -26,7 +26,8 @@ import {
   designationApiService,
   type BackendDesignation,
 } from '../../api/designationApi';
-import { rolesApiService, type Role } from '../../api/rolesApi';
+import rolesApiService from '../../api/rolesApi';
+import type { Role } from '../../types/user';
 import { validateEmailAddress } from '../../utils/validation';
 import AppButton from '../common/AppButton';
 import AppInputField from '../common/AppInputField';

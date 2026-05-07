@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import { useLanguage } from '../../hooks/useLanguage';
 import type { AllTenantsTeamsResponse, TenantTeam } from '../../api/teamApi';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 
 interface SystemAdminTenantTeamsProps {
   data: AllTenantsTeamsResponse;
