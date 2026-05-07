@@ -24,7 +24,7 @@ import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import signupApi from '../../api/signupApi';
 import { persistAuthSession } from '../../utils/authSession';
-import type { UserProfile } from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import AppInputField from '../common/AppInputField';
 import AuthSidebar from '../common/AuthSidebar';
 import { env } from '../../config/env';

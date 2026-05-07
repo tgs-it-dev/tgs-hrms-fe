@@ -16,13 +16,18 @@ storybook-static/
 .env.production.local
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
+# Track .vscode/settings.json for shared team config
+.vscode/*
+!.vscode/settings.json
 
-# Claude Code AI tool — local permissions and absolute paths
-.claude/
+# Claude Code AI tool — ignore local-only files (absolute paths, machine settings)
+.claude/settings.json
+.claude/settings.local.json
+.claude/worktrees/
+# .claude/agents/ and .claude/hooks/ are intentionally tracked (shared team config)
 
 # OS
 .DS_Store

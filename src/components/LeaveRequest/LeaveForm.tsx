@@ -149,17 +149,17 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
         if (reason.trim() !== initialData.reason)
           payload.reason = reason.trim();
 
-        // 2. Sequential Deletion (The Fix)
-        if (documentsToRemove.length > 0) {
+        // 2. Sequential Deletion
+        const docsDeletedCount = documentsToRemove.length;
+        if (docsDeletedCount > 0) {
           for (const doc of documentsToRemove) {
             try {
               await leaveApi.deleteDocument(leaveId, doc);
             } catch (_error) {
-              // Log individual failure but don't stop the whole process
               onError?.(`Failed to delete document: ${doc}`);
             }
           }
-          // Clear list so we don't try to delete them again if user hits Save twice
+          // Clear so we don't re-delete if user hits Save twice
           setDocumentsToRemove([]);
         }
 
@@ -173,8 +173,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
 
         if (updatesAvailable) {
           await leaveApi.updateLeave(leaveId, payload);
-        } else if (documentsToRemove.length === 0) {
-          // This catches the case where user removed docs but changed nothing else
+        } else if (docsDeletedCount === 0) {
+          // Only show "no changes" when truly nothing changed (captures count before clearing)
           onError?.('No changes to update.');
           setLoading(false);
           return;

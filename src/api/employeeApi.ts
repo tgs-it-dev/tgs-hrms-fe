@@ -2,77 +2,23 @@ import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
 import type {
   BackendEmployee,
-  EmployeeJoiningReport,
   GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
 } from '../types/employee';
 
 export type {
   BackendEmployee,
-  EmployeeJoiningReport,
   GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeProfileAttendanceSummaryItem,
+  EmployeeProfileLeaveHistoryItem,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
 } from '../types/employee';
-
-export interface EmployeeProfileAttendanceSummaryItem {
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workedHours: number;
-}
-
-export interface EmployeeProfileLeaveHistoryItem {
-  id: string;
-  fromDate: string;
-  toDate: string;
-  reason: string;
-  type: string;
-  status: string;
-}
-
-export interface EmployeeFullProfile {
-  id: string; // user id
-  name: string;
-  email: string;
-  role: string;
-  designation: string | null;
-  department: string | null;
-  joinedAt: string;
-  profile_pic?: string | null;
-  attendanceSummary: EmployeeProfileAttendanceSummaryItem[];
-  leaveHistory: EmployeeProfileLeaveHistoryItem[];
-}
-
-export interface EmployeeDto {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  password?: string; // Made optional since backend will generate temporary password
-  designationId: string; // UX carries department selection separately
-  gender: string; // <-- Add gender
-  role_name?: string; // Role name for employee creation
-  role_id?: string; // Role ID (optional)
-  team_id?: string; // Team ID (optional)
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
-
-export interface EmployeeUpdateDto {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  designationId?: string;
-  role_id?: string;
-  role_name?: string;
-  gender?: string; // <-- Optionally add gender for updates
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
 
 type EmployeeFilters = {
   departmentId?: string;
@@ -134,37 +80,6 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
     (data.role_name as string) ||
     (user && ((user as Record<string, unknown>).role_name as string)) ||
     '';
-
-  if (data.title && !data.user) {
-    return {
-      id: (data.id as string) || `mock-${Date.now()}`,
-      user_id: (data.user_id as string) || '',
-      name: `Employee ${data.title as string}`,
-      firstName: 'Employee',
-      lastName: data.title as string,
-      email: `employee.${(data.title as string)
-        .toLowerCase()
-        .replace(/\s+/g, '.')}@company.com`,
-      phone: '+1234567890',
-      departmentId: (data.department_id as string) || '',
-      designationId: (data.id as string) || '',
-      status: data.invite_status as string,
-      role_id: roleId,
-      role_name: roleName,
-      department: null,
-      designation: {
-        id: data.id as string,
-        title: data.title as string,
-        tenantId: '',
-        departmentId: (data.department_id as string) || '',
-        createdAt: data.created_at as string,
-        updatedAt: (data.updated_at as string) || (data.created_at as string),
-      },
-      tenantId: '',
-      createdAt: data.created_at as string,
-      updatedAt: (data.updated_at as string) || (data.created_at as string),
-    };
-  }
 
   if (user && designation) {
     return {
@@ -299,20 +214,15 @@ class EmployeeApiService {
     totalPages: number;
   }> {
     try {
-      const params = new URLSearchParams();
-      // Only add page parameter if it's not null (for dropdowns, pass null to get all records)
+      const params: Record<string, string | number> = {};
       if (page !== null) {
-        params.append('page', page.toString());
-        params.append('limit', '25'); // Backend returns 25 records per page
+        params.page = page;
+        params.limit = 25;
       }
+      if (filters.departmentId) params.department_id = filters.departmentId;
+      if (filters.designationId) params.designation_id = filters.designationId;
 
-      if (filters.departmentId)
-        params.append('department_id', filters.departmentId);
-      if (filters.designationId)
-        params.append('designation_id', filters.designationId);
-
-      const url = `${this.baseUrl}?${params.toString()}`;
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get(this.baseUrl, { params });
 
       const itemsArray = Array.isArray(response.data.items)
         ? response.data.items
@@ -452,12 +362,7 @@ class EmployeeApiService {
 
       const response = await axiosInstance.put<RawEmployee>(
         `${this.baseUrl}/${id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return normalizeEmployee(response.data);
     } catch (error) {

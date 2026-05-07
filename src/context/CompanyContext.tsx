@@ -7,7 +7,8 @@ import React, {
   type ReactNode,
 } from 'react';
 import companyApi, { type CompanyDetails } from '../api/companyApi';
-interface CompanyContextType {
+
+export interface CompanyContextType {
   companyDetails: CompanyDetails | null;
   companyName: string;
   companyLogo: string | null;

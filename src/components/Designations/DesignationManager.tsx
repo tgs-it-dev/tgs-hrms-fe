@@ -35,7 +35,7 @@ import {
   isSystemAdmin as isSystemAdminFn,
   isHRAdmin as isHRAdminFn,
 } from '../../utils/roleUtils';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import { PAGINATION } from '../../constants/appConstants';
 // import { extractErrorMessage } from '../../utils/errorHandler';
@@ -586,7 +586,7 @@ export default function DesignationManager() {
               />
               <AppDropdown
                 label={getText('Filter by department', 'تصفية حسب القسم')}
-                showLabel={false}
+                showLabel={true}
                 options={[
                   {
                     value: 'all',

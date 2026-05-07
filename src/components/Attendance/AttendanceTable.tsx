@@ -1765,16 +1765,6 @@ const AttendanceTable = () => {
                         maxWidth: { sm: '200px' },
                         boxSizing: 'border-box',
                         flexShrink: 0,
-                        backgroundColor:
-                          adminView === 'my' ? 'primary.dark' : undefined,
-                        color:
-                          adminView === 'my' ? 'common.white' : 'primary.dark',
-                        borderColor: 'primary.dark',
-                        '&:hover': {
-                          backgroundColor:
-                            adminView === 'my' ? 'primary.dark' : undefined,
-                          borderColor: 'primary.dark',
-                        },
                       }}
                     >
                       My Attendance
@@ -2477,20 +2467,18 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? new Date(
-                                  attendance.checkIn
-                                ).toLocaleTimeString()
+                              ? dayjs(attendance.checkIn).format('hh:mm A')
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? new Date(
-                                  attendance.checkOut
-                                ).toLocaleTimeString()
+                              ? dayjs(attendance.checkOut).format('hh:mm A')
                               : '--'}
                           </TableCell>
                           <TableCell>{member.totalDaysWorked}</TableCell>
-                          <TableCell>{attendance.workedHours || 0}</TableCell>
+                          <TableCell>
+                            {formatWorkedHours(attendance.workedHours)}
+                          </TableCell>
                         </TableRow>
                       )
                     );
@@ -2796,19 +2784,17 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? new Date(
-                                  attendance.checkIn
-                                ).toLocaleTimeString()
+                              ? dayjs(attendance.checkIn).format('hh:mm A')
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? new Date(
-                                  attendance.checkOut
-                                ).toLocaleTimeString()
+                              ? dayjs(attendance.checkOut).format('hh:mm A')
                               : '--'}
                           </TableCell>
-                          <TableCell>{attendance.workedHours || 0}</TableCell>
+                          <TableCell>
+                            {formatWorkedHours(attendance.workedHours)}
+                          </TableCell>
                         </TableRow>
                       )
                     );

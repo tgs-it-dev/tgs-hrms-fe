@@ -10,7 +10,6 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Get initial theme from localStorage or default to 'light'
   const getInitialTheme = (): 'light' | 'dark' => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme-mode');
@@ -18,7 +17,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         return savedTheme;
       }
 
-      // Check system preference
       if (
         window.matchMedia &&
         window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -31,21 +29,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const [mode, setMode] = useState<'light' | 'dark'>(getInitialTheme);
 
-  // Create theme based on current mode
   const theme = createAppTheme(mode);
 
-  // Toggle between light and dark mode
   const toggleTheme = () => {
     const newMode = mode === 'light' ? 'dark' : 'light';
     setMode(newMode);
   };
 
-  // Update theme mode
   const updateMode = (newMode: 'light' | 'dark') => {
     setMode(newMode);
   };
 
-  // Save theme preference to localStorage and sync body class for CSS var overrides
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme-mode', mode);
@@ -54,13 +48,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [mode]);
 
-  // Listen for system theme changes
+  // Only auto-switch when no manual preference has been saved
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
       const handleChange = (e: MediaQueryListEvent) => {
-        // Only auto-switch if user hasn't manually set a preference
         const savedTheme = localStorage.getItem('theme-mode');
         if (!savedTheme) {
           setMode(e.matches ? 'dark' : 'light');

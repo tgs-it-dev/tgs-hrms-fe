@@ -13,20 +13,17 @@ const axiosInstance = axios.create({
 // Request interceptor to attach token and handle FormData header
 axiosInstance.interceptors.request.use(
   config => {
-    try {
-      const token = authService.getAccessToken();
-      if (token) {
-        (config.headers as Record<string, unknown>).Authorization =
-          `Bearer ${token}`;
-      }
-
-      // If payload is FormData, remove Content-Type so browser/axios adds boundary
-      if (config.data instanceof FormData) {
-        delete (config.headers as Record<string, unknown>)['Content-Type'];
-      }
-    } catch (e) {
-      void e;
+    const token = authService.getAccessToken();
+    if (token) {
+      (config.headers as Record<string, unknown>).Authorization =
+        `Bearer ${token}`;
     }
+
+    // If payload is FormData, remove Content-Type so browser sets it with the correct boundary
+    if (config.data instanceof FormData) {
+      delete (config.headers as Record<string, unknown>)['Content-Type'];
+    }
+
     return config;
   },
   error => Promise.reject(error)
