@@ -701,7 +701,6 @@ const SelectPlan: React.FC = () => {
                   handlePlanSelect(plan.id);
                 }}
                 sx={{
-                  maxWidth: '130px',
                   backgroundColor:
                     selectedPlan === plan.id
                       ? 'var(--black-color)'
