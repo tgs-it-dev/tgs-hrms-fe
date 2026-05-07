@@ -64,6 +64,7 @@ export interface AppFormModalProps {
   showSubmitButton?: boolean;
   isRtl?: boolean;
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  applyButtonWidth?: boolean;
 }
 
 const AppFormModal: React.FC<AppFormModalProps> = ({
@@ -89,6 +90,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
   showSubmitButton = true,
   isRtl = false,
   maxWidth = 'sm',
+  applyButtonWidth,
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -317,7 +319,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
               onClick={onClose}
               variant='outlined'
               variantType='secondary'
-              sx={{ px: 4 }}
+              sx={{ px: 4, width: applyButtonWidth ? '105px' : 'auto' }}
             >
               {cancelLabel}
             </AppButton>
@@ -353,7 +355,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
                 )
               }
               title={submitTitle}
-              sx={{ px: 4 }}
+              sx={{ px: 4, width: applyButtonWidth ? '107px' : 'auto' }}
             >
               {isSubmitting ? 'Saving...' : submitLabel}
             </AppButton>

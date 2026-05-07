@@ -109,14 +109,21 @@ export function AppButton({
     return baseStyles[variantType] || {};
   };
 
-  const baseSx = getVariantStyles();
+  const baseSx = React.useMemo(
+    () => getVariantStyles(),
+    [variantType, theme.palette.mode]
+  );
+
+  const finalSx = React.useMemo(() => {
+    if (!sx) return baseSx;
+    if (typeof sx === 'function' || Array.isArray(sx)) {
+      return [baseSx, sx] as SxProps<Theme>;
+    }
+    return { ...baseSx, ...sx } as SxProps<Theme>;
+  }, [baseSx, sx]);
 
   return (
-    <Button
-      {...rest}
-      disabled={disabled || loading}
-      sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}
-    >
+    <Button {...rest} disabled={disabled || loading} sx={finalSx}>
       {text || children}
     </Button>
   );
