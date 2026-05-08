@@ -31,11 +31,6 @@ export function getText(lang: 'en' | 'ar', en: string, ar: string): string {
   return lang === 'ar' ? ar : en;
 }
 
-/** Returns [en, ar] tuple from a catalogue entry — use with `getText(...pair(entry))`. */
-export function pair(p: { en: string; ar: string }): [string, string] {
-  return [p.en, p.ar];
-}
-
 // ---------------------------------------------------------------------------
 // Shared translation catalogue
 // Keys are grouped by feature / component so it is easy to find gaps.
@@ -100,6 +95,7 @@ export const translations = {
 
   // ── Sidebar ──────────────────────────────────────────────────────────────
   sidebar: {
+    navigateTo: { en: 'Navigate to', ar: 'التنقل إلى' },
     dashboard: { en: 'Dashboard', ar: 'لوحة التحكم' },
     announcements: { en: 'Announcements', ar: 'الإعلانات' },
     projects: { en: 'Projects', ar: 'المشاريع' },

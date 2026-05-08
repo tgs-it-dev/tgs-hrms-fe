@@ -818,7 +818,7 @@ export default function Sidebar({
                                 // },
                               }}
                               role='menuitem'
-                              aria-label={`Navigate to ${translateLabel(sub.i18nKey, sub.label)}`}
+                              aria-label={`${translateLabel('navigateTo')} ${translateLabel(sub.i18nKey, sub.label)}`}
                             >
                               <ListItemText
                                 primary={translateLabel(sub.i18nKey, sub.label)}

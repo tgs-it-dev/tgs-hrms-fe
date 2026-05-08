@@ -21,11 +21,17 @@ function applyLang(lang: 'en' | 'ar') {
 
 // Run once at module load — before the React tree mounts — so the correct
 // dir/lang is already set on the first paint with no flash.
+// Wrapped in try/catch to guard against SSR/test environments where
+// localStorage may not be available.
 const _initialLang = ((): 'en' | 'ar' => {
-  const saved = localStorage.getItem(LANG_KEY) as 'en' | 'ar' | null;
-  const lang = saved === 'ar' ? 'ar' : 'en';
-  applyLang(lang);
-  return lang;
+  try {
+    const saved = localStorage.getItem(LANG_KEY) as 'en' | 'ar' | null;
+    const lang = saved === 'ar' ? 'ar' : 'en';
+    applyLang(lang);
+    return lang;
+  } catch {
+    return 'en';
+  }
 })();
 
 const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
