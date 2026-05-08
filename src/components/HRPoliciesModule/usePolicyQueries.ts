@@ -7,12 +7,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import type { Policy } from '../../types/policy';
+import { featureFlags } from '../../config/featureFlags';
+
+export interface PolicyListParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+}
 
 export const POLICY_KEYS = {
-  all: ['policies'] as const,
+  all: ['policy'] as const,
   lists: () => [...POLICY_KEYS.all, 'list'] as const,
-  list: (params?: unknown) => [...POLICY_KEYS.lists(), params] as const,
-  detail: (id: string) => [...POLICY_KEYS.all, 'detail', id] as const,
+  list: (params?: PolicyListParams) =>
+    [...POLICY_KEYS.lists(), params] as const,
+  detail: (id: string | number) => [...POLICY_KEYS.all, 'detail', id] as const,
 };
 
 async function fetchPolicies(): Promise<Policy[]> {
@@ -40,7 +49,9 @@ async function deletePolicy(id: string): Promise<void> {
 export function usePolicies() {
   return useQuery({
     queryKey: POLICY_KEYS.lists(),
-    queryFn: fetchPolicies,
+    queryFn: featureFlags.useMockPolicies
+      ? () => Promise.resolve([] as Policy[])
+      : fetchPolicies,
     staleTime: 1000 * 60 * 5, // 5 minutes — policies change infrequently
   });
 }
@@ -58,7 +69,13 @@ export function useCreatePolicy() {
 export function useUpdatePolicy() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...payload }: Policy) => updatePolicy(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<Omit<Policy, 'id'>>;
+    }) => updatePolicy(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POLICY_KEYS.lists() });
     },

@@ -311,7 +311,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: 'common.white',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
@@ -361,7 +361,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: 'common.white',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',

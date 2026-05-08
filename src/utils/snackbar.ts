@@ -36,7 +36,7 @@ class SnackbarManager {
       case 'info':
         return colorTokens.semantic.infoLight;
       default:
-        // Brand-adjacent indigo — not in design tokens, kept as literal
+        // runtime fallback — type is widened at call site
         return '#484c7f';
     }
   }

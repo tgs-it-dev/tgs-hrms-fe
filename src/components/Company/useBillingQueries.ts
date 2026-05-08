@@ -15,7 +15,9 @@ export const BILLING_KEYS = {
   payments: () => [...BILLING_KEYS.all, 'payments'] as const,
   payment: (sessionId: string) =>
     [...BILLING_KEYS.payments(), sessionId] as const,
+  // TODO: add hook when subscription API is ready
   subscriptions: () => [...BILLING_KEYS.all, 'subscriptions'] as const,
+  // TODO: add hook when subscription API is ready
   subscription: (tenantId: string) =>
     [...BILLING_KEYS.subscriptions(), tenantId] as const,
 };

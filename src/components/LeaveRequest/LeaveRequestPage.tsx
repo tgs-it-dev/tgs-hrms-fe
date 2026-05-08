@@ -526,7 +526,7 @@ const LeaveRequestPage = () => {
                 ROLES.HR_ADMIN,
                 ROLES.SYSTEM_ADMIN,
                 ROLES.NETWORK_ADMIN,
-                'oe-admin',
+                ROLES.OE_ADMIN,
               ].includes(role) && (
                 <AppButton
                   variant='contained'
@@ -706,7 +706,7 @@ const LeaveRequestPage = () => {
               ROLES.HR_ADMIN,
               ROLES.SYSTEM_ADMIN,
               ROLES.ADMIN,
-              'oe-admin',
+              ROLES.OE_ADMIN,
             ].includes(role)}
             isManager={false}
             currentUserId={currentUserId || undefined}

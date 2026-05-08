@@ -12,6 +12,8 @@ import {
   type SystemTenantFilters,
 } from '../../api/systemTenantApi';
 
+type UpdateTenantPayload = Parameters<typeof SystemTenantApi.update>[0];
+
 export const TENANT_KEYS = {
   all: ['tenants'] as const,
   lists: () => [...TENANT_KEYS.all, 'list'] as const,
@@ -54,9 +56,8 @@ export function useCreateTenant() {
 export function useUpdateTenant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Parameters<typeof SystemTenantApi.update>[0]) =>
-      SystemTenantApi.update(data),
-    onSuccess: (_data, variables) => {
+    mutationFn: (data: UpdateTenantPayload) => SystemTenantApi.update(data),
+    onSuccess: (_data, variables: UpdateTenantPayload) => {
       queryClient.invalidateQueries({ queryKey: TENANT_KEYS.lists() });
       queryClient.invalidateQueries({
         queryKey: TENANT_KEYS.detail(variables.tenantId),

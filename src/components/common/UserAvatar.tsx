@@ -22,7 +22,7 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
     { user, size = 40, clickable = false, onClick, sx, ...avatarProps },
     ref
   ) => {
-    const API_BASE_URL = appConfig.api.baseUrl || 'http://localhost:3001';
+    const API_BASE_URL = appConfig.api.baseUrl;
     const { profilePictureUrl } = useProfilePicture();
     const { user: currentUser } = useUser();
 

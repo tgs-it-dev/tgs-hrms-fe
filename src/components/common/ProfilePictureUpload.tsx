@@ -74,7 +74,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const API_BASE_URL = appConfig.api.baseUrl || 'http://localhost:3001';
+    const API_BASE_URL = appConfig.api.baseUrl;
 
     const getInitials = (first: string, last: string): string => {
       return `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
