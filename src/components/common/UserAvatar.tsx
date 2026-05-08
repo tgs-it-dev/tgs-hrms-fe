@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Avatar, type AvatarProps } from '@mui/material';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useUser } from '../../hooks/useUser';
 import { colorTokens } from '../../theme';
 

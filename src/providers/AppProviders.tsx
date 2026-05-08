@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '../context/LanguageContext';
 import { UserProvider } from '../context/UserContext';
-import { ProfilePictureProvider } from '../context/ProfilePictureContext';
 import { queryClientRef } from './queryClientRef';
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -28,9 +27,8 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <UserProvider>
-          <ProfilePictureProvider>{children}</ProfilePictureProvider>
-        </UserProvider>
+        {/* ProfilePictureContext merged into UserProvider — no separate provider needed */}
+        <UserProvider>{children}</UserProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );

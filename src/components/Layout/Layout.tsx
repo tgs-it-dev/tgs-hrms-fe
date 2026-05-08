@@ -25,6 +25,7 @@ import {
   getDefaultDashboardRoute,
   isDashboardPathAllowedForRole,
 } from '../../utils/permissions';
+import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from '../../constants/layout';
 
 interface SidebarPanelProps {
   panelRef: React.RefObject<HTMLDivElement | null>;
@@ -56,7 +57,7 @@ const SidebarPanel = React.memo(function SidebarPanel({
         flexDirection: 'column',
         direction: rtlMode ? 'rtl' : 'ltr',
         height: { xs: '100dvh', lg: 'auto' },
-        width: { xs: '240px', lg: '280px' },
+        width: { xs: `${SIDEBAR_WIDTH_COLLAPSED}px`, lg: `${SIDEBAR_WIDTH}px` },
         position: { xs: 'fixed', lg: 'relative' },
         top: { xs: 0, lg: 'auto' },
         bottom: { xs: 0, lg: 'auto' },

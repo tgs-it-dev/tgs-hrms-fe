@@ -19,7 +19,7 @@ import { PhotoCamera, Delete, Close, Edit } from '@mui/icons-material';
 import profileApiService from '../../api/profileApi';
 import type { UserProfile } from '../../types/user';
 import { useUser } from '../../hooks/useUser';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from './ErrorSnackbar';
 import AppButton from './AppButton';

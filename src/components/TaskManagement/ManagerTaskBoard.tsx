@@ -194,8 +194,6 @@ export default function ManagerTaskBoard() {
     const fetchTasks = async () => {
       try {
         const data = await tasksApi.getTasks();
-        // Debug: log tasks received
-
         console.warn(
           'Fetched tasks from API:',
           Array.isArray(data) ? data.length : 0,
@@ -403,7 +401,9 @@ export default function ManagerTaskBoard() {
   // Handle create task (calls API)
   const handleCreateTask = async () => {
     if (!CURRENT_MANAGER_ID) {
-      console.warn('Cannot create task: manager id is not defined');
+      console.error(
+        '[ManagerTaskBoard] Cannot create task: manager id is not defined'
+      );
       showError?.(new Error('Manager id is not defined. Please login.'), {
         operation: 'create',
         resource: 'task',

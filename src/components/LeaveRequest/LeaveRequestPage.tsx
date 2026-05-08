@@ -8,7 +8,8 @@ import LeaveTypeFormModal, {
 } from './LeaveTypeFormModal';
 import type { Leave } from '../../types/leave';
 import type { LeaveStatus } from '../../type/levetypes';
-import { getCurrentUser, getUserName, getUserRole } from '../../utils/auth';
+import { getUserName, getUserRole } from '../../utils/auth';
+import { useUser } from '../../hooks/useUser';
 import { normalizeRole } from '../../utils/permissions';
 import {
   Box,
@@ -62,7 +63,7 @@ const LeaveRequestPage = () => {
   // Non-admin users will be initialized to current month below.
   const [dateFilter, setDateFilter] = useState<string>('');
 
-  const currentUser = getCurrentUser();
+  const { user: currentUser } = useUser();
   const currentUserId = currentUser?.id ?? '';
   const role = normalizeRole(getUserRole());
   const userName = getUserName();

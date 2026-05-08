@@ -41,6 +41,7 @@ import AppFormModal from '../common/AppFormModal';
 import AppPageTitle from '../common/AppPageTitle';
 import { PAGINATION } from '../../constants/appConstants';
 import { useQueryClient } from '@tanstack/react-query';
+
 interface Employee {
   id: string;
   user_id?: string; // User ID for fetching profile pictures
@@ -109,8 +110,8 @@ const EmployeeManager: React.FC = () => {
           replace: true,
         }
       );
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[EmployeeManager] Stripe redirect handling failed:', err);
     }
   }, [location.search, navigate]);
 
@@ -169,8 +170,6 @@ const EmployeeManager: React.FC = () => {
   const designations: Record<string, string> = Object.fromEntries(
     designationList.map(desig => [desig.id, desig.title])
   );
-  // const [loadingFilters, setLoadingFilters] = useState(false);
-
   // Delete confirmation dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
