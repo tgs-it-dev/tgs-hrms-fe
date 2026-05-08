@@ -1,5 +1,6 @@
 // Consolidated Type Exports — Single Source of Truth
 export * from './api';
+export * from './dto';
 export * from './availability';
 export * from './chart';
 export * from './context';
