@@ -48,7 +48,7 @@ export async function getDashboardKpi(): Promise<DashboardKpi | null> {
 
     return mapped;
   } catch (err) {
-    console.warn('dashboardApi.getDashboardKpi failed', err);
+    console.error('[dashboardApi] getDashboardKpi failed', err);
     return null;
   }
 }
@@ -79,7 +79,7 @@ export async function getAttendanceSummary(): Promise<AttendanceRow[]> {
 
     return normalized;
   } catch (err) {
-    console.warn('dashboardApi.getAttendanceSummary failed', err);
+    console.error('[dashboardApi] getAttendanceSummary failed', err);
     return [];
   }
 }

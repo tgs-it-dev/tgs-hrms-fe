@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -21,11 +21,13 @@ import AppCard from '../common/AppCard';
 import AppDropdown from '../common/AppDropdown';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useLanguage } from '../../hooks/useLanguage';
-import systemDashboardApiService, {
-  type SystemDashboardResponse,
-  type RecentLog,
-} from '../../api/systemDashboardApi';
-import { getDashboardKpi, getAttendanceSummary } from '../../api/dashboardApi';
+import systemDashboardApiService from '../../api/systemDashboardApi';
+import {
+  useSystemDashboard,
+  useSystemLogs,
+  useDashboardKpi,
+  useAttendanceSummary,
+} from './useDashboardQueries';
 
 // AvailabilityCardsGrid removed — availability column removed from dashboard
 import GenderPercentageChart from './GenderPercentageChart';
@@ -73,42 +75,21 @@ const Dashboard: React.FC = () => {
   const userRole = currentUser?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
-  const [dashboardData, setDashboardData] =
-    useState<SystemDashboardResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const [logs, setLogs] = useState<RecentLog[]>([]);
-  const [logsLoading, setLogsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE; // Backend returns records per page
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isSysAdmin) {
-        setLoading(true);
-        const data = await systemDashboardApiService.getSystemDashboard();
-        setDashboardData(data);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [isSysAdmin]);
+  // TanStack Query hooks — no useEffect + useState for data fetching
+  const { data: dashboardData, isLoading: loading } =
+    useSystemDashboard(isSysAdmin);
+  const { data: logs = [], isLoading: logsLoading } = useSystemLogs(
+    currentPage,
+    isSysAdmin
+  );
+  const { data: liveKpi, isLoading: kpiLoading } = useDashboardKpi(!isSysAdmin);
+  const { data: attendanceData = [], isLoading: attendanceLoading } =
+    useAttendanceSummary(!isSysAdmin);
 
-  const fetchLogs = useCallback(async (page: number = 1) => {
-    try {
-      setLogsLoading(true);
-      const response = await systemDashboardApiService.getSystemLogs(page);
-      setLogs(response);
-    } finally {
-      setLogsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isSysAdmin) fetchLogs(currentPage);
-  }, [isSysAdmin, currentPage, fetchLogs]);
-
-  // Live KPI state (no frontend mock; show loader while fetching)
+  // Live KPI type
   type LiveKpi = {
     totalEmployees?: number;
     salaryPaid?: number;
@@ -117,32 +98,7 @@ const Dashboard: React.FC = () => {
     onLeave?: number;
   };
 
-  const [liveKpi, setLiveKpi] = useState<LiveKpi | null>(null);
-  const [kpiLoading, setKpiLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchKpi = async () => {
-      try {
-        if (mounted) setKpiLoading(true);
-        const mapped = await getDashboardKpi();
-        if (mounted && mapped) setLiveKpi(mapped);
-      } catch (err) {
-        console.warn('Failed to fetch dashboard KPI', err);
-      } finally {
-        if (mounted) setKpiLoading(false);
-      }
-    };
-
-    fetchKpi();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const displayedKpi =
+  const displayedKpi: LiveKpi =
     liveKpi ??
     ({
       totalEmployees: 0,
@@ -151,40 +107,6 @@ const Dashboard: React.FC = () => {
       presentToday: 0,
       onLeave: 0,
     } as LiveKpi);
-
-  // Live attendance summary fetched from backend
-  const [attendanceData, setAttendanceData] = useState<
-    Array<{
-      department: string;
-      total: number;
-      present: number;
-      absent: number;
-    }>
-  >([]);
-
-  const [attendanceLoading, setAttendanceLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchAttendance = async () => {
-      try {
-        setAttendanceLoading(true);
-        const data = await getAttendanceSummary();
-        if (mounted) setAttendanceData(data);
-      } catch (err) {
-        console.warn('Failed to fetch attendance summary', err);
-      } finally {
-        if (mounted) setAttendanceLoading(false);
-      }
-    };
-
-    fetchAttendance();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Horizontal-scroll helpers for Attendance chart (px per bar)
   const attendanceBarSize = 28;

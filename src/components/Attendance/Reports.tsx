@@ -24,7 +24,7 @@ import AppCard from '../common/AppCard';
 import AppTable from '../common/AppTable';
 import AppPageTitle from '../common/AppPageTitle';
 import AppDropdown from '../common/AppDropdown';
-import dayjs from 'dayjs';
+import { getYear } from 'date-fns';
 import type { SelectChangeEvent } from '@mui/material/Select';
 
 const getCardStyle = () => ({
@@ -44,7 +44,7 @@ interface LeaveBalance {
 }
 
 const yearOptions = Array.from({ length: 11 }, (_, i) => {
-  const year = dayjs().year() - 5 + i;
+  const year = getYear(new Date()) - 5 + i;
   return { label: year.toString(), value: year };
 }).reverse();
 
@@ -81,7 +81,8 @@ const Reports: React.FC = () => {
     try {
       const info = leaveReportApi.getUserInfo();
       setUserInfo(info);
-    } catch {
+    } catch (err) {
+      console.error('[Reports] Failed to load user information', err);
       setError('Failed to load user information');
       setUserInfo({
         userId: null,
@@ -180,7 +181,8 @@ const Reports: React.FC = () => {
         link.download = `Leave_Report_${now.toISOString().slice(0, 10)}.csv`;
         link.click();
       }
-    } catch {
+    } catch (err) {
+      console.error('[Reports] Export failed', err);
       // Silently fail export; user can retry
     }
   };
@@ -258,7 +260,8 @@ const Reports: React.FC = () => {
                 ...pageEmployeeReports,
               ];
             }
-          } catch {
+          } catch (err) {
+            console.error('[Reports] Failed to fetch page, continuing', err);
             // Continue with next page even if one fails
           }
         }

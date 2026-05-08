@@ -147,19 +147,17 @@ const EmployeeManager: React.FC = () => {
     totalPages = Math.max(1, totalPages);
   }
 
+  // Correct current page when allEmployees or itemsPerPage changes
+  useEffect(() => {
+    if (allEmployees.length === 0) return;
+    const maxPage = Math.max(1, Math.ceil(allEmployees.length / itemsPerPage));
+    if (currentPage > maxPage) {
+      setCurrentPage(maxPage);
+    }
+  }, [allEmployees.length, currentPage, itemsPerPage]);
+
   // Get paginated employees for current page
   const employees = useMemo(() => {
-    // Ensure current page doesn't exceed total pages
-    const validPage = Math.min(
-      currentPage,
-      Math.max(1, Math.ceil(allEmployees.length / itemsPerPage))
-    );
-    if (validPage !== currentPage && allEmployees.length > 0) {
-      // Reset to valid page if current page is invalid
-      setCurrentPage(validPage);
-      return [];
-    }
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return allEmployees.slice(startIndex, endIndex);

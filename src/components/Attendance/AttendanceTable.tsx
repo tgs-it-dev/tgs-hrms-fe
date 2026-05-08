@@ -53,12 +53,14 @@ import { PAGINATION } from '../../constants/appConstants';
 
 import TeamCheckInView from './TeamCheckInView';
 import { authService } from '../../api/authService';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
+import {
+  format as dateFnsFormat,
+  isAfter,
+  differenceInSeconds,
+} from 'date-fns';
 import { useUser } from '../../hooks/useUser';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
-dayjs.extend(duration);
 
 type TenantOption = { id: string; name: string };
 interface AttendanceRecord {
@@ -157,8 +159,10 @@ const AttendanceTable = () => {
 
   const toDisplayTime = (iso: string | null) => {
     if (!iso) return '-';
-    const d = dayjs(iso);
-    return d.isValid() ? d.format('hh:mm A') : '-';
+    const d = new Date(iso);
+    return isNaN(d.getTime())
+      ? '-'
+      : dateFnsFormat(d, 'hh:mm a').replace('am', 'AM').replace('pm', 'PM');
   };
   const token = authService.getAccessToken();
 
@@ -177,11 +181,10 @@ const AttendanceTable = () => {
       return '-';
     }
 
-    const dur = dayjs.duration(decimalHours, 'hours');
-
-    const hours = Math.floor(dur.asHours());
-    const minutes = dur.minutes();
-    const seconds = dur.seconds();
+    const totalSeconds = Math.round(decimalHours * 3600);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
 
     const parts = [];
     if (hours > 0) parts.push(`${hours} hr`);
@@ -390,8 +393,8 @@ const AttendanceTable = () => {
         }
       }
       for (const session of openSessions) {
-        const checkInDate = dayjs(session.checkIn.timestamp);
-        const shiftDate = checkInDate.format('YYYY-MM-DD');
+        const checkInDate = new Date(session.checkIn.timestamp);
+        const shiftDate = dateFnsFormat(checkInDate, 'yyyy-MM-dd');
 
         let workedHours = null;
         let checkOutISO = null;
@@ -401,12 +404,12 @@ const AttendanceTable = () => {
           checkOutISO = session.checkOut.timestamp;
           checkOutDisplay = toDisplayTime(checkOutISO);
 
-          const inTime = dayjs(session.checkIn.timestamp);
-          const outTime = dayjs(checkOutISO);
+          const inTime = new Date(session.checkIn.timestamp);
+          const outTime = new Date(checkOutISO);
 
-          if (outTime.isAfter(inTime)) {
+          if (isAfter(outTime, inTime)) {
             workedHours = parseFloat(
-              outTime.diff(inTime, 'hour', true).toFixed(2)
+              (differenceInSeconds(outTime, inTime) / 3600).toFixed(2)
             );
           }
         }
@@ -899,6 +902,7 @@ const AttendanceTable = () => {
     const userObj = (currentUser as Record<string, unknown>) ?? {};
     const tenantId = userObj?.tenant_id ?? userObj?.tenant;
     if (tenantId) return String(tenantId).trim();
+    // TODO: replace with useUser() hook — direct localStorage access bypasses React state
     const storedTenantId = localStorage.getItem('tenant_id');
     return storedTenantId ? storedTenantId.trim() : undefined;
   };
@@ -1067,8 +1071,11 @@ const AttendanceTable = () => {
             .slice(0, 5)
             .map(r => ({ id: r.id, approvalStatus: r.approvalStatus }))
         );
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error(
+          '[AttendanceTable] Failed to process attendance rows',
+          err
+        );
       }
 
       setAttendanceData(rows);
@@ -2477,12 +2484,12 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? dayjs(attendance.checkIn).format('hh:mm A')
+                              ? toDisplayTime(attendance.checkIn)
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? dayjs(attendance.checkOut).format('hh:mm A')
+                              ? toDisplayTime(attendance.checkOut)
                               : '--'}
                           </TableCell>
                           <TableCell>{member.totalDaysWorked}</TableCell>
@@ -2794,12 +2801,12 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? dayjs(attendance.checkIn).format('hh:mm A')
+                              ? toDisplayTime(attendance.checkIn)
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? dayjs(attendance.checkOut).format('hh:mm A')
+                              ? toDisplayTime(attendance.checkOut)
                               : '--'}
                           </TableCell>
                           <TableCell>
