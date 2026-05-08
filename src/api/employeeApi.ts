@@ -33,6 +33,7 @@ type RawUser = {
   last_name: string;
   tenant_id: string;
   profile_pic?: string;
+  gender?: string;
 };
 
 type RawDepartment = {
@@ -64,6 +65,7 @@ type RawEmployee = {
   designation?: RawDesignation;
   role_id?: string;
   role_name?: string;
+  gender?: string;
 };
 
 function normalizeEmployee(raw: unknown): BackendEmployee {
@@ -102,6 +104,7 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
         (user?.profile_pic as string) || (data.profile_picture as string),
       cnic_picture: data.cnic_picture as string,
       cnic_back_picture: data.cnic_back_picture as string,
+      gender: (user?.gender as string) || (data.gender as string),
       department: department
         ? {
             id: department.id,
@@ -141,6 +144,7 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
     profile_picture: data.profile_picture as string,
     cnic_picture: data.cnic_picture as string,
     cnic_back_picture: data.cnic_back_picture as string,
+    gender: (user?.gender as string) || (data.gender as string),
     department: null,
     designation: null,
     tenantId: (data.tenant_id as string) || '',

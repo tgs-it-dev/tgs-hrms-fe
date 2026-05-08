@@ -594,9 +594,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         );
       }
     }
-
-    // Only require gender when creating new employee, not when editing
+    // if (!initialData && !values.gender) return false;
     if (!initialData && !values.gender) newErrors.gender = 'Gender is required';
+    // Gender is always required
+    if (!values.gender) newErrors.gender = 'Gender is required';
     // Only require role when creating new employee, not when editing
     if (!initialData && !values.role) newErrors.role = 'Role is required';
     setErrors(newErrors);
@@ -658,7 +659,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
     if (!values.designationId) return false;
     if (!values.departmentId) return false;
     if (!values.cnicNumber) return false;
-    if (!initialData && !values.gender) return false;
+    if (!values.gender) return false;
     if (!initialData && !values.role) return false;
 
     // Require pictures only for create; for edit they are optional
@@ -831,28 +832,28 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
           />
         </Box>
 
-        {/* Gender - Only show when creating new employee, not when editing */}
-        {!initialData && (
-          <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
-            <AppDropdown
-              label={label('Gender', 'الجنس')}
-              value={values.gender || 'all'}
-              onChange={e =>
-                setFieldValue('gender', String(e.target.value ?? ''))
-              }
-              error={!!errors.gender}
-              helperText={errors.gender}
-              inputBackgroundColor={controlBg}
-              placeholder={label('Select gender', 'اختر الجنس')}
-              sx={dropdownControlSx}
-              options={[
-                { value: 'all', label: label('Select Gender', 'اختر الجنس') },
-                { value: 'male', label: label('Male', 'ذكر') },
-                { value: 'female', label: label('Female', 'أنثى') },
-              ]}
-            />
-          </Box>
-        )}
+        {/* {!initialData && ( */}
+        {/* Gender Dropdown */}
+        <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
+          <AppDropdown
+            label={label('Gender', 'الجنس')}
+            value={values.gender || 'all'}
+            onChange={e =>
+              setFieldValue('gender', String(e.target.value ?? ''))
+            }
+            error={!!errors.gender}
+            helperText={errors.gender}
+            inputBackgroundColor={controlBg}
+            placeholder={label('Select gender', 'اختر الجنس')}
+            sx={dropdownControlSx}
+            options={[
+              { value: 'all', label: label('Select Gender', 'اختر الجنس') },
+              { value: 'male', label: label('Male', 'ذكر') },
+              { value: 'female', label: label('Female', 'أنثى') },
+            ]}
+          />
+        </Box>
+        {/* )} */}
 
         {/* Role Selection */}
         <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
