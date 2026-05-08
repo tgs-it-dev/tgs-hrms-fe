@@ -52,9 +52,8 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
   const handlePrevious = () => {
     const newCenter = new Date(sequenceCenter);
     newCenter.setDate(newCenter.getDate() - 1);
-
     setSequenceCenter(newCenter);
-    onDateChange(formatDateToString(newCenter));
+    // Do not change the selected date — only scroll the visible window
   };
 
   const handleNext = () => {
@@ -67,7 +66,7 @@ const DateNavigation: React.FC<DateNavigationProps> = ({
     if (normalizeDate(rightEdge) > today) return;
 
     setSequenceCenter(candidate);
-    onDateChange(formatDateToString(candidate));
+    // Do not change the selected date — only scroll the visible window
   };
 
   // click selects + recenters
