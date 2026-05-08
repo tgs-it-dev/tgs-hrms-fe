@@ -26,7 +26,15 @@ i18n
     fallbackLng: 'en',
     supportedLngs: ['en', 'ar'],
     defaultNS: 'common',
-    ns: ['common', 'navbar', 'sidebar'],
+    ns: [
+      'common',
+      'navbar',
+      'sidebar',
+      'employee',
+      'leaveRequest',
+      'dashboard',
+      'attendance',
+    ],
     detection: {
       // Use the same localStorage key as LanguageContext so they stay in sync
       order: ['localStorage', 'navigator'],
