@@ -1,12 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box, Stack, Typography } from '@mui/material';
+import { UserContext } from '../../context/UserContext';
+import { ProfilePictureContext } from '../../context/ProfilePictureContext';
 import UserAvatar from './UserAvatar';
-
-// ---------------------------------------------------------------------------
-// Storybook cannot easily mock React contexts (ProfilePictureContext,
-// UserContext). We provide minimal stub decorators so UserAvatar renders
-// its initials fallback path without needing a full app context tree.
-// ---------------------------------------------------------------------------
 
 const mockUser = {
   id: '1',
@@ -19,8 +15,21 @@ const mockUserWithPic = {
   id: '2',
   first_name: 'Bob',
   last_name: 'Jones',
-  // A real remote URL would normally be set here.
   profile_pic: 'https://i.pravatar.cc/150?img=3',
+};
+
+const mockUserContextValue = {
+  user: mockUser as never,
+  loading: false,
+  updateUser: () => {},
+  refreshUser: async () => {},
+  clearUser: () => {},
+};
+
+const mockProfilePictureContextValue = {
+  profilePictureUrl: null,
+  updateProfilePicture: () => {},
+  clearProfilePicture: () => {},
 };
 
 const meta: Meta<typeof UserAvatar> = {
@@ -44,19 +53,19 @@ const meta: Meta<typeof UserAvatar> = {
   },
   decorators: [
     Story => (
-      <Box sx={{ p: 3 }}>
-        <Story />
-      </Box>
+      <UserContext.Provider value={mockUserContextValue}>
+        <ProfilePictureContext.Provider value={mockProfilePictureContextValue}>
+          <Box sx={{ p: 3 }}>
+            <Story />
+          </Box>
+        </ProfilePictureContext.Provider>
+      </UserContext.Provider>
     ),
   ],
 };
 
 export default meta;
 type Story = StoryObj<typeof UserAvatar>;
-
-// ---------------------------------------------------------------------------
-// Stories
-// ---------------------------------------------------------------------------
 
 export const InitialsFallback: Story = {
   name: 'Initials (no photo)',

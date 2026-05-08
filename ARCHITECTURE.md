@@ -10,7 +10,7 @@
 | Server state  | TanStack Query v5                   |
 | Forms         | React Hook Form + Zod               |
 | Global state  | Zustand                             |
-| Routing       | React Router v6                     |
+| Routing       | React Router v7                     |
 | Testing       | Vitest + React Testing Library      |
 | Component dev | Storybook 9                         |
 | Linting       | ESLint + Prettier                   |

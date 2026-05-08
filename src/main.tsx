@@ -10,8 +10,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-// Report Core Web Vitals in development to aid performance debugging.
-// Replace `console.log` with your analytics ingest function in production.
-if (import.meta.env.DEV) {
-  reportWebVitals(console.log);
-}
+// Report Core Web Vitals — console.log in dev, wire to an analytics endpoint in prod.
+reportWebVitals(import.meta.env.DEV ? console.log : () => {});

@@ -2,8 +2,8 @@
  * Barrel export for shared UI components.
  * Import as: import { AppButton, AppCard, UserAvatar } from '@/components/common';
  */
-export { AppButton, default as AppButtonDefault } from './AppButton';
-export { AppCard, default as AppCardDefault } from './AppCard';
+export { AppButton } from './AppButton';
+export { AppCard } from './AppCard';
 export { default as AppDropdown } from './AppDropdown';
 export { default as AppFormModal } from './AppFormModal';
 export { default as AppInputField } from './AppInputField';

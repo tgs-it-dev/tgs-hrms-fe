@@ -1,46 +1,16 @@
 /**
  * Shared Data Transfer Objects (DTOs)
  *
- * This file defines the generic API response envelopes and pagination
- * contracts that the backend adheres to.  Feature-specific request/response
- * shapes live in their own type files (e.g. employee.ts, leave.ts) and
- * are parameterised with these generics where needed.
+ * Generic API response envelopes live in api.ts (the established source of truth).
+ * This file defines mutation payload helpers and frontend view models.
  *
  * Naming convention:
  *   - *Response  — backend → frontend (read)
  *   - *Dto       — frontend → backend (write / mutation payload)
  */
 
-// ---------------------------------------------------------------------------
-// Generic response wrappers
-// ---------------------------------------------------------------------------
-
-/**
- * Standard single-resource envelope.
- *
- * @example
- *   const { data } = await axiosInstance.get<ApiResponse<Employee>>('/employees/1');
- *   console.log(data.data.first_name);
- */
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  status: number;
-}
-
-/**
- * Standard paginated list envelope.
- *
- * @example
- *   const { data } = await axiosInstance.get<PaginatedResponse<Employee>>('/employees');
- *   console.log(data.items, data.total);
- */
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
+// Re-export the canonical response envelopes from the established source of truth.
+export type { ApiResponse, PaginatedResponse } from './api';
 
 // ---------------------------------------------------------------------------
 // Common mutation DTOs
@@ -73,5 +43,5 @@ export interface AsyncViewState<T> {
   data: T | undefined;
   isLoading: boolean;
   isError: boolean;
-  error?: Error | null;
+  error?: Error;
 }

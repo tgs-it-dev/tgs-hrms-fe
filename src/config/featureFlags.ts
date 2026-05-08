@@ -10,9 +10,6 @@ export const featureFlags = {
   /** Enable third-party analytics tracking (e.g. GA4, Mixpanel). */
   enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
 
-  /** Expose React Query DevTools and web-vitals console logging. */
-  enableDevTools: import.meta.env.DEV,
-
   /** Enable experimental geofencing features. */
   enableGeofencing: import.meta.env.VITE_ENABLE_GEOFENCING === 'true',
 
