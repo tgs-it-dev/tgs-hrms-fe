@@ -19,8 +19,44 @@ export const EMPLOYEE_KEYS = {
   lists: () => [...EMPLOYEE_KEYS.all, 'list'] as const,
   list: (filters: Record<string, unknown>) =>
     [...EMPLOYEE_KEYS.lists(), filters] as const,
+  paginated: (params: Record<string, unknown>) =>
+    [...EMPLOYEE_KEYS.lists(), 'paginated', params] as const,
   detail: (id: string) => [...EMPLOYEE_KEYS.all, 'detail', id] as const,
 };
+
+interface EmployeePageParams {
+  page: number;
+  limit: number;
+  departmentId?: string;
+  designationId?: string;
+}
+
+/**
+ * Server-paginated employee list for admin/HR roles.
+ * Fetches a single page from the backend — no client-side accumulation.
+ * The API supports page/limit params; see employeeApi.getAllEmployees.
+ */
+export function useEmployeeListPaginated(params: EmployeePageParams) {
+  const { page, limit, departmentId, designationId } = params;
+  return useQuery({
+    queryKey: EMPLOYEE_KEYS.paginated({
+      page,
+      limit,
+      departmentId,
+      designationId,
+    }),
+    queryFn: () =>
+      employeeApi.getAllEmployees(
+        {
+          departmentId: departmentId || undefined,
+          designationId: designationId || undefined,
+        },
+        page
+      ),
+    staleTime: 1000 * 60 * 3,
+    placeholderData: prev => prev, // keep previous page visible while loading next
+  });
+}
 
 export const DEPARTMENT_KEYS = {
   all: ['departments'] as const,

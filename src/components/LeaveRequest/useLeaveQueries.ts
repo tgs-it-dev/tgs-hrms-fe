@@ -3,6 +3,7 @@ import { leaveApi, type LeaveTypeListResponse } from '../../api/leaveApi';
 import type { LeaveWithUser, LeaveResponse } from '../../api/leaveApi';
 import employeeApi from '../../api/employeeApi';
 import type { Leave } from '../../types/leave';
+import { ROLES } from '../../constants/roles';
 
 export const LEAVE_KEYS = {
   all: ['leaves'] as const,
@@ -32,7 +33,7 @@ export function useLeaveTypes() {
  * Only enabled when the role is 'admin' or 'hr-admin'.
  */
 export function useLeaveEmployeeList(role: string) {
-  const isAdminRole = role === 'admin' || role === 'hr-admin';
+  const isAdminRole = role === ROLES.ADMIN || role === ROLES.HR_ADMIN;
   return useQuery<{ id: string; userId: string; name: string }[]>({
     queryKey: LEAVE_EMPLOYEE_KEYS.list(),
     queryFn: async () => {
@@ -222,11 +223,11 @@ export function useLeaveList(params: LeaveListParams) {
       };
 
       const isAdminRole = [
-        'system-admin',
-        'network-admin',
-        'admin',
-        'hr-admin',
-        'oe-admin',
+        ROLES.SYSTEM_ADMIN,
+        ROLES.NETWORK_ADMIN,
+        ROLES.ADMIN,
+        ROLES.HR_ADMIN,
+        'oe-admin', // non-standard role kept as literal
       ].includes(role);
 
       if (isAdminRole) {
@@ -235,7 +236,7 @@ export function useLeaveList(params: LeaveListParams) {
         } else {
           res = await leaveApi.getAllLeaves(page);
         }
-      } else if (role === 'manager') {
+      } else if (role === ROLES.MANAGER) {
         res =
           viewMode === 'you'
             ? await leaveApi.getUserLeaves(currentUserId, page)

@@ -30,8 +30,11 @@ import {
   useDepartmentList,
   useDesignationList,
   useEmployeeListForRole,
+  useEmployeeListPaginated,
   EMPLOYEE_KEYS,
 } from './useEmployeeQueries';
+import { useUser } from '../../hooks/useUser';
+import { isManager as checkIsManager } from '../../utils/roleUtils';
 import { exportCSV } from '../../api/exportApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
@@ -80,6 +83,48 @@ interface Employee {
   updatedAt: string;
 }
 
+// Helper function to convert BackendEmployee to local Employee shape.
+// Defined outside the component so it is stable (no re-creation on render).
+function convertToEmployee(emp: BackendEmployee): Employee {
+  return {
+    id: emp.id,
+    user_id: emp.user_id,
+    name: emp.name,
+    firstName: emp.firstName,
+    lastName: emp.lastName,
+    email: emp.email,
+    phone: emp.phone,
+    departmentId: emp.departmentId,
+    designationId: emp.designationId,
+    role_name: emp.role_name,
+    status: emp.status,
+    cnic_number: emp.cnic_number,
+    profile_picture: emp.profile_picture,
+    cnic_picture: emp.cnic_picture,
+    cnic_back_picture: emp.cnic_back_picture,
+    gender: emp.gender,
+    department: emp.department || {
+      id: '',
+      name: '',
+      description: '',
+      tenantId: '',
+      createdAt: '',
+      updatedAt: '',
+    },
+    designation: emp.designation || {
+      id: '',
+      title: '',
+      tenantId: '',
+      departmentId: '',
+      createdAt: '',
+      updatedAt: '',
+    },
+    tenantId: emp.tenantId,
+    createdAt: emp.createdAt,
+    updatedAt: emp.updatedAt,
+  };
+}
+
 const EmployeeManager: React.FC = () => {
   const theme = useTheme();
   const direction = theme.direction;
@@ -118,44 +163,81 @@ const EmployeeManager: React.FC = () => {
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [designationFilter, setDesignationFilter] = useState('');
 
-  // TanStack Query — role-aware employee list (replaces loadEmployees + allEmployees state)
-  const { data: allEmployeesRaw = [], isLoading: loading } =
-    useEmployeeListForRole({
-      departmentId: departmentFilter || undefined,
-      designationId: designationFilter || undefined,
-    });
-
-  // Convert BackendEmployee to local Employee shape expected by child components
-  const allEmployees: Employee[] = useMemo(
-    () => allEmployeesRaw.map(convertToEmployee),
-    [allEmployeesRaw]
-  );
-
-  // Pagination state - client-side pagination over the cached data
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
 
-  // Correct current page when data changes
+  // Determine role so we can choose the correct data path
+  const { user } = useUser();
+  const currentUserRole =
+    user?.role || (user as { role_name?: string } | undefined)?.role_name;
+  const isManagerRole = checkIsManager(currentUserRole as string);
+
+  // Manager path — useEmployeeListForRole already fetches team members across all pages.
+  // Team lists are small enough that client-side pagination is acceptable here.
+  const managerQuery = useEmployeeListForRole({
+    departmentId: departmentFilter || undefined,
+    designationId: designationFilter || undefined,
+  });
+
+  // Admin / HR path — server-side pagination; only the current page is fetched.
+  const adminQuery = useEmployeeListPaginated({
+    page: currentPage,
+    limit: itemsPerPage,
+    departmentId: departmentFilter || undefined,
+    designationId: designationFilter || undefined,
+  });
+
+  // Unify data shapes for rendering below
+  const loading = isManagerRole ? managerQuery.isLoading : adminQuery.isLoading;
+
+  // Manager: full list in memory → slice client-side
+  const allManagerEmployees: Employee[] = useMemo(
+    () =>
+      isManagerRole ? (managerQuery.data ?? []).map(convertToEmployee) : [],
+
+    [isManagerRole, managerQuery.data]
+  );
+
+  // Server-side pagination response (admin/HR path)
+  const serverPage = adminQuery.data;
+
+  // For manager: client-side pagination over the full in-memory list
+  const managerTotalItems = allManagerEmployees.length;
+  const managerTotalPages = Math.max(
+    1,
+    Math.ceil(managerTotalItems / itemsPerPage)
+  );
+  const managerPageEmployees = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return allManagerEmployees.slice(start, start + itemsPerPage);
+  }, [allManagerEmployees, currentPage, itemsPerPage]);
+
+  // Merged values used by the render section
+  const employees: Employee[] = isManagerRole
+    ? managerPageEmployees
+    : (serverPage?.items ?? []).map(convertToEmployee);
+
+  const totalItems = isManagerRole
+    ? managerTotalItems
+    : (serverPage?.total ?? 0);
+
+  const totalPages = isManagerRole
+    ? managerTotalPages
+    : (serverPage?.totalPages ?? 1);
+
+  // Correct current page when data changes (both paths)
   useEffect(() => {
-    if (allEmployees.length === 0) return;
-    const maxPage = Math.max(1, Math.ceil(allEmployees.length / itemsPerPage));
+    const maxPage = Math.max(1, totalPages);
     if (currentPage > maxPage) {
       setCurrentPage(maxPage);
     }
-  }, [allEmployees.length, currentPage, itemsPerPage]);
+  }, [totalPages, currentPage]);
 
-  const totalItems = allEmployees.length;
-  let totalPages = 1;
-  if (totalItems > 0 && itemsPerPage > 0) {
-    totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  }
-
-  // Get paginated employees for current page
-  const employees = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return allEmployees.slice(startIndex, endIndex);
-  }, [allEmployees, currentPage, itemsPerPage]);
+  // For the navigation-state "view employee" fallback we still need all loaded employees
+  const allEmployees: Employee[] = isManagerRole
+    ? allManagerEmployees
+    : employees;
 
   // MIGRATED: department and designation data now owned by TanStack Query
   const { data: departmentListData = [] } = useDepartmentList();
@@ -189,45 +271,6 @@ const EmployeeManager: React.FC = () => {
     if (!departmentFilter || departmentFilter === 'all') return [];
     return designationList.filter(des => des.departmentId === departmentFilter);
   }, [departmentFilter, designationList]);
-
-  // Helper function to convert BackendEmployee to Employee
-  const convertToEmployee = (emp: BackendEmployee): Employee => ({
-    id: emp.id,
-    user_id: emp.user_id,
-    name: emp.name,
-    firstName: emp.firstName,
-    lastName: emp.lastName,
-    email: emp.email,
-    phone: emp.phone,
-    departmentId: emp.departmentId,
-    designationId: emp.designationId,
-    role_name: emp.role_name,
-    status: emp.status,
-    cnic_number: emp.cnic_number,
-    profile_picture: emp.profile_picture,
-    cnic_picture: emp.cnic_picture,
-    cnic_back_picture: emp.cnic_back_picture,
-    gender: emp.gender,
-    department: emp.department || {
-      id: '',
-      name: '',
-      description: '',
-      tenantId: '',
-      createdAt: '',
-      updatedAt: '',
-    },
-    designation: emp.designation || {
-      id: '',
-      title: '',
-      tenantId: '',
-      departmentId: '',
-      createdAt: '',
-      updatedAt: '',
-    },
-    tenantId: emp.tenantId,
-    createdAt: emp.createdAt,
-    updatedAt: emp.updatedAt,
-  });
 
   // Reset to page 1 when filters change so we don't land on a non-existent page
   useEffect(() => {
