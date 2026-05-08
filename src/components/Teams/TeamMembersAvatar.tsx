@@ -26,6 +26,7 @@ import type { TeamMember } from '../../api/teamApi';
 import { getUserRole, isAdmin } from '../../utils/auth';
 import type { SvgIconProps } from '@mui/material/SvgIcon';
 import { useLanguage } from '../../hooks/useLanguage';
+import { colorTokens } from '../../theme/tokens';
 
 // Extended interface for admin team members with team info
 interface AdminTeamMember extends TeamMember {
@@ -49,24 +50,9 @@ interface TeamMembersAvatarProps {
   darkMode?: boolean;
 }
 
-// Generate avatar color based on name
+// Generate avatar color based on name — uses design-token avatar palette
 const generateAvatarColor = (name: string): string => {
-  const colors = [
-    '#1976d2',
-    '#388e3c',
-    '#f57c00',
-    '#d32f2f',
-    '#7b1fa2',
-    '#303f9f',
-    '#ff6f00',
-    '#c2185b',
-    '#0097a7',
-    '#ff8f00',
-    '#6d4c41',
-    '#455a64',
-    '#5d4037',
-    '#424242',
-  ];
+  const colors = [...colorTokens.avatar];
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
 };
@@ -191,7 +177,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
             transition: 'all 0.3s ease-in-out',
             '&:hover': {
               transform: 'scale(1.05)',
-              border: '2px solid #000',
+              border: '2px solid',
+              borderColor: 'common.black',
             },
           }}
         />
@@ -232,7 +219,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
             transition: 'all 0.3s ease-in-out',
             '&:hover': {
               transform: 'scale(1.05)',
-              border: '2px solid #000',
+              border: '2px solid',
+              borderColor: 'common.black',
             },
           }}
         />
@@ -285,7 +273,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
                   backgroundColor: 'var(--primary-light-color)',
-                  border: '2px solid #000',
+                  border: '2px solid',
+                  borderColor: 'common.black',
                 },
               }}
             >
@@ -325,7 +314,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                   transform: 'scale(1.05)',
-                  border: '2px solid #000',
+                  border: '2px solid',
+                  borderColor: 'common.black',
                   boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
                 },
               }}
@@ -469,6 +459,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
+                      // Mid-grey focus ring — between tokens grey500/grey400, no exact match
                       borderColor: '#a0a0a0',
                       boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
@@ -542,10 +533,12 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: theme.palette.action.disabled,
                       borderRadius: '4px',
                       '&:hover': {
+                        // Scrollbar hover — neutral grey, no exact token match
                         background: '#9e9e9e',
                       },
                     },
                     scrollbarWidth: 'thin',
+                    // Firefox scrollbar color — no exact token match
                     scrollbarColor: '#bdbdbd transparent',
                   }}
                 >
@@ -553,6 +546,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     <ListItem
                       key={member.id}
                       sx={{
+                        // CSS variable with fallback; #DCDCDC is the Light Grey CSS var value
                         borderBottom: '0.5px solid var(--Light-Grey, #DCDCDC)',
                         py: 1.5,
                         px: 0,
@@ -629,8 +623,9 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.designation.title}
                                   size='small'
                                   sx={{
+                                    // Designation chip — Figma indigo brand color, not yet in tokens
                                     backgroundColor: '#6155F5',
-                                    color: '#ffffff',
+                                    color: 'common.white',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -677,7 +672,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
                   backgroundColor: 'var(--primary-light-olor)',
-                  border: '2px solid #000',
+                  border: '2px solid',
+                  borderColor: 'common.black',
                 },
               }}
             >
@@ -718,7 +714,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                   transform: 'scale(1.05)',
-                  border: '2px solid #000',
+                  border: '2px solid',
+                  borderColor: 'common.black',
                   boxShadow: '0 4px 12px rgba(48, 131, 220, 0.3)',
                 },
               }}
@@ -861,6 +858,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       borderColor: theme.palette.divider,
                     },
                     '&.Mui-focused fieldset': {
+                      // Mid-grey focus ring — between tokens grey500/grey400, no exact match
                       borderColor: '#a0a0a0',
                       boxShadow: '0 0 0 2px rgba(0,0,0,0.02)',
                     },
@@ -934,10 +932,12 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                       background: theme.palette.action.disabled,
                       borderRadius: '4px',
                       '&:hover': {
+                        // Scrollbar hover — neutral grey, no exact token match
                         background: '#9e9e9e',
                       },
                     },
                     scrollbarWidth: 'thin',
+                    // Firefox scrollbar color — no exact token match
                     scrollbarColor: '#bdbdbd transparent',
                   }}
                 >
@@ -945,6 +945,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                     <ListItem
                       key={member.id}
                       sx={{
+                        // CSS variable with fallback; #DCDCDC is the Light Grey CSS var value
                         borderBottom: '0.5px solid var(--Light-Grey, #DCDCDC)',
                         py: 1.5,
                         px: 0,
@@ -1020,8 +1021,9 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.designation.title}
                                   size='small'
                                   sx={{
+                                    // Designation chip — Figma indigo brand color, not yet in tokens
                                     backgroundColor: '#6155F5',
-                                    color: '#ffffff',
+                                    color: 'common.white',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -1036,8 +1038,9 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
                                   label={member.team.name}
                                   size='small'
                                   sx={{
+                                    // Team chip — Figma teal brand color, not yet in tokens
                                     backgroundColor: '#008C95',
-                                    color: '#ffffff',
+                                    color: 'common.white',
                                     borderRadius: '999px',
                                     fontSize: '0.7rem',
                                     height: 22,
@@ -1077,7 +1080,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               transition: 'all 0.3s ease-in-out',
               '&:hover': {
                 backgroundColor: 'var(--primary-light-color)',
-                border: '2px solid #000',
+                border: '2px solid',
+                borderColor: 'common.black',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               },
             }}
@@ -1104,7 +1108,8 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
               transition: 'all 0.3s ease-in-out',
               '&:hover': {
                 backgroundColor: 'var(--primary-light-color)',
-                border: '2px solid #000',
+                border: '2px solid',
+                borderColor: 'common.black',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               },
             }}

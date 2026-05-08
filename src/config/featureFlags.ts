@@ -16,6 +16,9 @@ export const featureFlags = {
   /** Enable in-app notification push. */
   enablePushNotifications:
     import.meta.env.VITE_ENABLE_PUSH_NOTIFICATIONS === 'true',
+
+  /** Use local mock data for the HR Policies feature instead of live API calls. */
+  useMockPolicies: import.meta.env.VITE_USE_MOCK_POLICIES === 'true',
 } as const;
 
 export type FeatureFlags = typeof featureFlags;

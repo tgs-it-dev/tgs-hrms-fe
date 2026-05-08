@@ -31,6 +31,8 @@ export interface Designation {
   departmentId: number;
 }
 
+// Department colors are data values (not UI palette), sourced from the chart
+// token palette. They will be replaced once departments are returned from the API.
 export const mockDepartments: Department[] = [
   {
     id: 1,

@@ -15,6 +15,7 @@ export const ROLES = {
   EMPLOYEE: 'employee',
   SYSTEM_ADMIN: 'system-admin',
   NETWORK_ADMIN: 'network-admin',
+  OE_ADMIN: 'oe-admin',
   USER: 'user',
 } as const;
 

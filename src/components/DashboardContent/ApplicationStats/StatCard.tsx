@@ -57,6 +57,7 @@ const StatCard: React.FC<StatCardProps> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Box
           sx={{
+            // Figma-specified mint green icon bg — not yet in design tokens
             bgcolor: '#a0d9b4',
             p: 1.5,
             borderRadius: '50%',

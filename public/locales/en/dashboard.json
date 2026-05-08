@@ -1,0 +1,37 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome",
+  "overview": "Overview",
+  "totalEmployees": "Total Employees",
+  "presentToday": "Present Today",
+  "onLeave": "On Leave",
+  "absent": "Absent",
+  "attendance": "Attendance",
+  "attendanceRate": "Attendance Rate",
+  "recentActivity": "Recent Activity",
+  "upcomingHolidays": "Upcoming Holidays",
+  "pendingLeaves": "Pending Leaves",
+  "announcements": "Announcements",
+  "quickActions": "Quick Actions",
+  "viewAll": "View All",
+  "thisMonth": "This Month",
+  "thisWeek": "This Week",
+  "today": "Today",
+  "loadError": "Failed to load dashboard data",
+  "kpi": {
+    "title": "Key Performance Indicators",
+    "headcount": "Headcount",
+    "turnover": "Turnover Rate",
+    "satisfaction": "Satisfaction Score"
+  },
+  "chart": {
+    "attendanceTrend": "Attendance Trend",
+    "departmentBreakdown": "Department Breakdown",
+    "tenantGrowth": "Tenant Growth"
+  },
+  "systemDashboard": "System Dashboard",
+  "systemLogs": "System Logs",
+  "tenants": "Tenants",
+  "activeUsers": "Active Users",
+  "storageUsed": "Storage Used"
+}

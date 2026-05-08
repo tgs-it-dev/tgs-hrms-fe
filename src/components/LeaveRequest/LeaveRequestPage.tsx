@@ -11,6 +11,7 @@ import type { LeaveStatus } from '../../type/levetypes';
 import { getUserName, getUserRole } from '../../utils/auth';
 import { useUser } from '../../hooks/useUser';
 import { normalizeRole } from '../../utils/permissions';
+import { ROLES } from '../../constants/roles';
 import {
   Box,
   AppBar,
@@ -77,7 +78,12 @@ const LeaveRequestPage = () => {
 
   // If user is not admin/HR/system, default date filter to current month
   useEffect(() => {
-    const adminRoles = ['system-admin', 'network-admin', 'admin', 'hr-admin'];
+    const adminRoles = [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.ADMIN,
+      ROLES.HR_ADMIN,
+    ];
     if (!adminRoles.includes(role) && !dateFilter) {
       const now = new Date();
       const y = now.getFullYear();
@@ -95,7 +101,7 @@ const LeaveRequestPage = () => {
   // MIGRATED: leave list data now owned by useLeaveList TanStack Query hook.
   // The hook re-runs automatically whenever role/viewMode/page/dateFilter change.
   // ---------------------------------------------------------------------------
-  const effectiveViewMode = role === 'manager' ? viewMode : 'you';
+  const effectiveViewMode = role === ROLES.MANAGER ? viewMode : 'you';
   const {
     data: leaveListData,
     isLoading: initialLoading,
@@ -330,10 +336,15 @@ const LeaveRequestPage = () => {
       do {
         let res;
         if (
-          ['system-admin', 'network-admin', 'admin', 'hr-admin'].includes(role)
+          [
+            ROLES.SYSTEM_ADMIN,
+            ROLES.NETWORK_ADMIN,
+            ROLES.ADMIN,
+            ROLES.HR_ADMIN,
+          ].includes(role)
         ) {
           res = await leaveApi.getAllLeaves(pageNum);
-        } else if (role === 'manager') {
+        } else if (role === ROLES.MANAGER) {
           res =
             viewMode === 'you'
               ? await leaveApi.getUserLeaves(currentUserId, pageNum)
@@ -440,7 +451,12 @@ const LeaveRequestPage = () => {
             )}
           </Box>
 
-          {['employee', 'manager', 'admin', 'hr-admin'].includes(role) && (
+          {[
+            ROLES.EMPLOYEE,
+            ROLES.MANAGER,
+            ROLES.ADMIN,
+            ROLES.HR_ADMIN,
+          ].includes(role) && (
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
               spacing={2}
@@ -506,11 +522,11 @@ const LeaveRequestPage = () => {
               </AppButton>
 
               {[
-                'admin',
-                'hr-admin',
-                'system-admin',
-                'network-admin',
-                'oe-admin',
+                ROLES.ADMIN,
+                ROLES.HR_ADMIN,
+                ROLES.SYSTEM_ADMIN,
+                ROLES.NETWORK_ADMIN,
+                ROLES.OE_ADMIN,
               ].includes(role) && (
                 <AppButton
                   variant='contained'
@@ -534,11 +550,13 @@ const LeaveRequestPage = () => {
 
       <Box sx={{ py: 3 }}>
         {activeTab === 'apply' &&
-        ['employee', 'manager', 'admin', 'hr-admin'].includes(role) ? (
+        [ROLES.EMPLOYEE, ROLES.MANAGER, ROLES.ADMIN, ROLES.HR_ADMIN].includes(
+          role
+        ) ? (
           <LeaveForm
             onSubmit={async formData => {
               try {
-                if (role === 'admin' || role === 'hr-admin') {
+                if (role === ROLES.ADMIN || role === ROLES.HR_ADMIN) {
                   // formData.employeeId = selected employee's EMPLOYEE id
                   const employee = employees.find(
                     e => e.id === formData.employeeId
@@ -574,13 +592,15 @@ const LeaveRequestPage = () => {
             }}
             onError={handleApplyError}
             employees={
-              role === 'admin' || role === 'hr-admin' ? employees : undefined
+              role === ROLES.ADMIN || role === ROLES.HR_ADMIN
+                ? employees
+                : undefined
             }
           />
         ) : activeTab === 'history' &&
-          ['employee', 'manager'].includes(role) ? (
+          [ROLES.EMPLOYEE, ROLES.MANAGER].includes(role) ? (
           <>
-            {role === 'manager' && (
+            {role === ROLES.MANAGER && (
               <Box
                 sx={{
                   mb: 2,
@@ -611,7 +631,8 @@ const LeaveRequestPage = () => {
                       backgroundColor:
                         viewMode === 'you'
                           ? 'var(--primary-dark-color)'
-                          : '#eae7f5',
+                          : // Figma-specified lavender hover bg — not yet in design tokens
+                            '#eae7f5',
                     },
                   }}
                 >
@@ -637,7 +658,8 @@ const LeaveRequestPage = () => {
                       backgroundColor:
                         viewMode === 'team'
                           ? 'var(--primary-dark-color)'
-                          : '#eae7f5',
+                          : // Figma-specified lavender hover bg — not yet in design tokens
+                            '#eae7f5',
                     },
                   }}
                 >
@@ -649,16 +671,16 @@ const LeaveRequestPage = () => {
             <LeaveHistory
               leaves={leaves}
               isAdmin={false}
-              isManager={role === 'manager'}
+              isManager={role === ROLES.MANAGER}
               currentUserId={currentUserId || undefined}
               viewMode={viewMode}
               onManagerAction={
-                role === 'manager' && viewMode === 'team'
+                role === ROLES.MANAGER && viewMode === 'team'
                   ? handleManagerAction
                   : undefined
               }
               onManagerResponse={
-                role === 'manager' && viewMode === 'team'
+                role === ROLES.MANAGER && viewMode === 'team'
                   ? handleViewManagerResponse
                   : undefined
               }
@@ -669,7 +691,7 @@ const LeaveRequestPage = () => {
               onPageChange={setCurrentPage}
               isLoading={tableLoading}
               onExportAll={
-                ['manager'].includes(role)
+                [ROLES.MANAGER].includes(role)
                   ? _fetchAllLeavesForExport
                   : undefined
               }
@@ -680,9 +702,12 @@ const LeaveRequestPage = () => {
         ) : (
           <LeaveHistory
             leaves={leaves}
-            isAdmin={['hr-admin', 'system-admin', 'admin', 'oe-admin'].includes(
-              role
-            )}
+            isAdmin={[
+              ROLES.HR_ADMIN,
+              ROLES.SYSTEM_ADMIN,
+              ROLES.ADMIN,
+              ROLES.OE_ADMIN,
+            ].includes(role)}
             isManager={false}
             currentUserId={currentUserId || undefined}
             onAction={handleAction}

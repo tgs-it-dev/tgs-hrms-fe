@@ -1,0 +1,37 @@
+{
+  "title": "لوحة التحكم",
+  "welcome": "مرحباً",
+  "overview": "نظرة عامة",
+  "totalEmployees": "إجمالي الموظفين",
+  "presentToday": "الحضور اليوم",
+  "onLeave": "في إجازة",
+  "absent": "غائب",
+  "attendance": "الحضور",
+  "attendanceRate": "معدل الحضور",
+  "recentActivity": "النشاط الأخير",
+  "upcomingHolidays": "الإجازات القادمة",
+  "pendingLeaves": "طلبات الإجازة المعلقة",
+  "announcements": "الإعلانات",
+  "quickActions": "الإجراءات السريعة",
+  "viewAll": "عرض الكل",
+  "thisMonth": "هذا الشهر",
+  "thisWeek": "هذا الأسبوع",
+  "today": "اليوم",
+  "loadError": "فشل في تحميل بيانات لوحة التحكم",
+  "kpi": {
+    "title": "مؤشرات الأداء الرئيسية",
+    "headcount": "عدد الموظفين",
+    "turnover": "معدل دوران الموظفين",
+    "satisfaction": "مستوى الرضا"
+  },
+  "chart": {
+    "attendanceTrend": "اتجاه الحضور",
+    "departmentBreakdown": "توزيع الأقسام",
+    "tenantGrowth": "نمو المستأجرين"
+  },
+  "systemDashboard": "لوحة التحكم النظام",
+  "systemLogs": "سجلات النظام",
+  "tenants": "المستأجرون",
+  "activeUsers": "المستخدمون النشطون",
+  "storageUsed": "التخزين المستخدم"
+}
