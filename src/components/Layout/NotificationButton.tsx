@@ -82,6 +82,7 @@ const NotificationButton: React.FC = () => {
         anchorEl={anchor}
         open={open}
         onClose={handleClose}
+        aria-label='Notifications panel'
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         PaperProps={{
@@ -101,6 +102,7 @@ const NotificationButton: React.FC = () => {
           <Box sx={{ flex: 1 }} />
           <Button
             size='small'
+            aria-label='Mark all notifications as read'
             onClick={() => {
               markAllAsRead();
             }}
@@ -109,6 +111,7 @@ const NotificationButton: React.FC = () => {
           </Button>
           <Button
             size='small'
+            aria-label='Clear all notifications'
             onClick={() => {
               clearAllNotifications();
             }}
@@ -120,7 +123,7 @@ const NotificationButton: React.FC = () => {
         {(() => {
           const unreadList = notifications.filter(n => !n.read);
           return unreadList.length === 0 ? (
-            <List sx={{ p: 2 }}>
+            <List role='list' aria-label='Notifications' sx={{ p: 2 }}>
               <ListItem>
                 <ListItemText
                   primary={t.noNotifications}
@@ -129,13 +132,20 @@ const NotificationButton: React.FC = () => {
               </ListItem>
             </List>
           ) : (
-            <List>
+            <List
+              role='list'
+              aria-label='Unread notifications'
+              aria-live='polite'
+              aria-atomic='false'
+              aria-relevant='additions removals'
+            >
               {unreadList.map(n => (
                 <ListItemButton
                   key={n.id}
                   onClick={() => {
                     markAsRead(n.id);
                   }}
+                  aria-label={`Unread notification: ${n.title}. ${n.text}`}
                   sx={{
                     alignItems: 'flex-start',
                     bgcolor: n.read
@@ -167,6 +177,7 @@ const NotificationButton: React.FC = () => {
                   />
                   <IconButton
                     size='small'
+                    aria-label={`Dismiss notification: ${n.title}`}
                     onClick={e => {
                       e.stopPropagation();
                       clearNotification(n.id);

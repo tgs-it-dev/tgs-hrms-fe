@@ -536,6 +536,9 @@ export default function Sidebar({
 
   return (
     <Box
+      component='nav'
+      role='navigation'
+      aria-label='Main navigation'
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
@@ -637,6 +640,7 @@ export default function Sidebar({
                   <ListItemButton
                     component={NavLink}
                     to={`/dashboard/${directPath}`}
+                    aria-current={isDirectLinkActive ? 'page' : undefined}
                     onClick={() => {
                       setOpenItem(item.label);
                       setActiveSubItem(isSingleSubItem ? directLabel : '');
@@ -796,6 +800,9 @@ export default function Sidebar({
                               key={sub.path}
                               component={NavLink}
                               to={`/dashboard/${sub.path}`}
+                              aria-current={
+                                activeSubItem === sub.label ? 'page' : undefined
+                              }
                               onClick={() =>
                                 handleSubItemClick(item.label, sub.label)
                               }

@@ -13,12 +13,16 @@ import {
 interface AppTableProps extends TableContainerProps {
   children: React.ReactNode;
   tableProps?: TableProps;
+  /** Accessible label for the table — required for WCAG 1.3.1.
+   *  Passed as aria-label on the underlying <Table> element. */
+  tableLabel?: string;
 }
 
 export const AppTable = memo(function AppTable({
   children,
   sx,
   tableProps,
+  tableLabel,
   ...rest
 }: AppTableProps) {
   const theme = useTheme();
@@ -82,7 +86,9 @@ export const AppTable = memo(function AppTable({
       {...rest}
       sx={{ ...baseSx, ...(sx as object) }}
     >
-      <Table {...(tableProps ?? {})}>{children}</Table>
+      <Table aria-label={tableLabel || 'Data table'} {...(tableProps ?? {})}>
+        {children}
+      </Table>
     </TableContainer>
   );
 });

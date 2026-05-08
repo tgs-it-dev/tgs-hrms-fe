@@ -825,7 +825,16 @@ const Navbar: React.FC<NavbarProps> = ({
                   <StyledInputBase
                     ref={searchInputRef}
                     placeholder={t.search}
-                    inputProps={{ 'aria-label': 'search' }}
+                    inputProps={{
+                      'aria-label': 'Search pages and features',
+                      'aria-autocomplete': 'list',
+                      'aria-controls': showSearchResults
+                        ? 'desktop-search-results'
+                        : undefined,
+                      'aria-expanded': showSearchResults,
+                      role: 'combobox',
+                      id: 'desktop-global-search',
+                    }}
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onKeyDown={handleSearchKeyDown}
@@ -844,6 +853,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   {isSearching && (
                     <CircularProgress
                       size={16}
+                      aria-label='Searching...'
                       sx={{
                         position: 'absolute',
                         right: '50px',
@@ -872,12 +882,13 @@ const Navbar: React.FC<NavbarProps> = ({
                       opacity: 0.9,
                     },
                   }}
-                  aria-label='Search'
+                  aria-label='Submit search'
                 >
                   <Box
                     component='img'
                     src={Icons.search}
-                    alt='Search'
+                    alt=''
+                    aria-hidden='true'
                     sx={{
                       width: { xs: 16, md: 20 },
                       height: { xs: 16, md: 20 },
@@ -887,6 +898,9 @@ const Navbar: React.FC<NavbarProps> = ({
                 </IconButton>
                 {showSearchResults && searchResults.length > 0 && (
                   <Paper
+                    id='desktop-search-results'
+                    role='listbox'
+                    aria-label='Search results'
                     elevation={4}
                     onClick={e => e.stopPropagation()}
                     onMouseDown={e => e.stopPropagation()}
@@ -913,6 +927,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         <ListItem
                           key={`${result.type}-${result.id || result.path}-${index}`}
                           disablePadding
+                          role='option'
+                          aria-selected={selectedResultIndex === index}
                         >
                           <ListItemButton
                             selected={selectedResultIndex === index}
@@ -1217,7 +1233,16 @@ const Navbar: React.FC<NavbarProps> = ({
               <StyledInputBase
                 ref={searchInputRef}
                 placeholder={t.search}
-                inputProps={{ 'aria-label': 'search' }}
+                inputProps={{
+                  'aria-label': 'Search pages and features',
+                  'aria-autocomplete': 'list',
+                  'aria-controls': showSearchResults
+                    ? 'mobile-search-results'
+                    : undefined,
+                  'aria-expanded': showSearchResults,
+                  role: 'combobox',
+                  id: 'mobile-global-search',
+                }}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onKeyDown={handleSearchKeyDown}
@@ -1238,6 +1263,7 @@ const Navbar: React.FC<NavbarProps> = ({
               {isSearching && (
                 <CircularProgress
                   size={14}
+                  aria-label='Searching...'
                   sx={{
                     position: 'absolute',
                     right: { xs: '48px', md: '40px' },
@@ -1274,12 +1300,13 @@ const Navbar: React.FC<NavbarProps> = ({
                   //   opacity: 0.9,
                   // },
                 }}
-                aria-label='Search'
+                aria-label='Submit search'
               >
                 <Box
                   component='img'
                   src={Icons.search}
-                  alt='Search'
+                  alt=''
+                  aria-hidden='true'
                   sx={{
                     width: { xs: 14, md: 18 },
                     height: { xs: 14, md: 18 },
@@ -1291,6 +1318,9 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Search Results Dropdown */}
             {showSearchResults && searchResults.length > 0 && (
               <Paper
+                id='mobile-search-results'
+                role='listbox'
+                aria-label='Search results'
                 elevation={4}
                 onClick={e => e.stopPropagation()}
                 onMouseDown={e => e.stopPropagation()}
@@ -1317,6 +1347,8 @@ const Navbar: React.FC<NavbarProps> = ({
                     <ListItem
                       key={`${result.type}-${result.id || result.path}-${index}`}
                       disablePadding
+                      role='option'
+                      aria-selected={selectedResultIndex === index}
                     >
                       <ListItemButton
                         selected={selectedResultIndex === index}

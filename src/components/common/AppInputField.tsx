@@ -100,6 +100,8 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
           </Typography>
           {rest.helperText && (
             <Typography
+              id={`${rest.id || (rest.name ? `input-${rest.name}` : 'field')}-helper`}
+              role={rest.error ? 'alert' : undefined}
               title={String(rest.helperText)}
               sx={{
                 display: hideErrorsOnSmallScreen
@@ -140,6 +142,13 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             fullWidth
             id={rest.id || (rest.name ? `input-${rest.name}` : undefined)}
             variant='outlined'
+            aria-invalid={rest.error ? true : undefined}
+            aria-required={rest.required ? true : undefined}
+            aria-describedby={
+              rest.helperText
+                ? `${rest.id || (rest.name ? `input-${rest.name}` : 'field')}-helper`
+                : undefined
+            }
             inputProps={{ maxLength: 50, ...(rest.inputProps || {}) }}
             InputProps={
               // If caller provided InputProps, keep them and merge

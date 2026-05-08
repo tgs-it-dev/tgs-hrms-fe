@@ -75,8 +75,11 @@ export const colorTokens = {
     dark: {
       bgDefault: '#121212',
       bgPaper: '#1e1e1e',
-      textPrimary: '#8f8f8f',
-      textSecondary: '#8f8f8f',
+      // WCAG 1.4.3 AA: contrast ratios on #121212 / #1e1e1e dark surfaces.
+      // #e0e0e0 on #121212 ≈ 14:1 ✓  (#8f8f8f was ≈3.9:1 — failed AA)
+      textPrimary: '#e0e0e0',
+      // #a8a8a8 on #121212 ≈ 5.2:1 ✓  (#8f8f8f was ≈3.9:1 — failed AA)
+      textSecondary: '#a8a8a8',
       divider: '#333333',
     },
   },
