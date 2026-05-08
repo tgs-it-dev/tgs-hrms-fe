@@ -385,7 +385,10 @@ const NotificationButton: React.FC = () => {
             <List sx={{ p: 2 }}>
               <ListItem>
                 <ListItemText
-                  primary={getText(_n.noNotifications.en, _n.noNotifications.ar)}
+                  primary={getText(
+                    _n.noNotifications.en,
+                    _n.noNotifications.ar
+                  )}
                   primaryTypographyProps={{ color: 'text.secondary' }}
                 />
               </ListItem>

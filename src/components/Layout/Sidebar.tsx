@@ -201,7 +201,11 @@ const menuItems: MenuItem[] = [
     i18nKey: 'announcements',
     icon: <Campaign />,
     subItems: [
-      { label: 'Announcements', i18nKey: 'announcements', path: 'announcements' },
+      {
+        label: 'Announcements',
+        i18nKey: 'announcements',
+        path: 'announcements',
+      },
     ],
   },
   {
@@ -225,7 +229,11 @@ const menuItems: MenuItem[] = [
     icon: Icons.department,
     iconFill: Icons.departmentFill,
     subItems: [
-      { label: 'Department List', i18nKey: 'departmentList', path: 'departments' },
+      {
+        label: 'Department List',
+        i18nKey: 'departmentList',
+        path: 'departments',
+      },
       { label: 'Designation', i18nKey: 'designation', path: 'designations' },
       { label: 'User List', i18nKey: 'userList', path: 'user-list' },
       { label: 'Policies', i18nKey: 'policies', path: 'policies' },
@@ -238,8 +246,16 @@ const menuItems: MenuItem[] = [
     icon: Icons.employee,
     iconFill: Icons.employeeFill,
     subItems: [
-      { label: 'Employee List', i18nKey: 'employeeList', path: 'employee-manager' },
-      { label: 'Tenant Employees', i18nKey: 'tenantEmployees', path: 'tenant-employees' },
+      {
+        label: 'Employee List',
+        i18nKey: 'employeeList',
+        path: 'employee-manager',
+      },
+      {
+        label: 'Tenant Employees',
+        i18nKey: 'tenantEmployees',
+        path: 'tenant-employees',
+      },
     ],
   },
   {
@@ -249,7 +265,11 @@ const menuItems: MenuItem[] = [
     iconFill: Icons.teamsFill,
     subItems: [
       { label: 'Team Management', i18nKey: 'teamManagement', path: 'teams' },
-      { label: 'Manager Tasks', i18nKey: 'managerTasks', path: 'manager-tasks' },
+      {
+        label: 'Manager Tasks',
+        i18nKey: 'managerTasks',
+        path: 'manager-tasks',
+      },
       { label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' },
     ],
   },
@@ -261,7 +281,11 @@ const menuItems: MenuItem[] = [
     subItems: [
       { label: 'Geofencing', i18nKey: 'geofencing', path: 'geofencing' },
       { label: 'Attendance', i18nKey: 'attendance', path: 'attendance-check' },
-      { label: 'Daily Attendance', i18nKey: 'dailyAttendance', path: 'attendance-table' },
+      {
+        label: 'Daily Attendance',
+        i18nKey: 'dailyAttendance',
+        path: 'attendance-table',
+      },
       { label: 'Report', i18nKey: 'report', path: 'attendance-summary' },
       { label: 'Leave Request', i18nKey: 'leaveRequest', path: 'leaves' },
     ],
@@ -273,7 +297,11 @@ const menuItems: MenuItem[] = [
     iconFill: Icons.leaveAnalyticsFill,
     subItems: [
       { label: 'Reports', i18nKey: 'reports', path: 'reports' },
-      { label: 'Cross Tenant Leaves', i18nKey: 'crossTenantLeaves', path: 'cross-tenant-leaves' },
+      {
+        label: 'Cross Tenant Leaves',
+        i18nKey: 'crossTenantLeaves',
+        path: 'cross-tenant-leaves',
+      },
     ],
   },
   {
@@ -281,7 +309,11 @@ const menuItems: MenuItem[] = [
     i18nKey: 'performance',
     icon: <Insights />,
     subItems: [
-      { label: 'Employee Performance', i18nKey: 'employeePerformance', path: 'performance-dashboard' },
+      {
+        label: 'Employee Performance',
+        i18nKey: 'employeePerformance',
+        path: 'performance-dashboard',
+      },
     ],
   },
   {
@@ -297,7 +329,9 @@ const menuItems: MenuItem[] = [
     label: 'Audit Logs',
     i18nKey: 'auditLogs',
     icon: <History />,
-    subItems: [{ label: 'Audit Logs', i18nKey: 'auditLogs', path: 'audit-logs' }],
+    subItems: [
+      { label: 'Audit Logs', i18nKey: 'auditLogs', path: 'audit-logs' },
+    ],
   },
   {
     label: 'App',
@@ -363,7 +397,9 @@ export default function Sidebar({
     (key: SidebarKey | undefined, fallback = ''): string => {
       if (!key) {
         if (process.env.NODE_ENV === 'development') {
-          console.warn(`[Sidebar] Missing i18nKey, falling back to: "${fallback}"`);
+          console.warn(
+            `[Sidebar] Missing i18nKey, falling back to: "${fallback}"`
+          );
         }
         return fallback;
       }
@@ -422,7 +458,9 @@ export default function Sidebar({
             ...item,
             label: 'My Tasks',
             i18nKey: 'myTasks',
-            subItems: [{ label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' }],
+            subItems: [
+              { label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' },
+            ],
           } as MenuItem;
         }
         return item;
@@ -439,7 +477,11 @@ export default function Sidebar({
           i18nKey: 'featureManagement',
           icon: <Apps />,
           subItems: [
-            { label: 'Feature Management', i18nKey: 'featureManagement', path: 'feature-management' },
+            {
+              label: 'Feature Management',
+              i18nKey: 'featureManagement',
+              path: 'feature-management',
+            },
           ],
         },
       ];

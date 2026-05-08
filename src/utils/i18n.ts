@@ -365,4 +365,3 @@ export const translations = {
 } as const;
 
 export type TranslationCatalogue = typeof translations;
-
