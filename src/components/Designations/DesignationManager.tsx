@@ -590,7 +590,7 @@ export default function DesignationManager() {
               />
               <AppDropdown
                 label={getText('Filter by department', 'تصفية حسب القسم')}
-                showLabel={false}
+                showLabel={true}
                 options={[
                   {
                     value: 'all',
