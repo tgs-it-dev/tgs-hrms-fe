@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   type CardProps,
@@ -12,7 +13,7 @@ interface AppCardProps extends CardProps {
   noShadow?: boolean;
 }
 
-export function AppCard({
+export const AppCard = React.memo(function AppCard({
   compact = false,
   sx,
   padding,
@@ -49,6 +50,6 @@ export function AppCard({
     : effectiveBaseSx;
 
   return <Card {...rest} sx={combinedSx} />;
-}
+});
 
 export default AppCard;

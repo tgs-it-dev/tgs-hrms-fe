@@ -5,6 +5,8 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useMemo,
+  useCallback,
 } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import notificationsApi from '../api/notificationsApi';
@@ -86,7 +88,19 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = useMemo(
+    () => notifications.filter(n => !n.read).length,
+    [notifications]
+  );
+
+  const sortedNotifications = useMemo(
+    () =>
+      [...notifications].sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      ),
+    [notifications]
+  );
 
   const fetchUserNotifications = React.useCallback(async () => {
     try {
@@ -132,7 +146,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
     } catch (err) {
-      console.warn('Failed to load user notifications', err);
+      console.error(
+        '[NotificationContext] Failed to load user notifications',
+        err
+      );
     }
   }, []);
 
@@ -275,7 +292,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [addNotification]);
 
   // Mark a specific notification as read
-  const markAsRead = (notificationId: string) => {
+  const markAsRead = useCallback((notificationId: string) => {
     setNotifications(prev =>
       prev.map(notif =>
         notif.id === notificationId ? { ...notif, read: true } : notif
@@ -295,13 +312,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           );
         }
       } catch (err) {
-        console.warn('Error marking notification read', err);
+        console.error(
+          '[NotificationContext] Error marking notification read',
+          err
+        );
       }
     })();
-  };
+  }, []);
 
   // Mark all notifications as read
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
 
     // Fire-and-forget: notify backend to mark all as read
@@ -316,30 +336,44 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           );
         }
       } catch (err) {
-        console.warn('Error marking all notifications read', err);
+        console.error(
+          '[NotificationContext] Error marking all notifications read',
+          err
+        );
       }
     })();
-  };
+  }, []);
 
   // Clear a specific notification
-  const clearNotification = (notificationId: string) => {
+  const clearNotification = useCallback((notificationId: string) => {
     setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
-  };
+  }, []);
 
   // Clear all notifications
-  const clearAllNotifications = () => {
+  const clearAllNotifications = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
-  const value: NotificationContextType = {
-    notifications,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-    clearNotification,
-    clearAllNotifications,
-    unreadCount,
-  };
+  const value = useMemo<NotificationContextType>(
+    () => ({
+      notifications: sortedNotifications,
+      addNotification,
+      markAsRead,
+      markAllAsRead,
+      clearNotification,
+      clearAllNotifications,
+      unreadCount,
+    }),
+    [
+      sortedNotifications,
+      addNotification,
+      markAsRead,
+      markAllAsRead,
+      clearNotification,
+      clearAllNotifications,
+      unreadCount,
+    ]
+  );
 
   return (
     <NotificationContext.Provider value={value}>
