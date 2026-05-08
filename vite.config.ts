@@ -34,8 +34,9 @@ export default defineConfig({
           mui: ['@mui/material', '@mui/icons-material'],
           router: ['react-router-dom'],
           charts: ['recharts', 'apexcharts', 'react-apexcharts'],
+          // yup is only used in LeaveTypeFormModal.tsx — TODO: migrate to zod
           forms: ['react-hook-form', '@hookform/resolvers', 'yup'],
-          utils: ['axios', 'date-fns', 'uuid']
+          utils: ['axios', 'date-fns', 'date-fns-tz', 'uuid']
         }
       }
     },
