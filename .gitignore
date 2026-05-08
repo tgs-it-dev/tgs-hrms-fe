@@ -43,3 +43,6 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Bundle analysis output (rollup-plugin-visualizer)
+stats.html
