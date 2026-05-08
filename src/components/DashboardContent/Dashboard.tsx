@@ -782,7 +782,9 @@ const Dashboard: React.FC = () => {
               </Box>
               {FEATURE_FLAGS.payrollModule && (
                 <>
-                  <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
+                  >
                     <AppCard
                       sx={{
                         borderRadius: '20px',
@@ -871,7 +873,9 @@ const Dashboard: React.FC = () => {
                     </AppCard>
                   </Box>
 
-                  <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
+                  >
                     <AppCard
                       sx={{
                         borderRadius: '20px',
