@@ -1391,6 +1391,13 @@ const AttendanceTable = () => {
     setTeamEndDate('');
     fetchAttendanceByDate(todayStr, 'team');
   };
+  // TODO: TanStack Query migration pending — complex dependency chain
+  // See src/components/Attendance/useAttendanceQueries.ts for the prepared hooks.
+  // fetchAttendance, fetchTeamAttendance, fetchAttendanceByDate and
+  // fetchTenantsFromSystemAttendance are called imperatively from 10+ event handlers.
+  // Role detection, view state, and data building are co-mingled in the same async
+  // functions, making a safe lift-and-shift to useQuery non-trivial.
+
   // Sync role flags from context user and set initial attendance view once.
   // Computes role booleans once per contextUser change and reuses them for
   // both setState calls and the initial view decision — avoids redundant checks.

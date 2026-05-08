@@ -29,15 +29,10 @@ import EmployeeList from './EmployeeList';
 import EmployeeViewModal from './EmployeeViewModal';
 import employeeApi from '../../api/employeeApi';
 import type { BackendEmployee, EmployeeDto } from '../../types/employee';
-import {
-  departmentApiService,
-  type BackendDepartment,
-} from '../../api/departmentApi';
-import {
-  designationApiService,
-  type BackendDesignation,
-} from '../../api/designationApi';
+import type { BackendDepartment } from '../../api/departmentApi';
+import type { BackendDesignation } from '../../api/designationApi';
 import { extractErrorMessage } from '../../utils/errorHandler';
+import { useDepartmentList, useDesignationList } from './useEmployeeQueries';
 import { exportCSV } from '../../api/exportApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
@@ -165,11 +160,19 @@ const EmployeeManager: React.FC = () => {
 
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [designationFilter, setDesignationFilter] = useState('');
-  const [departments, setDepartments] = useState<Record<string, string>>({});
-  const [designations, setDesignations] = useState<Record<string, string>>({});
-  const [departmentList, setDepartmentList] = useState<BackendDepartment[]>([]);
-  const [designationList, setDesignationList] = useState<BackendDesignation[]>(
-    []
+
+  // MIGRATED: department and designation data now owned by TanStack Query
+  const { data: departmentListData = [] } = useDepartmentList();
+  const { data: designationListData = [] } = useDesignationList();
+
+  const departmentList: BackendDepartment[] = departmentListData;
+  const designationList: BackendDesignation[] = designationListData;
+
+  const departments: Record<string, string> = Object.fromEntries(
+    departmentList.map(dept => [dept.id, dept.name])
+  );
+  const designations: Record<string, string> = Object.fromEntries(
+    designationList.map(desig => [desig.id, desig.title])
   );
   // const [loadingFilters, setLoadingFilters] = useState(false);
 
@@ -197,32 +200,7 @@ const EmployeeManager: React.FC = () => {
     return designationList.filter(des => des.departmentId === departmentFilter);
   }, [departmentFilter, designationList]);
 
-  const loadDepartmentsAndDesignations = useCallback(async () => {
-    try {
-      // setLoadingFilters(true);
-      // Load all departments
-      const deptData = await departmentApiService.getAllDepartments();
-      const deptMap: Record<string, string> = {};
-      deptData.forEach(dept => {
-        deptMap[dept.id] = dept.name;
-      });
-      setDepartments(deptMap);
-      setDepartmentList(deptData);
-
-      // Load all designations
-      const desigData = await designationApiService.getAllDesignations();
-      const desigMap: Record<string, string> = {};
-      desigData.forEach(desig => {
-        desigMap[desig.id] = desig.title;
-      });
-      setDesignations(desigMap);
-      setDesignationList(desigData);
-    } catch {
-      // Handle error silently
-    } finally {
-      // setLoadingFilters(false);
-    }
-  }, []);
+  // loadDepartmentsAndDesignations MIGRATED: replaced by useDepartmentList and useDesignationList TanStack Query hooks above
 
   // Helper function to convert BackendEmployee to Employee
   const convertToEmployee = (emp: BackendEmployee): Employee => ({
@@ -309,7 +287,10 @@ const EmployeeManager: React.FC = () => {
     updatedAt: member.updated_at || new Date().toISOString(),
   });
 
-  // Fetch all employees from all pages
+  // TODO: TanStack Query migration pending — complex dependency chain
+  // loadEmployees has role-based branching (manager vs admin/HR), multi-page
+  // sequential fetching, and results are directly mutated by add/edit/delete handlers.
+  // Full migration requires restructuring to server-state ownership model.
   const loadEmployees = useCallback(async () => {
     // Prevent duplicate calls
     if (isLoadingRef.current) {
@@ -406,11 +387,7 @@ const EmployeeManager: React.FC = () => {
     isInitialMount.current = false;
   }, []);
 
-  // Load employees on component mount
-  useEffect(() => {
-    loadDepartmentsAndDesignations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Departments and designations are now fetched by TanStack Query hooks (useDepartmentList, useDesignationList)
 
   // Load employees when filters change (fetches all records)
   useEffect(() => {
@@ -521,8 +498,7 @@ const EmployeeManager: React.FC = () => {
       // Add to the beginning of the list (most recent first)
       setAllEmployees(prev => [convertedEmployee, ...prev]);
 
-      // Reload department and designation mappings
-      await loadDepartmentsAndDesignations();
+      // Department and designation mappings are kept fresh by TanStack Query (no manual reload needed)
 
       showSuccess(
         'Employee added successfully! A password reset link has been sent to their email.'
@@ -974,6 +950,7 @@ const EmployeeManager: React.FC = () => {
         'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
       );
 
+  // MIGRATED: was direct localStorage access — kept for exportCSV which requires the raw token string
   const token = localStorage.getItem('token');
   const filters: Record<string, string> = {};
   if (departmentFilter && departmentFilter !== 'all')
