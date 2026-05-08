@@ -110,6 +110,8 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
       onClose={onClose}
       fullWidth={!isLargeScreen}
       maxWidth={maxWidth}
+      aria-labelledby='app-form-modal-title'
+      aria-describedby='app-form-modal-description'
       PaperProps={{
         sx: {
           borderRadius: { xs: '20px', sm: '30px' },
@@ -147,6 +149,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
       }}
     >
       <DialogTitle
+        id='app-form-modal-title'
         sx={{
           p: 0,
           pb: 2,
@@ -166,6 +169,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
         <IconButton
           onClick={onClose}
           size={isSmallScreen ? 'small' : 'medium'}
+          aria-label='Close dialog'
           sx={{
             position: 'absolute',
             top: 0,
@@ -174,7 +178,10 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
             color: theme.palette.text.secondary,
           }}
         >
-          <CloseIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+          <CloseIcon
+            fontSize={isSmallScreen ? 'small' : 'medium'}
+            aria-hidden='true'
+          />
         </IconButton>
       </DialogTitle>
 
@@ -194,6 +201,7 @@ const AppFormModal: React.FC<AppFormModalProps> = ({
         }}
       >
         <Box
+          id='app-form-modal-description'
           sx={{
             width: '100%',
             mt: 2,

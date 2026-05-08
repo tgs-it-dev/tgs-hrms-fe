@@ -254,6 +254,11 @@ const Layout = () => {
         py: { xs: 2, md: 0 },
       }}
     >
+      {/* Skip to main content — WCAG 2.4.1 Level A */}
+      <a href='#main-content' className='skip-link'>
+        Skip to main content
+      </a>
+
       <Box
         sx={{
           width: '100%',
@@ -271,6 +276,7 @@ const Layout = () => {
       >
         {sidebarOpen && !isLargeScreen && (
           <Box
+            aria-hidden='true'
             sx={{
               position: 'fixed',
               top: 0,
@@ -324,14 +330,18 @@ const Layout = () => {
             handleCloseInviteModal={handleCloseInviteModal}
           />
 
-          {/* Scrollable Outlet */}
+          {/* Scrollable Outlet — WCAG 2.4.1: skip-link target; WCAG 1.3.6: main landmark */}
           <Box
             component='main'
+            id='main-content'
+            role='main'
+            tabIndex={-1}
             sx={{
               flex: 1,
               px: { xs: 2, md: 3 },
               py: { xs: 2, md: 3 },
               backgroundColor: muiTheme.palette.background.default,
+              outline: 'none',
             }}
           >
             {isDashboardRoute && (loading || !user || !isAllowed) ? (
