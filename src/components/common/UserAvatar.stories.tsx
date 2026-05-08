@@ -2,24 +2,39 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box, Stack, Typography } from '@mui/material';
 import { UserContext } from '../../context/UserContext';
 import { ProfilePictureContext } from '../../context/ProfilePictureContext';
+import type { UserProfile } from '../../types/user';
+import type { UserContextType } from '../../types/context';
 import UserAvatar from './UserAvatar';
 
-const mockUser = {
+type AvatarUser = Pick<
+  UserProfile,
+  'id' | 'first_name' | 'last_name' | 'profile_pic'
+>;
+
+const mockUser: AvatarUser = {
   id: '1',
   first_name: 'Alice',
   last_name: 'Smith',
   profile_pic: null,
 };
 
-const mockUserWithPic = {
+const mockUserWithPic: AvatarUser = {
   id: '2',
   first_name: 'Bob',
   last_name: 'Jones',
   profile_pic: 'https://i.pravatar.cc/150?img=3',
 };
 
-const mockUserContextValue = {
-  user: mockUser as never,
+const mockUserContextValue: UserContextType = {
+  user: {
+    ...mockUser,
+    email: '',
+    phone: '',
+    role: '',
+    tenant: '',
+    created_at: '',
+    updated_at: '',
+  },
   loading: false,
   updateUser: () => {},
   refreshUser: async () => {},

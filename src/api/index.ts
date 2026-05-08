@@ -40,4 +40,4 @@ export * from './systemTenantApi';
 export * from './tasksApi';
 export * from './teamApi';
 export * from './timesheetApi';
-export * from './TenantLeaveApi';
+export * from './tenantLeaveApi';

@@ -16,7 +16,18 @@ export type { ApiResponse, PaginatedResponse } from './api';
 // Common mutation DTOs
 // ---------------------------------------------------------------------------
 
-/** Generic create/update payload where only a subset of fields is sent. */
+/**
+ * Generic create/update payload where only a subset of fields is sent.
+ *
+ * **camelCase assumption**: this type omits `'id' | 'createdAt' | 'updatedAt'`.
+ * It is designed for entity shapes that use camelCase property names.
+ * If your entity uses snake_case (e.g. `created_at`, `updated_at`) these
+ * keys will NOT be omitted automatically — you must extend the union explicitly:
+ *
+ * ```ts
+ * type CreateSnakeDto<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
+ * ```
+ */
 export type CreateDto<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 
 /** Generic partial update payload. */

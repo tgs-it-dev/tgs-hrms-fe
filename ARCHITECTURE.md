@@ -152,6 +152,13 @@ This opens an interactive Rollup visualizer report (`stats.html`) showing chunk 
 
 Pre-commit hooks (Husky + lint-staged) run ESLint and Prettier on staged `.ts`/`.tsx` files before every commit, preventing linting regressions from entering the repository.
 
+> **Note — `"prepare": "husky || true"` in `package.json`**
+> The `|| true` suffix is intentional. In CI environments (GitHub Actions, Netlify) the
+> working directory is not a git repository when `npm install` runs, so `husky install`
+> would exit non-zero and fail the install step. The `|| true` makes the prepare script
+> succeed even when there is no `.git` directory, without disabling hooks for developers
+> who do have a local git checkout. Do **not** remove it.
+
 ---
 
 ## Performance Targets (Core Web Vitals)
