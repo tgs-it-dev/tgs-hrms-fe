@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Claude Code pre-commit hook — runs before Claude commits code
+# Blocks commit if lint or type-check fails
+
+set -e
+
+echo "→ Running lint check..."
+npm run lint || { echo "✗ Lint failed. Run: npm run lint:fix"; exit 1; }
+
+echo "→ Running type check..."
+npm run type-check || { echo "✗ Type check failed."; exit 1; }
+
+echo "✓ Pre-commit checks passed."

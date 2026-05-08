@@ -356,6 +356,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 sx={{
                   display: 'flex',
                   flexDirection: { xs: 'column', md: 'row' },
+                  alignItems: 'stretch',
                   gap: 2,
                 }}
               >
@@ -366,7 +367,7 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                 )
                   .filter(doc => doc.exists)
                   .map(doc => (
-                    <Box key={doc.key} sx={{ flex: 1 }}>
+                    <Box key={doc.key} sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ textAlign: 'center' }}>
                         {/* This Wrapper Box ensures identical height/width for both images */}
                         <Box
