@@ -640,6 +640,7 @@ export const DepartmentList: React.FC = () => {
         hasChanges={hasChanges}
         submitDisabled={isSubmitting || !hasChanges || !isFormValid}
         isRtl={isRtl}
+        applyButtonWidth={true}
       />
 
       <DeleteConfirmationDialog

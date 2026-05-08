@@ -57,6 +57,7 @@ interface Employee {
   profile_picture?: string;
   cnic_picture?: string;
   cnic_back_picture?: string;
+  gender?: string;
   department: {
     id: string;
     name: string;
@@ -207,6 +208,7 @@ const EmployeeManager: React.FC = () => {
     profile_picture: emp.profile_picture,
     cnic_picture: emp.cnic_picture,
     cnic_back_picture: emp.cnic_back_picture,
+    gender: emp.gender,
     department: emp.department || {
       id: '',
       name: '',
@@ -471,6 +473,7 @@ const EmployeeManager: React.FC = () => {
       profilePicture?: File | null;
       cnicFrontPicture?: File | null;
       cnicBackPicture?: File | null;
+      gender?: string;
     }
   ) => {
     if (!editing)
@@ -504,6 +507,7 @@ const EmployeeManager: React.FC = () => {
         profilePicture: updates.profilePicture,
         cnicFrontPicture: updates.cnicFrontPicture,
         cnicBackPicture: updates.cnicBackPicture,
+        gender: updates.gender || editing.gender,
       });
 
       // Invalidate the employee list so TanStack Query re-fetches fresh data
@@ -1074,7 +1078,8 @@ const EmployeeManager: React.FC = () => {
                   phone: editing.phone,
                   designationId: editing.designationId,
                   departmentId: editing.departmentId,
-                  gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
+                  // gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
+                  gender: editing.gender,
                   role: (editing.role_name || '').trim() || 'Employee',
                   role_name: editing.role_name,
                   cnicNumber: editing.cnic_number,
