@@ -24,9 +24,9 @@ import {
 import { FilterList as FilterIcon } from '@mui/icons-material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import type { Dayjs } from 'dayjs';
+import { format as dateFnsFormat } from 'date-fns';
 import Chart from 'react-apexcharts';
 import { TenantLeaveApi } from '../../api/tenantLeaveApi';
 import type {
@@ -55,8 +55,8 @@ type FiltersState = {
   tenantId: string;
   departmentId: string;
   status: LeaveStatus;
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
 type DepartmentOption = Pick<ApiDepartment, 'id' | 'name' | 'tenant_id'>;
@@ -365,10 +365,10 @@ const CrossTenantLeaveManagement: React.FC = () => {
             : undefined,
         status: filters.status ? filters.status : undefined,
         startDate: filters.startDate
-          ? filters.startDate.format('YYYY-MM-DD')
+          ? dateFnsFormat(filters.startDate, 'yyyy-MM-dd')
           : undefined,
         endDate: filters.endDate
-          ? filters.endDate.format('YYYY-MM-DD')
+          ? dateFnsFormat(filters.endDate, 'yyyy-MM-dd')
           : undefined,
         page: currentPage,
         limit: itemsPerPage,
@@ -517,7 +517,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
   useEffect(() => {
     if (!filters.tenantId) return;
 
-    const paramsKey = `${filters.tenantId}-${filters.status}-${filters.startDate?.format('YYYY-MM-DD') || ''}-${filters.endDate?.format('YYYY-MM-DD') || ''}-${filters.departmentId}-${currentPage}`;
+    const paramsKey = `${filters.tenantId}-${filters.status}-${filters.startDate ? dateFnsFormat(filters.startDate, 'yyyy-MM-dd') : ''}-${filters.endDate ? dateFnsFormat(filters.endDate, 'yyyy-MM-dd') : ''}-${filters.departmentId}-${currentPage}`;
 
     if (paramsKey !== lastFetchedLeavesParams.current) {
       lastFetchedLeavesParams.current = paramsKey;
@@ -684,7 +684,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
             label='Start Date'
             value={filters.startDate}
             onChange={date =>
-              handleFilterChange('startDate', date as Dayjs | null)
+              handleFilterChange('startDate', date as Date | null)
             }
             slotProps={{ textField: { size: 'small' } }}
           />
@@ -692,7 +692,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
             label='End Date'
             value={filters.endDate}
             onChange={date =>
-              handleFilterChange('endDate', date as Dayjs | null)
+              handleFilterChange('endDate', date as Date | null)
             }
             slotProps={{ textField: { size: 'small' } }}
           />
@@ -846,7 +846,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
     );
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ minHeight: '100vh' }} onKeyDown={handleKeyDown}>
         <Paper
           sx={{

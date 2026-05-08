@@ -28,8 +28,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import HistoryIcon from '@mui/icons-material/History';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
-import employeeApi from '../../api/employeeApi';
 import { PAGINATION } from '../../constants/appConstants';
+import { useLeaveTypes, useLeaveEmployeeList } from './useLeaveQueries';
 
 const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
 
@@ -56,11 +56,16 @@ const LeaveRequestPage = () => {
     useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [employees, setEmployees] = useState<
-    { id: string; userId: string; name: string }[]
-  >([]);
+  // employees state MIGRATED to useLeaveEmployeeList TanStack Query hook below
   const [leaveTypeModalOpen, setLeaveTypeModalOpen] = useState(false);
   const [savingLeaveType, setSavingLeaveType] = useState(false);
+
+  // MIGRATED: employees list now owned by TanStack Query (was useEffect + employeeApi.getAllEmployeesWithoutPagination)
+  const { data: employeesData = [] } = useLeaveEmployeeList(role);
+  const employees = employeesData;
+
+  // MIGRATED: leave types now pre-fetched by TanStack Query (was useEffect + leaveApi.getLeaveTypes)
+  useLeaveTypes();
 
   // Currently selected leave (used for dialogs like manager response)
   const selectedLeave = selectedId
@@ -85,13 +90,7 @@ const LeaveRequestPage = () => {
   const role = normalizeRole(getUserRole());
   const userName = getUserName();
 
-  const fetchLeaveTypes = useCallback(async () => {
-    try {
-      await leaveApi.getLeaveTypes({ page: 1, limit: 50 });
-    } catch {
-      // Ignore; form components will surface their own errors
-    }
-  }, []);
+  // fetchLeaveTypes MIGRATED: replaced by useLeaveTypes TanStack Query hook above
 
   // If user is not admin/HR/system, default date filter to current month
   useEffect(() => {
@@ -104,6 +103,10 @@ const LeaveRequestPage = () => {
     }
   }, [role, dateFilter]);
 
+  // TODO: TanStack Query migration pending — complex dependency chain
+  // loadLeaves has role-based branching (admin/manager/employee), date filter params,
+  // view mode (team/you), and is triggered by multiple different UI interactions.
+  // Full migration requires a parameterized useQuery with all filter combinations.
   const loadLeaves = useCallback(
     async ({
       page = currentPage,
@@ -305,9 +308,7 @@ const LeaveRequestPage = () => {
     [currentUserId, role, currentPage, viewMode, dateFilter]
   );
 
-  useEffect(() => {
-    fetchLeaveTypes();
-  }, [fetchLeaveTypes]);
+  // Leave types pre-fetch now handled by useLeaveTypes TanStack Query hook (MIGRATED)
 
   useEffect(() => {
     setCurrentPage(1);
@@ -363,7 +364,7 @@ const LeaveRequestPage = () => {
       await leaveApi.createLeaveType(values);
       showSuccess('Leave type created successfully!');
       setLeaveTypeModalOpen(false);
-      await fetchLeaveTypes();
+      // Leave types are kept fresh by TanStack Query (useLeaveTypes hook) — no manual refetch needed
     } catch (error: unknown) {
       showError(getErrorMessage(error) || 'Failed to create leave type');
     } finally {
@@ -605,22 +606,7 @@ const LeaveRequestPage = () => {
     }
   }, [currentUserId, role, viewMode]);
 
-  useEffect(() => {
-    if (role === 'admin' || role === 'hr-admin') {
-      employeeApi.getAllEmployeesWithoutPagination().then(res => {
-        setEmployees(
-          res
-            .filter(e => e.user_id)
-            .map(e => ({
-              id: e.id,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- user_id is guaranteed by .filter(e => e.user_id) above
-              userId: e.user_id!,
-              name: e.name,
-            }))
-        );
-      });
-    }
-  }, [role]);
+  // Employee list fetch MIGRATED: replaced by useLeaveEmployeeList TanStack Query hook above
 
   if (initialLoading)
     return (

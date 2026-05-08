@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   TableContainer,
   Table,
@@ -15,7 +15,12 @@ interface AppTableProps extends TableContainerProps {
   tableProps?: TableProps;
 }
 
-export function AppTable({ children, sx, tableProps, ...rest }: AppTableProps) {
+export const AppTable = memo(function AppTable({
+  children,
+  sx,
+  tableProps,
+  ...rest
+}: AppTableProps) {
   const theme = useTheme();
 
   const baseSx: SxProps<Theme> = {
@@ -80,6 +85,6 @@ export function AppTable({ children, sx, tableProps, ...rest }: AppTableProps) {
       <Table {...(tableProps ?? {})}>{children}</Table>
     </TableContainer>
   );
-}
+});
 
 export default AppTable;

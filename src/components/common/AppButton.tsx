@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   useTheme,
@@ -16,7 +16,7 @@ interface AppButtonProps extends Omit<ButtonProps, 'children'> {
   children?: React.ReactNode;
 }
 
-export function AppButton({
+export const AppButton = React.memo(function AppButton({
   variantType = 'primary',
   sx,
   text,
@@ -27,7 +27,7 @@ export function AppButton({
 }: AppButtonProps) {
   const theme = useTheme();
 
-  const getVariantStyles = (): SxProps<Theme> => {
+  const baseSx = useMemo((): SxProps<Theme> => {
     const isDark = theme.palette.mode === 'dark';
 
     const common: SxProps<Theme> = {
@@ -106,14 +106,13 @@ export function AppButton({
       },
     };
 
-    return baseStyles[variantType] || {};
-  };
-
-  const baseSx = React.useMemo(
-    () => getVariantStyles(),
-    [variantType, theme.palette.mode]
-  );
-
+    return baseStyles[variantType] ?? {};
+  }, [
+    theme.palette.mode,
+    theme.palette.divider,
+    theme.palette.text.primary,
+    variantType,
+  ]);
   const finalSx = React.useMemo(() => {
     if (!sx) return baseSx;
     if (typeof sx === 'function' || Array.isArray(sx)) {
@@ -127,6 +126,6 @@ export function AppButton({
       {text || children}
     </Button>
   );
-}
+});
 
 export default AppButton;
