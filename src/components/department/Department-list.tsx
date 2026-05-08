@@ -1,11 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import type { DepartmentFormData, DepartmentFormErrors } from '../../types';
 import {
   Box,
   Typography,
   Paper,
-  // Snackbar,
-  // Alert,
   CircularProgress,
   useTheme,
 } from '@mui/material';
@@ -18,6 +16,7 @@ import AppButton from '../common/AppButton';
 import { VALIDATION_LIMITS } from '../../constants/appConstants';
 import DeleteConfirmationDialog from '../common/DeleteConfirmationDialog';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useUser } from '../../hooks/useUser';
 import AppPageTitle from '../common/AppPageTitle';
 import {
   departmentApiService,
@@ -60,13 +59,7 @@ export const DepartmentList: React.FC = () => {
   const lang = labels[language];
 
   // Get user role
-  const user = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem('user') || '{}');
-    } catch {
-      return {};
-    }
-  }, []);
+  const { user } = useUser();
   const userRoleValue = user?.role;
   const isSystemAdmin = isSystemAdminFn(userRoleValue);
   const isHrAdmin = isHrAdminFn(userRoleValue);

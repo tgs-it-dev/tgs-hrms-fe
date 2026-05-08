@@ -27,7 +27,7 @@ import {
 import { useUser } from '../../hooks/useUser';
 import type { UserProfile } from '../../types/user';
 import { profileApiService } from '../../api/profileApi';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { env } from '../../config/env';
 import {
   getRoleName,

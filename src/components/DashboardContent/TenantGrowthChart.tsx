@@ -11,8 +11,8 @@ import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import systemDashboardApiService from '../../api/systemDashboardApi';
-import { getCurrentUser } from '../../utils/auth';
 import { isSystemAdmin } from '../../utils/roleUtils';
+import { useUser } from '../../hooks/useUser';
 import AppDropdown from '../common/AppDropdown';
 // using shared AppDropdown for time selector
 
@@ -40,6 +40,7 @@ const TenantGrowthChart: React.FC = () => {
   const theme = useTheme();
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const { user } = useUser();
 
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
@@ -49,8 +50,7 @@ const TenantGrowthChart: React.FC = () => {
   const [tenantGrowthData, setTenantGrowthData] = useState<TenantGrowth[]>([]);
 
   // Check if user is system admin
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
   const labels = {

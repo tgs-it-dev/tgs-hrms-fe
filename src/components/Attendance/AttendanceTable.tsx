@@ -1312,7 +1312,7 @@ const AttendanceTable = () => {
 
       if (excludedTenants.length > 0) {
         console.warn(
-          ' Excluded tenants:',
+          'Excluded tenants (inactive/deleted/suspended):',
           excludedTenants.map((tUnknown: unknown) => {
             const t = (tUnknown as Record<string, unknown>) || {};
             return {

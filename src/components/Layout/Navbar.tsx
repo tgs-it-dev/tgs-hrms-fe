@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from '../../hooks/useLanguage';
 import { useUser } from '../../hooks/useUser';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { env } from '../../config/env';
 import {
   getRoleDisplayName,
@@ -20,7 +20,6 @@ import {
   IconButton,
   Typography,
   InputBase,
-  Badge,
   Menu,
   MenuItem,
   Divider,
@@ -36,8 +35,8 @@ import {
   ListItemText,
   ListItemButton,
 } from '@mui/material';
-import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from '../common/UserAvatar';
+import NotificationButton from './NotificationButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -225,8 +224,6 @@ const searchableRoutes: SearchResult[] = [
     category: 'Performance',
     type: 'route',
   },
-  { label: 'Invoice', path: 'invoice', category: 'Accounts', type: 'route' },
-  { label: 'Payments', path: 'payments', category: 'Accounts', type: 'route' },
   { label: 'Audit Logs', path: 'audit-logs', category: 'Audit', type: 'route' },
   { label: 'Settings', path: 'settings', category: 'Settings', type: 'route' },
   {
@@ -235,27 +232,6 @@ const searchableRoutes: SearchResult[] = [
     category: 'Profile',
     type: 'route',
   },
-  // App routes
-  { label: 'Chat', path: 'chat', category: 'App', type: 'route' },
-  { label: 'Calendar', path: 'calendar', category: 'App', type: 'route' },
-  // Other Pages
-  { label: 'Login', path: 'login', category: 'Other Pages', type: 'route' },
-  {
-    label: 'Register',
-    path: 'register',
-    category: 'Other Pages',
-    type: 'route',
-  },
-  { label: 'Error', path: 'error', category: 'Other Pages', type: 'route' },
-  // UI Components
-  {
-    label: 'Buttons',
-    path: 'buttons',
-    category: 'UI Components',
-    type: 'route',
-  },
-  { label: 'Cards', path: 'cards', category: 'UI Components', type: 'route' },
-  { label: 'Modals', path: 'modals', category: 'UI Components', type: 'route' },
 ];
 
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
@@ -274,173 +250,6 @@ interface NavbarProps {
   onToggleSidebar: () => void;
   onOpenInviteModal: () => void;
 }
-
-/**
- * NotificationButton - small component to render notification bell with unread badge
- * and a Menu listing notifications from NotificationContext.
- */
-const NotificationButton: React.FC = () => {
-  const theme = useTheme();
-  const t = useScopedTranslations('navbar');
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    clearNotification,
-    clearAllNotifications,
-  } = useNotifications();
-
-  const [anchor, setAnchor] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchor);
-
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
-    setAnchor(e.currentTarget);
-  const handleClose = () => setAnchor(null);
-
-  return (
-    <>
-      <IconButton
-        onClick={handleOpen}
-        sx={{ padding: { xs: '6px', md: '8px' } }}
-        aria-label={t.notifications}
-        aria-haspopup='true'
-        aria-expanded={open ? 'true' : undefined}
-      >
-        <Badge
-          badgeContent={unreadCount > 0 ? unreadCount : 0}
-          color='error'
-          overlap='circular'
-          showZero={false}
-          sx={{
-            '& .MuiBadge-badge': {
-              fontSize: '0.65rem',
-              minWidth: 18,
-              height: 18,
-            },
-          }}
-        >
-          <Box
-            component='img'
-            src={Icons.notification}
-            alt=''
-            sx={{
-              width: { xs: 18, md: 24 },
-              height: { xs: 18, md: 24 },
-              filter:
-                theme.palette.mode === 'dark'
-                  ? 'brightness(0) saturate(100%) invert(56%)'
-                  : 'brightness(0) saturate(100%)',
-            }}
-          />
-        </Badge>
-      </IconButton>
-
-      <Menu
-        anchorEl={anchor}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            width: { xs: 300, sm: 360 },
-            maxHeight: 420,
-            bgcolor: theme.palette.background.paper,
-          },
-        }}
-      >
-        <Box
-          sx={{ px: 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-            {t.notifications}
-          </Typography>
-          <Box sx={{ flex: 1 }} />
-          <Button
-            size='small'
-            onClick={() => {
-              markAllAsRead();
-            }}
-          >
-            {t.markAllRead}
-          </Button>
-          <Button
-            size='small'
-            onClick={() => {
-              clearAllNotifications();
-            }}
-          >
-            {t.clear}
-          </Button>
-        </Box>
-        <Divider />
-        {(() => {
-          const unreadList = notifications.filter(n => !n.read);
-          return unreadList.length === 0 ? (
-            <List sx={{ p: 2 }}>
-              <ListItem>
-                <ListItemText
-                  primary={t.noNotifications}
-                  primaryTypographyProps={{ color: 'text.secondary' }}
-                />
-              </ListItem>
-            </List>
-          ) : (
-            <List>
-              {unreadList.map(n => (
-                <ListItemButton
-                  key={n.id}
-                  onClick={() => {
-                    markAsRead(n.id);
-                  }}
-                  sx={{
-                    alignItems: 'flex-start',
-                    bgcolor: n.read
-                      ? 'transparent'
-                      : theme.palette.action.selected,
-                  }}
-                >
-                  <ListItemText
-                    primary={n.title}
-                    secondary={
-                      <>
-                        <Typography
-                          component='span'
-                          variant='body2'
-                          color='text.secondary'
-                        >
-                          {n.text}
-                        </Typography>
-                        <Typography
-                          component='div'
-                          variant='caption'
-                          color='text.secondary'
-                          sx={{ mt: 0.5 }}
-                        >
-                          {new Date(n.timestamp).toLocaleString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <IconButton
-                    size='small'
-                    onClick={e => {
-                      e.stopPropagation();
-                      clearNotification(n.id);
-                    }}
-                  >
-                    ×
-                  </IconButton>
-                </ListItemButton>
-              ))}
-            </List>
-          );
-        })()}
-      </Menu>
-    </>
-  );
-};
 
 const Navbar: React.FC<NavbarProps> = ({
   darkMode,
