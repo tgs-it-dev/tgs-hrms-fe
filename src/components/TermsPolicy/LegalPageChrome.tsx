@@ -51,6 +51,7 @@ export const MarketingHeader: React.FC = () => {
     px: 2.2,
     py: 1,
     '&:hover': {
+      // Dark navy hover for solid CTA — Figma-specified, not yet in design tokens
       backgroundColor: '#0b1220',
     },
   } as const;
@@ -60,6 +61,7 @@ export const MarketingHeader: React.FC = () => {
       component='header'
       sx={{
         bgcolor: 'background.paper',
+        // Figma header border — near grey300 (#e0e0e0) but different shade
         borderBottom: '1px solid #e5e7eb',
         position: 'relative',
         zIndex: 20,
@@ -105,6 +107,7 @@ export const MarketingHeader: React.FC = () => {
             sx={{
               display: { xs: 'inline-flex', md: 'none' },
               color: 'text.primary',
+              // Figma mobile menu toggle border — near grey300, not an exact token
               border: '1px solid #d1d5db',
               borderRadius: '10px',
               width: 36,
@@ -138,6 +141,7 @@ export const MarketingHeader: React.FC = () => {
         <Box
           sx={{
             display: { xs: 'block', md: 'none' },
+            // Figma border — near grey300 (#e0e0e0) but different shade
             borderTop: '1px solid #e5e7eb',
             position: 'absolute',
             top: '100%',
@@ -189,6 +193,7 @@ export const MarketingHeader: React.FC = () => {
 };
 
 export const MarketingFooter: React.FC = () => {
+  // Figma footer navy — not yet in design tokens
   const footerBg = '#0b3551';
   const headingSx = {
     color: 'common.white',

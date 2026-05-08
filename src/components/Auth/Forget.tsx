@@ -265,7 +265,7 @@ const Forget = () => {
                 disabled={isDisabled}
                 sx={{
                   backgroundColor: theme.palette.primary.main,
-                  color: '#fff',
+                  color: 'common.white',
                   fontWeight: 600,
                   borderRadius: '12px',
                   py: 1.4,
@@ -292,7 +292,7 @@ const Forget = () => {
             component={RouterLink}
             to='/'
             sx={{
-              color: '#656565',
+              color: 'text.secondary',
               textDecoration: 'none',
               fontSize: { xs: '14px', sm: '16px' },
               fontWeight: 400,

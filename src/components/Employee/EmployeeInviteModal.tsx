@@ -198,6 +198,7 @@ const EmployeeInviteModal: React.FC<EmployeeInviteModalProps> = ({
               <Stack direction='row' spacing={2} alignItems='center'>
                 <Avatar
                   sx={{
+                    // Alternating avatar backgrounds: amber + error — amber not yet in tokens
                     bgcolor: idx % 2 === 0 ? '#ffcd38' : 'error.main',
                     color: 'common.white',
                   }}

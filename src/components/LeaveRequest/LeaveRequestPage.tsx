@@ -631,7 +631,8 @@ const LeaveRequestPage = () => {
                       backgroundColor:
                         viewMode === 'you'
                           ? 'var(--primary-dark-color)'
-                          : '#eae7f5',
+                          : // Figma-specified lavender hover bg — not yet in design tokens
+                            '#eae7f5',
                     },
                   }}
                 >
@@ -657,7 +658,8 @@ const LeaveRequestPage = () => {
                       backgroundColor:
                         viewMode === 'team'
                           ? 'var(--primary-dark-color)'
-                          : '#eae7f5',
+                          : // Figma-specified lavender hover bg — not yet in design tokens
+                            '#eae7f5',
                     },
                   }}
                 >
