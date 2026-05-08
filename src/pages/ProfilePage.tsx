@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import UserProfileComponent from '../components/UserProfile/UserProfile';
 
 export default function ProfilePage() {
-  useEffect(() => {
-    document.title = 'Profile — TGS HRMS';
-  }, []);
-
+  useDocumentTitle('Profile');
   return <UserProfileComponent />;
 }

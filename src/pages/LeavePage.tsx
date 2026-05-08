@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import LeaveRequestPage from '../components/LeaveRequest/LeaveRequestPage';
 
 export default function LeavePage() {
-  useEffect(() => {
-    document.title = 'Leave Requests — TGS HRMS';
-  }, []);
-
+  useDocumentTitle('Leave Requests');
   return <LeaveRequestPage />;
 }

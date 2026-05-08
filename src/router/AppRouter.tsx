@@ -53,24 +53,44 @@ export function AppRouter() {
               </ProtectedRoute>
             }
           >
-            {protectedRoutes.map(
-              ({ path, component: Component, withErrorBoundary }) => (
+            {protectedRoutes.map((config, i) => {
+              const Component = config.component;
+              // withErrorBoundary defaults to true — set false on a route to opt out.
+              const wrapped =
+                (config.withErrorBoundary ?? true) ? (
+                  <RouteErrorBoundary>
+                    <Component />
+                  </RouteErrorBoundary>
+                ) : (
+                  <Component />
+                );
+
+              if (config.index) {
+                return (
+                  <Route
+                    key='index'
+                    index
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        {wrapped}
+                      </Suspense>
+                    }
+                  />
+                );
+              }
+
+              return (
                 <Route
-                  key={path || 'index'}
-                  index={path === ''}
-                  path={path !== '' ? path : undefined}
+                  key={config.path ?? String(i)}
+                  path={config.path}
                   element={
-                    withErrorBoundary ? (
-                      <RouteErrorBoundary>
-                        <Component />
-                      </RouteErrorBoundary>
-                    ) : (
-                      <Component />
-                    )
+                    <Suspense fallback={<LoadingFallback />}>
+                      {wrapped}
+                    </Suspense>
                   }
                 />
-              )
-            )}
+              );
+            })}
           </Route>
         </Routes>
       </Suspense>

@@ -3,15 +3,15 @@ import type React from 'react';
 
 export interface RouteConfig {
   path: string;
-  component: React.LazyExoticComponent<React.ComponentType<unknown>>;
-  isProtected: boolean;
+  component: React.LazyExoticComponent<React.ComponentType>;
   requiredRole?: string[];
 }
 
 export interface ProtectedRouteConfig {
-  path: string;
-  component: React.LazyExoticComponent<React.ComponentType<unknown>>;
-  /** When true, the route is wrapped in a RouteErrorBoundary */
+  path?: string; // undefined = index route
+  index?: boolean; // explicit flag for the index route
+  component: React.LazyExoticComponent<React.ComponentType>;
+  /** When false, the route skips RouteErrorBoundary; defaults to true */
   withErrorBoundary?: boolean;
   requiredRole?: string[];
 }
@@ -117,38 +117,31 @@ const FeatureManagementPage = lazy(
 
 // ── Public routes ────────────────────────────────────────────────────────────
 export const publicRoutes: RouteConfig[] = [
-  { path: '/', component: Login, isProtected: false },
-  { path: '/forget', component: Forget, isProtected: false },
-  { path: '/reset-password', component: ResetPassword, isProtected: false },
-  { path: '/confirm-password', component: ConfirmPassword, isProtected: false },
-  { path: '/signup', component: Signup, isProtected: false },
-  {
-    path: '/signup/company-details',
-    component: CompanyDetails,
-    isProtected: false,
-  },
-  { path: '/signup/select-plan', component: SelectPlan, isProtected: false },
-  {
-    path: '/signup/confirm-payment',
-    component: ConfirmPayment,
-    isProtected: false,
-  },
-  { path: '/signup/success', component: SignupSuccess, isProtected: false },
-  { path: '/employees', component: EmployeePaymentReturn, isProtected: false },
-  { path: '/company-details', component: CompanyDetails, isProtected: false },
-  { path: '*', component: Error404, isProtected: false },
+  { path: '/', component: Login },
+  { path: '/forget', component: Forget },
+  { path: '/reset-password', component: ResetPassword },
+  { path: '/confirm-password', component: ConfirmPassword },
+  { path: '/signup', component: Signup },
+  { path: '/signup/company-details', component: CompanyDetails },
+  { path: '/signup/select-plan', component: SelectPlan },
+  { path: '/signup/confirm-payment', component: ConfirmPayment },
+  { path: '/signup/success', component: SignupSuccess },
+  { path: '/employees', component: EmployeePaymentReturn },
+  { path: '/company-details', component: CompanyDetails },
+  { path: '*', component: Error404 },
 ];
 
 // Public routes that need ThemeProvider wrapping (accessible without auth)
 export const themedPublicRoutes: RouteConfig[] = [
-  { path: '/terms', component: TermsOfServicePage, isProtected: false },
-  { path: '/privacy-policy', component: PrivacyPolicyPage, isProtected: false },
+  { path: '/terms', component: TermsOfServicePage },
+  { path: '/privacy-policy', component: PrivacyPolicyPage },
 ];
 
 // ── Protected (dashboard child) routes ───────────────────────────────────────
+// withErrorBoundary defaults to true in AppRouter — only set false to opt out.
 export const protectedRoutes: ProtectedRouteConfig[] = [
-  { path: '', component: DashboardPage, withErrorBoundary: true },
-  { path: 'tenant', component: TenantPage, withErrorBoundary: true },
+  { index: true, component: DashboardPage },
+  { path: 'tenant', component: TenantPage },
   { path: 'departments', component: DepartmentList },
   { path: 'designations', component: DesignationManager },
   { path: 'employee-manager', component: EmployeesPage },
@@ -167,28 +160,14 @@ export const protectedRoutes: ProtectedRouteConfig[] = [
   { path: 'holidays', component: HolidayList },
   { path: 'attendance-check/timesheet-layout', component: TimesheetLayout },
   { path: 'teams', component: TeamManager },
-  { path: 'teams/list', component: TeamsTaskList, withErrorBoundary: true },
-  { path: 'teams/tasks', component: TeamTasks, withErrorBoundary: true },
-  {
-    path: 'teams/tasks/:teamId',
-    component: TeamTasks,
-    withErrorBoundary: true,
-  },
-  { path: 'my-tasks', component: MyTasks, withErrorBoundary: true },
-  {
-    path: 'manager-tasks',
-    component: ManagerTaskBoard,
-    withErrorBoundary: true,
-  },
-  {
-    path: 'teams/employee/:employeeId',
-    component: EmployeeTasks,
-    withErrorBoundary: true,
-  },
+  { path: 'teams/list', component: TeamsTaskList },
+  { path: 'teams/tasks', component: TeamTasks },
+  { path: 'teams/tasks/:teamId', component: TeamTasks },
+  { path: 'my-tasks', component: MyTasks },
+  { path: 'manager-tasks', component: ManagerTaskBoard },
+  { path: 'teams/employee/:employeeId', component: EmployeeTasks },
   { path: 'settings', component: SettingsPage },
   { path: 'feature-management', component: FeatureManagementPage },
-  { path: 'terms', component: TermsOfServicePage },
-  { path: 'privacy-policy', component: PrivacyPolicyPage },
   { path: 'performance-dashboard', component: PerformanceDashboard },
   { path: 'audit-logs', component: AuditLogs },
   { path: 'announcements', component: AnnouncementsPage },

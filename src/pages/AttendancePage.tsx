@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import AttendanceCheck from '../components/Attendance/AttendanceCheck';
 
 export default function AttendancePage() {
-  useEffect(() => {
-    document.title = 'Attendance — TGS HRMS';
-  }, []);
-
+  useDocumentTitle('Attendance');
   return <AttendanceCheck />;
 }
