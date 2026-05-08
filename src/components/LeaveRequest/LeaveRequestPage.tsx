@@ -28,24 +28,22 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import HistoryIcon from '@mui/icons-material/History';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
-import { PAGINATION } from '../../constants/appConstants';
-import { useLeaveTypes, useLeaveEmployeeList } from './useLeaveQueries';
-
-const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
+import {
+  useLeaveTypes,
+  useLeaveEmployeeList,
+  useLeaveList,
+} from './useLeaveQueries';
 
 const LeaveRequestPage = () => {
+  // Local leaves state — populated from query data, also used for optimistic updates
+  // during approve/reject/withdraw so the table reflects changes immediately.
   const [leaves, setLeaves] = useState<Leave[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [tableLoading, setTableLoading] = useState(false);
-  const hasLoadedOnceRef = useRef(false);
 
   const { snackbar, showError, showSuccess, closeSnackbar } = useErrorHandler();
 
   const [activeTab, setActiveTab] = useState<'apply' | 'history'>('history');
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approved' | 'rejected' | null>(
@@ -56,41 +54,25 @@ const LeaveRequestPage = () => {
     useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // employees state MIGRATED to useLeaveEmployeeList TanStack Query hook below
   const [leaveTypeModalOpen, setLeaveTypeModalOpen] = useState(false);
   const [savingLeaveType, setSavingLeaveType] = useState(false);
 
-  // MIGRATED: employees list now owned by TanStack Query (was useEffect + employeeApi.getAllEmployeesWithoutPagination)
-  const { data: employeesData = [] } = useLeaveEmployeeList(role);
-  const employees = employeesData;
-
-  // MIGRATED: leave types now pre-fetched by TanStack Query (was useEffect + leaveApi.getLeaveTypes)
-  useLeaveTypes();
-
-  // Currently selected leave (used for dialogs like manager response)
-  const selectedLeave = selectedId
-    ? leaves.find(l => l.id === selectedId)
-    : undefined;
-
   const [viewMode, setViewMode] = useState<'team' | 'you'>('you');
-  const previousViewModeRef = useRef<'team' | 'you'>(viewMode);
-  const previousPageRef = useRef<number>(1);
   // Default dateFilter is empty so admin users can see ALL leaves by default.
   // Non-admin users will be initialized to current month below.
   const [dateFilter, setDateFilter] = useState<string>('');
-  const previousDateFilterRef = useRef<string>(dateFilter);
-
-  const handleDateFilterChange = (filter: string) => {
-    setDateFilter(filter);
-    setCurrentPage(1);
-  };
 
   const currentUser = getCurrentUser();
   const currentUserId = currentUser?.id ?? '';
   const role = normalizeRole(getUserRole());
   const userName = getUserName();
 
-  // fetchLeaveTypes MIGRATED: replaced by useLeaveTypes TanStack Query hook above
+  // MIGRATED: employees list now owned by TanStack Query
+  const { data: employeesData = [] } = useLeaveEmployeeList(role);
+  const employees = employeesData;
+
+  // MIGRATED: leave types now pre-fetched by TanStack Query
+  useLeaveTypes();
 
   // If user is not admin/HR/system, default date filter to current month
   useEffect(() => {
@@ -103,249 +85,53 @@ const LeaveRequestPage = () => {
     }
   }, [role, dateFilter]);
 
-  // TODO: TanStack Query migration pending — complex dependency chain
-  // loadLeaves has role-based branching (admin/manager/employee), date filter params,
-  // view mode (team/you), and is triggered by multiple different UI interactions.
-  // Full migration requires a parameterized useQuery with all filter combinations.
-  const loadLeaves = useCallback(
-    async ({
-      page = currentPage,
-      view = viewMode,
-      skipFullPageLoader = false,
-      filter = dateFilter,
-    } = {}) => {
-      const showFullPageLoader =
-        !hasLoadedOnceRef.current && !skipFullPageLoader;
-      try {
-        if (showFullPageLoader) setInitialLoading(true);
-        else setTableLoading(true);
-
-        let res;
-
-        // Calculate date params
-        let queryParams: { month?: number; year?: number } = {};
-
-        if (filter && /^\d{4}-\d{2}$/.test(filter)) {
-          const [yStr, mStr] = filter.split('-');
-          queryParams = {
-            year: parseInt(yStr, 10),
-            month: parseInt(mStr, 10),
-          };
-        } else {
-          // Fallback to current month if filter is somehow invalid
-          const now = new Date();
-          queryParams = {
-            year: now.getFullYear(),
-            month: now.getMonth() + 1,
-          };
-        }
-
-        if (
-          [
-            'system-admin',
-            'network-admin',
-            'admin',
-            'hr-admin',
-            'oe-admin',
-          ].includes(role)
-        ) {
-          if (filter && /^\d{4}-\d{2}$/.test(filter)) {
-            res = await leaveApi.getAllLeaves(page, queryParams);
-          } else {
-            res = await leaveApi.getAllLeaves(page);
-          }
-        } else if (role === 'manager') {
-          res =
-            view === 'you'
-              ? await leaveApi.getUserLeaves(currentUserId, page)
-              : await leaveApi.getTeamLeaves(page);
-        } else {
-          res = await leaveApi.getUserLeaves(currentUserId, page);
-        }
-
-        const leavesData: Leave[] = (
-          Array.isArray(res.items) ? res.items : []
-        ).map((leaveRaw: unknown) => {
-          const leave = (leaveRaw || {}) as Record<string, unknown>;
-
-          const employeeObj =
-            (leave.employee && typeof leave.employee === 'object'
-              ? (leave.employee as Record<string, unknown>)
-              : undefined) || undefined;
-          const userObj =
-            (leave.user && typeof leave.user === 'object'
-              ? (leave.user as Record<string, unknown>)
-              : undefined) || undefined;
-
-          const getString = (v: unknown) =>
-            v === null || typeof v === 'undefined' ? '' : String(v);
-
-          const employeeId =
-            (typeof leave.employeeId === 'string' && leave.employeeId) ||
-            (typeof leave.employeeId === 'number' &&
-              String(leave.employeeId)) ||
-            (employeeObj &&
-              typeof employeeObj.id === 'string' &&
-              employeeObj.id) ||
-            (userObj && typeof userObj.id === 'string' && userObj.id) ||
-            '';
-
-          const userId =
-            (userObj && typeof userObj.id === 'string' && userObj.id) ||
-            (employeeObj &&
-              typeof employeeObj.id === 'string' &&
-              employeeObj.id) ||
-            '';
-
-          const employeeFirstName =
-            (employeeObj &&
-              typeof employeeObj.first_name === 'string' &&
-              employeeObj.first_name) ||
-            (userObj &&
-              typeof userObj.first_name === 'string' &&
-              userObj.first_name) ||
-            'You';
-
-          const employeeLastName =
-            (employeeObj &&
-              typeof employeeObj.last_name === 'string' &&
-              employeeObj.last_name) ||
-            (userObj &&
-              typeof userObj.last_name === 'string' &&
-              userObj.last_name) ||
-            undefined;
-
-          const employeeEmail =
-            (employeeObj &&
-              typeof employeeObj.email === 'string' &&
-              employeeObj.email) ||
-            (userObj && typeof userObj.email === 'string' && userObj.email) ||
-            '';
-
-          const leaveTypeName =
-            (leave.leaveType &&
-            typeof leave.leaveType === 'object' &&
-            typeof (leave.leaveType as Record<string, unknown>).name ===
-              'string'
-              ? ((leave.leaveType as Record<string, unknown>).name as string)
-              : undefined) || 'Unknown';
-
-          // const rawStatus = getString(leave.status).toLowerCase();
-          // const normalizedStatus: Leave['status'] = (
-          //   rawStatus === 'pending' ||
-          //   rawStatus === 'approved' ||
-          //   rawStatus === 'rejected' ||
-          //   rawStatus === 'withdrawn'
-          //     ? rawStatus
-          //     : 'pending'
-          // ) as Leave['status'];
-          // const remarksString =
-          //   typeof leave.remarks === 'string' ? leave.remarks : undefined;
-
-          // remarks field: could be rejection remarks (if status is rejected)
-          // const remarks =
-          //   normalizedStatus === 'rejected' ? remarksString : undefined;
-
-          // managerRemarks: from approve-manager endpoint, backend may return in managerRemarks or manager_remarks
-          // If status is not rejected and remarksString exists, treat it as manager response
-          // const managerRemarks =
-          //   (typeof leave.managerRemarks === 'string' &&
-          //     leave.managerRemarks) ||
-          //   (typeof leave.manager_remarks === 'string' &&
-          //     leave.manager_remarks) ||
-          //   (normalizedStatus !== 'rejected' && remarksString
-          //     ? remarksString
-          //     : undefined);
-
-          return {
-            id: getString(leave.id),
-            employeeId: getString(employeeId),
-            employee: {
-              id: getString(employeeObj?.id) || getString(userId),
-              first_name: employeeFirstName,
-              last_name: employeeLastName as string | undefined,
-              email: employeeEmail,
-            },
-            leaveTypeId: getString(leave.leaveTypeId),
-            leaveType: { id: '', name: leaveTypeName },
-            reason: getString(leave.reason),
-            remarks:
-              typeof leave.remarks === 'string' ? leave.remarks : undefined,
-            startDate: getString(leave.startDate),
-            endDate: getString(leave.endDate),
-            status: (getString(leave.status) as Leave['status']) || 'pending',
-            createdAt: leave.createdAt as string | undefined,
-            updatedAt: leave.updatedAt as string | undefined,
-            documents: Array.isArray(leave.documents)
-              ? (leave.documents as string[])
-              : [],
-          } as Leave;
-        });
-
-        setLeaves(Array.from(new Map(leavesData.map(l => [l.id, l])).values()));
-
-        const hasMorePages = leavesData.length === ITEMS_PER_PAGE;
-        if (res.totalPages && res.total) {
-          setTotalPages(res.totalPages);
-          setTotalItems(res.total);
-        } else {
-          setTotalPages(hasMorePages ? page + 1 : page);
-          setTotalItems(
-            hasMorePages
-              ? page * ITEMS_PER_PAGE
-              : (page - 1) * ITEMS_PER_PAGE + leavesData.length
-          );
-        }
-
-        hasLoadedOnceRef.current = true;
-      } catch {
-        // Keep previous table data if loading fails
-      } finally {
-        if (showFullPageLoader) setInitialLoading(false);
-        else setTableLoading(false);
-      }
-    },
-    [currentUserId, role, currentPage, viewMode, dateFilter]
-  );
-
-  // Leave types pre-fetch now handled by useLeaveTypes TanStack Query hook (MIGRATED)
-
+  // Reset to page 1 when the manager toggles between "Your Leaves" / "Team Leaves"
   useEffect(() => {
     setCurrentPage(1);
   }, [viewMode]);
 
+  // ---------------------------------------------------------------------------
+  // MIGRATED: leave list data now owned by useLeaveList TanStack Query hook.
+  // The hook re-runs automatically whenever role/viewMode/page/dateFilter change.
+  // ---------------------------------------------------------------------------
+  const effectiveViewMode = role === 'manager' ? viewMode : 'you';
+  const {
+    data: leaveListData,
+    isLoading: initialLoading,
+    isFetching,
+    refetch: refetchLeaves,
+  } = useLeaveList({
+    role,
+    viewMode: effectiveViewMode,
+    page: currentPage,
+    dateFilter,
+    currentUserId,
+  });
+
+  // tableLoading is true on background re-fetches (page/filter changes after first load)
+  const tableLoading = isFetching && !initialLoading;
+
+  const totalPages = leaveListData?.totalPages ?? 1;
+  const totalItems = leaveListData?.totalItems ?? 0;
+
+  // Sync local leaves from query result; local state is also mutated for optimistic updates.
+  const prevLeaveListDataRef = useRef(leaveListData);
   useEffect(() => {
-    const effectiveViewMode = role === 'manager' ? viewMode : 'you';
+    if (leaveListData && leaveListData !== prevLeaveListDataRef.current) {
+      prevLeaveListDataRef.current = leaveListData;
+      setLeaves(leaveListData.leaves);
+    }
+  }, [leaveListData]);
 
-    // Always reload if page changed, even if going back to page 1
-    const pageChanged = previousPageRef.current !== currentPage;
-    const viewModeChanged = previousViewModeRef.current !== effectiveViewMode;
-    const filterChanged = previousDateFilterRef.current !== dateFilter;
+  const handleDateFilterChange = (filter: string) => {
+    setDateFilter(filter);
+    setCurrentPage(1);
+  };
 
-    // Only skip loading if nothing has changed (initial load already happened)
-    if (
-      hasLoadedOnceRef.current &&
-      !pageChanged &&
-      !viewModeChanged &&
-      !filterChanged
-    )
-      return;
-
-    // Use table loader (not full page loader) if we've loaded before and only the page changed
-    const skipFullPageLoader =
-      hasLoadedOnceRef.current &&
-      previousViewModeRef.current === effectiveViewMode;
-
-    loadLeaves({
-      page: currentPage,
-      view: effectiveViewMode,
-      skipFullPageLoader,
-      filter: dateFilter,
-    });
-    previousViewModeRef.current = effectiveViewMode;
-    previousPageRef.current = currentPage;
-    previousDateFilterRef.current = dateFilter;
-  }, [currentPage, viewMode, role, loadLeaves, dateFilter]);
+  // Currently selected leave (used for dialogs like manager response)
+  const selectedLeave = selectedId
+    ? leaves.find(l => l.id === selectedId)
+    : undefined;
 
   const getErrorMessage = (error: unknown): string => {
     if (error && typeof error === 'object' && 'response' in error) {
@@ -376,7 +162,7 @@ const LeaveRequestPage = () => {
   const handleApply = async () => {
     try {
       showSuccess('Leave applied successfully!');
-      await loadLeaves();
+      await refetchLeaves();
       setActiveTab('history');
     } catch (error: unknown) {
       showError(getErrorMessage(error) || 'Failed to apply leave');
@@ -887,7 +673,7 @@ const LeaveRequestPage = () => {
                   : undefined
               }
               userRole={role}
-              onRefresh={() => loadLeaves({ skipFullPageLoader: true })}
+              onRefresh={() => void refetchLeaves()}
             />
           </>
         ) : (
@@ -909,7 +695,7 @@ const LeaveRequestPage = () => {
             isLoading={tableLoading}
             onExportAll={_fetchAllLeavesForExport}
             userRole={role}
-            onRefresh={() => loadLeaves({ skipFullPageLoader: true })}
+            onRefresh={() => void refetchLeaves()}
           />
         )}
       </Box>
