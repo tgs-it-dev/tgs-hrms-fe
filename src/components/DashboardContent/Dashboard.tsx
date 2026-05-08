@@ -59,6 +59,7 @@ import { getCurrentUser } from '../../utils/auth';
 import { isSystemAdmin } from '../../utils/roleUtils';
 import { PAGINATION } from '../../constants/appConstants';
 import AppPageTitle from '../common/AppPageTitle';
+import { FEATURE_FLAGS } from '../../flags';
 
 const labels = {
   en: { title: 'Dashboard' },
@@ -779,185 +780,191 @@ const Dashboard: React.FC = () => {
                   </CardContent>
                 </AppCard>
               </Box>
-
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
-                <AppCard
-                  sx={{
-                    borderRadius: '20px',
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      p: 0,
-
-                      overflow: 'visible',
-                      width: '100%',
-                    }}
+              {FEATURE_FLAGS.payrollModule && (
+                <>
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
                   >
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 0.5,
-                          fontWeight: 500,
-                          fontSize: {
-                            xs: '0.8rem',
-                            sm: '0.875rem',
-                            lg: '0.78rem',
-                          },
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        Salary Paid
-                      </Typography>
-                      <Tooltip
-                        title={`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                      >
-                        <Typography
-                          variant='h4'
-                          sx={{
-                            color: theme.palette.text.primary,
-                            fontWeight: 700,
-                            fontSize: {
-                              xs: '1.4rem',
-                              sm: '1.5rem',
-                              lg: '1.3rem',
-                            },
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                        </Typography>
-                      </Tooltip>
-                    </Box>
-                    <Avatar
+                    <AppCard
                       sx={{
-                        bgcolor: theme.palette.primary.main,
-                        color: theme.palette.getContrastText(
-                          theme.palette.primary.main
-                        ),
-                        width: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        height: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        ml: 1,
-                        flexShrink: 0,
-                        '& svg': {
-                          fontSize: {
-                            xs: '1rem',
-                            sm: '1.2rem',
-                            md: '1.1rem',
-                            lg: '1.05rem',
-                          },
-                        },
+                        borderRadius: '20px',
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
                       }}
                     >
-                      <AttachMoneyIcon />
-                    </Avatar>
-                  </CardContent>
-                </AppCard>
-              </Box>
-
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
-                <AppCard
-                  sx={{
-                    borderRadius: '20px',
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      p: 0,
-
-                      overflow: 'visible',
-                      width: '100%',
-                    }}
-                  >
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant='body2'
+                      <CardContent
                         sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 0.5,
-                          fontWeight: 500,
-                          fontSize: {
-                            xs: '0.8rem',
-                            sm: '0.875rem',
-                            lg: '0.78rem',
-                          },
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 0,
+
+                          overflow: 'visible',
+                          width: '100%',
                         }}
                       >
-                        Salary Unpaid
-                      </Typography>
-                      <Tooltip
-                        title={`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                      >
-                        <Typography
-                          variant='h4'
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              mb: 0.5,
+                              fontWeight: 500,
+                              fontSize: {
+                                xs: '0.8rem',
+                                sm: '0.875rem',
+                                lg: '0.78rem',
+                              },
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            Salary Paid
+                          </Typography>
+                          <Tooltip
+                            title={`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          >
+                            <Typography
+                              variant='h4'
+                              sx={{
+                                color: theme.palette.text.primary,
+                                fontWeight: 700,
+                                fontSize: {
+                                  xs: '1.4rem',
+                                  sm: '1.5rem',
+                                  lg: '1.3rem',
+                                },
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </Typography>
+                          </Tooltip>
+                        </Box>
+                        <Avatar
                           sx={{
-                            color: theme.palette.text.primary,
-                            fontWeight: 700,
-                            fontSize: {
-                              xs: '1.4rem',
-                              sm: '1.5rem',
-                              lg: '1.3rem',
+                            bgcolor: theme.palette.primary.main,
+                            color: theme.palette.getContrastText(
+                              theme.palette.primary.main
+                            ),
+                            width: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            height: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            ml: 1,
+                            flexShrink: 0,
+                            '& svg': {
+                              fontSize: {
+                                xs: '1rem',
+                                sm: '1.2rem',
+                                md: '1.1rem',
+                                lg: '1.05rem',
+                              },
                             },
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
                           }}
                         >
-                          {`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                        </Typography>
-                      </Tooltip>
-                    </Box>
-                    <Avatar
+                          <AttachMoneyIcon />
+                        </Avatar>
+                      </CardContent>
+                    </AppCard>
+                  </Box>
+
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
+                  >
+                    <AppCard
                       sx={{
-                        bgcolor: theme.palette.error.main,
-                        color: theme.palette.getContrastText(
-                          theme.palette.error.main
-                        ),
-                        width: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        height: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        ml: 1,
-                        flexShrink: 0,
-                        '& svg': {
-                          fontSize: {
-                            xs: '1rem',
-                            sm: '1.2rem',
-                            md: '1.1rem',
-                            lg: '1.05rem',
-                          },
-                        },
+                        borderRadius: '20px',
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
                       }}
                     >
-                      <MoneyOffIcon />
-                    </Avatar>
-                  </CardContent>
-                </AppCard>
-              </Box>
+                      <CardContent
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 0,
 
+                          overflow: 'visible',
+                          width: '100%',
+                        }}
+                      >
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              mb: 0.5,
+                              fontWeight: 500,
+                              fontSize: {
+                                xs: '0.8rem',
+                                sm: '0.875rem',
+                                lg: '0.78rem',
+                              },
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            Salary Unpaid
+                          </Typography>
+                          <Tooltip
+                            title={`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          >
+                            <Typography
+                              variant='h4'
+                              sx={{
+                                color: theme.palette.text.primary,
+                                fontWeight: 700,
+                                fontSize: {
+                                  xs: '1.4rem',
+                                  sm: '1.5rem',
+                                  lg: '1.3rem',
+                                },
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </Typography>
+                          </Tooltip>
+                        </Box>
+                        <Avatar
+                          sx={{
+                            bgcolor: theme.palette.error.main,
+                            color: theme.palette.getContrastText(
+                              theme.palette.error.main
+                            ),
+                            width: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            height: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            ml: 1,
+                            flexShrink: 0,
+                            '& svg': {
+                              fontSize: {
+                                xs: '1rem',
+                                sm: '1.2rem',
+                                md: '1.1rem',
+                                lg: '1.05rem',
+                              },
+                            },
+                          }}
+                        >
+                          <MoneyOffIcon />
+                        </Avatar>
+                      </CardContent>
+                    </AppCard>
+                  </Box>
+                </>
+              )}
               <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
                 <AppCard
                   sx={{

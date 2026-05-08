@@ -45,6 +45,7 @@ export interface BackendEmployee {
   profile_picture?: string;
   cnic_picture?: string;
   cnic_back_picture?: string;
+  gender?: string;
   department: {
     id: string;
     name: string;
