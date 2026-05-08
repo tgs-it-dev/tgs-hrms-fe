@@ -9,7 +9,7 @@
 | UI library    | Material UI v7                      |
 | Server state  | TanStack Query v5                   |
 | Forms         | React Hook Form + Zod               |
-| Global state  | Zustand                             |
+| Global state  | Zustand v5                          |
 | Routing       | React Router v7                     |
 | Testing       | Vitest + React Testing Library      |
 | Component dev | Storybook 9                         |
@@ -46,9 +46,28 @@ src/
 ├── hooks/            # Shared hooks that span multiple features
 │   └── index.ts      # Barrel export
 │
-├── pages/            # Route-level wrappers (thin — delegate to components)
+├── pages/            # Thin page wrapper components — one per route
+│   ├── DashboardPage.tsx   # Sets document.title, renders Dashboard component
+│   ├── EmployeesPage.tsx
+│   ├── AttendancePage.tsx
+│   ├── LeavePage.tsx
+│   ├── ProfilePage.tsx
+│   └── index.ts            # Barrel export
 │
-├── store/            # Zustand global stores
+├── providers/        # Composed provider trees
+│   ├── AppProviders.tsx      # QueryClient + Language + User + ProfilePicture
+│   ├── ProtectedProviders.tsx# Company + Notification + FeatureToggle + Theme
+│   └── index.ts              # Barrel export
+│
+├── router/           # Route configuration and router component
+│   ├── routes.tsx    # Typed RouteConfig manifest — all lazy imports live here
+│   ├── AppRouter.tsx # Renders routes declaratively from the config arrays
+│   └── index.ts      # Barrel export
+│
+├── store/            # Zustand global stores (installed: zustand v5)
+│   ├── uiStore.ts    # Sidebar open/width state — ready to wire into Layout
+│   ├── themeStore.ts # Theme mode with localStorage persistence
+│   └── index.ts      # Barrel export
 │
 ├── theme/
 │   ├── tokens.ts     # Design token definitions
@@ -72,10 +91,11 @@ src/
 
 ### 1. Route-based Code Splitting
 
-Every route is loaded with `React.lazy()` inside a `<Suspense>` boundary in `App.tsx`. This keeps the initial JS bundle small and defers heavy feature bundles (charts, maps) until the user navigates there.
+Every route is loaded with `React.lazy()`. All lazy imports are declared in `src/router/routes.tsx` inside a typed `RouteConfig` / `ProtectedRouteConfig` manifest. `AppRouter.tsx` maps those config arrays to `<Route>` elements inside a single `<Suspense>` boundary, keeping `App.tsx` under 10 lines. This keeps the initial JS bundle small and defers heavy feature bundles (charts, maps) until the user navigates there.
 
 ```tsx
-const Dashboard = lazy(() => import('./components/DashboardContent/Dashboard'));
+// src/router/routes.tsx
+const Dashboard = lazy(() => import('../pages/DashboardPage'));
 ```
 
 Vite's `rollupOptions.manualChunks` groups shared vendor code into stable long-cached chunks (`vendor`, `mui`, `charts`, `forms`, `utils`).
@@ -122,9 +142,10 @@ Runtime toggles live in `src/config/featureFlags.ts`, driven by `VITE_*` environ
 1. Create `src/components/<FeatureName>/` directory.
 2. Add the domain API file at `src/api/<featureName>Api.ts` — re-export from `src/api/index.ts`.
 3. Add domain types to `src/types/<featureName>.ts` — re-export from `src/types/index.ts`.
-4. Register the route in `App.tsx` using `React.lazy()`.
-5. Add Storybook stories for any shared UI components.
-6. Add Vitest unit tests for non-trivial logic.
+4. Add a page wrapper at `src/pages/<FeatureName>Page.tsx` that sets `document.title` and renders the feature component.
+5. Register the route in `src/router/routes.tsx` using `React.lazy()` — add to `publicRoutes`, `themedPublicRoutes`, or `protectedRoutes` as appropriate.
+6. Add Storybook stories for any shared UI components.
+7. Add Vitest unit tests for non-trivial logic.
 
 ### Adding a New Environment Variable
 
