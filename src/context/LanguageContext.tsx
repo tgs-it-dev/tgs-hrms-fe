@@ -19,15 +19,17 @@ function applyLang(lang: 'en' | 'ar') {
   document.documentElement.lang = lang;
 }
 
+// Run once at module load — before the React tree mounts — so the correct
+// dir/lang is already set on the first paint with no flash.
+const _initialLang = ((): 'en' | 'ar' => {
+  const saved = localStorage.getItem(LANG_KEY) as 'en' | 'ar' | null;
+  const lang = saved === 'ar' ? 'ar' : 'en';
+  applyLang(lang);
+  return lang;
+})();
+
 const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLang] = useState<'en' | 'ar'>(() => {
-    const saved = localStorage.getItem(LANG_KEY) as 'en' | 'ar' | null;
-    const initial = saved === 'ar' ? 'ar' : 'en';
-    // Set synchronously so the first paint already has the correct dir/lang —
-    // avoids a flash of incorrect layout on refresh with Arabic selected.
-    applyLang(initial);
-    return initial;
-  });
+  const [language, setLang] = useState<'en' | 'ar'>(_initialLang);
 
   useEffect(() => {
     applyLang(language);

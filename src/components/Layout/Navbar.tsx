@@ -59,6 +59,7 @@ import { useGetText } from '../../hooks/useGetText';
 
 // Module-level alias — typed access to the navbar catalogue with no runtime cost.
 const _n = translations.navbar;
+const _c = translations.common;
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -1203,7 +1204,7 @@ const Navbar: React.FC<NavbarProps> = ({
                           color: theme.palette.text.secondary,
                         }}
                       >
-                        {getText(_n.noResults.en, _n.noResults.ar)}
+                        {getText(_c.noResults.en, _c.noResults.ar)}
                       </Typography>
                     </Paper>
                   )}

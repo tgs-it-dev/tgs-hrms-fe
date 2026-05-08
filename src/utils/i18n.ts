@@ -5,11 +5,14 @@
  * Do NOT add inline translation strings elsewhere in the codebase.
  * All new string pairs must be added here first, then consumed via:
  *
- *   1. `useGetText` hook  — canonical pattern for React components
- *   2. `getText(lang, en, ar)` — for plain TS utilities outside React
+ *   1. `useScopedTranslations(scope)` — preferred pattern; returns a flat
+ *      `{ key: string }` object bound to the current language. Keys are
+ *      directly accessible as typed strings with no `.en`/`.ar` noise.
+ *   2. `useGetText` hook  — canonical pattern for one-off translations
+ *   3. `getText(lang, en, ar)` — for plain TS utilities outside React
  *
  * The `labels[language]` object pattern (used in Navbar) is being retired
- * in favour of `useGetText`. New components should not adopt it.
+ * in favour of `useScopedTranslations`. New components should not adopt it.
  *
  * Migration guide for legacy inline ternaries (`isRtl ? 'ar' : 'en'`):
  *   a. Add the string pair to the appropriate section below.
@@ -28,10 +31,21 @@ export function getText(lang: 'en' | 'ar', en: string, ar: string): string {
   return lang === 'ar' ? ar : en;
 }
 
+/** Returns [en, ar] tuple from a catalogue entry — use with `getText(...pair(entry))`. */
+export function pair(p: { en: string; ar: string }): [string, string] {
+  return [p.en, p.ar];
+}
+
 // ---------------------------------------------------------------------------
 // Shared translation catalogue
 // Keys are grouped by feature / component so it is easy to find gaps.
 // ---------------------------------------------------------------------------
+/**
+ * NOTE: This catalogue is intentional temporary scaffolding.
+ * If the app grows beyond ~200 keys or requires pluralisation/interpolation,
+ * migrate to `react-i18next` with JSON namespace files. The shape of this
+ * catalogue maps 1:1 to what `i18next` namespaces would look like.
+ */
 export const translations = {
   // ── Common ──────────────────────────────────────────────────────────────
   common: {
@@ -76,7 +90,7 @@ export const translations = {
     markAllRead: { en: 'Mark all read', ar: 'تعليم الكل كمقروء' },
     clear: { en: 'Clear', ar: 'مسح' },
     noNotifications: { en: 'No notifications', ar: 'لا توجد إشعارات' },
-    noResults: { en: 'No results found', ar: 'لا توجد نتائج' },
+    // noResults removed — use translations.common.noResults
     members: { en: 'Members', ar: 'الأعضاء' },
     settings: { en: 'Settings', ar: 'الإعدادات' },
     signout: { en: 'Log out', ar: 'تسجيل الخروج' },
@@ -107,7 +121,7 @@ export const translations = {
     managerTasks: { en: 'Manager Tasks', ar: 'مهام المدير' },
     myTasks: { en: 'My Tasks', ar: 'مهامي' },
     attendance: { en: 'Attendance', ar: 'الحضور' },
-    geofencing: { en: 'Geofencing', ar: 'الجيوفنسينج' },
+    geofencing: { en: 'Geofencing', ar: 'السياج الجغرافي' },
     featureManagement: { en: 'Feature Management', ar: 'إدارة الميزات' },
     darkMode: { en: 'Dark Mode', ar: 'الوضع الداكن' },
     dailyAttendance: { en: 'Daily Attendance', ar: 'الحضور اليومي' },

@@ -396,7 +396,7 @@ export default function Sidebar({
   const translateLabel = useCallback(
     (key: SidebarKey | undefined, fallback = ''): string => {
       if (!key) {
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           console.warn(
             `[Sidebar] Missing i18nKey, falling back to: "${fallback}"`
           );
@@ -729,7 +729,7 @@ export default function Sidebar({
                       }}
                       aria-label={`${translateLabel(item.i18nKey, item.label)} menu`}
                       aria-expanded={isParentActive}
-                      aria-controls={`${item.label}-submenu`}
+                      aria-controls={`${item.i18nKey ?? item.label}-submenu`}
                     >
                       <ListItemIcon
                         sx={{
@@ -784,7 +784,7 @@ export default function Sidebar({
                       in={isParentActive}
                       timeout='auto'
                       unmountOnExit
-                      id={`${item.label}-submenu`}
+                      id={`${item.i18nKey ?? item.label}-submenu`}
                     >
                       <List component='div' disablePadding role='menu'>
                         {item.subItems
