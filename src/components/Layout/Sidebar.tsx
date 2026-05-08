@@ -361,7 +361,12 @@ export default function Sidebar({
 
   const translateLabel = useCallback(
     (key: SidebarKey | undefined, fallback = ''): string => {
-      if (!key) return fallback;
+      if (!key) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[Sidebar] Missing i18nKey, falling back to: "${fallback}"`);
+        }
+        return fallback;
+      }
       return translations.sidebar[key][isRtl ? 'ar' : 'en'];
     },
     [isRtl]
@@ -416,8 +421,8 @@ export default function Sidebar({
           return {
             ...item,
             label: 'My Tasks',
-            i18nKey: 'myTasks' as SidebarKey,
-            subItems: [{ label: 'My Tasks', i18nKey: 'myTasks' as SidebarKey, path: 'my-tasks' }],
+            i18nKey: 'myTasks',
+            subItems: [{ label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' }],
           } as MenuItem;
         }
         return item;
@@ -431,10 +436,10 @@ export default function Sidebar({
         ...filtered,
         {
           label: 'Feature Management',
-          i18nKey: 'featureManagement' as SidebarKey,
+          i18nKey: 'featureManagement',
           icon: <Apps />,
           subItems: [
-            { label: 'Feature Management', i18nKey: 'featureManagement' as SidebarKey, path: 'feature-management' },
+            { label: 'Feature Management', i18nKey: 'featureManagement', path: 'feature-management' },
           ],
         },
       ];

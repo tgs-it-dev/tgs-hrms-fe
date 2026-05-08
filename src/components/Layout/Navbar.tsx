@@ -55,37 +55,10 @@ import {
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
 import { translations } from '../../utils/i18n';
+import { useGetText } from '../../hooks/useGetText';
 
-const { navbar: _n } = translations;
-// Explicit typed literal keeps per-key autocomplete and makes missing/extra keys a compile error.
-const labels = {
-  en: {
-    search: _n.search.en,
-    notifications: _n.notifications.en,
-    markAllRead: _n.markAllRead.en,
-    clear: _n.clear.en,
-    noNotifications: _n.noNotifications.en,
-    noResults: _n.noResults.en,
-    members: _n.members.en,
-    settings: _n.settings.en,
-    signout: _n.signout.en,
-    profile: _n.profile.en,
-    adminProfile: _n.adminProfile.en,
-  },
-  ar: {
-    search: _n.search.ar,
-    notifications: _n.notifications.ar,
-    markAllRead: _n.markAllRead.ar,
-    clear: _n.clear.ar,
-    noNotifications: _n.noNotifications.ar,
-    noResults: _n.noResults.ar,
-    members: _n.members.ar,
-    settings: _n.settings.ar,
-    signout: _n.signout.ar,
-    profile: _n.profile.ar,
-    adminProfile: _n.adminProfile.ar,
-  },
-} satisfies Record<'en' | 'ar', Record<keyof typeof _n, string>>;
+// Module-level alias — typed access to the navbar catalogue with no runtime cost.
+const _n = translations.navbar;
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -312,8 +285,7 @@ interface NavbarProps {
  */
 const NotificationButton: React.FC = () => {
   const theme = useTheme();
-  const { language } = useLanguage();
-  const notifLabels = labels[language];
+  const getText = useGetText();
   const {
     notifications,
     unreadCount,
@@ -335,7 +307,7 @@ const NotificationButton: React.FC = () => {
       <IconButton
         onClick={handleOpen}
         sx={{ padding: { xs: '6px', md: '8px' } }}
-        aria-label={notifLabels.notifications}
+        aria-label={getText(_n.notifications.en, _n.notifications.ar)}
         aria-haspopup='true'
         aria-expanded={open ? 'true' : undefined}
       >
@@ -386,7 +358,7 @@ const NotificationButton: React.FC = () => {
           sx={{ px: 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
         >
           <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-            {notifLabels.notifications}
+            {getText(_n.notifications.en, _n.notifications.ar)}
           </Typography>
           <Box sx={{ flex: 1 }} />
           <Button
@@ -395,7 +367,7 @@ const NotificationButton: React.FC = () => {
               markAllAsRead();
             }}
           >
-            {notifLabels.markAllRead}
+            {getText(_n.markAllRead.en, _n.markAllRead.ar)}
           </Button>
           <Button
             size='small'
@@ -403,7 +375,7 @@ const NotificationButton: React.FC = () => {
               clearAllNotifications();
             }}
           >
-            {notifLabels.clear}
+            {getText(_n.clear.en, _n.clear.ar)}
           </Button>
         </Box>
         <Divider />
@@ -413,7 +385,7 @@ const NotificationButton: React.FC = () => {
             <List sx={{ p: 2 }}>
               <ListItem>
                 <ListItemText
-                  primary={notifLabels.noNotifications}
+                  primary={getText(_n.noNotifications.en, _n.noNotifications.ar)}
                   primaryTypographyProps={{ color: 'text.secondary' }}
                 />
               </ListItem>
@@ -523,7 +495,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { language, setLanguage } = useLanguage();
-  const lang = labels[language];
+  const getText = useGetText();
   const { user, clearUser } = useUser();
   const queryClient = useQueryClient();
   const { isFeatureEnabled } = useFeatureToggles();
@@ -1046,7 +1018,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Search>
                   <StyledInputBase
                     ref={searchInputRef}
-                    placeholder={lang.search}
+                    placeholder={getText(_n.search.en, _n.search.ar)}
                     inputProps={{ 'aria-label': 'search' }}
                     value={searchQuery}
                     onChange={handleSearchChange}
@@ -1228,7 +1200,7 @@ const Navbar: React.FC<NavbarProps> = ({
                           color: theme.palette.text.secondary,
                         }}
                       >
-                        {lang.noResults}
+                        {getText(_n.noResults.en, _n.noResults.ar)}
                       </Typography>
                     </Paper>
                   )}
@@ -1438,7 +1410,7 @@ const Navbar: React.FC<NavbarProps> = ({
             >
               <StyledInputBase
                 ref={searchInputRef}
-                placeholder={lang.search}
+                placeholder={getText(_n.search.en, _n.search.ar)}
                 inputProps={{ 'aria-label': 'search' }}
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -1631,7 +1603,7 @@ const Navbar: React.FC<NavbarProps> = ({
                       color: theme.palette.text.secondary,
                     }}
                   >
-                    {lang.noResults}
+                    {getText(_n.noResults.en, _n.noResults.ar)}
                   </Typography>
                 </Paper>
               )}
@@ -1736,7 +1708,7 @@ const Navbar: React.FC<NavbarProps> = ({
               color={theme.palette.text.primary}
               sx={{ fontSize: { xs: '12px', sm: '14px' } }}
             >
-              {lang.members}
+              {getText(_n.members.en, _n.members.ar)}
             </Typography>
           </MenuItem>
         )}
@@ -1764,7 +1736,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={theme.palette.text.primary}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            {lang.profile}
+            {getText(_n.profile.en, _n.profile.ar)}
           </Typography>
         </MenuItem>
         <MenuItem
@@ -1791,7 +1763,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={theme.palette.text.primary}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            {lang.settings}
+            {getText(_n.settings.en, _n.settings.ar)}
           </Typography>
         </MenuItem>
         <MenuItem
@@ -1815,7 +1787,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={'var(--secondary-color)'}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            {lang.signout}
+            {getText(_n.signout.en, _n.signout.ar)}
           </Typography>
         </MenuItem>
         {/* <Divider sx={{ my: 1 }} /> */}
