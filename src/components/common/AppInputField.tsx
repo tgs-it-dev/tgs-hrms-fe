@@ -12,7 +12,12 @@ import {
 } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
+interface AppInputFieldProps extends Omit<
+  TextFieldProps,
+  'label' | 'onChange'
+> {
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onValueChange?: (value: string | number) => void;
   label: string;
   labelClassName?: string;
   containerSx?: SxProps<Theme>;
@@ -29,6 +34,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
       sx,
       inputBackgroundColor,
       hideErrorsOnSmallScreen = false,
+      onValueChange,
       ...rest
     },
     ref
@@ -175,8 +181,18 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             }
             inputRef={inputRef}
             helperText={undefined}
-            onChange={e => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               rest.onChange?.(e);
+              if (onValueChange) {
+                if (rest.type === 'number' && e.target.value !== '') {
+                  const parsed = Number(e.target.value);
+                  if (!Number.isNaN(parsed)) {
+                    onValueChange(parsed);
+                  }
+                } else {
+                  onValueChange(e.target.value);
+                }
+              }
             }}
             sx={{
               position: isPhoneInput ? 'relative' : 'static',

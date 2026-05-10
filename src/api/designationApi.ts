@@ -46,25 +46,66 @@ export interface DesignationDto {
   title: string;
   departmentId: string;
 }
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
 function normalizeDesignation(raw: unknown): BackendDesignation {
-  const r = raw as Record<string, unknown>;
+  const r = isRecord(raw) ? raw : {};
   return {
-    id: r?.id as string,
-    title: r?.title as string,
-    departmentId: (r?.departmentId ?? r?.department_id) as string,
-    tenantId: (r?.tenantId ?? r?.tenant_id) as string | undefined,
-    createdAt: (r?.createdAt ?? r?.created_at) as string | undefined,
-    updatedAt: (r?.updatedAt ?? r?.updated_at) as string | undefined,
+    id: typeof r.id === 'string' ? r.id : '',
+    title: typeof r.title === 'string' ? r.title : '',
+    departmentId:
+      typeof r.departmentId === 'string'
+        ? r.departmentId
+        : typeof r.department_id === 'string'
+          ? r.department_id
+          : '',
+    tenantId:
+      typeof r.tenantId === 'string'
+        ? r.tenantId
+        : typeof r.tenant_id === 'string'
+          ? r.tenant_id
+          : undefined,
+    createdAt:
+      typeof r.createdAt === 'string'
+        ? r.createdAt
+        : typeof r.created_at === 'string'
+          ? r.created_at
+          : undefined,
+    updatedAt:
+      typeof r.updatedAt === 'string'
+        ? r.updatedAt
+        : typeof r.updated_at === 'string'
+          ? r.updated_at
+          : undefined,
   };
 }
-function normalizeDepartment(raw: Record<string, unknown>): BackendDepartment {
+
+function normalizeDepartment(raw: unknown): BackendDepartment {
+  const r = isRecord(raw) ? raw : {};
   return {
-    id: raw?.id as string,
-    name: raw?.name as string,
-    description: raw?.description as string | undefined,
-    tenantId: (raw?.tenantId ?? raw?.tenant_id) as string | undefined,
-    createdAt: (raw?.createdAt ?? raw?.created_at) as string | undefined,
-    updatedAt: (raw?.updatedAt ?? raw?.updated_at) as string | undefined,
+    id: typeof r.id === 'string' ? r.id : '',
+    name: typeof r.name === 'string' ? r.name : '',
+    description: typeof r.description === 'string' ? r.description : undefined,
+    tenantId:
+      typeof r.tenantId === 'string'
+        ? r.tenantId
+        : typeof r.tenant_id === 'string'
+          ? r.tenant_id
+          : undefined,
+    createdAt:
+      typeof r.createdAt === 'string'
+        ? r.createdAt
+        : typeof r.created_at === 'string'
+          ? r.created_at
+          : undefined,
+    updatedAt:
+      typeof r.updatedAt === 'string'
+        ? r.updatedAt
+        : typeof r.updated_at === 'string'
+          ? r.updated_at
+          : undefined,
   };
 }
 class DesignationApiService {
@@ -86,9 +127,7 @@ class DesignationApiService {
       items = response.data.items;
     }
 
-    return items.map((item: unknown) =>
-      normalizeDepartment(item as Record<string, unknown>)
-    );
+    return items.map((item: unknown) => normalizeDepartment(item));
   }
   async getDesignationsByDepartment(
     departmentId: string,

@@ -55,5 +55,5 @@ export interface UINotification {
   taskTitle?: string;
   oldStatus?: string;
   newStatus?: string;
-  raw?: NotificationItem | Record<string, unknown>;
+  raw?: NotificationItem;
 }

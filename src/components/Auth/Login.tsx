@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useUser } from '../../hooks/useUser';
 import { getDefaultDashboardRoute } from '../../utils/permissions';
+import { getRoleName } from '../../utils/roleUtils';
 import { useGoogleScript } from '../../hooks/useGoogleScript';
 import authApi from '../../api/authApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -174,8 +175,9 @@ const Login: React.FC = () => {
                 } catch {
                   // Ignore update error
                 }
-                const role = data.user?.role;
-                const target = getDefaultDashboardRoute(role);
+                const target = getDefaultDashboardRoute(
+                  getRoleName(data.user?.role)
+                );
                 navigate(target, { replace: true });
               } else {
                 if (data.signupSessionId) {
@@ -301,12 +303,13 @@ const Login: React.FC = () => {
         updateUser(authPayload.user);
       }
 
-      const role = authPayload.user?.role;
-
       if (authPayload.requiresPayment) {
         navigate('/signup/select-plan', { replace: true });
       } else {
-        navigate(getDefaultDashboardRoute(role), { replace: true });
+        navigate(
+          getDefaultDashboardRoute(getRoleName(authPayload.user?.role)),
+          { replace: true }
+        );
       }
     } catch (err: unknown) {
       const error = err as {

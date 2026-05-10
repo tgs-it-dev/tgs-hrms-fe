@@ -77,9 +77,7 @@ const TenantGrowthChart: React.FC = () => {
           if (ibexTenant) {
             setSelectedTenant(ibexTenant.id);
           } else {
-            setSelectedTenant(
-              (data[0] as Record<string, unknown>).id as string
-            );
+            setSelectedTenant(data[0].id);
           }
         }
       } catch {
