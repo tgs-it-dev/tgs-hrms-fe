@@ -64,7 +64,7 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
           uniqueTenantsMap.set(tenant.tenant_id, {
             id: tenant.tenant_id,
             name: tenant.tenant_name,
-            status: tenant.tenant_status as 'active' | 'suspended' | 'delelted',
+            status: tenant.tenant_status as 'active' | 'suspended' | 'deleted',
             isDeleted: false,
             created_at: '',
             updated_at: '',

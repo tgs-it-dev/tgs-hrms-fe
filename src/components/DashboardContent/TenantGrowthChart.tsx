@@ -70,14 +70,12 @@ const TenantGrowthChart: React.FC = () => {
         // Use the same API as Employee List to get all tenants
         const data = await systemEmployeeApiService.getAllTenants(true);
         // Show all tenants (no filtering) - same as Employee List
-        setTenants((data || []) as unknown as Tenant[]);
+        setTenants(data || []);
 
         if (data && data.length > 0) {
-          const ibexTenant = data.find(
-            (t: Record<string, unknown>) => t.name === 'Ibex Tech.'
-          );
+          const ibexTenant = data.find(t => t.name === 'Ibex Tech.');
           if (ibexTenant) {
-            setSelectedTenant(ibexTenant.id as string);
+            setSelectedTenant(ibexTenant.id);
           } else {
             setSelectedTenant(
               (data[0] as Record<string, unknown>).id as string

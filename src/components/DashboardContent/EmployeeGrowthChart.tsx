@@ -71,7 +71,7 @@ const EmployeeGrowthChart: React.FC = () => {
     const fetchTenants = async () => {
       try {
         const data = await systemEmployeeApiService.getAllTenants(true);
-        setTenants((data || []) as unknown as Tenant[]);
+        setTenants(data || []);
 
         if (data && data.length > 0) {
           setSelectedTenant(data[0].id);

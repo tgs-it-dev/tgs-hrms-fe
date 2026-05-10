@@ -219,3 +219,41 @@ class GeofencingApiService {
 }
 
 export const geofencingApi = new GeofencingApiService();
+
+// ── Nominatim (OSM) geocoding ─────────────────────────────────────────────────
+
+export interface NominatimResult {
+  place_id: string;
+  display_name: string;
+  lat: string;
+  lon: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Search for locations via the Nominatim OpenStreetMap API.
+ * Returned place_id is always coerced to string for consistency.
+ */
+export async function searchNominatimLocations(
+  query: string
+): Promise<NominatimResult[]> {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&extratags=1`,
+    {
+      headers: {
+        'User-Agent': 'TGS-HRMS-Geofencing/1.0',
+        'Accept-Language': 'en',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Location search failed');
+  }
+
+  const data = (await response.json()) as NominatimResult[];
+  return data.map(d => ({
+    ...d,
+    place_id: String(d.place_id ?? d.osm_id ?? d.display_name),
+  }));
+}

@@ -42,6 +42,7 @@ import 'leaflet-draw';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import type { Geofence } from '../../types/geofencing';
+import { searchNominatimLocations } from '../../api/geofencingApi';
 import AppButton from '../common/AppButton';
 import { useGooglePlaces } from '../../hooks/useGooglePlaces';
 
@@ -563,30 +564,8 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
     }
 
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&extratags=1`,
-        {
-          headers: {
-            'User-Agent': 'TGS-HRMS-Geofencing/1.0',
-            'Accept-Language': 'en',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-
-      const data: LocationSearchResult[] = await response.json();
-      // Ensure place_id is a string for consistency
-      const normalized = data.map(d => {
-        const raw = d as Record<string, unknown> | undefined;
-        return {
-          ...d,
-          place_id: String(raw?.place_id ?? raw?.osm_id ?? d.display_name),
-        };
-      });
-      setSearchResults(normalized);
+      const results = await searchNominatimLocations(query);
+      setSearchResults(results);
       setShowSearchResults(true);
     } catch (error) {
       console.error('Location search error:', error);

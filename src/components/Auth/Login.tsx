@@ -24,7 +24,6 @@ import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import signupApi from '../../api/signupApi';
 import { persistAuthSession } from '../../utils/authSession';
-import type { UserProfile } from '../../types/user';
 import AppInputField from '../common/AppInputField';
 import AuthSidebar from '../common/AuthSidebar';
 import { env } from '../../config/env';
@@ -170,15 +169,12 @@ const Login: React.FC = () => {
                 });
                 try {
                   if (data.user) {
-                    updateUser(data.user as unknown as UserProfile);
+                    updateUser(data.user);
                   }
                 } catch {
                   // Ignore update error
                 }
-                const role =
-                  typeof data.user?.role === 'string'
-                    ? data.user?.role
-                    : (data.user?.role as { name?: string } | undefined)?.name;
+                const role = data.user?.role;
                 const target = getDefaultDashboardRoute(role);
                 navigate(target, { replace: true });
               } else {
@@ -302,13 +298,10 @@ const Login: React.FC = () => {
       persistAuthSession(authPayload);
 
       if (authPayload.user) {
-        updateUser(authPayload.user as unknown as UserProfile);
+        updateUser(authPayload.user);
       }
 
-      const role =
-        typeof authPayload.user?.role === 'string'
-          ? authPayload.user.role
-          : (authPayload.user?.role as { name?: string } | undefined)?.name;
+      const role = authPayload.user?.role;
 
       if (authPayload.requiresPayment) {
         navigate('/signup/select-plan', { replace: true });

@@ -19,20 +19,42 @@ export type FrontendDesignation = Designation;
 /** @deprecated Use Department from src/types/department.ts */
 export type FrontendDepartment = Department;
 
+export interface TenantDesignationEntry {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
+export interface TenantDesignationDepartment {
+  department_id: string;
+  department_name: string;
+  designations: TenantDesignationEntry[];
+}
+
+export interface TenantDesignationTenant {
+  tenant_id: string;
+  tenant_name: string;
+  tenant_status: string;
+  departments: TenantDesignationDepartment[];
+}
+
+export interface TenantDesignationTree {
+  tenants: TenantDesignationTenant[];
+}
+
 export interface DesignationDto {
   title: string;
   departmentId: string;
 }
-function normalizeDesignation(
-  raw: Record<string, unknown>
-): BackendDesignation {
+function normalizeDesignation(raw: unknown): BackendDesignation {
+  const r = raw as Record<string, unknown>;
   return {
-    id: raw?.id as string,
-    title: raw?.title as string,
-    departmentId: (raw?.departmentId ?? raw?.department_id) as string,
-    tenantId: (raw?.tenantId ?? raw?.tenant_id) as string | undefined,
-    createdAt: (raw?.createdAt ?? raw?.created_at) as string | undefined,
-    updatedAt: (raw?.updatedAt ?? raw?.updated_at) as string | undefined,
+    id: r?.id as string,
+    title: r?.title as string,
+    departmentId: (r?.departmentId ?? r?.department_id) as string,
+    tenantId: (r?.tenantId ?? r?.tenant_id) as string | undefined,
+    createdAt: (r?.createdAt ?? r?.created_at) as string | undefined,
+    updatedAt: (r?.updatedAt ?? r?.updated_at) as string | undefined,
   };
 }
 function normalizeDepartment(raw: Record<string, unknown>): BackendDepartment {
@@ -106,9 +128,7 @@ class DesignationApiService {
         totalPages = 1;
       }
       return {
-        items: items.map((item: unknown) =>
-          normalizeDesignation(item as Record<string, unknown>)
-        ),
+        items: items.map((item: unknown) => normalizeDesignation(item)),
         total,
         page: currentPage,
         limit,
@@ -170,9 +190,7 @@ class DesignationApiService {
     const response = await axiosInstance.get<BackendDesignation>(
       `${this.baseUrl}/${id}`
     );
-    return normalizeDesignation(
-      response.data as unknown as Record<string, unknown>
-    );
+    return normalizeDesignation(response.data);
   }
   // Create new designation
   async createDesignation(
@@ -188,9 +206,7 @@ class DesignationApiService {
         this.baseUrl,
         payload
       );
-      return normalizeDesignation(
-        response.data as unknown as Record<string, unknown>
-      );
+      return normalizeDesignation(response.data);
     } catch (error) {
       const errorResult = handleApiError(error, {
         operation: 'create',
@@ -212,9 +228,7 @@ class DesignationApiService {
         `${this.baseUrl}/${id}`,
         payload
       );
-      return normalizeDesignation(
-        response.data as unknown as Record<string, unknown>
-      );
+      return normalizeDesignation(response.data);
     } catch (error) {
       const errorResult = handleApiError(error, {
         operation: 'update',
@@ -274,39 +288,14 @@ class DesignationApiService {
     };
   }
   // Get all tenants with designations (for system admin)
-  async getAllTenantsWithDesignations(tenantId?: string): Promise<{
-    tenants: Array<{
-      tenant_id: string;
-      tenant_name: string;
-      tenant_status: string;
-      departments: Array<{
-        department_id: string;
-        department_name: string;
-        designations: Array<{
-          id: string;
-          title: string;
-          created_at: string;
-        }>;
-      }>;
-    }>;
-  }> {
+  async getAllTenantsWithDesignations(
+    tenantId?: string
+  ): Promise<TenantDesignationTree> {
     const params = tenantId ? { tenant_id: tenantId } : {};
-    const response = await axiosInstance.get<{
-      tenants: Array<{
-        tenant_id: string;
-        tenant_name: string;
-        tenant_status: string;
-        departments: Array<{
-          department_id: string;
-          department_name: string;
-          designations: Array<{
-            id: string;
-            title: string;
-            created_at: string;
-          }>;
-        }>;
-      }>;
-    }>(`${this.baseUrl}/all-tenants`, { params });
+    const response = await axiosInstance.get<TenantDesignationTree>(
+      `${this.baseUrl}/all-tenants`,
+      { params }
+    );
     return response.data;
   }
 }

@@ -15,13 +15,12 @@ axiosInstance.interceptors.request.use(
   config => {
     const token = authService.getAccessToken();
     if (token) {
-      (config.headers as Record<string, unknown>).Authorization =
-        `Bearer ${token}`;
+      config.headers.set('Authorization', `Bearer ${token}`);
     }
 
     // If payload is FormData, remove Content-Type so browser sets it with the correct boundary
     if (config.data instanceof FormData) {
-      delete (config.headers as Record<string, unknown>)['Content-Type'];
+      config.headers.delete('Content-Type');
     }
 
     return config;

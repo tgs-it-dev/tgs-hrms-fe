@@ -176,33 +176,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             inputRef={inputRef}
             helperText={undefined}
             onChange={e => {
-              // Normalize the change event into a simple value passed to callers.
-              const native = e as React.ChangeEvent<HTMLInputElement>;
-              const raw = native.target.value;
-              let out: string | number = raw;
-              if (String(rest.type) === 'number') {
-                if (raw === '') out = '';
-                else {
-                  const parsed = Number(raw);
-                  out = Number.isNaN(parsed) ? raw : parsed;
-                }
-              }
-              // Call the provided onChange handler with the normalized value
-              // If caller expects the native event, they can wrap it accordingly.
-              if (typeof rest.onChange === 'function') {
-                try {
-                  (rest.onChange as unknown as (v: string | number) => void)(
-                    out
-                  );
-                } catch {
-                  // fallback: call with native event
-                  (
-                    rest.onChange as unknown as (
-                      e: React.ChangeEvent<HTMLInputElement>
-                    ) => void
-                  )(native);
-                }
-              }
+              rest.onChange?.(e);
             }}
             sx={{
               position: isPhoneInput ? 'relative' : 'static',
