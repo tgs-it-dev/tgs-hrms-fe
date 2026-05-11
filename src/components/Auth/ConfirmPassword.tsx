@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   CircularProgress,
-  Alert,
   IconButton,
   InputAdornment,
 } from '@mui/material';
@@ -26,46 +25,49 @@ const PasswordReset: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<{
+    password?: string;
+    confirmPassword?: string;
+  }>({});
 
   useEffect(() => {
     if (!token) {
-      setError('Invalid or missing reset token');
+      setErrors({ password: 'Invalid or missing reset token' });
     }
   }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const nextErrors: { password?: string; confirmPassword?: string } = {};
+
     if (!token) {
-      setError('Invalid or missing reset token');
+      nextErrors.password = 'Invalid or missing reset token';
+      setErrors(nextErrors);
       return;
     }
 
     if (!password) {
-      setError('Password is required');
-      return;
-    }
-
-    const pwdError = validatePasswordStrength(password);
-    if (pwdError) {
-      setError(pwdError);
-      return;
+      nextErrors.password = 'Password is required';
+    } else {
+      const pwdError = validatePasswordStrength(password);
+      if (pwdError) nextErrors.password = pwdError;
     }
 
     if (!confirmPassword) {
-      setError('Please confirm your password');
-      return;
+      nextErrors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      nextErrors.confirmPassword = 'Password do not match';
     }
 
-    if (password !== confirmPassword) {
-      setError('Password do not match');
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
       return;
     }
 
     try {
       setLoading(true);
-      setError('');
+      setErrors({});
 
       // Include confirmPassword in the request to match backend validation
       const requestData = {
@@ -98,7 +100,7 @@ const PasswordReset: React.FC = () => {
       const errorMessage =
         errorResponse?.response?.data?.message ||
         'Failed to reset password. Please try again.';
-      setError(errorMessage);
+      setErrors({ password: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -155,20 +157,20 @@ const PasswordReset: React.FC = () => {
         </Typography>
 
         <Box component='form' onSubmit={handleSubmit}>
-          {error && (
-            <Alert severity='error' sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
           <TextField
             fullWidth
             type={showPassword ? 'text' : 'password'}
             label='New Password'
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={e => {
+              setPassword(e.target.value);
+              if (errors.password)
+                setErrors(prev => ({ ...prev, password: undefined }));
+            }}
             margin='normal'
             required
+            error={Boolean(errors.password)}
+            helperText={errors.password}
             InputProps={{
               endAdornment: (
                 <InputAdornment position='end'>
@@ -188,9 +190,15 @@ const PasswordReset: React.FC = () => {
             type={showConfirmPassword ? 'text' : 'password'}
             label='Confirm New Password'
             value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
+            onChange={e => {
+              setConfirmPassword(e.target.value);
+              if (errors.confirmPassword)
+                setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+            }}
             margin='normal'
             required
+            error={Boolean(errors.confirmPassword)}
+            helperText={errors.confirmPassword}
             InputProps={{
               endAdornment: (
                 <InputAdornment position='end'>

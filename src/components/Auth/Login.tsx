@@ -19,6 +19,7 @@ import {
 import { useUser } from '../../hooks/useUser';
 import { getDefaultDashboardRoute } from '../../utils/permissions';
 import { getRoleName } from '../../utils/roleUtils';
+import { validateEmailAddress } from '../../utils/validation';
 import { useGoogleScript } from '../../hooks/useGoogleScript';
 import authApi from '../../api/authApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -238,18 +239,10 @@ const Login: React.FC = () => {
     setEmailError('');
     setPasswordError('');
 
-    if (!email) {
+    const emailValidationError = validateEmailAddress(email);
+    if (emailValidationError) {
       setEmailError(
-        lang === 'ar'
-          ? 'يرجى إدخال البريد الإلكتروني'
-          : 'Please enter your email'
-      );
-      valid = false;
-    } else if (!email.includes('@')) {
-      setEmailError(
-        lang === 'ar'
-          ? 'يرجى إدخال بريد إلكتروني صحيح'
-          : 'Please enter a valid email'
+        lang === 'ar' ? 'يرجى إدخال بريد إلكتروني صحيح' : emailValidationError
       );
       valid = false;
     }
@@ -648,7 +641,12 @@ const Login: React.FC = () => {
                 <Button
                   type='submit'
                   variant='contained'
-                  disabled={isLoading || !email || !password}
+                  disabled={
+                    isLoading ||
+                    !email ||
+                    !password ||
+                    Boolean(validateEmailAddress(email))
+                  }
                   sx={{
                     backgroundColor: 'var(--primary-dark-color)',
                     color: 'var(--white-color)',

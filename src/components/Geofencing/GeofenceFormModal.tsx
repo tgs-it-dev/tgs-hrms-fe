@@ -319,6 +319,12 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
     teamId: '',
   });
 
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    location?: string;
+  }>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
   // Track initial snapshot to detect changes for enabling Update button
   const initialSnapshotRef = useRef<{
     name: string;
@@ -865,13 +871,26 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
   };
 
   const handleSubmit = () => {
+    setSubmitAttempted(true);
+    const nextErrors: { name?: string; location?: string } = {};
+
     if (!formData.name.trim()) {
-      return;
+      nextErrors.name = 'Geofence name is required';
+    } else if (formData.name.trim().length > 100) {
+      nextErrors.name = 'Name must be 100 characters or less';
     }
 
     // Allow saving when either a drawn boundary exists, or a manual/selected location is provided
     const hasLocation = !!drawnShape || !!selectedLocation;
-    if (!hasLocation) return;
+    if (!hasLocation) {
+      nextErrors.location = 'Please draw a boundary on the map before saving';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      return;
+    }
+    setFieldErrors({});
 
     let type: 'circle' | 'polygon' | 'rectangle' = formData.type;
     let centerLocation: [number, number] = mapCenter;
@@ -1049,10 +1068,19 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
                 required
                 size='small'
                 value={formData.name}
-                onChange={e =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={e => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (fieldErrors.name)
+                    setFieldErrors(prev => ({ ...prev, name: undefined }));
+                }}
+                error={Boolean(fieldErrors.name)}
+                helperText={fieldErrors.name}
+                inputProps={{ maxLength: 100 }}
               />
+
+              {submitAttempted && fieldErrors.location && (
+                <Alert severity='error'>{fieldErrors.location}</Alert>
+              )}
 
               <TextField
                 label='Description'
