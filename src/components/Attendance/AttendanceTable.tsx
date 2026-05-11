@@ -50,6 +50,7 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
 import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
+import { ROLES } from '../../constants/roles';
 
 import TeamCheckInView from './TeamCheckInView';
 import { authService } from '../../api/authService';
@@ -485,7 +486,7 @@ const AttendanceTable = () => {
       );
 
       const teamItems = response.items || [];
-      setTeamAttendance(teamItems as unknown as CheckInTeamMember[]);
+      setTeamAttendance(teamItems);
       if (startDate || endDate) {
         const filteredItems = teamItems
           .map((memberUnknown: unknown) => {
@@ -671,15 +672,7 @@ const AttendanceTable = () => {
           date, // End date (same day)
           selectedTenant || undefined // tenantId
         );
-        response = {
-          items: teamResponse.items,
-          total: teamResponse.total,
-          page: teamResponse.page,
-          limit: 10, // Default limit
-          totalPages: teamResponse.totalPages,
-        };
-        const teamItems =
-          (response.items as unknown as CheckInTeamMember[]) || [];
+        const teamItems = teamResponse.items || [];
         setTeamAttendance(teamItems);
 
         const selectedDateStr = date;
@@ -1706,7 +1699,7 @@ const AttendanceTable = () => {
   };
   const userRoleLc = (userRole || '').toLowerCase();
   const isAdminLike =
-    userRoleLc === 'admin' ||
+    userRoleLc === ROLES.ADMIN ||
     userRoleLc === 'system_admin' ||
     userRoleLc === 'network_admin' ||
     userRoleLc === 'hr_admin';

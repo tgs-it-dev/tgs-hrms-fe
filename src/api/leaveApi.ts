@@ -4,6 +4,7 @@ import systemEmployeeApiService from './systemEmployeeApi';
 import teamApi from './teamApi';
 import { getCurrentUser } from '../utils/auth';
 import type { PaginatedResponse } from '../types/api';
+import { buildPaginationParams } from '../utils/pagination';
 
 export interface CreateLeaveRequest {
   leaveTypeId: string;
@@ -214,7 +215,8 @@ class LeaveApiService {
     limit: number;
     totalPages: number;
   }> {
-    const params = userId ? { userId, page, limit: 25 } : { page, limit: 25 };
+    const paginationParams = buildPaginationParams({ page, pageSize: 25 });
+    const params = userId ? { userId, ...paginationParams } : paginationParams;
     const response = await axiosInstance.get(this.baseUrl, { params });
     const data = response.data;
 
@@ -267,7 +269,7 @@ class LeaveApiService {
     totalPages: number;
   }> {
     const response = await axiosInstance.get(`${this.baseUrl}/team`, {
-      params: { page, limit: 25 },
+      params: buildPaginationParams({ page, pageSize: 25 }),
     });
     const data = response.data;
 

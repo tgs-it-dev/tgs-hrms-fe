@@ -23,6 +23,7 @@ import {
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
 import { isUser as isEmployeeUser } from '../../utils/auth';
+import { ROLES } from '../../constants/roles';
 import { translations } from '../../utils/i18n';
 import { Icons } from '../../assets/icons';
 import {
@@ -410,7 +411,9 @@ export default function Sidebar({
   const role = user?.role;
   const userRoleName = getRoleName(role).toLowerCase();
   const isEmployee =
-    userRoleName === 'user' || userRoleName === 'employee' || isEmployeeUser();
+    userRoleName === 'user' ||
+    userRoleName === ROLES.EMPLOYEE ||
+    isEmployeeUser();
 
   const handleLogout = () => {
     clearAuthData();

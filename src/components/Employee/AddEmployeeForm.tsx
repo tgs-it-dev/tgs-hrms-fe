@@ -27,6 +27,7 @@ import {
   type BackendDesignation,
 } from '../../api/designationApi';
 import rolesApiService from '../../api/rolesApi';
+import { ROLES } from '../../constants/roles';
 import type { Role } from '../../types/user';
 import { validateEmailAddress } from '../../utils/validation';
 import AppButton from '../common/AppButton';
@@ -178,7 +179,12 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   const isInitializingRef = useRef<boolean>(true);
 
   const roleOptions = React.useMemo(() => {
-    const allowedRoles = ['Employee', 'Manager', 'hr-admin', 'network-admin'];
+    const allowedRoles = [
+      'Employee',
+      'Manager',
+      ROLES.HR_ADMIN,
+      ROLES.NETWORK_ADMIN,
+    ];
 
     return (roles || [])
       .map(r => (r.name || '').trim())
@@ -1479,24 +1485,24 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 ? label(
                     initialData
                       ? 'Updating...'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'Adding Manager...'
                         : 'Adding Employee...',
                     initialData
                       ? 'جاري التحديث...'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'جاري إضافة المدير...'
                         : 'جاري إضافة الموظف...'
                   )
                 : label(
                     initialData
                       ? 'Update Employee'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'Add Manager'
                         : 'Add Employee',
                     initialData
                       ? 'تحديث الموظف'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'إضافة مدير'
                         : 'إضافة موظف'
                   )

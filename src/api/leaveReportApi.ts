@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { getRoleName } from '../utils/roleUtils';
 import type { LeaveReportMember } from '../types/team';
+import { ROLES } from '../constants/roles';
 
 export type { LeaveReportMember } from '../types/team';
 
@@ -122,6 +123,7 @@ export interface EmployeeReport {
   };
 }
 
+// TODO: remove localStorage access from API layer — pass userId/role as parameters from the calling hook
 const getUserFromLocalStorage = () => {
   try {
     const user = localStorage.getItem('user');
@@ -141,15 +143,15 @@ const getUserFromLocalStorage = () => {
     const roleName = getRoleName(parsed.role);
     const roleLower = roleName.toLowerCase();
 
-    const isHrAdmin = roleLower === 'hr-admin' || roleLower === 'hr_admin';
+    const isHrAdmin = roleLower === ROLES.HR_ADMIN || roleLower === 'hr_admin';
     const isSystemAdmin =
-      roleLower === 'system-admin' || roleLower === 'system_admin';
-    const isAdmin = roleLower === 'admin';
+      roleLower === ROLES.SYSTEM_ADMIN || roleLower === 'system_admin';
+    const isAdmin = roleLower === ROLES.ADMIN;
 
     return {
       userId: parsed?.id,
       role: roleLower,
-      isManager: roleLower === 'manager',
+      isManager: roleLower === ROLES.MANAGER,
       isHrAdmin,
       isAdmin,
       isSystemAdmin,

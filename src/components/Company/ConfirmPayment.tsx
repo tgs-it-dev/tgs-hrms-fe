@@ -22,9 +22,7 @@ const isLoginResponsePayload = (payload: unknown): payload is LoginResponse =>
   'accessToken' in payload &&
   typeof (payload as Record<string, unknown>).accessToken === 'string';
 
-const coerceLoginResponse = (
-  payload: Record<string, unknown> | null
-): LoginResponse | null => {
+const coerceLoginResponse = (payload: object | null): LoginResponse | null => {
   if (!isLoginResponsePayload(payload)) return null;
   return {
     accessToken: payload.accessToken,
@@ -267,11 +265,9 @@ const ConfirmPayment: React.FC = () => {
       }
 
       if (isSignupFlow && signupSessionId) {
-        let signupResult: Record<string, unknown> | null = null;
-
-        signupResult = (await signupApi.completeSignup({
+        const signupResult = await signupApi.completeSignup({
           signupSessionId,
-        })) as unknown as Record<string, unknown>;
+        });
 
         const loginResponse =
           (await loginWithPendingCredentials()) ||
