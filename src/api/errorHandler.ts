@@ -5,7 +5,12 @@
  * `normalizeApiError` converts it to a consistent `ApiError` shape so
  * components never need to re-implement their own error parsing.
  *
- * Wired into the QueryClient `onError` default via AppProviders.tsx.
+ * TODO: wire into TanStack Query onError default via AppProviders.tsx.
+ * The existing codebase uses src/utils/errorHandler.ts (handleApiError /
+ * extractErrorMessage). This file introduces a leaner ApiError interface
+ * intended to replace those over time. Wire normalizeApiError into the
+ * QueryClient defaultOptions.mutations.onError and
+ * defaultOptions.queries.onError in AppProviders.tsx as part of that migration.
  */
 
 import axios from 'axios';

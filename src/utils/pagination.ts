@@ -3,6 +3,11 @@
  *
  * Use these instead of inline `{ page, limit }` / `{ page, per_page }`
  * constructions in query hooks so the shape is consistent across all features.
+ *
+ * TODO: wire into TanStack Query onError default — replace the inline
+ * `{ page, limit }` constructions in leaveReportApi.ts, timesheetApi.ts,
+ * and tenantLeaveApi.ts with buildPaginationParams(). Import PaginationParams
+ * and PaginatedResult from here rather than defining ad-hoc shapes per feature.
  */
 
 /** Default number of items per page — change here to change globally. */

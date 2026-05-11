@@ -12,11 +12,9 @@ import {
 } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-interface AppInputFieldProps extends Omit<
-  TextFieldProps,
-  'label' | 'onChange'
-> {
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
+  // onChange is inherited from TextFieldProps unchanged — do NOT narrow it to
+  // HTMLInputElement only; TextFieldProps['onChange'] covers HTMLTextAreaElement too.
   onValueChange?: (value: string | number) => void;
   label: string;
   labelClassName?: string;
@@ -181,17 +179,20 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             }
             inputRef={inputRef}
             helperText={undefined}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={(
+              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
               rest.onChange?.(e);
               if (onValueChange) {
-                if (rest.type === 'number' && e.target.value !== '') {
-                  const parsed = Number(e.target.value);
+                const val = (e.target as HTMLInputElement).value;
+                if (rest.type === 'number' && val !== '') {
+                  const parsed = Number(val);
                   if (!Number.isNaN(parsed)) {
                     onValueChange(parsed);
+                    return;
                   }
-                } else {
-                  onValueChange(e.target.value);
                 }
+                onValueChange(val);
               }
             }}
             sx={{
