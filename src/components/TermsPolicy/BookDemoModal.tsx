@@ -95,7 +95,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={fullName}
             placeholder='Name'
             inputBackgroundColor={controlBg}
-            onChange={(value: unknown) => setFullName(String(value ?? ''))}
+            onValueChange={value => setFullName(String(value))}
           />
           <AppInputField
             label='Work Email'
@@ -103,7 +103,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={workEmail}
             placeholder='Email'
             inputBackgroundColor={controlBg}
-            onChange={(value: unknown) => setWorkEmail(String(value ?? ''))}
+            onValueChange={value => setWorkEmail(String(value))}
           />
           <AppInputField
             label='Company Name'
@@ -111,7 +111,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={companyName}
             placeholder='Company Name'
             inputBackgroundColor={controlBg}
-            onChange={(value: unknown) => setCompanyName(String(value ?? ''))}
+            onValueChange={value => setCompanyName(String(value))}
           />
           <Box>
             <AppDropdown
