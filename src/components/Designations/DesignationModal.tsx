@@ -133,9 +133,14 @@ export default function DesignationModal({
         'Designation title is required',
         'عنوان المسمى الوظيفي مطلوب'
       );
+    } else if (title.trim().length > 100) {
+      newErrors.title = getText(
+        'Designation title must be 100 characters or less',
+        'عنوان المسمى الوظيفي يجب أن لا يتجاوز 100 حرف'
+      );
     }
 
-    if (!designation && !departmentId) {
+    if (!departmentId) {
       newErrors.departmentId = getText(
         'Please select a department',
         'يرجى اختيار قسم'

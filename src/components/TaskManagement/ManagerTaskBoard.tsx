@@ -98,6 +98,9 @@ export default function ManagerTaskBoard() {
     useState<string>('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deadlineError, setDeadlineError] = useState<string | undefined>(
+    undefined
+  );
 
   // Team-wise view state
   // viewByTeam state removed (unused)
@@ -420,15 +423,13 @@ export default function ManagerTaskBoard() {
     if (formData.deadline) {
       // compare as local date strings (YYYY-MM-DD)
       if (String(formData.deadline) < todayLocalDateString) {
-        showError?.(
-          new Error(
-            'Deadline cannot be in the past. Please select today or a future date.'
-          ),
-          { operation: 'create', resource: 'task' }
+        setDeadlineError(
+          'Deadline cannot be in the past. Please select today or a future date.'
         );
         return;
       }
     }
+    setDeadlineError(undefined);
 
     try {
       setIsCreateTaskSubmitting(true);
@@ -485,15 +486,13 @@ export default function ManagerTaskBoard() {
     // Validate deadline is not in the past (if provided)
     if (formData.deadline) {
       if (String(formData.deadline) < todayLocalDateString) {
-        showError?.(
-          new Error(
-            'Deadline cannot be in the past. Please select today or a future date.'
-          ),
-          { operation: 'update', resource: 'task' }
+        setDeadlineError(
+          'Deadline cannot be in the past. Please select today or a future date.'
         );
         return;
       }
     }
+    setDeadlineError(undefined);
 
     try {
       // Build a minimal update payload — do NOT send server-managed
@@ -972,15 +971,19 @@ export default function ManagerTaskBoard() {
                 label='Deadline'
                 type='date'
                 value={formData.deadline || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormData({ ...formData, deadline: e.target.value })
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setFormData({ ...formData, deadline: e.target.value });
+                  if (deadlineError) setDeadlineError(undefined);
+                }}
                 inputProps={{ min: todayLocalDateString }}
                 inputBackgroundColor={undefined}
+                error={Boolean(deadlineError)}
+                helperText={deadlineError}
               />
             ),
             value: formData.deadline || '',
             onChange: v => setFormData({ ...formData, deadline: String(v) }),
+            error: deadlineError,
           },
           {
             name: 'description',
@@ -1104,14 +1107,18 @@ export default function ManagerTaskBoard() {
                   label='Deadline'
                   type='date'
                   value={formData.deadline || ''}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData({ ...formData, deadline: e.target.value })
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setFormData({ ...formData, deadline: e.target.value });
+                    if (deadlineError) setDeadlineError(undefined);
+                  }}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{ min: todayLocalDateString }}
+                  error={Boolean(deadlineError)}
+                  helperText={deadlineError}
                 />
               ),
               onChange: v => setFormData({ ...formData, deadline: String(v) }),
+              error: deadlineError,
             },
           ];
           return fields;

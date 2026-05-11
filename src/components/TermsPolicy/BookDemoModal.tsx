@@ -5,6 +5,7 @@ import AppFormModal from '../common/AppFormModal';
 import AppInputField from '../common/AppInputField';
 import AppDropdown from '../common/AppDropdown';
 import AppButton from '../common/AppButton';
+import { validateEmailAddress } from '../../utils/validation';
 
 type BookDemoModalProps = {
   open: boolean;
@@ -27,12 +28,19 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   const [workEmail, setWorkEmail] = React.useState('');
   const [companyName, setCompanyName] = React.useState('');
   const [teamSize, setTeamSize] = React.useState<string>('');
+  const [errors, setErrors] = React.useState<{
+    fullName?: string;
+    workEmail?: string;
+    companyName?: string;
+    teamSize?: string;
+  }>({});
 
   const reset = React.useCallback(() => {
     setFullName('');
     setWorkEmail('');
     setCompanyName('');
     setTeamSize('');
+    setErrors({});
   }, []);
 
   const handleClose = React.useCallback(() => {
@@ -41,8 +49,34 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   }, [onClose, reset]);
 
   const handleSubmit = () => {
+    const nextErrors: typeof errors = {};
+
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      nextErrors.fullName = 'Full name must be at least 2 characters';
+    }
+
+    const emailError = validateEmailAddress(workEmail);
+    if (emailError) {
+      nextErrors.workEmail = emailError;
+    }
+
+    if (!companyName.trim() || companyName.trim().length < 2) {
+      nextErrors.companyName = 'Company name must be at least 2 characters';
+    }
+
+    if (!teamSize) {
+      nextErrors.teamSize = 'Please select a team size';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
     handleClose();
   };
+
+  const hasErrors = Object.values(errors).some(Boolean);
 
   const controlBg =
     theme.palette.mode === 'dark'
@@ -95,7 +129,13 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={fullName}
             placeholder='Name'
             inputBackgroundColor={controlBg}
-            onValueChange={value => setFullName(String(value))}
+            onValueChange={value => {
+              setFullName(String(value));
+              if (errors.fullName)
+                setErrors(prev => ({ ...prev, fullName: undefined }));
+            }}
+            error={Boolean(errors.fullName)}
+            helperText={errors.fullName}
           />
           <AppInputField
             label='Work Email'
@@ -103,7 +143,13 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={workEmail}
             placeholder='Email'
             inputBackgroundColor={controlBg}
-            onValueChange={value => setWorkEmail(String(value))}
+            onValueChange={value => {
+              setWorkEmail(String(value));
+              if (errors.workEmail)
+                setErrors(prev => ({ ...prev, workEmail: undefined }));
+            }}
+            error={Boolean(errors.workEmail)}
+            helperText={errors.workEmail}
           />
           <AppInputField
             label='Company Name'
@@ -111,7 +157,13 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             value={companyName}
             placeholder='Company Name'
             inputBackgroundColor={controlBg}
-            onValueChange={value => setCompanyName(String(value))}
+            onValueChange={value => {
+              setCompanyName(String(value));
+              if (errors.companyName)
+                setErrors(prev => ({ ...prev, companyName: undefined }));
+            }}
+            error={Boolean(errors.companyName)}
+            helperText={errors.companyName}
           />
           <Box>
             <AppDropdown
@@ -121,9 +173,13 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
               value={teamSize}
               placeholder='Select'
               inputBackgroundColor={controlBg}
-              onChange={(e: SelectChangeEvent<string | number | string[]>) =>
-                setTeamSize(String(e.target.value ?? ''))
-              }
+              onChange={(e: SelectChangeEvent<string | number | string[]>) => {
+                setTeamSize(String(e.target.value ?? ''));
+                if (errors.teamSize)
+                  setErrors(prev => ({ ...prev, teamSize: undefined }));
+              }}
+              error={Boolean(errors.teamSize)}
+              helperText={errors.teamSize}
             />
           </Box>
         </Box>
@@ -133,6 +189,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             fullWidth
             variant='contained'
             onClick={handleSubmit}
+            disabled={hasErrors}
             sx={{
               backgroundColor: 'text.primary',
               borderRadius: '999px',

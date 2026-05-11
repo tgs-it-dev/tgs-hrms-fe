@@ -531,13 +531,35 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
 
   const validate = (): boolean => {
     const newErrors: Errors = {};
-    if (!values.first_name)
+    if (!values.first_name) {
       newErrors.first_name = label(
         'First name is required',
         'الاسم الأول مطلوب'
       );
-    if (!values.last_name)
+    } else if (values.first_name.trim().length < 2) {
+      newErrors.first_name = label(
+        'First name must be at least 2 characters',
+        'الاسم الأول يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.first_name.trim().length > 50) {
+      newErrors.first_name = label(
+        'First name must be 50 characters or less',
+        'الاسم الأول يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
+    if (!values.last_name) {
       newErrors.last_name = label('Last name is required', 'اسم العائلة مطلوب');
+    } else if (values.last_name.trim().length < 2) {
+      newErrors.last_name = label(
+        'Last name must be at least 2 characters',
+        'اسم العائلة يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.last_name.trim().length > 50) {
+      newErrors.last_name = label(
+        'Last name must be 50 characters or less',
+        'اسم العائلة يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
     if (values.email.trim()) {
       const emailError = validateEmailAddress(values.email);
       if (emailError) {
@@ -558,6 +580,11 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         );
       }
     }
+    if (!values.departmentId)
+      newErrors.departmentId = label(
+        'Please select a department',
+        'يرجى اختيار القسم'
+      );
     if (!values.designationId)
       newErrors.designationId = label(
         'Please select a designation',

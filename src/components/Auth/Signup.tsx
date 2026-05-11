@@ -136,15 +136,23 @@ const Signup: React.FC = () => {
 
     if (!formData.first_name.trim()) {
       nextErrors.first_name = 'First name is required';
+    } else if (formData.first_name.trim().length < 2) {
+      nextErrors.first_name = 'First name must be at least 2 characters';
+    } else if (formData.first_name.trim().length > 50) {
+      nextErrors.first_name = 'First name must be 50 characters or less';
     }
+
     if (!formData.last_name.trim()) {
       nextErrors.last_name = 'Last name is required';
+    } else if (formData.last_name.trim().length < 2) {
+      nextErrors.last_name = 'Last name must be at least 2 characters';
+    } else if (formData.last_name.trim().length > 50) {
+      nextErrors.last_name = 'Last name must be 50 characters or less';
     }
-    if (formData.email.trim()) {
-      const emailError = validateEmailAddress(formData.email);
-      if (emailError) {
-        nextErrors.email = emailError;
-      }
+
+    const emailError = validateEmailAddress(formData.email);
+    if (emailError) {
+      nextErrors.email = emailError;
     }
     const phoneDigits = formData.phone.replace(/\D/g, '');
     if (!formData.phone.trim()) {

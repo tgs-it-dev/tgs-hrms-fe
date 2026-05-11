@@ -132,6 +132,18 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate && startDate < today) {
+      onError?.('Start date cannot be in the past');
+      return;
+    }
+
+    if (reason.trim().length < 10) {
+      onError?.('Reason must be at least 10 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -271,6 +283,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
         <DatePicker
           label='Start Date'
           value={startDate}
+          minDate={new Date()}
           onChange={newValue => {
             if (newValue instanceof Date) {
               setStartDate(newValue);

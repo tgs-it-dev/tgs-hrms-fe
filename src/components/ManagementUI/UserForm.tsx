@@ -13,6 +13,10 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 import { departments, designations } from '../../Data/userMock';
+import {
+  validateEmailAddress,
+  validatePasswordStrength,
+} from '../../utils/validation';
 
 export interface User {
   id?: number;
@@ -73,9 +77,18 @@ const UserForm: React.FC<Props> = ({ open, onClose, onSubmit, userData }) => {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name) newErrors.name = 'Full Name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!userData && !formData.password)
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else {
+      const emailError = validateEmailAddress(formData.email);
+      if (emailError) newErrors.email = emailError;
+    }
+    if (!userData && !formData.password) {
       newErrors.password = 'Password is required';
+    } else if (!userData && formData.password) {
+      const pwdError = validatePasswordStrength(formData.password);
+      if (pwdError) newErrors.password = pwdError;
+    }
     if (!formData.role) newErrors.role = 'Role is required';
     if (!formData.department) newErrors.department = 'Department is required';
     if (!formData.designation)

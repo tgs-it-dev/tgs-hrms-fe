@@ -98,12 +98,17 @@ const CompanyDetails: React.FC = () => {
       domain: '',
     };
 
-    if (!formData.companyName.trim()) {
-      nextErrors.companyName = 'Company name is required';
+    if (
+      !formData.companyName.trim() ||
+      formData.companyName.trim().length < 2
+    ) {
+      nextErrors.companyName = 'Company name must be at least 2 characters';
     }
 
     if (!formData.domain.trim()) {
       nextErrors.domain = 'Domain is required';
+    } else if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.domain.trim())) {
+      nextErrors.domain = 'Please enter a valid domain (e.g. example.com)';
     }
 
     setFieldErrors(nextErrors);
