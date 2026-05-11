@@ -29,6 +29,7 @@ import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
 import { useLanguage } from '../../hooks/useLanguage';
 import { getUserRole, isAdmin } from '../../utils/auth';
+import { ROLES } from '../../constants/roles';
 
 // Extended interface for admin team members with team info
 interface AdminTeamMember extends TeamMember {
@@ -63,7 +64,7 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
   // Check if user is a manager
   const checkIsManager = (): boolean => {
     const userRole = getUserRole();
-    return userRole === 'manager' || userRole === 'Manager';
+    return userRole === ROLES.MANAGER || userRole === 'Manager';
   };
 
   const labels = {

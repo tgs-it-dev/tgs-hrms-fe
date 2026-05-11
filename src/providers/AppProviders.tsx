@@ -27,6 +27,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
           },
           mutations: {
             retry: false, // Never auto-retry mutations
+            // TODO: wire normalizeApiError from src/utils/errorHandler.ts into
+            // onError here so all mutation failures are normalized consistently.
+            // e.g. onError: (error) => { const e = normalizeApiError(error); showToast(e.message); }
           },
         },
       })

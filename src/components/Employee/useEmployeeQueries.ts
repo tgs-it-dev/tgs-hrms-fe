@@ -13,6 +13,7 @@ import teamApiService from '../../api/teamApi';
 import type { TeamMember } from '../../types/team';
 import { useUser } from '../../hooks/useUser';
 import { isManager } from '../../utils/roleUtils';
+import { ROLES } from '../../constants/roles';
 
 export const EMPLOYEE_KEYS = {
   all: ['employees'] as const,
@@ -170,7 +171,7 @@ export function useEmployeeListForRole(filters?: {
 
   // Manager path — fetch team members across all pages
   const managerQuery = useQuery<BackendEmployee[]>({
-    queryKey: EMPLOYEE_KEYS.list({ role: 'manager' }),
+    queryKey: EMPLOYEE_KEYS.list({ role: ROLES.MANAGER }),
     queryFn: async () => {
       const allMembers: TeamMember[] = [];
       let page = 1;
@@ -194,7 +195,7 @@ export function useEmployeeListForRole(filters?: {
   // Admin / HR path — fetch all employees across all pages with optional filters
   const adminQuery = useQuery<BackendEmployee[]>({
     queryKey: EMPLOYEE_KEYS.list({
-      role: 'admin',
+      role: ROLES.ADMIN,
       departmentId: filters?.departmentId,
       designationId: filters?.designationId,
     }),

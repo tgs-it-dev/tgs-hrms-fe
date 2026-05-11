@@ -63,7 +63,9 @@ export function useGooglePlaces() {
     });
   };
 
-  const getPlaceDetails = (placeId: string): Promise<unknown> => {
+  const getPlaceDetails = (
+    placeId: string
+  ): Promise<google.maps.places.PlaceResult> => {
     return new Promise((resolve, reject) => {
       if (!window.google?.maps) {
         reject(new Error('Google Maps script not loaded'));
@@ -75,7 +77,10 @@ export function useGooglePlaces() {
       ps.getDetails(
         { placeId, fields: ['geometry', 'formatted_address', 'name'] },
         (place, status) => {
-          if (status !== window.google?.maps.places.PlacesServiceStatus.OK) {
+          if (
+            status !== window.google?.maps.places.PlacesServiceStatus.OK ||
+            !place
+          ) {
             reject(new Error('Place details fetch failed'));
             return;
           }

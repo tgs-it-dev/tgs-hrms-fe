@@ -6,6 +6,7 @@ import {
   IconButton,
   Link,
   Typography,
+  useTheme,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Link as RouterLink } from 'react-router-dom';
@@ -14,6 +15,7 @@ import BookDemoModal from './BookDemoModal';
 export const MarketingHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [bookDemoOpen, setBookDemoOpen] = React.useState(false);
+  const theme = useTheme();
 
   const openBookDemo = React.useCallback(() => setBookDemoOpen(true), []);
   const closeBookDemo = React.useCallback(() => setBookDemoOpen(false), []);
@@ -21,25 +23,25 @@ export const MarketingHeader: React.FC = () => {
   const navItemSx = {
     fontSize: '16px',
     fontWeight: 400,
-    color: 'var(--dark-grey, #656565)',
+    color: 'text.secondary',
     cursor: 'pointer',
     lineHeight: 1,
   } as const;
 
   const navItemActiveSx = {
     ...navItemSx,
-    color: 'var(--Black, #2C2C2C)',
+    color: 'text.primary',
   } as const;
 
   const outlineBtnSx = {
-    border: '2px solid var(--Grey, #BDBDBD)',
+    border: `2px solid ${theme.palette.divider}`,
     color: 'text.primary',
     borderRadius: '999px',
     fontWeight: 400,
     px: 2,
     py: 1,
     '&:hover': {
-      border: '2px solid var(--Grey, #BDBDBD)',
+      border: `2px solid ${theme.palette.divider}`,
       backgroundColor: 'rgba(17,24,39,0.04)',
     },
   } as const;
@@ -61,8 +63,7 @@ export const MarketingHeader: React.FC = () => {
       component='header'
       sx={{
         bgcolor: 'background.paper',
-        // Figma header border — near grey300 (#e0e0e0) but different shade
-        borderBottom: '1px solid #e5e7eb',
+        borderBottom: `1px solid ${theme.palette.divider}`,
         position: 'relative',
         zIndex: 20,
       }}
@@ -90,9 +91,7 @@ export const MarketingHeader: React.FC = () => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
             <Typography sx={navItemActiveSx}>Product</Typography>
-            <ExpandMoreIcon
-              sx={{ color: 'var(--Black, #2C2C2C)', fontSize: 18 }}
-            />
+            <ExpandMoreIcon sx={{ color: 'text.primary', fontSize: 18 }} />
           </Box>
           <Typography sx={navItemSx}>Features</Typography>
           <Typography sx={navItemSx}>Pricing</Typography>
@@ -107,8 +106,7 @@ export const MarketingHeader: React.FC = () => {
             sx={{
               display: { xs: 'inline-flex', md: 'none' },
               color: 'text.primary',
-              // Figma mobile menu toggle border — near grey300, not an exact token
-              border: '1px solid #d1d5db',
+              border: `1px solid ${theme.palette.divider}`,
               borderRadius: '10px',
               width: 36,
               height: 36,
@@ -141,8 +139,7 @@ export const MarketingHeader: React.FC = () => {
         <Box
           sx={{
             display: { xs: 'block', md: 'none' },
-            // Figma border — near grey300 (#e0e0e0) but different shade
-            borderTop: '1px solid #e5e7eb',
+            borderTop: `1px solid ${theme.palette.divider}`,
             position: 'absolute',
             top: '100%',
             left: 0,
@@ -193,7 +190,8 @@ export const MarketingHeader: React.FC = () => {
 };
 
 export const MarketingFooter: React.FC = () => {
-  // Figma footer navy — not yet in design tokens
+  // Figma footer navy — brand-specific colour not in the MUI palette.
+  // When a 'brand.navyDark' token is added to the theme, replace this constant.
   const footerBg = '#0b3551';
   const headingSx = {
     color: 'common.white',
@@ -202,7 +200,7 @@ export const MarketingFooter: React.FC = () => {
     mb: 1.5,
   } as const;
   const linkSx = {
-    color: 'var(--light-grey, #EFEFEF)',
+    color: 'rgba(255,255,255,0.85)',
     fontWeight: 400,
     fontSize: '16px',
     textDecoration: 'none',

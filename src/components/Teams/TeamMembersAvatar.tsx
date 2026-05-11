@@ -24,6 +24,7 @@ import { Group as GroupIcon, Close as CloseIcon } from '@mui/icons-material';
 import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
 import { getUserRole, isAdmin } from '../../utils/auth';
+import { ROLES } from '../../constants/roles';
 import type { SvgIconProps } from '@mui/material/SvgIcon';
 import { useLanguage } from '../../hooks/useLanguage';
 import { colorTokens } from '../../theme/tokens';
@@ -111,7 +112,7 @@ const TeamMembersAvatar: React.FC<TeamMembersAvatarProps> = ({
   // Check if user is a manager
   const isManager = (): boolean => {
     const userRole = getUserRole();
-    return userRole === 'manager' || userRole === 'Manager';
+    return userRole === ROLES.MANAGER || userRole === 'Manager';
   };
 
   // Load team members for avatar display

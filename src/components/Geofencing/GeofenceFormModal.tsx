@@ -600,37 +600,18 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
       isGoogleLoaded && result.place_id && result.place_id.length > 0;
     if (useGoogle && getPlaceDetails) {
       getPlaceDetails(result.place_id)
-        .then((place: Record<string, unknown>) => {
-          const geometry = place?.['geometry'] as
-            | Record<string, unknown>
-            | undefined;
-          const loc = geometry?.['location'] as
-            | Record<string, unknown>
-            | undefined;
-          const latFn =
-            loc && (loc['lat'] as unknown as (() => number) | undefined);
-          const lngFn =
-            loc && (loc['lng'] as unknown as (() => number) | undefined);
-          if (
-            latFn &&
-            typeof latFn === 'function' &&
-            lngFn &&
-            typeof lngFn === 'function'
-          ) {
-            const lat = latFn();
-            const lon = lngFn();
+        .then((place: google.maps.places.PlaceResult) => {
+          const lat = place.geometry?.location?.lat();
+          const lon = place.geometry?.location?.lng();
+          if (lat !== undefined && lon !== undefined) {
             setSelectedLocation([lat, lon]);
             setSelectedLocationName(
-              (place['formatted_address'] as string) ||
-                (place['name'] as string) ||
-                result.display_name
+              place.formatted_address || place.name || result.display_name
             );
             setMapCenter([lat, lon]);
             setMapZoom(15);
             setSearchQuery(
-              (place['formatted_address'] as string) ||
-                (place['name'] as string) ||
-                result.display_name
+              place.formatted_address || place.name || result.display_name
             );
             setShowSearchResults(false);
             setManualCoordinates({
