@@ -221,9 +221,7 @@ export default function ManagerTaskBoard() {
     const fetchTeams = async () => {
       try {
         // Request all teams (pass null so service omits page param)
-        const resp = await teamApiService.getAllTeams(
-          null as unknown as number | null
-        );
+        const resp = await teamApiService.getAllTeams(null);
         const items: unknown[] = resp?.items ?? [];
 
         const mapped = items.map(t => {
@@ -1028,7 +1026,7 @@ export default function ManagerTaskBoard() {
                       ...formData,
                       assignedTo: String(v).split(',').filter(Boolean),
                     }),
-                } as unknown as FormField,
+                } satisfies FormField,
               ]
             : []),
         ];

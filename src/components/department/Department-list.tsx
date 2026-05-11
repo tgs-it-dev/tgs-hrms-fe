@@ -106,7 +106,7 @@ export const DepartmentList: React.FC = () => {
               status: tenant.tenant_status as
                 | 'active'
                 | 'suspended'
-                | 'delelted',
+                | 'deleted',
               isDeleted: false,
               created_at: '',
               updated_at: '',

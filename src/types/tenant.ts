@@ -18,7 +18,7 @@ export interface Company {
 export interface SystemTenant {
   id: string;
   name: string;
-  status: 'active' | 'suspended' | 'delelted';
+  status: 'active' | 'suspended' | 'deleted';
   isDeleted: boolean;
   created_at: string;
   updated_at: string;
@@ -28,7 +28,7 @@ export interface SystemTenant {
 export interface SystemTenantDetail {
   id: string;
   name: string;
-  status: 'active' | 'suspended' | 'delelted';
+  status: 'active' | 'suspended' | 'deleted';
   created_at: string;
   departmentCount: number;
   employeeCount: number;

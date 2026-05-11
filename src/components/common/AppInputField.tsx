@@ -13,6 +13,9 @@ import {
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
+  // onChange is inherited from TextFieldProps unchanged — do NOT narrow it to
+  // HTMLInputElement only; TextFieldProps['onChange'] covers HTMLTextAreaElement too.
+  onValueChange?: (value: string | number) => void;
   label: string;
   labelClassName?: string;
   containerSx?: SxProps<Theme>;
@@ -29,6 +32,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
       sx,
       inputBackgroundColor,
       hideErrorsOnSmallScreen = false,
+      onValueChange,
       ...rest
     },
     ref
@@ -175,33 +179,20 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             }
             inputRef={inputRef}
             helperText={undefined}
-            onChange={e => {
-              // Normalize the change event into a simple value passed to callers.
-              const native = e as React.ChangeEvent<HTMLInputElement>;
-              const raw = native.target.value;
-              let out: string | number = raw;
-              if (String(rest.type) === 'number') {
-                if (raw === '') out = '';
-                else {
-                  const parsed = Number(raw);
-                  out = Number.isNaN(parsed) ? raw : parsed;
+            onChange={(
+              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              rest.onChange?.(e);
+              if (onValueChange) {
+                const val = (e.target as HTMLInputElement).value;
+                if (rest.type === 'number' && val !== '') {
+                  const parsed = Number(val);
+                  if (!Number.isNaN(parsed)) {
+                    onValueChange(parsed);
+                    return;
+                  }
                 }
-              }
-              // Call the provided onChange handler with the normalized value
-              // If caller expects the native event, they can wrap it accordingly.
-              if (typeof rest.onChange === 'function') {
-                try {
-                  (rest.onChange as unknown as (v: string | number) => void)(
-                    out
-                  );
-                } catch {
-                  // fallback: call with native event
-                  (
-                    rest.onChange as unknown as (
-                      e: React.ChangeEvent<HTMLInputElement>
-                    ) => void
-                  )(native);
-                }
+                onValueChange(val);
               }
             }}
             sx={{

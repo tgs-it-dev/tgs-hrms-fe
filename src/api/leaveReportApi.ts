@@ -181,7 +181,7 @@ class LeaveReportApiService {
   }
 
   async getTeamLeaveSummary(
-    month: number,
+    month: number | undefined,
     year: number
   ): Promise<TeamLeaveSummaryResponse> {
     const { userId: managerId } = getUserFromLocalStorage();
@@ -215,7 +215,10 @@ class LeaveReportApiService {
     return response.data;
   }
 
-  async exportTeamLeaveSummaryCSV(month: number, year: number): Promise<Blob> {
+  async exportTeamLeaveSummaryCSV(
+    month: number | undefined,
+    year: number
+  ): Promise<Blob> {
     const { userId: managerId } = getUserFromLocalStorage();
     const response = await axiosInstance.get<Blob>(
       `${this.baseUrl}/team-leave-summary/export`,

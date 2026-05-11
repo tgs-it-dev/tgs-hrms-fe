@@ -34,7 +34,7 @@ import UserAvatar from '../common/UserAvatar';
 import AppTable from '../common/AppTable';
 import { Icons } from '../../assets/icons';
 
-interface TeamMemberListProps {
+export interface TeamMemberListProps {
   teamId: string;
 }
 

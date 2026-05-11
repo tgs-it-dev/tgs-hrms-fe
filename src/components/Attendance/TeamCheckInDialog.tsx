@@ -14,27 +14,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { formatDate } from '../../utils/dateUtils';
 import AppTable from '../common/AppTable';
-import type { TeamAttendanceEntry } from '../../types/attendance';
+import type { AttendanceTeamMember } from '../../types/team';
 
-export interface CheckInTeamMember {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  profile_pic?: string;
-  designation?: string;
-  department?: string;
-  attendance: TeamAttendanceEntry[];
-  totalDaysWorked?: number;
-  totalHoursWorked?: number;
-  user?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-}
+/** @deprecated Use AttendanceTeamMember from src/types/team.ts */
+export type CheckInTeamMember = AttendanceTeamMember;
 
-interface TeamCheckInDialogProps {
+export interface TeamCheckInDialogProps {
   open: boolean;
   onClose: () => void;
   data: CheckInTeamMember[];

@@ -355,19 +355,15 @@ const LeaveRequestPage = () => {
         totalPagesLocal = res.totalPages || 1;
         allLeaves.push(
           ...res.items.map((leave): Leave => {
-            const leaveRec = leave as unknown as Record<string, unknown>;
             const employeeId = String(
-              (leaveRec.employee as Record<string, unknown> | undefined)?.id ||
-                (leaveRec.user as Record<string, unknown> | undefined)?.id ||
-                (leaveRec.employeeId as string | undefined) ||
-                ''
+              leave.employee?.id || leave.user?.id || leave.employeeId || ''
             );
 
-            const r = leaveRec.remarks;
+            const r = leave.remarks;
             const remarks =
               r === null || typeof r === 'undefined' ? undefined : String(r);
 
-            const rawStatus = String(leaveRec.status ?? '').toLowerCase();
+            const rawStatus = String(leave.status ?? '').toLowerCase();
             let normalizedStatus: LeaveStatus = 'pending';
             // Accept 'processing' as a valid intermediate status coming from backend
             if (

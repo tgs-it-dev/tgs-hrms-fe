@@ -170,7 +170,7 @@ const Reports: React.FC = () => {
         if (tab === 0) blob = await leaveReportApi.exportLeaveBalanceCSV();
         if (isManager && tab === 1)
           blob = await leaveReportApi.exportTeamLeaveSummaryCSV(
-            undefined as unknown as number,
+            undefined,
             selectedYear
           );
       }
@@ -318,7 +318,7 @@ const Reports: React.FC = () => {
             setLeaveBalance(data.balances || []);
           } else if (isManager && tab === 1) {
             const data = await leaveReportApi.getTeamLeaveSummary(
-              undefined as unknown as number,
+              undefined,
               selectedYear
             );
             setTeamSummary(data.teamMembers || []);

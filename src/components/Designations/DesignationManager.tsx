@@ -98,7 +98,7 @@ export default function DesignationManager() {
         // Use the same API as Employee List to get all tenants
         const data = await systemEmployeeApiService.getAllTenants(true);
         // Show all tenants (no filtering) - same as Employee List
-        setAllTenants((data || []) as unknown as SystemTenant[]);
+        setAllTenants(data || []);
       } catch {
         // Ignore; tenant filter list will simply be empty
       } finally {
