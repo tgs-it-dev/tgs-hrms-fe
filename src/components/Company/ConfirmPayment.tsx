@@ -10,43 +10,8 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import signupApi from '../../api/signupApi';
-import authApi, { type LoginResponse } from '../../api/authApi';
-import billingApi from '../../api/billingApi';
 import { useUser } from '../../hooks/useUser';
-import { getStoredUser, persistAuthSession } from '../../utils/authSession';
-
-const isLoginResponsePayload = (payload: unknown): payload is LoginResponse =>
-  typeof payload === 'object' &&
-  payload !== null &&
-  'accessToken' in payload &&
-  typeof (payload as Record<string, unknown>).accessToken === 'string';
-
-const coerceLoginResponse = (
-  payload: Record<string, unknown> | null
-): LoginResponse | null => {
-  if (!isLoginResponsePayload(payload)) return null;
-  return {
-    accessToken: payload.accessToken,
-    refreshToken:
-      typeof payload.refreshToken === 'string'
-        ? payload.refreshToken
-        : undefined,
-    user: payload.user as Record<string, unknown> | undefined,
-    permissions: payload.permissions as unknown[] | undefined,
-    employee: payload.employee as { id?: string | number } | null | undefined,
-    requiresPayment:
-      typeof payload.requiresPayment === 'boolean'
-        ? payload.requiresPayment
-        : undefined,
-    session_id:
-      typeof payload.session_id === 'string' ? payload.session_id : undefined,
-    signupSessionId:
-      typeof payload.signupSessionId === 'string'
-        ? payload.signupSessionId
-        : undefined,
-    company: payload.company as Record<string, unknown> | undefined,
-  };
-};
+import { persistAuthSession } from '../../utils/authSession';
 
 const cleanupPendingSignupData = () => {
   try {
@@ -61,44 +26,18 @@ const cleanupPendingSignupData = () => {
   }
 };
 
-type PendingEmployeePayment = {
-  checkoutSessionId: string;
-  returnTo?: string;
-  createdAt?: string;
-};
-
-const readPendingEmployeePayment = (): PendingEmployeePayment | null => {
-  try {
-    const raw = sessionStorage.getItem('pendingEmployeePayment');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<PendingEmployeePayment>;
-    if (
-      !parsed.checkoutSessionId ||
-      typeof parsed.checkoutSessionId !== 'string'
-    )
-      return null;
-    return {
-      checkoutSessionId: parsed.checkoutSessionId,
-      returnTo:
-        typeof parsed.returnTo === 'string' ? parsed.returnTo : undefined,
-      createdAt:
-        typeof parsed.createdAt === 'string' ? parsed.createdAt : undefined,
-    };
-  } catch {
-    return null;
+// Maps PayPal subscription status codes to user-facing messages.
+const statusMessage = (status: string | undefined): string => {
+  switch (status) {
+    case 'APPROVAL_PENDING':
+      return 'Your PayPal approval is still pending. Please complete the payment on PayPal and try again.';
+    case 'SUSPENDED':
+    case 'CANCELLED':
+      return 'Your subscription was cancelled or suspended. Please try a different plan or contact support.';
+    default:
+      return 'Payment could not be confirmed. Please try again or contact support.';
   }
 };
-
-const cleanupPendingEmployeePayment = () => {
-  try {
-    sessionStorage.removeItem('pendingEmployeePayment');
-  } catch {
-    // ignore
-  }
-};
-
-const sleep = (ms: number) =>
-  new Promise<void>(resolve => setTimeout(resolve, ms));
 
 const ConfirmPayment: React.FC = () => {
   const navigate = useNavigate();
@@ -107,22 +46,7 @@ const ConfirmPayment: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const { updateUser, refreshUser } = useUser();
-  const pendingEmployeePayment = readPendingEmployeePayment();
   const hasStartedRef = useRef(false);
-
-  const loginWithPendingCredentials = useCallback(async () => {
-    const credsStr = sessionStorage.getItem('pendingSignupCredentials');
-    if (!credsStr) return null;
-    const creds = JSON.parse(credsStr) as {
-      email?: string;
-      password?: string;
-    };
-    if (!creds.email || !creds.password) return null;
-    return await authApi.login({
-      email: creds.email,
-      password: creds.password,
-    });
-  }, []);
 
   const hydrateUserContext = useCallback(
     async (userPayload?: Record<string, unknown>) => {
@@ -132,23 +56,13 @@ const ConfirmPayment: React.FC = () => {
             userPayload as unknown as Parameters<typeof updateUser>[0]
           );
         } catch {
-          // ignore, refreshUser will keep context consistent
+          // ignore
         }
       }
-
       try {
         await refreshUser();
-      } catch (refreshErr) {
-        const stored = getStoredUser<Parameters<typeof updateUser>[0]>();
-        if (stored) {
-          try {
-            updateUser(stored);
-          } catch {
-            // ignore
-          }
-        } else {
-          throw refreshErr;
-        }
+      } catch {
+        // best-effort — session is already persisted
       }
     },
     [refreshUser, updateUser]
@@ -158,136 +72,56 @@ const ConfirmPayment: React.FC = () => {
     try {
       setLoading(true);
 
-      const sessionId =
-        searchParams.get('session_id') ||
-        searchParams.get('checkoutSessionId') ||
-        searchParams.get('checkout_session_id');
+      // PayPal return URL: /signup/confirm-payment?subscription_id=I-xxx&signupSessionId=xxx
+      const subscriptionId = searchParams.get('subscription_id');
       const signupSessionId = searchParams.get('signupSessionId');
-      const accessToken = localStorage.getItem('accessToken');
+      const storedAccessToken = localStorage.getItem('accessToken');
 
-      const isEmployeeFlow = Boolean(pendingEmployeePayment);
       const isSignupFlow = Boolean(signupSessionId);
-      const isLoginFlow = Boolean(accessToken && !signupSessionId);
+      const isLoginFlow = Boolean(storedAccessToken && !signupSessionId);
 
-      if (isEmployeeFlow) {
-        const effectiveSessionId =
-          sessionId || pendingEmployeePayment?.checkoutSessionId;
-
-        if (!accessToken) {
-          throw new Error(
-            'Please login again to confirm the employee payment.'
-          );
-        }
-
-        if (!effectiveSessionId) {
-          throw new Error('Missing payment session information');
-        }
-
-        // Stripe can redirect back before the payment state is fully settled (or before
-        // webhooks are processed). In that case backend may temporarily return 400.
-        // Also, React StrictMode can double-run effects in dev; we guard against that
-        // separately via `hasStartedRef`.
-        await sleep(1200);
-
-        const maxAttempts = 5;
-        let employeePaymentResult: unknown = null;
-
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          try {
-            employeePaymentResult = await billingApi.confirmEmployeePayment({
-              checkoutSessionId: effectiveSessionId,
-            });
-            break;
-          } catch (e: unknown) {
-            const status =
-              e && typeof e === 'object' && 'response' in e
-                ? ((e as { response?: { status?: number } }).response?.status ??
-                  null)
-                : null;
-
-            const isRetriable = status === 400;
-            const isLastAttempt = attempt === maxAttempts - 1;
-
-            if (isRetriable && !isLastAttempt) {
-              // Backoff a bit more each attempt.
-              await sleep(800 * (attempt + 1));
-              continue;
-            }
-
-            throw e;
-          }
-        }
-
-        const status =
-          typeof (employeePaymentResult as Record<string, unknown>)?.status ===
-          'string'
-            ? String((employeePaymentResult as Record<string, unknown>).status)
-            : undefined;
-        const ok =
-          (typeof (employeePaymentResult as Record<string, unknown>)
-            ?.success === 'boolean' &&
-            Boolean(
-              (employeePaymentResult as Record<string, unknown>).success
-            )) ||
-          status === 'succeeded' ||
-          status === 'success';
-
-        if (!ok) {
-          throw new Error('Payment was not successful');
-        }
-
-        cleanupPendingEmployeePayment();
-        setSuccess(true);
-
-        // Give the dashboard a brief moment to mount after context is updated
-        await new Promise(resolve => setTimeout(resolve, 200));
-        navigate(
-          pendingEmployeePayment?.returnTo || '/dashboard/employee-manager',
-          {
-            replace: true,
-          }
-        );
-        return;
-      }
-
-      if (!sessionId) {
-        throw new Error('Missing payment session information');
+      if (!subscriptionId) {
+        throw new Error('Missing PayPal subscription information.');
       }
 
       if (!isSignupFlow && !isLoginFlow) {
         throw new Error('Invalid payment session. Please try again.');
       }
 
+      // Step 4: POST /signup/payment/confirm
+      // The PayPal subscription ID (I-xxx) is sent as checkoutSessionId per backend contract.
       const paymentResult = await signupApi.confirmPayment({
         signupSessionId: signupSessionId || null,
-        checkoutSessionId: sessionId,
+        checkoutSessionId: subscriptionId,
       });
 
-      if (paymentResult.status !== 'succeeded') {
-        throw new Error('Payment was not successful');
+      const isPaid =
+        paymentResult.isPaid === true ||
+        paymentResult.status === 'APPROVED' ||
+        paymentResult.status === 'ACTIVE';
+
+      if (!isPaid) {
+        throw new Error(
+          paymentResult.message || statusMessage(paymentResult.status)
+        );
       }
 
       if (isSignupFlow && signupSessionId) {
-        let signupResult: Record<string, unknown> | null = null;
+        // Step 5: POST /signup/complete → { accessToken, refreshToken }
+        const completeResult = await signupApi.completeSignup({ signupSessionId });
 
-        signupResult = (await signupApi.completeSignup({
-          signupSessionId,
-        })) as unknown as Record<string, unknown>;
-
-        const loginResponse =
-          (await loginWithPendingCredentials()) ||
-          coerceLoginResponse(signupResult);
-
-        if (!loginResponse) {
+        if (!completeResult.accessToken) {
           throw new Error(
-            'We could not automatically sign you in. Please login manually with the credentials you used during signup.'
+            'Signup complete but no access token received. Please log in manually.'
           );
         }
 
-        persistAuthSession(loginResponse);
-        await hydrateUserContext(
-          loginResponse.user as Record<string, unknown> | undefined
-        );
+        persistAuthSession({
+          accessToken: completeResult.accessToken,
+          refreshToken: completeResult.refreshToken,
+        });
+
+        await hydrateUserContext();
         cleanupPendingSignupData();
       } else if (isLoginFlow) {
         await hydrateUserContext();
@@ -301,8 +135,6 @@ const ConfirmPayment: React.FC = () => {
       }
 
       setSuccess(true);
-
-      // Give the dashboard a brief moment to mount after context is updated
       await new Promise(resolve => setTimeout(resolve, 200));
       navigate('/dashboard', { replace: true });
     } catch (err: unknown) {
@@ -310,32 +142,17 @@ const ConfirmPayment: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [
-    searchParams,
-    navigate,
-    loginWithPendingCredentials,
-    hydrateUserContext,
-    pendingEmployeePayment,
-  ]);
+  }, [searchParams, navigate, hydrateUserContext]);
 
   useEffect(() => {
-    // Prevent duplicate confirmation calls (React StrictMode in dev can run effects twice).
+    // Guard against React StrictMode double-firing in dev.
     if (hasStartedRef.current) return;
     hasStartedRef.current = true;
     handlePaymentConfirmation();
   }, [handlePaymentConfirmation]);
 
-  const handleRetry = () => {
-    if (pendingEmployeePayment?.returnTo) {
-      navigate(pendingEmployeePayment.returnTo);
-      return;
-    }
-    navigate('/signup/select-plan');
-  };
-
-  const handleGoHome = () => {
-    navigate('/');
-  };
+  const handleRetry = () => navigate('/signup/select-plan');
+  const handleGoHome = () => navigate('/');
 
   if (loading) {
     return (
@@ -355,7 +172,7 @@ const ConfirmPayment: React.FC = () => {
           Confirming your payment...
         </Typography>
         <Typography variant='body2' color='text.secondary'>
-          Please wait while we process your subscription
+          Please wait while we activate your subscription
         </Typography>
       </Box>
     );
@@ -397,7 +214,7 @@ const ConfirmPayment: React.FC = () => {
               <Button
                 variant='text'
                 color='primary'
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/')}
                 sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
               >
                 Login here
@@ -429,9 +246,7 @@ const ConfirmPayment: React.FC = () => {
             Payment Successful!
           </Typography>
           <Typography color='text.secondary' sx={{ mb: 3 }}>
-            {pendingEmployeePayment
-              ? 'Your employee payment has been confirmed. Redirecting to employees...'
-              : 'Your account has been created successfully. Redirecting to dashboard...'}
+            Your subscription is now active. Redirecting to dashboard...
           </Typography>
           <CircularProgress size={24} />
         </Paper>

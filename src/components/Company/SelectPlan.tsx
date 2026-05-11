@@ -16,7 +16,6 @@ import signupApi, {
   type CompanyDetailsRequest,
   type LogoUploadRequest,
   type PaymentRequest,
-  type StripePriceInfo,
 } from '../../api/signupApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
@@ -120,84 +119,47 @@ const SelectPlan: React.FC = () => {
           const subscriptionPlans: SubscriptionPlan[] =
             await signupApi.getSubscriptionPlans();
 
-          // Gather price IDs (if any) from plans
-          const priceIds = subscriptionPlans
-            .map(p => p.stripePriceId)
-            .filter((id): id is string => Boolean(id));
-
-          let priceInfoByPriceId: Record<
-            string,
-            { formatted: string; intervalLabel: string }
-          > = {};
-
-          if (priceIds.length > 0) {
-            try {
-              const prices = await signupApi.getStripePrices(priceIds);
-              priceInfoByPriceId = (prices || []).reduce(
-                (acc, pr: StripePriceInfo) => {
-                  const amount =
-                    typeof pr.unit_amount === 'number'
-                      ? (pr.unit_amount as number)
-                      : 0;
-                  const currency = (
-                    typeof pr.currency === 'string' ? pr.currency : 'USD'
-                  ).toUpperCase();
-                  const interval =
-                    typeof pr.interval === 'string'
-                      ? (pr.interval as string)
-                      : 'month';
-                  const formattedAmount = new Intl.NumberFormat(undefined, {
-                    style: 'currency',
-                    currency,
-                    currencyDisplay: 'symbol',
-                    maximumFractionDigits: 2,
-                  }).format(amount / 100);
-                  const intervalLabel =
-                    interval.charAt(0).toUpperCase() + interval.slice(1);
-                  // priceId might be returned as `priceId` or `id` depending on API
-                  acc[pr.priceId] = {
-                    formatted: formattedAmount,
-                    intervalLabel,
-                  };
-                  return acc;
-                },
-                {} as Record<
-                  string,
-                  { formatted: string; intervalLabel: string }
-                >
-              );
-            } catch {
-              // Fallback prices if stripe API fails
-              priceIds.forEach((priceId, index) => {
-                const fallbackPrices = ['$9', '$19', '$30'];
-                const fallbackIntervals = ['Month', 'Month', 'Month'];
-                priceInfoByPriceId[priceId] = {
-                  formatted: fallbackPrices[index] || '$0',
-                  intervalLabel: fallbackIntervals[index] || 'Month',
-                };
-              });
-            }
-          }
+          // Keep only active plans that have a PayPal plan ID.
+          // Plans with no paypal_plan_id (e.g. "Add Employee" addon) are not subscription plans.
+          const subscriptionOnly = subscriptionPlans.filter(
+            p => p.active && p.paypal_plan_id
+          );
 
           // Transform API data to match our UI structure
-          const transformedPlans = subscriptionPlans.map((plan, index) => {
+          const transformedPlans = subscriptionOnly.map((plan, index) => {
             const descriptionText = plan.description || '';
-            // Split description into bullet points by common delimiters
+            // Descriptions are period-delimited (e.g. "Feature one.Feature two.Feature three")
             const bullets = descriptionText
-              .split(/\r?\n|\u2022|\||;|\./)
+              .split(/\.|\r?\n|;/)
               .map(s => s.trim())
               .filter(Boolean);
 
-            const features =
+            const features: { text: string; included: boolean }[] =
               bullets.length > 0
                 ? bullets.map(b => ({ text: b, included: true }))
                 : [{ text: 'Includes core features', included: true }];
 
-            const priceInfo = plan.stripePriceId
-              ? priceInfoByPriceId[plan.stripePriceId]
-              : undefined;
-            const price = priceInfo ? priceInfo.formatted : '$—';
-            const duration = priceInfo ? priceInfo.intervalLabel : 'Month';
+            // Prepend employee limit as first feature if available
+            if (typeof plan.max_employees === 'number') {
+              features.unshift({
+                text: `Up to ${plan.max_employees} employees`,
+                included: true,
+              });
+            }
+
+            // Price from the amount field (stored in dollars for PayPal plans)
+            const price =
+              typeof plan.amount === 'number'
+                ? new Intl.NumberFormat(undefined, {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 2,
+                  }).format(plan.amount)
+                : '$—';
+
+            // Interval label from billing_cycle
+            const billingCycle = (plan.billing_cycle ?? '').toUpperCase();
+            const duration = billingCycle === 'YEARLY' ? 'Year' : 'Month';
 
             let planName = plan.name;
             if (plan.name.toLowerCase().includes('basic')) {
@@ -249,17 +211,8 @@ const SelectPlan: React.FC = () => {
   }, [plans, loading, selectedPlan]);
 
   // Compute visible plans: hide any plan that is billed "per employee" or has a $2 price
-  const visiblePlans = plans.filter(p => {
-    const durationStr =
-      typeof p.duration === 'string' ? p.duration.toLowerCase() : '';
-    if (durationStr.includes('employee')) return false;
-    const priceStr =
-      typeof p.price === 'string'
-        ? p.price.replace(/[^0-9.]/g, '')
-        : String(p.price);
-    const priceNum = parseFloat(priceStr) || 0;
-    return priceNum !== 2;
-  });
+  // Non-subscription plans are already excluded during data loading (no paypal_plan_id).
+  const visiblePlans = plans;
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
@@ -359,22 +312,22 @@ const SelectPlan: React.FC = () => {
           }
         }
 
-        // 3. Create Stripe Checkout Session
-        // signupSessionId is already validated above as a non-empty string
+        // 3. Initiate PayPal subscription
         const paymentRequest: PaymentRequest = {
-          signupSessionId, // Guaranteed to be a non-empty string
-          mode: 'checkout' as const, // Use Stripe Checkout
+          signupSessionId,
         };
 
         const checkoutSession = await signupApi.createPayment(paymentRequest);
 
         showSuccess('Redirecting to secure payment...');
 
-        // 4. Redirect to Stripe Checkout
-        if (checkoutSession.url) {
-          window.location.href = checkoutSession.url;
+        // 4. Redirect to PayPal approval page
+        const redirectUrl =
+          checkoutSession.approvalUrl || checkoutSession.url;
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
         } else {
-          throw new Error('No checkout URL received from server');
+          throw new Error('No payment URL received from server');
         }
       } else if (isLoginFlow) {
         // eslint-disable-next-line no-useless-catch
@@ -408,20 +361,21 @@ const SelectPlan: React.FC = () => {
 
           await signupApi.createCompanyDetails(companyDetailsRequest);
 
-          // Step 2: Create payment with session_id
+          // Step 2: Initiate PayPal subscription
           const paymentRequest: PaymentRequest = {
             signupSessionId: loginSignupSessionId,
-            mode: 'checkout' as const,
           };
 
           const checkoutSession = await signupApi.createPayment(paymentRequest);
 
           showSuccess('Redirecting to secure payment...');
 
-          if (checkoutSession.url) {
-            window.location.href = checkoutSession.url;
+          const redirectUrl =
+            checkoutSession.approvalUrl || checkoutSession.url;
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
           } else {
-            throw new Error('No checkout URL received from server');
+            throw new Error('No payment URL received from server');
           }
         } catch (paymentError: unknown) {
           throw paymentError;

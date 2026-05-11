@@ -16,7 +16,14 @@ export interface PersonalDetailsResponse {
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  stripePriceId: string;
+  stripePriceId: string | null;
+  paypal_plan_id: string | null;
+  billing_cycle: 'MONTHLY' | 'YEARLY' | string | null;
+  amount: number | null;
+  active: boolean;
+  allows_addons: boolean;
+  addon_feature_enabled: boolean;
+  max_employees: number | null;
   description: string | null;
   created_at: Date;
   updated_at: Date;
@@ -42,27 +49,35 @@ export interface CompanyDetailsResponse {
 }
 
 export interface PaymentRequest {
-  signupSessionId: string | null; // String for signup flow, null for login flow
-  mode: 'checkout'; // Add mode field
+  signupSessionId: string | null;
 }
 
 export interface PaymentResponse {
+  // PayPal fields
+  approvalUrl?: string;
+  subscriptionId?: string;
+  provider?: string;
+  // Legacy / fallback fields
   checkoutSessionId?: string;
   url?: string;
-  subscriptionId?: string;
   status?: string;
 }
 
-// Accept either checkout session id (Stripe Checkout) or payment intent id (alt flows)
 export interface PaymentConfirmRequest {
-  signupSessionId: string | null; // String for signup flow, null for login flow
+  signupSessionId: string | null;
+  // PayPal subscription ID (I-xxx) from the ?subscription_id= return URL param
   checkoutSessionId?: string;
-  paymentIntentId?: string;
 }
 
 export interface PaymentConfirmResponse {
-  status: 'succeeded' | 'failed';
-  transactionId: string;
+  // PayPal response shape
+  ok?: boolean;
+  isPaid?: boolean;
+  status?: string;
+  nextStep?: string;
+  message?: string;
+  // Legacy Stripe compat
+  transactionId?: string;
 }
 
 export interface CompleteSignupRequest {
@@ -70,10 +85,12 @@ export interface CompleteSignupRequest {
 }
 
 export interface CompleteSignupResponse {
-  message: string;
-  userId: string;
-  plan: string;
-  status: 'active';
+  accessToken?: string;
+  refreshToken?: string;
+  message?: string;
+  userId?: string;
+  plan?: string;
+  status?: string;
 }
 
 export interface LogoUploadRequest {
