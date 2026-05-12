@@ -1,10 +1,12 @@
 import { lazy } from 'react';
 import type React from 'react';
+import { ROLES } from '@/constants/roles';
+import type { AppRole } from '@/constants/roles';
 
 export interface RouteConfig {
   path: string;
   component: React.LazyExoticComponent<React.ComponentType>;
-  requiredRole?: string[];
+  requiredRole?: AppRole | AppRole[];
 }
 
 export interface ProtectedRouteConfig {
@@ -13,7 +15,7 @@ export interface ProtectedRouteConfig {
   component: React.LazyExoticComponent<React.ComponentType>;
   /** When false, the route skips RouteErrorBoundary; defaults to true */
   withErrorBoundary?: boolean;
-  requiredRole?: string[];
+  requiredRole?: AppRole | AppRole[];
 }
 
 // ── Public lazy imports ──────────────────────────────────────────────────────
@@ -131,32 +133,207 @@ export const themedPublicRoutes: RouteConfig[] = [
 
 // ── Protected (dashboard child) routes ───────────────────────────────────────
 // withErrorBoundary defaults to true in AppRouter — only set false to opt out.
+// requiredRole is enforced by RoleGuard in AppRouter; omit for all-authenticated routes.
 export const protectedRoutes: ProtectedRouteConfig[] = [
+  // Dashboard index — accessible to all authenticated users
   { index: true, component: DashboardPage },
-  { path: 'tenant', component: TenantPage },
-  { path: 'departments', component: DepartmentList },
-  { path: 'designations', component: DesignationManager },
-  { path: 'employee-manager', component: EmployeesPage },
-  { path: 'user-list', component: UserList },
+
+  // System-admin-only routes
+  {
+    path: 'tenant',
+    component: TenantPage,
+    requiredRole: [ROLES.SYSTEM_ADMIN, ROLES.NETWORK_ADMIN],
+  },
+  {
+    path: 'tenant-employees',
+    component: TenantBasedEmployeeManager,
+    requiredRole: ROLES.SYSTEM_ADMIN,
+  },
+  {
+    path: 'feature-management',
+    component: FeatureManagementPage,
+    requiredRole: ROLES.SYSTEM_ADMIN,
+  },
+  {
+    path: 'performance-dashboard',
+    component: PerformanceDashboard,
+    requiredRole: ROLES.SYSTEM_ADMIN,
+  },
+  {
+    path: 'audit-logs',
+    component: AuditLogs,
+    requiredRole: ROLES.SYSTEM_ADMIN,
+  },
+
+  // Admin-tier routes (system-admin, network-admin, hr-admin, admin)
+  {
+    path: 'departments',
+    component: DepartmentList,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+    ],
+  },
+  {
+    path: 'designations',
+    component: DesignationManager,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+    ],
+  },
+  {
+    path: 'attendance-summary',
+    component: AttendanceSummaryReport,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+    ],
+  },
+
+  // User-list: network-admin and admin
+  {
+    path: 'user-list',
+    component: UserList,
+    requiredRole: [ROLES.NETWORK_ADMIN, ROLES.ADMIN],
+  },
+
+  // Employee management — admin-tier + manager
+  {
+    path: 'employee-manager',
+    component: EmployeesPage,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+    ],
+  },
+  {
+    path: 'employee-profile-view',
+    component: EmployeeProfileView,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+    ],
+  },
+  {
+    path: 'employee-profile-view/:employeeId',
+    component: EmployeeProfileView,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+    ],
+  },
+
+  // Cross-tenant leaves — system-admin and admin only
+  {
+    path: 'cross-tenant-leaves',
+    component: CrossTenantLeaveManagement,
+    requiredRole: [ROLES.SYSTEM_ADMIN, ROLES.ADMIN],
+  },
+
+  // Policies and holidays — admin-tier (not in any employee allowlist)
+  {
+    path: 'policies',
+    component: PolicyList,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+    ],
+  },
+  {
+    path: 'holidays',
+    component: HolidayList,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+    ],
+  },
+
+  // Teams — admin-tier + manager
+  {
+    path: 'teams',
+    component: TeamManager,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+    ],
+  },
+  {
+    path: 'teams/list',
+    component: TeamsTaskList,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.NETWORK_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+    ],
+  },
+
+  // Reports — hr-admin, admin, manager, employee
+  {
+    path: 'reports',
+    component: Reports,
+    requiredRole: [ROLES.HR_ADMIN, ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE],
+  },
+
+  // Geofencing — manager only
+  {
+    path: 'geofencing',
+    component: GeofencingManagement,
+    requiredRole: ROLES.MANAGER,
+  },
+
+  // Leaves — hr-admin, admin, manager, employee, user
+  {
+    path: 'leaves',
+    component: LeavePage,
+    requiredRole: [
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+      ROLES.EMPLOYEE,
+      ROLES.USER,
+    ],
+  },
+
+  // Announcements — system-admin, hr-admin, admin, manager, user
+  {
+    path: 'announcements',
+    component: AnnouncementsPage,
+    requiredRole: [
+      ROLES.SYSTEM_ADMIN,
+      ROLES.HR_ADMIN,
+      ROLES.ADMIN,
+      ROLES.MANAGER,
+      ROLES.USER,
+    ],
+  },
+
+  // Open to all authenticated users (no requiredRole)
   { path: 'user-profile', component: ProfilePage },
-  { path: 'leaves', component: LeavePage },
-  { path: 'cross-tenant-leaves', component: CrossTenantLeaveManagement },
-  { path: 'attendance-summary', component: AttendanceSummaryReport },
-  { path: 'employee-profile-view', component: EmployeeProfileView },
-  { path: 'employee-profile-view/:employeeId', component: EmployeeProfileView },
-  { path: 'tenant-employees', component: TenantBasedEmployeeManager },
   { path: 'attendance-check', component: AttendancePage },
   { path: 'attendance-table', component: AttendanceTable },
-  { path: 'reports', component: Reports },
-  { path: 'policies', component: PolicyList },
-  { path: 'holidays', component: HolidayList },
   { path: 'attendance-check/timesheet-layout', component: TimesheetLayout },
-  { path: 'teams', component: TeamManager },
-  { path: 'teams/list', component: TeamsTaskList },
   { path: 'settings', component: SettingsPage },
-  { path: 'feature-management', component: FeatureManagementPage },
-  { path: 'performance-dashboard', component: PerformanceDashboard },
-  { path: 'audit-logs', component: AuditLogs },
-  { path: 'announcements', component: AnnouncementsPage },
-  { path: 'geofencing', component: GeofencingManagement },
 ];
