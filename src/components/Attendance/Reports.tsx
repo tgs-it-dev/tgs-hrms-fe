@@ -20,6 +20,8 @@ import {
   type LeaveReportMember,
 } from '../../api/leaveReportApi';
 import employeeApi from '../../api/employeeApi';
+import { useUser } from '../../hooks/useUser';
+import { getRoleName, type UserRole } from '../../utils/roleUtils';
 import AppCard from '../common/AppCard';
 import AppTable from '../common/AppTable';
 import AppPageTitle from '../common/AppPageTitle';
@@ -67,39 +69,18 @@ const Reports: React.FC = () => {
   >([]);
   const [, setTeamSummary] = useState<LeaveReportMember[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
-  const [userInfo, setUserInfo] = useState<{
-    userId: string | null;
-    isManager: boolean;
-    isHrAdmin: boolean;
-    isAdmin: boolean;
-    isSystemAdmin: boolean;
-  } | null>(null);
+
+  const { user: currentUser, loading: storeLoading } = useUser();
+
+  const userId: string | null = currentUser?.id ?? null;
+  const roleName = currentUser ? getRoleName((currentUser as { role?: UserRole }).role) : '';
+  const roleLower = roleName.toLowerCase();
+  const isManager = roleLower === 'manager';
+  const isHrAdmin = roleLower === 'hr-admin' || roleLower === 'hr_admin';
+  const isAdmin = roleLower === 'admin';
+  const isSystemAdmin = roleLower === 'system-admin' || roleLower === 'system_admin';
 
   const theme = useTheme();
-
-  useEffect(() => {
-    try {
-      const info = leaveReportApi.getUserInfo();
-      setUserInfo(info);
-    } catch {
-      setError('Failed to load user information');
-      setUserInfo({
-        userId: null,
-        isManager: false,
-        isHrAdmin: false,
-        isAdmin: false,
-        isSystemAdmin: false,
-      });
-    }
-  }, []);
-
-  const { userId, isManager, isHrAdmin, isAdmin, isSystemAdmin } = userInfo || {
-    userId: null,
-    isManager: false,
-    isHrAdmin: false,
-    isAdmin: false,
-    isSystemAdmin: false,
-  };
 
   const isAdminView = isHrAdmin || isAdmin || isSystemAdmin;
 
@@ -129,10 +110,10 @@ const Reports: React.FC = () => {
       }
     };
 
-    if (userInfo) {
+    if (userId) {
       fetchAllEmployees();
     }
-  }, [isAdminView, userInfo]);
+  }, [isAdminView, userId]);
 
   // handleTabChange removed — `tab` is not dynamically changed in this component
 
@@ -166,9 +147,10 @@ const Reports: React.FC = () => {
           employeeName: selectedEmployee || undefined,
         });
       } else {
-        if (tab === 0) blob = await leaveReportApi.exportLeaveBalanceCSV();
+        if (tab === 0) blob = await leaveReportApi.exportLeaveBalanceCSV(userId!);
         if (isManager && tab === 1)
           blob = await leaveReportApi.exportTeamLeaveSummaryCSV(
+            userId!,
             undefined as unknown as number,
             selectedYear
           );
@@ -294,7 +276,7 @@ const Reports: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!userInfo || !userInfo.userId) {
+    if (!userId) {
       setLoading(false);
       return;
     }
@@ -311,10 +293,11 @@ const Reports: React.FC = () => {
           // For tab changes, use tab-specific loading instead of full page loading
           setLoadingTab(true);
           if (tab === 0) {
-            const data = await leaveReportApi.getLeaveBalance();
+            const data = await leaveReportApi.getLeaveBalance(userId!);
             setLeaveBalance(data.balances || []);
           } else if (isManager && tab === 1) {
             const data = await leaveReportApi.getTeamLeaveSummary(
+              userId!,
               undefined as unknown as number,
               selectedYear
             );
@@ -333,14 +316,14 @@ const Reports: React.FC = () => {
     fetchData();
     // Remove 'page' from dependencies - we use client-side pagination for leave type rows
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, userInfo, isAdminView, isManager, selectedYear, selectedEmployee]);
+  }, [tab, userId, isAdminView, isManager, selectedYear, selectedEmployee]);
 
   // Reset employee filter when month/year changes
   useEffect(() => {
     setPage(1);
   }, [selectedYear]);
 
-  if (!userInfo) {
+  if (storeLoading) {
     return (
       <Box
         display='flex'

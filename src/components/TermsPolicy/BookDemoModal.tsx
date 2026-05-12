@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
+import { toast } from 'react-toastify';
 import AppFormModal from '../common/AppFormModal';
 import AppInputField from '../common/AppInputField';
 import AppDropdown from '../common/AppDropdown';
@@ -41,6 +42,17 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   }, [onClose, reset]);
 
   const handleSubmit = () => {
+    if (!fullName.trim() || !workEmail.trim() || !companyName.trim() || !teamSize) {
+      toast.error('Please fill in all fields before submitting.');
+      return;
+    }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(workEmail.trim());
+    if (!emailOk) {
+      toast.error('Please enter a valid work email address.');
+      return;
+    }
+    // TODO: wire to lead-capture API endpoint when available
+    toast.success("Thanks! We'll be in touch soon to confirm your demo.");
     handleClose();
   };
 

@@ -12,7 +12,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import CloseIcon from '@mui/icons-material/Close';
-import { v4 as uuidv4 } from 'uuid';
 import type { Holiday } from '../../types/holiday';
 
 interface AddHolidayDialogProps {
@@ -42,7 +41,7 @@ const AddHolidayDialog: React.FC<AddHolidayDialogProps> = ({
     }
 
     const newHoliday: Holiday = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       title: title.trim(),
       date: date?.toISOString().split('T')[0] || '',
       description: description.trim(),

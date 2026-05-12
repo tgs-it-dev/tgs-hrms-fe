@@ -14,9 +14,9 @@ import {
   Pagination,
 } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import DatePicker from 'react-multi-date-picker';
-import 'react-multi-date-picker/styles/layouts/mobile.css';
-import 'react-multi-date-picker/styles/colors/teal.css';
+import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import './AttendanceTable.css';
 import attendanceApi, {
   type SystemAllAttendanceResponse,
@@ -36,8 +36,6 @@ import {
   isHRAdmin,
 } from '../../utils/roleUtils';
 import DateNavigation from './DateNavigation';
-import { useTheme } from '../../theme/hooks';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { formatDate } from '../../utils/dateUtils';
 // systemEmployeeApiService removed; not used after cleanup
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -105,8 +103,6 @@ const getApprovalStatus = (obj: unknown): string | null => {
 
 const AttendanceTable = () => {
   const { user: contextUser } = useUser();
-  const { mode } = useTheme();
-  const muiTheme = useMuiTheme();
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [filteredData, setFilteredData] = useState<AttendanceRecord[]>([]);
@@ -1896,80 +1892,38 @@ const AttendanceTable = () => {
                   />
                 </>
               )}
-              <Box
-                sx={{
-                  width: { xs: '100%', sm: '200px' },
-                  minWidth: { xs: '100%', sm: '200px' },
-                  maxWidth: { sm: '200px' },
-                  flexShrink: 0,
-                }}
-              >
-                <DatePicker
-                  range
-                  numberOfMonths={2}
-                  value={
-                    startDate && endDate
-                      ? [new Date(startDate), new Date(endDate)]
-                      : startDate
-                        ? [new Date(startDate)]
-                        : []
-                  }
-                  onChange={dates => {
-                    if (Array.isArray(dates) && dates.length === 2) {
-                      const start = formatLocalYMD(dates[0].toDate());
-                      const end = formatLocalYMD(dates[1].toDate());
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: '380px' }, flexShrink: 0 }}>
+                  <MuiDatePicker
+                    label='Start Date'
+                    value={startDate ? new Date(startDate) : null}
+                    onChange={date => {
+                      const start = date ? formatLocalYMD(date as Date) : '';
                       setStartDate(start);
+                      if (!start) setEndDate('');
+                      setCurrentPage(1);
+                      const view = canViewAllAttendance ? adminView : 'my';
+                      const selectedId = view === 'all' ? selectedEmployee : undefined;
+                      fetchAttendance(view, selectedId, start, start ? endDate : '');
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                  <MuiDatePicker
+                    label='End Date'
+                    value={endDate ? new Date(endDate) : null}
+                    minDate={startDate ? new Date(startDate) : undefined}
+                    onChange={date => {
+                      const end = date ? formatLocalYMD(date as Date) : '';
                       setEndDate(end);
                       setCurrentPage(1);
                       const view = canViewAllAttendance ? adminView : 'my';
-                      const selectedId =
-                        view === 'all' ? selectedEmployee : undefined;
-                      fetchAttendance(view, selectedId, start, end);
-                    } else if (Array.isArray(dates) && dates.length === 1) {
-                      const start = formatLocalYMD(dates[0].toDate());
-                      setStartDate(start);
-                      setEndDate('');
-                      setCurrentPage(1);
-                      const view = canViewAllAttendance ? adminView : 'my';
-                      const selectedId =
-                        view === 'all' ? selectedEmployee : undefined;
-                      fetchAttendance(view, selectedId, start, '');
-                    } else {
-                      setStartDate('');
-                      setEndDate('');
-                      setCurrentPage(1);
-                      const view = canViewAllAttendance ? adminView : 'my';
-                      const selectedId =
-                        view === 'all' ? selectedEmployee : undefined;
-                      fetchAttendance(view, selectedId, '', '');
-                    }
-                  }}
-                  format='MM/DD/YYYY'
-                  placeholder='START DATE - END DATE'
-                  style={{
-                    width: '100%',
-                    height: '40px',
-                    padding: '6.5px 14px',
-                    border: `1px solid ${muiTheme.palette.primary.main}`,
-                    borderRadius: '12px',
-                    fontSize: '16px',
-                    outline: 'none',
-                  }}
-                  containerStyle={{
-                    width: '100%',
-                  }}
-                  inputClass={`custom-date-picker-input ${mode === 'dark' ? 'theme-dark' : ''}`}
-                  className={`custom-date-picker ${mode === 'dark' ? 'theme-dark' : ''}`}
-                  editable={false}
-                  showOtherDays={true}
-                  onOpen={() => {
-                    document.body.style.overflow = 'hidden';
-                  }}
-                  onClose={() => {
-                    document.body.style.overflow = 'auto';
-                  }}
-                />
-              </Box>
+                      const selectedId = view === 'all' ? selectedEmployee : undefined;
+                      fetchAttendance(view, selectedId, startDate, end);
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                </Box>
+              </LocalizationProvider>
 
               <AppButton
                 variant='outlined'
@@ -2308,82 +2262,42 @@ const AttendanceTable = () => {
                 flexShrink: 0,
               }}
             >
-              <DatePicker
-                range
-                numberOfMonths={2}
-                value={
-                  teamStartDate && teamEndDate
-                    ? [new Date(teamStartDate), new Date(teamEndDate)]
-                    : teamStartDate
-                      ? [new Date(teamStartDate)]
-                      : []
-                }
-                onChange={dates => {
-                  if (dates && dates.length === 2) {
-                    const start = dates[0]?.format('YYYY-MM-DD') || '';
-                    const end = dates[1]?.format('YYYY-MM-DD') || '';
-                    setTeamStartDate(start);
-                    setTeamEndDate(end);
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      // Apply date range + selected employee together
-                      handleTeamEmployeeChange(
-                        selectedTeamEmployee,
-                        start,
-                        end
-                      );
-                    } else {
-                      // No employee selected -> fetch full team attendance
-                      fetchTeamAttendance(1, start, end);
-                    }
-                  } else if (dates && dates.length === 1) {
-                    const start = dates[0]?.format('YYYY-MM-DD') || '';
-                    setTeamStartDate(start);
-                    setTeamEndDate('');
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      handleTeamEmployeeChange(selectedTeamEmployee, start, '');
-                    } else {
-                      fetchTeamAttendance(1, start, '');
-                    }
-                  } else {
-                    setTeamStartDate('');
-                    setTeamEndDate('');
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      // Clear date filter but keep selected employee
-                      handleTeamEmployeeChange(selectedTeamEmployee, '', '');
-                    } else {
-                      fetchTeamAttendance(1);
-                    }
-                  }
-                }}
-                format='MM/DD/YYYY'
-                placeholder='Start Date - End Date'
-                style={{
-                  width: '100%',
-                  height: '40px',
-                  padding: '6.5px 14px',
-                  border: `1px solid ${muiTheme.palette.primary.main}`,
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-                  outline: 'none',
-                }}
-                containerStyle={{
-                  width: '100%',
-                }}
-                inputClass={`custom-date-picker-input ${mode === 'dark' ? 'theme-dark' : ''}`}
-                className={`custom-date-picker ${mode === 'dark' ? 'theme-dark' : ''}`}
-                editable={false}
-                showOtherDays={true}
-                onOpen={() => {
-                  document.body.style.overflow = 'hidden';
-                }}
-                onClose={() => {
-                  document.body.style.overflow = 'auto';
-                }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: '380px' }, flexShrink: 0 }}>
+                  <MuiDatePicker
+                    label='Start Date'
+                    value={teamStartDate ? new Date(teamStartDate) : null}
+                    onChange={date => {
+                      const start = date ? formatLocalYMD(date as Date) : '';
+                      setTeamStartDate(start);
+                      if (!start) setTeamEndDate('');
+                      setTeamCurrentNavigationDate('all');
+                      if (selectedTeamEmployee) {
+                        handleTeamEmployeeChange(selectedTeamEmployee, start, start ? teamEndDate : '');
+                      } else {
+                        fetchTeamAttendance(1, start, start ? teamEndDate : '');
+                      }
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                  <MuiDatePicker
+                    label='End Date'
+                    value={teamEndDate ? new Date(teamEndDate) : null}
+                    minDate={teamStartDate ? new Date(teamStartDate) : undefined}
+                    onChange={date => {
+                      const end = date ? formatLocalYMD(date as Date) : '';
+                      setTeamEndDate(end);
+                      setTeamCurrentNavigationDate('all');
+                      if (selectedTeamEmployee) {
+                        handleTeamEmployeeChange(selectedTeamEmployee, teamStartDate, end);
+                      } else {
+                        fetchTeamAttendance(1, teamStartDate, end);
+                      }
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                </Box>
+              </LocalizationProvider>
             </Box>
             {/* Team Employee Filter - for team attendance (regular users) */}
             {teamEmployees.length > 0 && (
@@ -2579,81 +2493,42 @@ const AttendanceTable = () => {
                 flexShrink: 0,
               }}
             >
-              <DatePicker
-                range
-                numberOfMonths={2}
-                value={
-                  teamStartDate && teamEndDate
-                    ? [new Date(teamStartDate), new Date(teamEndDate)]
-                    : teamStartDate
-                      ? [new Date(teamStartDate)]
-                      : []
-                }
-                onChange={dates => {
-                  if (dates && dates.length === 2) {
-                    const start = dates[0]?.format('YYYY-MM-DD') || '';
-                    const end = dates[1]?.format('YYYY-MM-DD') || '';
-                    setTeamStartDate(start);
-                    setTeamEndDate(end);
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      // Apply date range + selected employee together
-                      handleTeamEmployeeChange(
-                        selectedTeamEmployee,
-                        start,
-                        end
-                      );
-                    } else {
-                      fetchTeamAttendance(1, start, end);
-                    }
-                  } else if (dates && dates.length === 1) {
-                    const start = dates[0]?.format('YYYY-MM-DD') || '';
-                    setTeamStartDate(start);
-                    setTeamEndDate('');
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      handleTeamEmployeeChange(selectedTeamEmployee, start, '');
-                    } else {
-                      fetchTeamAttendance(1, start, '');
-                    }
-                  } else {
-                    setTeamStartDate('');
-                    setTeamEndDate('');
-                    setTeamCurrentNavigationDate('all'); // Reset date navigation
-                    if (selectedTeamEmployee) {
-                      // Clear date filter but keep selected employee
-                      handleTeamEmployeeChange(selectedTeamEmployee, '', '');
-                    } else {
-                      fetchTeamAttendance(1);
-                    }
-                  }
-                }}
-                format='MM/DD/YYYY'
-                placeholder='Start Date - End Date'
-                style={{
-                  width: '100%',
-                  height: '40px',
-                  padding: '6.5px 14px',
-                  border: `1px solid ${muiTheme.palette.primary.main}`,
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-                  outline: 'none',
-                }}
-                containerStyle={{
-                  width: '100%',
-                }}
-                inputClass={`custom-date-picker-input ${mode === 'dark' ? 'theme-dark' : ''}`}
-                className={`custom-date-picker ${mode === 'dark' ? 'theme-dark' : ''}`}
-                editable={false}
-                showOtherDays={true}
-                onOpen={() => {
-                  document.body.style.overflow = 'hidden';
-                }}
-                onClose={() => {
-                  document.body.style.overflow = 'auto';
-                }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: '380px' }, flexShrink: 0 }}>
+                  <MuiDatePicker
+                    label='Start Date'
+                    value={teamStartDate ? new Date(teamStartDate) : null}
+                    onChange={date => {
+                      const start = date ? formatLocalYMD(date as Date) : '';
+                      setTeamStartDate(start);
+                      if (!start) setTeamEndDate('');
+                      setTeamCurrentNavigationDate('all');
+                      if (selectedTeamEmployee) {
+                        handleTeamEmployeeChange(selectedTeamEmployee, start, start ? teamEndDate : '');
+                      } else {
+                        fetchTeamAttendance(1, start, start ? teamEndDate : '');
+                      }
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                  <MuiDatePicker
+                    label='End Date'
+                    value={teamEndDate ? new Date(teamEndDate) : null}
+                    minDate={teamStartDate ? new Date(teamStartDate) : undefined}
+                    onChange={date => {
+                      const end = date ? formatLocalYMD(date as Date) : '';
+                      setTeamEndDate(end);
+                      setTeamCurrentNavigationDate('all');
+                      if (selectedTeamEmployee) {
+                        handleTeamEmployeeChange(selectedTeamEmployee, teamStartDate, end);
+                      } else {
+                        fetchTeamAttendance(1, teamStartDate, end);
+                      }
+                    }}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                  />
+                </Box>
+              </LocalizationProvider>
             </Box>
             {/* Team Employee Filter - for manager team attendance */}
             {teamEmployees.length > 0 && (
