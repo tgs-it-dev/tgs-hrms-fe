@@ -4,7 +4,7 @@ import AppFormModal, { type FormField } from '../common/AppFormModal';
 import BasicDatePicker from '../common/BasicDatePicker';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import dayjs, { type Dayjs } from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import wfhApi from '../../api/wfhApi';
@@ -14,8 +14,6 @@ import type { RequestData, WorkflowRequest } from '../../api/workflowApi';
 import overtimeApi from '../../api/overtimeApi';
 import { useFeatureToggles } from '../../context/FeatureToggleContext';
 import { getDocumentUrl } from '../../utils/fileUtils';
-
-dayjs.extend(customParseFormat);
 
 function RequestModal({
   open,
@@ -60,7 +58,10 @@ function RequestModal({
       types.push({ value: 'leave', label: getLabel('Leave', 'إجازة') });
     }
     if (isFeatureEnabled('overtime_workflow_enabled')) {
-      types.push({ value: 'overtime', label: getLabel('Overtime', 'إجازة') });
+      types.push({
+        value: 'overtime',
+        label: getLabel('Overtime', 'العمل الإضافي'),
+      });
     }
     return types;
   }, [isFeatureEnabled, getLabel]);
@@ -397,7 +398,7 @@ function RequestModal({
       {
         name: 'reason',
         label: getLabel('Reason', 'السبب'),
-        type: 'text' as const,
+        type: 'textarea' as const,
         placeholder: getLabel('Enter reason', 'أدخل السبب'),
         value: reason,
         onChange: (val: string | number) => setReason(String(val)),
@@ -457,13 +458,17 @@ function RequestModal({
         value: '',
         onChange: () => {},
       },
-      {
-        name: 'wfhInfo',
-        label: '',
-        component: wfhInfoComponent,
-        value: '',
-        onChange: () => {},
-      },
+      ...(reqType === 'wfh'
+        ? [
+            {
+              name: 'wfhInfo',
+              label: '',
+              component: wfhInfoComponent,
+              value: '',
+              onChange: () => {},
+            },
+          ]
+        : []),
     ],
     [
       // titleVal,
@@ -482,14 +487,6 @@ function RequestModal({
       showError,
       showSuccess,
     ]
-  );
-
-  const filterFields = useMemo(
-    () =>
-      reqType === 'leave' || reqType === 'overtime'
-        ? fields.filter(f => f.name !== 'wfhInfo')
-        : fields,
-    [reqType, fields]
   );
 
   const handleSubmit = useCallback(async () => {
@@ -698,8 +695,7 @@ function RequestModal({
             overtimePayload.start_date = currentFrom;
             overtimePayload.end_date = currentTo ?? undefined;
           } else if (overtimeMode === 'hours') {
-            if (currentFrom !== snapFromDate)
-              overtimePayload.start_date = currentFrom;
+            overtimePayload.start_date = currentFrom;
           }
           if (overtimeMode === 'hours' && hours !== initialSnapshot?.hours)
             overtimePayload.hours = Number(hours);
@@ -781,7 +777,7 @@ function RequestModal({
         open={open}
         onClose={onClose}
         onSubmit={handleSubmit}
-        fields={filterFields}
+        fields={fields}
         isSubmitting={isSubmitting}
         submitLabel={
           initialData

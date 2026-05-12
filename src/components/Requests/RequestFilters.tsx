@@ -79,7 +79,7 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
             value: 'wfh',
             label: getLabel('Work From Home', 'العمل من المنزل'),
           },
-          { value: 'overtime', label: getLabel('Overtime', 'إجازة') },
+          { value: 'overtime', label: getLabel('Overtime', 'العمل الإضافي') },
           { value: 'leave', label: getLabel('Leave', 'إجازة') },
         ]}
         containerSx={{ minWidth: { xs: '120px', md: '160px' } }}

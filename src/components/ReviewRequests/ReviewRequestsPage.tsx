@@ -15,6 +15,7 @@ import workflowApi, {
   type WorkflowRequestType,
   type WorkflowApprovalView,
 } from '../../api/workflowApi';
+
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
@@ -25,8 +26,15 @@ import { PAGINATION } from '../../constants/appConstants';
 import { normalizeRole } from '../../utils/permissions';
 import { getUserRole } from '../../utils/auth';
 import RequestFilters from '../Requests/RequestFilters';
-import { AppTextField } from '../common';
-import { isEmployee, isManager, isAdmin } from '../../utils/roleUtils';
+import { AppTextarea } from '../common';
+import {
+  isEmployee,
+  isManager,
+  isAdmin,
+  isHRAdmin,
+} from '../../utils/roleUtils';
+import { leaveApi } from '../../api';
+import type { LeaveType } from '../../api/leaveApi';
 
 function ReviewRequestPage() {
   const theme = useTheme();
@@ -36,6 +44,7 @@ function ReviewRequestPage() {
   const employee = isEmployee(userRole);
   const manager = isManager(userRole);
   const admin = isAdmin(userRole);
+  const hrAdmin = isHRAdmin(userRole);
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -49,9 +58,29 @@ function ReviewRequestPage() {
   const [remarksMap, setRemarksMap] = useState<Record<string, string>>({});
 
   const hasLoadedOnceRef = useRef(false);
+  const currentPageRef = useRef(currentPage);
   const previousPageRef = useRef(1);
   const previousStatusFilterRef = useRef('all');
   const previousTypeFilterRef = useRef('all');
+  const [leaveTypesMap, setLeaveTypesMap] = useState<Record<string, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchLeaveTypes = async () => {
+      try {
+        const response = await leaveApi.getLeaveTypes({ page: 1, limit: 100 });
+        const map: Record<string, string> = {};
+        response.items?.forEach((lt: LeaveType) => {
+          map[lt.id] = lt.name;
+        });
+        setLeaveTypesMap(map);
+      } catch (error) {
+        console.error('Failed to fetch leave types:', error);
+      }
+    };
+    fetchLeaveTypes();
+  }, []);
 
   const loadRequests = useCallback(
     async (options?: { page?: number; skipFullPageLoader?: boolean }) => {
@@ -74,6 +103,7 @@ function ReviewRequestPage() {
           page: pageToFetch,
           limit: ITEMS_PER_PAGE,
         };
+        console.log(params);
         const response = await workflowApi.getWorkflowApprovals(params);
         setRequests(response.items || []);
         setTotalItems(response.total || 0);
@@ -84,7 +114,9 @@ function ReviewRequestPage() {
               ? pageToFetch + 1
               : pageToFetch
         );
-        setCurrentPage(response.page || pageToFetch);
+        if (response.page && response.page !== currentPageRef.current) {
+          setCurrentPage(response.page);
+        }
         hasLoadedOnceRef.current = true;
       } catch (error) {
         showError(error);
@@ -93,7 +125,7 @@ function ReviewRequestPage() {
         else setTableLoading(false);
       }
     },
-    [showError, statusFilter, typeFilter, currentPage, ITEMS_PER_PAGE]
+    [showError, statusFilter, typeFilter, ITEMS_PER_PAGE]
   );
 
   const handleDecision = useCallback(
@@ -124,6 +156,10 @@ function ReviewRequestPage() {
       [requestId]: remark,
     }));
   };
+
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -195,6 +231,10 @@ function ReviewRequestPage() {
       attachments: request?.request_data?.attachments || [],
       role: userRole,
       steps: request?.steps || [],
+      leaveType:
+        request.request_type === 'leave' && request.request_data?.leave_type_id
+          ? leaveTypesMap[request.request_data.leave_type_id] || '—'
+          : undefined,
     };
   };
 
@@ -269,19 +309,20 @@ function ReviewRequestPage() {
                           'approved',
                           'in_review',
                         ].includes(request.status)) ||
-                      (admin &&
+                      ((admin || hrAdmin) &&
                         ['rejected', 'cancelled', 'approved'].includes(
                           request.status
                         ))
                     ) ? (
                       <Box>
-                        <AppTextField
+                        <AppTextarea
+                          label={getLabel('Remarks', 'ملاحظات')}
                           placeholder={getLabel(
-                            `Add your remarks...  `,
+                            `Add your remarks...`,
                             'أضف ملاحظاتك...'
                           )}
-                          multiline
                           rows={2}
+                          maxLength={200}
                           fullWidth
                           sx={{ mb: 2 }}
                           value={remarksMap[request.id] || ''}

@@ -1,4 +1,5 @@
 import axiosInstance from './axiosInstance';
+import { env } from '../config/env';
 
 export type OvertimeStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
@@ -40,7 +41,7 @@ export interface DeleteOvertimeAttachmentResponse {
 }
 
 class OvertimeApiService {
-  private baseUrl = 'https://tgs-hrms.onrender.com/overtime';
+  private baseUrl = `${env.apiBaseUrl}/overtime`;
 
   /**
    * Create overtime request

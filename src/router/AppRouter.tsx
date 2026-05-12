@@ -16,6 +16,8 @@ import {
   useFeatureToggles,
   type FeatureKey,
 } from '../context/FeatureToggleContext';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 const LoadingFallback = () => (
   <Box
@@ -46,6 +48,7 @@ const FeatureGuard = ({
   }
   return <>{children}</>;
 };
+dayjs.extend(customParseFormat);
 
 export function AppRouter() {
   return (

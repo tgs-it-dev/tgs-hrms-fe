@@ -12,7 +12,6 @@ import { Icons } from '../../assets/icons';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import AppCard from './AppCard';
-import { Cancel as CancelIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import type { WorkflowStep } from '../../api/workflowApi';
 import { getDocumentUrl } from '../../utils/fileUtils';
@@ -31,10 +30,11 @@ export interface RequestLeaveCardProps {
   submittedDate: string;
   steps?: WorkflowStep[];
   onEdit?: () => void;
-  onDelete?: () => void;
+  onCancel?: () => void;
   actions?: React.ReactNode;
   role?: string;
   attachments?: string[];
+  leaveType?: string;
 }
 
 const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
@@ -48,11 +48,12 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
     reason,
     submittedDate,
     onEdit,
-    onDelete,
+    onCancel,
     actions,
     role: userRole,
     steps,
     attachments = [],
+    leaveType,
   } = props;
 
   const theme = useTheme();
@@ -87,7 +88,6 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
   const currentStatus = statusConfig[status] || statusConfig.pending;
   const isPending = status === 'pending';
-  console.log(attachments);
 
   // Controls whether the delete confirmation dialog is visible
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -236,7 +236,33 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 {reason}
               </Typography>
             </Box>
-            {userRole !== 'employee' && attachments.length > 0 && (
+
+            {leaveType && (
+              <Box display='flex' gap={2}>
+                <Typography
+                  sx={{
+                    minWidth: '80px',
+                    fontWeight: 500,
+                    fontSize: 'var(--body-font-size)',
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  {getLabel('Leave Type:', 'نوع الإجازة:')}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: 'var(--body-font-size)',
+                    lineHeight: 'var(--body-line-height)',
+                    letterSpacing: 'var(--body-letter-spacing)',
+                  }}
+                >
+                  {leaveType.charAt(0).toUpperCase() + leaveType.slice(1)}
+                </Typography>
+              </Box>
+            )}
+
+            {attachments.length > 0 && (
               <Box display='flex' gap={2} alignItems='center'>
                 <Typography
                   sx={{
@@ -246,7 +272,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                     color: theme.palette.text.primary,
                   }}
                 >
-                  {getLabel('Attachments:', 'المرفقات:')}
+                  {getLabel('Documents:', 'المستندات:')}
                 </Typography>
                 <IconButton
                   onClick={handleViewDocs}
@@ -535,12 +561,10 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                     size='small'
                     onClick={() => setDeleteDialogOpen(true)}
                   >
-                    <CancelIcon
-                      sx={{
-                        width: { xs: 16, sm: 20 },
-                        height: { xs: 16, sm: 20 },
-                        color: theme.palette.error.main,
-                      }}
+                    <img
+                      src={Icons.delete}
+                      alt='edit'
+                      style={{ width: 20, height: 20 }}
                     />
                   </IconButton>
                 </Box>
@@ -554,15 +578,15 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={() => {
-          onDelete?.();
+          onCancel?.();
           setDeleteDialogOpen(false);
         }}
-        title={getLabel('Confirm Cancellation', 'تأكيد الإلغاء')}
+        title={getLabel('Cancel Request', 'إلغاء الطلب')}
         message={getLabel(
           'Are you sure you want to cancel this request? This action cannot be undone.',
           'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.'
         )}
-        confirmText={getLabel('Cancel Request', 'إلغاء الطلب')}
+        confirmText={getLabel('Confirm Cancellation', 'إلغاء الطلب')}
       />
 
       <Dialog

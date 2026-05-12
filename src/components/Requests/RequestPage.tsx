@@ -16,6 +16,7 @@ import workflowApi, {
   type WorkflowRequestStatus,
   type WorkflowRequestType,
 } from '../../api/workflowApi';
+
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import RequestFilters from './RequestFilters';
 import RequestLeaveCard from '../common/RequestLeaveCard';
@@ -26,10 +27,9 @@ import wfhApi from '../../api/wfhApi';
 import overtimeApi from '../../api/overtimeApi';
 import { normalizeRole } from '../../utils/permissions';
 import { getUserRole } from '../../utils/auth';
-import { leaveApi } from '../../api';
 import { PAGINATION } from '../../constants/appConstants';
 import RequestModal from './RequestModal';
-
+import { leaveApi, type LeaveType } from '../../api';
 function RequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
@@ -50,9 +50,29 @@ function RequestPage() {
   const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
 
   const hasLoadedOnceRef = useRef(false);
+  const currentPageRef = useRef(currentPage);
   const previousPageRef = useRef(1);
   const previousStatusFilterRef = useRef('all');
   const previousTypeFilterRef = useRef('all');
+  const [leaveTypesMap, setLeaveTypesMap] = useState<Record<string, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchLeaveTypes = async () => {
+      try {
+        const response = await leaveApi.getLeaveTypes({ page: 1, limit: 100 });
+        const map: Record<string, string> = {};
+        response.items?.forEach((lt: LeaveType) => {
+          map[lt.id] = lt.name;
+        });
+        setLeaveTypesMap(map);
+      } catch (error) {
+        console.error('Failed to fetch leave types:', error);
+      }
+    };
+    fetchLeaveTypes();
+  }, []);
 
   const loadRequests = useCallback(
     async (options?: { page?: number; skipFullPageLoader?: boolean }) => {
@@ -85,7 +105,9 @@ function RequestPage() {
               ? pageToFetch + 1
               : pageToFetch
         );
-        setCurrentPage(response.page || pageToFetch);
+        if (response.page && response.page !== currentPageRef.current) {
+          setCurrentPage(response.page);
+        }
         hasLoadedOnceRef.current = true;
       } catch (error) {
         showError(error);
@@ -94,8 +116,12 @@ function RequestPage() {
         else setTableLoading(false);
       }
     },
-    [showError, statusFilter, typeFilter, currentPage, ITEMS_PER_PAGE]
+    [showError, statusFilter, typeFilter, ITEMS_PER_PAGE]
   );
+
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -172,9 +198,13 @@ function RequestPage() {
         : '—',
       reason: request.request_data?.reason || '—',
       submittedDate: dayjs(request.created_at).format('D/M/YYYY'),
-      attachments: request.request_data?.attachments || [],
+      attachments: request?.request_data?.attachments || [],
       role: userRole,
       steps: request.steps || [],
+      leaveType:
+        request.request_type === 'leave' && request.request_data?.leave_type_id
+          ? leaveTypesMap[request.request_data.leave_type_id] || '—'
+          : undefined,
     };
   };
 
@@ -255,7 +285,7 @@ function RequestPage() {
                     setSelectedRequest(request);
                     setOpen(true);
                   }}
-                  onDelete={async () => {
+                  onCancel={async () => {
                     try {
                       if (request.request_type === 'wfh') {
                         await wfhApi.cancelWFHRequest(request.request_data.id);
