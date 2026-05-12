@@ -35,6 +35,7 @@ import {
 } from '../../utils/roleUtils';
 import { leaveApi } from '../../api';
 import type { LeaveType } from '../../api/leaveApi';
+import { mapWorkflowStatus } from '../../utils/requestUtils';
 
 function ReviewRequestPage() {
   const theme = useTheme();
@@ -195,14 +196,7 @@ function ReviewRequestPage() {
 
   const filteredRequests = requests;
 
-  const mapStatus = (
-    status: string
-  ): 'pending' | 'approved' | 'rejected' | 'cancelled' => {
-    if (status === 'approved') return 'approved';
-    if (status === 'rejected') return 'rejected';
-    if (status === 'cancelled') return 'cancelled';
-    return 'pending';
-  };
+
 
   const buildCardProps = (request: WorkflowRequest) => {
     return {
@@ -219,7 +213,7 @@ function ReviewRequestPage() {
           : request?.request_type === 'leave'
             ? 'Leave'
             : 'Overtime',
-      status: mapStatus(request?.status),
+      status: mapWorkflowStatus(request?.status),
       startDate: request?.request_data?.start_date
         ? dayjs(request?.request_data?.start_date).format('D/M/YYYY')
         : '—',
@@ -301,19 +295,19 @@ function ReviewRequestPage() {
                   {...buildCardProps(request)}
                   actions={
                     !employee &&
-                    !(
-                      (manager &&
-                        [
-                          'rejected',
-                          'cancelled',
-                          'approved',
-                          'in_review',
-                        ].includes(request.status)) ||
-                      ((admin || hrAdmin) &&
-                        ['rejected', 'cancelled', 'approved'].includes(
-                          request.status
-                        ))
-                    ) ? (
+                      !(
+                        (manager &&
+                          [
+                            'rejected',
+                            'cancelled',
+                            'approved',
+                            'in_review',
+                          ].includes(request.status)) ||
+                        ((admin || hrAdmin) &&
+                          ['rejected', 'cancelled', 'approved'].includes(
+                            request.status
+                          ))
+                      ) ? (
                       <Box>
                         <AppTextarea
                           label={getLabel('Remarks', 'ملاحظات')}

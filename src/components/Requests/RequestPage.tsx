@@ -30,6 +30,7 @@ import { getUserRole } from '../../utils/auth';
 import { PAGINATION } from '../../constants/appConstants';
 import RequestModal from './RequestModal';
 import { leaveApi, type LeaveType } from '../../api';
+import { mapWorkflowStatus } from '../../utils/requestUtils';
 function RequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
@@ -166,15 +167,6 @@ function RequestPage() {
 
   const filteredRequests = requests;
 
-  const mapStatus = (
-    status: string
-  ): 'pending' | 'approved' | 'rejected' | 'cancelled' => {
-    if (status === 'approved') return 'approved';
-    if (status === 'rejected') return 'rejected';
-    if (status === 'cancelled') return 'cancelled';
-    return 'pending';
-  };
-
   const buildCardProps = (request: WorkflowRequest) => {
     return {
       title:
@@ -189,7 +181,7 @@ function RequestPage() {
           : request.request_type === 'leave'
             ? 'Leave'
             : 'Overtime',
-      status: mapStatus(request.status),
+      status: mapWorkflowStatus(request.status),
       startDate: request.request_data?.start_date
         ? dayjs(request.request_data.start_date).format('D/M/YYYY')
         : '—',
