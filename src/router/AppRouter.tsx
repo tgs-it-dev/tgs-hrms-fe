@@ -7,6 +7,7 @@ import RouteErrorBoundary from '../components/common/RouteErrorBoundary';
 import { ThemeProvider } from '../theme';
 import { ProtectedProviders } from '../providers/ProtectedProviders';
 import { publicRoutes, themedPublicRoutes, protectedRoutes } from './routes';
+import { RoleGuard } from './RoleGuard';
 
 const LoadingFallback = () => (
   <Box
@@ -56,7 +57,7 @@ export function AppRouter() {
             {protectedRoutes.map((config, i) => {
               const Component = config.component;
               // withErrorBoundary defaults to true — set false on a route to opt out.
-              const wrapped =
+              const withBoundary =
                 (config.withErrorBoundary ?? true) ? (
                   <RouteErrorBoundary>
                     <Component />
@@ -65,6 +66,15 @@ export function AppRouter() {
                   <Component />
                 );
 
+              // Wrap with RoleGuard when the route declares a required role.
+              const guarded = config.requiredRole ? (
+                <RoleGuard requiredRole={config.requiredRole}>
+                  {withBoundary}
+                </RoleGuard>
+              ) : (
+                withBoundary
+              );
+
               if (config.index) {
                 return (
                   <Route
@@ -72,7 +82,7 @@ export function AppRouter() {
                     index
                     element={
                       <Suspense fallback={<LoadingFallback />}>
-                        {wrapped}
+                        {guarded}
                       </Suspense>
                     }
                   />
@@ -85,7 +95,7 @@ export function AppRouter() {
                   path={config.path}
                   element={
                     <Suspense fallback={<LoadingFallback />}>
-                      {wrapped}
+                      {guarded}
                     </Suspense>
                   }
                 />
