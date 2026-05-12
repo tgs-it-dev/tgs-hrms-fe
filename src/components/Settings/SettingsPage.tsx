@@ -35,9 +35,6 @@ const SettingsPage: React.FC = () => {
     refreshCompanyDetails,
   } = useCompany();
 
-  // CompanyContext doesn't expose a loading flag; this page renders with available data.
-  const contextLoading = false;
-
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [, setIsEditing] = useState(true);
   const [editFormData, setEditFormData] = useState({
@@ -286,168 +283,162 @@ const SettingsPage: React.FC = () => {
         elevation={1}
         sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
       >
-        {contextLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Box>
-            {/* Logo */}
+        <Box>
+          {/* Logo */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mb: { xs: 3, sm: 4 },
+              pb: { xs: 3, sm: 4 },
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}
+          >
             <Box
               sx={{
+                width: { xs: 110, sm: 150 },
+                height: { xs: 110, sm: 150 },
+                borderRadius: '50%',
+                backgroundColor: 'background.default',
+                border: `3px solid ${theme.palette.divider}`,
                 display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
-                alignItems: 'center',
-                mb: { xs: 3, sm: 4 },
-                pb: { xs: 3, sm: 4 },
-                borderBottom: `1px solid ${theme.palette.divider}`,
+                overflow: 'hidden',
               }}
             >
-              <Box
-                sx={{
-                  width: { xs: 110, sm: 150 },
-                  height: { xs: 110, sm: 150 },
-                  borderRadius: '50%',
-                  backgroundColor: 'background.default',
-                  border: `3px solid ${theme.palette.divider}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                }}
-              >
-                {companyLogo ? (
-                  <Box
-                    component='img'
-                    src={companyLogo}
-                    alt='Company Logo'
-                    loading='lazy'
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  <BusinessIcon
-                    sx={{
-                      fontSize: { xs: 52, sm: 70 },
-                      color: theme.palette.text.disabled,
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-
-            {/* Company Name */}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mb: { xs: 2, sm: 3 },
-                pb: { xs: 2, sm: 3 },
-                borderBottom: `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Box
-                sx={{
-                  width: { xs: 42, sm: 50 },
-                  height: { xs: 42, sm: 50 },
-                  borderRadius: '50%',
-                  backgroundColor: 'background.default',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mr: { xs: 2, sm: 3 },
-                }}
-              >
+              {companyLogo ? (
+                <Box
+                  component='img'
+                  src={companyLogo}
+                  alt='Company Logo'
+                  loading='lazy'
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
                 <BusinessIcon
                   sx={{
-                    fontSize: { xs: 22, sm: 28 },
+                    fontSize: { xs: 52, sm: 70 },
                     color: theme.palette.text.disabled,
                   }}
                 />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    mb: 0.5,
-                    fontSize: { xs: '11px', sm: '12px' },
-                    textTransform: 'uppercase',
-                    fontWeight: 500,
-                  }}
-                >
-                  Company Name
-                </Typography>
-                <Typography
-                  variant='h6'
-                  sx={{
-                    color: theme.palette.text.primary,
-                    fontSize: { xs: '16px', sm: '18px' },
-                    fontWeight: 600,
-                  }}
-                  title={companyName || ''}
-                >
-                  {isMobile && companyName && companyName.length > 30
-                    ? `${companyName.slice(0, 30)}...`
-                    : companyName}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Company Domain */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box
-                sx={{
-                  width: { xs: 42, sm: 50 },
-                  height: { xs: 42, sm: 50 },
-                  borderRadius: '50%',
-                  backgroundColor: 'background.default',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mr: { xs: 2, sm: 3 },
-                }}
-              >
-                <LanguageIcon
-                  sx={{
-                    fontSize: { xs: 22, sm: 28 },
-                    color: theme.palette.text.disabled,
-                  }}
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    mb: 0.5,
-                    fontSize: { xs: '11px', sm: '12px' },
-                    textTransform: 'uppercase',
-                    fontWeight: 500,
-                  }}
-                >
-                  Company Domain
-                </Typography>
-                <Typography
-                  variant='body1'
-                  sx={{
-                    color: theme.palette.text.primary,
-                    fontSize: { xs: '14px', sm: '16px' },
-                    fontWeight: 500,
-                  }}
-                  title={domainText}
-                >
-                  {isMobile && domainText.length > 30
-                    ? `${domainText.slice(0, 30)}...`
-                    : domainText}
-                </Typography>
-              </Box>
+              )}
             </Box>
           </Box>
-        )}
+
+          {/* Company Name */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: { xs: 2, sm: 3 },
+              pb: { xs: 2, sm: 3 },
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: 42, sm: 50 },
+                height: { xs: 42, sm: 50 },
+                borderRadius: '50%',
+                backgroundColor: 'background.default',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mr: { xs: 2, sm: 3 },
+              }}
+            >
+              <BusinessIcon
+                sx={{
+                  fontSize: { xs: 22, sm: 28 },
+                  color: theme.palette.text.disabled,
+                }}
+              />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant='body2'
+                sx={{
+                  color: theme.palette.text.secondary,
+                  mb: 0.5,
+                  fontSize: { xs: '11px', sm: '12px' },
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                }}
+              >
+                Company Name
+              </Typography>
+              <Typography
+                variant='h6'
+                sx={{
+                  color: theme.palette.text.primary,
+                  fontSize: { xs: '16px', sm: '18px' },
+                  fontWeight: 600,
+                }}
+                title={companyName || ''}
+              >
+                {isMobile && companyName && companyName.length > 30
+                  ? `${companyName.slice(0, 30)}...`
+                  : companyName}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Company Domain */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box
+              sx={{
+                width: { xs: 42, sm: 50 },
+                height: { xs: 42, sm: 50 },
+                borderRadius: '50%',
+                backgroundColor: 'background.default',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mr: { xs: 2, sm: 3 },
+              }}
+            >
+              <LanguageIcon
+                sx={{
+                  fontSize: { xs: 22, sm: 28 },
+                  color: theme.palette.text.disabled,
+                }}
+              />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant='body2'
+                sx={{
+                  color: theme.palette.text.secondary,
+                  mb: 0.5,
+                  fontSize: { xs: '11px', sm: '12px' },
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                }}
+              >
+                Company Domain
+              </Typography>
+              <Typography
+                variant='body1'
+                sx={{
+                  color: theme.palette.text.primary,
+                  fontSize: { xs: '14px', sm: '16px' },
+                  fontWeight: 500,
+                }}
+                title={domainText}
+              >
+                {isMobile && domainText.length > 30
+                  ? `${domainText.slice(0, 30)}...`
+                  : domainText}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
       </AppCard>
 
       {/* Company Details Modal (AppFormModal wrapper to match UserProfile) */}

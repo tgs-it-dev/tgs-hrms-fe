@@ -28,14 +28,7 @@ const PerformanceDashboard: React.FC = () => {
           !selectedTenant ||
           !activeTenants.find(t => t.id === selectedTenant)
         ) {
-          const testifyTenant = activeTenants.find(
-            t => t.name === 'Testify Solutions'
-          );
-          if (testifyTenant) {
-            setSelectedTenant(testifyTenant.id);
-          } else {
-            setSelectedTenant(activeTenants[0].id);
-          }
+          setSelectedTenant(activeTenants[0].id);
         }
       }
     } catch {

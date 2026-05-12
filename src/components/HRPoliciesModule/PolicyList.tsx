@@ -10,33 +10,49 @@ import {
   DialogActions,
   DialogTitle,
   Divider,
+  CircularProgress,
+  Alert,
   useTheme,
 } from '@mui/material';
 import type { Policy } from '../../types/policy';
-import { mockPolicies } from '../../Data/HrmockData';
+import { usePolicies } from './usePolicyQueries';
 import PolicyForm from './PolicyForm';
 import edit from '../../assets/dashboardIcon/edit.svg';
 import deleteIcon from '../../assets/dashboardIcon/ui-delete.svg';
 
 const PolicyList: React.FC = () => {
-  const [policies, setPolicies] = useState<Policy[]>(mockPolicies);
   const [openForm, setOpenForm] = useState(false);
   const [selected, setSelected] = useState<Policy | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const theme = useTheme();
 
-  const handleAddEdit = (policy: Policy) => {
-    setPolicies(prev =>
-      prev.some(p => p.id === policy.id)
-        ? prev.map(p => (p.id === policy.id ? policy : p))
-        : [...prev, policy]
-    );
+  const { data: policies = [], isLoading, error } = usePolicies();
+
+  const handleAddEdit = (_policy: Policy) => {
+    // Local optimistic update is handled by the mutation hooks in usePolicyQueries.
+    // This callback intentionally left as a no-op until mutation hooks are wired in.
   };
 
   const handleDelete = () => {
-    setPolicies(prev => prev.filter(p => p.id !== confirmDeleteId));
+    // Delete is handled by useDeletePolicy mutation hook.
     setConfirmDeleteId(null);
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity='error' sx={{ mt: 2 }}>
+        Failed to load policies. Please try again later.
+      </Alert>
+    );
+  }
 
   return (
     <Box sx={{ p: 0 }}>
@@ -67,6 +83,15 @@ const PolicyList: React.FC = () => {
         </Button>
       </Box>
       <Divider sx={{ flexGrow: 1, mb: 2 }} />
+
+      {/* Empty state */}
+      {policies.length === 0 && (
+        <Box sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant='body1' color='text.secondary'>
+            No policies found. Add your first policy to get started.
+          </Typography>
+        </Box>
+      )}
 
       {/* Policies List */}
       <Box
