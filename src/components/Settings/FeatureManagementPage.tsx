@@ -11,39 +11,56 @@ import AppPageTitle from '../common/AppPageTitle';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
 import { useUser } from '../../hooks/useUser';
-import { isSystemAdmin } from '../../utils/roleUtils';
+import { isAdmin, isSystemAdmin } from '../../utils/roleUtils';
 import {
   useFeatureToggles,
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
+import workflowApi, { type WorkflowRequestType } from '../../api/workflowApi';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 
 const featureDefinitions: {
   key: FeatureKey;
   label: string;
   description: string;
 }[] = [
+  // {
+  //   key: 'attendance',
+  //   label: 'Attendance & Leaves',
+  //   description:
+  //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+  // },
+  // {
+  //   key: 'leaveAnalytics',
+  //   label: 'Leave Analytics',
+  //   description:
+  //     'View leave analytics, reports, and cross-tenant leave metrics.',
+  // },
+  // {
+  //   key: 'performance',
+  //   label: 'Performance',
+  //   description:
+  //     'Enable performance dashboards and insights for employees and teams.',
+  // },
+  // {
+  //   key: 'announcements',
+  //   label: 'Announcements',
+  //   description: 'Company-wide announcements module.',
+  // },
   {
-    key: 'attendance',
-    label: 'Attendance & Leaves',
-    description:
-      'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+    key: 'leave_workflow_enabled',
+    label: 'Leave Approval',
+    description: 'Enable leave request approval workflows.',
   },
   {
-    key: 'leaveAnalytics',
-    label: 'Leave Analytics',
-    description:
-      'View leave analytics, reports, and cross-tenant leave metrics.',
+    key: 'wfh_workflow_enabled',
+    label: 'WFH Request',
+    description: 'Display work from home request in the sidebar.',
   },
   {
-    key: 'performance',
-    label: 'Performance',
-    description:
-      'Enable performance dashboards and insights for employees and teams.',
-  },
-  {
-    key: 'announcements',
-    label: 'Announcements',
-    description: 'Company-wide announcements module.',
+    key: 'overtime_workflow_enabled',
+    label: 'Overtime Request',
+    description: 'Display overtime request in the sidebar.',
   },
 ];
 
@@ -51,8 +68,28 @@ const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
   const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
+  const { showError } = useErrorHandler();
 
-  const isSystemAdminUser = isSystemAdmin(user?.role);
+  const isSystemAdminUser = isSystemAdmin(user?.role) || isAdmin(user?.role);
+
+  const handleFeatureToggle = async (key: FeatureKey, checked: boolean) => {
+    let requestType: WorkflowRequestType | null = null;
+    if (key === 'leave_workflow_enabled') requestType = 'leave';
+    else if (key === 'wfh_workflow_enabled') requestType = 'wfh';
+    else if (key === 'overtime_workflow_enabled') requestType = 'overtime';
+
+    try {
+      if (requestType) {
+        await workflowApi.updateWorkflowSettings({
+          request_type: requestType,
+          enabled: checked,
+        });
+      }
+      setFeatureEnabled(key, checked);
+    } catch (error) {
+      showError(error);
+    }
+  };
 
   if (!isSystemAdminUser) {
     return (
@@ -128,7 +165,7 @@ const FeatureManagementPage: React.FC = () => {
                   <Switch
                     checked={features[feature.key]}
                     onChange={(_, checked) =>
-                      setFeatureEnabled(feature.key, checked)
+                      handleFeatureToggle(feature.key, checked)
                     }
                     color='primary'
                   />

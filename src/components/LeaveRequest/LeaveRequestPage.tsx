@@ -59,6 +59,7 @@ const LeaveRequestPage = () => {
   // employees state MIGRATED to useLeaveEmployeeList TanStack Query hook below
   const [leaveTypeModalOpen, setLeaveTypeModalOpen] = useState(false);
   const [savingLeaveType, setSavingLeaveType] = useState(false);
+  const role = normalizeRole(getUserRole());
 
   // MIGRATED: employees list now owned by TanStack Query (was useEffect + employeeApi.getAllEmployeesWithoutPagination)
   const { data: employeesData = [] } = useLeaveEmployeeList(role);
@@ -87,7 +88,6 @@ const LeaveRequestPage = () => {
 
   const currentUser = getCurrentUser();
   const currentUserId = currentUser?.id ?? '';
-  const role = normalizeRole(getUserRole());
   const userName = getUserName();
 
   // fetchLeaveTypes MIGRATED: replaced by useLeaveTypes TanStack Query hook above

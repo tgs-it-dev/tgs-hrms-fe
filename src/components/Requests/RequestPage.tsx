@@ -1,56 +1,182 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Typography,
+  useTheme,
+  CircularProgress,
+  Pagination,
+} from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
 import AppButton from '../common/AppButton';
 import { AddOutlined } from '@mui/icons-material';
-import { useState, useCallback } from 'react';
-import RequestModal from './RequestModal';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
-import {
-  requests as AllRequests,
-  type Request,
-} from '../../data/mock-requests';
+import dayjs from 'dayjs';
+import workflowApi, {
+  type WorkflowRequest,
+  type WorkflowRequestStatus,
+  type WorkflowRequestType,
+} from '../../api/workflowApi';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 import RequestFilters from './RequestFilters';
 import RequestLeaveCard from '../common/RequestLeaveCard';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import wfhApi from '../../api/wfhApi';
+import overtimeApi from '../../api/overtimeApi';
+import { normalizeRole } from '../../utils/permissions';
+import { getUserRole } from '../../utils/auth';
+import { leaveApi } from '../../api';
+import { PAGINATION } from '../../constants/appConstants';
+import RequestModal from './RequestModal';
 
 function RequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
+  const { showError } = useErrorHandler();
+  const userRole = normalizeRole(getUserRole() || '');
+
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [open, setOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [requests, setRequests] = useState<WorkflowRequest[]>([]);
+  const [selectedRequest, setSelectedRequest] =
+    useState<WorkflowRequest | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
 
-  const [requests, setRequests] = useState<Request[]>(AllRequests);
+  const hasLoadedOnceRef = useRef(false);
+  const previousPageRef = useRef(1);
+  const previousStatusFilterRef = useRef('all');
+  const previousTypeFilterRef = useRef('all');
+
+  const loadRequests = useCallback(
+    async (options?: { page?: number; skipFullPageLoader?: boolean }) => {
+      const pageToFetch = options?.page ?? currentPage;
+      const showFullPageLoader = !options?.skipFullPageLoader;
+
+      if (showFullPageLoader) setInitialLoading(true);
+      else setTableLoading(true);
+
+      try {
+        const params = {
+          status:
+            statusFilter !== 'all'
+              ? (statusFilter as WorkflowRequestStatus)
+              : undefined,
+          type:
+            typeFilter !== 'all'
+              ? (typeFilter as WorkflowRequestType)
+              : undefined,
+          page: pageToFetch,
+          limit: ITEMS_PER_PAGE,
+        };
+        const response = await workflowApi.getMyWorkflowRequests(params);
+        setRequests(response.items || []);
+        setTotalItems(response.total || 0);
+        setTotalPages(
+          response.total
+            ? Math.ceil(response.total / ITEMS_PER_PAGE)
+            : response.items?.length === ITEMS_PER_PAGE
+              ? pageToFetch + 1
+              : pageToFetch
+        );
+        setCurrentPage(response.page || pageToFetch);
+        hasLoadedOnceRef.current = true;
+      } catch (error) {
+        showError(error);
+      } finally {
+        if (showFullPageLoader) setInitialLoading(false);
+        else setTableLoading(false);
+      }
+    },
+    [showError, statusFilter, typeFilter, currentPage, ITEMS_PER_PAGE]
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, typeFilter]);
+
+  useEffect(() => {
+    const pageChanged = previousPageRef.current !== currentPage;
+    const statusFilterChanged =
+      previousStatusFilterRef.current !== statusFilter;
+    const typeFilterChanged = previousTypeFilterRef.current !== typeFilter;
+
+    if (
+      hasLoadedOnceRef.current &&
+      !pageChanged &&
+      !statusFilterChanged &&
+      !typeFilterChanged
+    ) {
+      return;
+    }
+
+    const skipFullPageLoader =
+      hasLoadedOnceRef.current && !statusFilterChanged && !typeFilterChanged;
+
+    loadRequests({
+      page: currentPage,
+      skipFullPageLoader,
+    });
+
+    previousPageRef.current = currentPage;
+    previousStatusFilterRef.current = statusFilter;
+    previousTypeFilterRef.current = typeFilter;
+  }, [currentPage, statusFilter, typeFilter, loadRequests]);
 
   const handleClose = useCallback(() => {
     setOpen(false);
     setSelectedRequest(null);
   }, []);
 
-  const handleEdit = useCallback((request: Request) => {
-    setSelectedRequest(request);
-    setOpen(true);
-  }, []);
-
   const handleAddNew = useCallback(() => {
-    setSelectedRequest(null);
     setOpen(true);
   }, []);
 
-  const handleDelete = useCallback((id: number | string) => {
-    setRequests(prev => prev.filter(req => req.id !== id));
-  }, []);
+  const filteredRequests = requests;
 
-  const filteredRequests = requests.filter(req => {
-    const matchStatus =
-      !statusFilter || statusFilter === 'all' || req.status === statusFilter;
-    const matchType =
-      !typeFilter || typeFilter === 'all' || req.type === typeFilter;
-    return matchStatus && matchType;
-  });
+  const mapStatus = (
+    status: string
+  ): 'pending' | 'approved' | 'rejected' | 'cancelled' => {
+    if (status === 'approved') return 'approved';
+    if (status === 'rejected') return 'rejected';
+    if (status === 'cancelled') return 'cancelled';
+    return 'pending';
+  };
+
+  const buildCardProps = (request: WorkflowRequest) => {
+    return {
+      title:
+        request.request_type === 'wfh'
+          ? getLabel('Work From Home', 'العمل من المنزل')
+          : request.request_type === 'leave'
+            ? getLabel('Leave Request', 'طلب إجازة')
+            : getLabel('Overtime', 'عمل إضافي'),
+      type:
+        request.request_type === 'wfh'
+          ? 'Work From Home'
+          : request.request_type === 'leave'
+            ? 'Leave'
+            : 'Overtime',
+      status: mapStatus(request.status),
+      startDate: request.request_data?.start_date
+        ? dayjs(request.request_data.start_date).format('D/M/YYYY')
+        : '—',
+      endDate: request.request_data?.end_date
+        ? dayjs(request.request_data.end_date).format('D/M/YYYY')
+        : '—',
+      reason: request.request_data?.reason || '—',
+      submittedDate: dayjs(request.created_at).format('D/M/YYYY'),
+      attachments: request.request_data?.attachments || [],
+      role: userRole,
+      steps: request.steps || [],
+    };
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -90,6 +216,7 @@ function RequestPage() {
             onStatusChange={setStatusFilter}
             typeFilter={typeFilter}
             onTypeChange={setTypeFilter}
+            role={userRole}
           />
 
           {/* Request Cards Grid */}
@@ -104,24 +231,49 @@ function RequestPage() {
               gap: 3,
               width: '100%',
               minHeight: '200px',
+              opacity: tableLoading ? 0.6 : 1,
+              transition: 'opacity 0.2s',
             }}
           >
-            {filteredRequests.length > 0 ? (
+            {initialLoading ? (
+              <Box
+                sx={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  py: 8,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : filteredRequests.length > 0 ? (
               filteredRequests.map(request => (
                 <RequestLeaveCard
                   key={request.id}
-                  title={request.title}
-                  type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
-                  status={request.status}
-                  startDate={request.startDate}
-                  endDate={request.endDate}
-                  reason={request.reason}
-                  submittedDate={request.submittedDate ?? ''}
-                  message={request.message ?? ''}
-                  managerName={request.managerName}
-                  managerMessageDate={request.managerMessageDate}
-                  onEdit={() => handleEdit(request)}
-                  onDelete={() => handleDelete(request.id)}
+                  {...buildCardProps(request)}
+                  onEdit={() => {
+                    setSelectedRequest(request);
+                    setOpen(true);
+                  }}
+                  onDelete={async () => {
+                    try {
+                      if (request.request_type === 'wfh') {
+                        await wfhApi.cancelWFHRequest(request.request_data.id);
+                      } else if (request.request_type === 'leave') {
+                        await leaveApi.cancelLeave(request.request_data.id);
+                      } else if (request.request_type === 'overtime') {
+                        await overtimeApi.cancelOvertimeRequest(
+                          request.request_data.id
+                        );
+                      }
+                      loadRequests({
+                        page: currentPage,
+                        skipFullPageLoader: true,
+                      });
+                    } catch (error) {
+                      showError(error);
+                    }
+                  }}
                 />
               ))
             ) : (
@@ -150,17 +302,79 @@ function RequestPage() {
               </Box>
             )}
           </Box>
+
+          {/* Pagination */}
+          {!initialLoading && (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                mt: 3,
+              }}
+            >
+              {(() => {
+                const shouldShowPagination = totalPages > 1;
+
+                return shouldShowPagination ? (
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(_, value) => setCurrentPage(value)}
+                    sx={{
+                      mb: 1,
+                      '& .MuiPaginationItem-root': {
+                        color: 'var(--primary-dark-color)',
+                      },
+                      '& .MuiPaginationItem-root.Mui-selected': {
+                        backgroundColor: 'var(--primary-dark-color)',
+                        color: 'var(--white-color)',
+                        '&:hover': {
+                          backgroundColor: 'var(--primary-dark-color)',
+                        },
+                      },
+                    }}
+                    showFirstButton
+                    showLastButton
+                  />
+                ) : null;
+              })()}
+
+              {filteredRequests.length > 0 && (
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{
+                    textAlign: 'center',
+                    width: 'fit-content',
+                    mx: 'auto',
+                  }}
+                >
+                  {getLabel(
+                    `Showing page ${currentPage} of ${totalPages} (${totalItems} total records)`,
+                    `عرض الصفحة ${currentPage} من ${totalPages} (${totalItems} إجمالي السجلات)`
+                  )}
+                </Typography>
+              )}
+            </Box>
+          )}
         </Box>
 
         <RequestModal
           open={open}
           onClose={handleClose}
+          onSuccess={() =>
+            loadRequests({ page: currentPage, skipFullPageLoader: true })
+          }
+          initialData={selectedRequest}
           title={
             selectedRequest
               ? getLabel('Edit Request', 'تعديل الطلب')
               : getLabel('New Request', 'طلب جديد')
           }
-          initialData={selectedRequest}
         />
       </Box>
     </LocalizationProvider>

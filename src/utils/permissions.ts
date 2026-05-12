@@ -60,6 +60,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'performance',
     'recruitment',
     'feature-management',
+    'review-requests',
   ],
   'network-admin': [
     'dashboard',
@@ -68,6 +69,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'teams',
     'attendance',
     'recruitment',
+    'review-requests',
   ],
   'hr-admin': [
     'attendance',
@@ -77,6 +79,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'leave-analytics',
     'employees',
     'recruitment',
+    'review-requests',
   ],
   admin: [
     'dashboard',
@@ -88,6 +91,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'leave-analytics',
     'recruitment',
+    'review-requests',
   ],
   manager: [
     'teams',
@@ -104,7 +108,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'recruitment',
     'requests',
   ],
-  user: ['attendance', 'teams', 'recruitment'],
+  user: ['attendance', 'teams', 'recruitment', 'requests'],
   unknown: ['recruitment'],
 };
 
@@ -321,6 +325,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'tenant-employees',
     'performance-dashboard',
     'feature-management',
+    'review-requests',
   ],
   'network-admin': [
     '',
@@ -340,6 +345,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-profile-view',
     'attendance-summary',
     'settings',
+    'review-requests',
   ],
   'hr-admin': [
     'departments',
@@ -361,6 +367,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'leaves',
     'reports',
     'employee-salary',
+    'review-requests',
   ],
   admin: [
     '',
@@ -385,6 +392,8 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'attendance-summary',
     'settings',
     'employee-salary',
+    'review-requests',
+    'feature-management',
   ],
   manager: [
     'employee-manager',

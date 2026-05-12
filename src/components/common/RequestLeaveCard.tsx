@@ -12,45 +12,51 @@ import { Icons } from '../../assets/icons';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import AppCard from './AppCard';
+import { Cancel as CancelIcon } from '@mui/icons-material';
+import dayjs from 'dayjs';
+import type { WorkflowStep } from '../../api/workflowApi';
+import { getDocumentUrl } from '../../utils/fileUtils';
+import { getIcon } from '../../assets/icons';
+import { IoCloseCircleOutline } from 'react-icons/io5';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 
 export interface RequestLeaveCardProps {
   title: string;
+  from?: string;
   type: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'in_review';
   startDate: string;
   endDate: string;
   reason: string;
   submittedDate: string;
-  message: string;
-  managerName?: string;
-  managerMessageDate?: string;
+  steps?: WorkflowStep[];
   onEdit?: () => void;
   onDelete?: () => void;
   actions?: React.ReactNode;
-  isManagerView?: boolean;
+  role?: string;
+  attachments?: string[];
 }
 
 const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
   const {
     title,
+    from,
     type,
     status,
     startDate,
     endDate,
     reason,
     submittedDate,
-    message,
-    managerName,
-    managerMessageDate,
     onEdit,
     onDelete,
     actions,
-    isManagerView = false,
+    role: userRole,
+    steps,
+    attachments = [],
   } = props;
 
   const theme = useTheme();
   const getLabel = useDirectionLabel();
-
   const statusConfig = {
     pending: {
       label: getLabel('Pending', 'قيد الانتظار'),
@@ -67,13 +73,33 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
       bg: 'var(--status-rejected-bg)',
       color: 'var(--status-rejected-text)',
     },
+    cancelled: {
+      label: getLabel('Cancelled', 'ملغى'),
+      bg: 'var(--status-rejected-bg)',
+      color: 'var(--status-rejected-text)',
+    },
+    in_review: {
+      label: getLabel('In Review', 'قيد المراجعة'),
+      bg: 'var(--status-pending-bg)',
+      color: 'var(--status-pending-text)',
+    },
   };
 
   const currentStatus = statusConfig[status] || statusConfig.pending;
   const isPending = status === 'pending';
+  console.log(attachments);
 
   // Controls whether the delete confirmation dialog is visible
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Controls whether the document viewing dialog is visible
+  const [openDocs, setOpenDocs] = useState(false);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+
+  const handleViewDocs = () => {
+    setFailedImages(new Set());
+    setOpenDocs(true);
+  };
 
   return (
     <AppCard
@@ -103,24 +129,19 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           >
             <Box>
               <Typography
-                sx={{
-                  fontSize: { xs: '18px', lg: 'var(--subheading2-font-size)' },
-                  fontWeight: 600,
-                  lineHeight: 'var(--body-line-height)',
-                  letterSpacing: 'var(--body-letter-spacing)',
-                  color: theme.palette.text.primary,
-                }}
+                color={theme.palette.text.primary}
+                fontWeight={600}
+                fontSize='var(--subheading2-font-size)'
+                lineHeight='var(--subheading2-line-height)'
+                letterSpacing='var(--subheading2-letter-spacing)'
               >
                 {title}
               </Typography>
               <Typography
-                sx={{
-                  fontSize: 'var(--body-font-size)',
-                  color: 'text.secondary',
-                  mt: 0.5,
-                  lineHeight: 'var(--body-line-height)',
-                  letterSpacing: 'var(--body-letter-spacing)',
-                }}
+                color={theme.palette.text.secondary}
+                mt={0.5}
+                lineHeight='var(--body-line-height)'
+                letterSpacing='var(--body-letter-spacing)'
               >
                 {type}
               </Typography>
@@ -145,7 +166,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
           {/* Content */}
           <Box display='flex' flexDirection='column' gap={1.5}>
-            {isManagerView && (
+            {userRole === 'manager' && (
               <Box display='flex' gap={2}>
                 <Typography
                   sx={{
@@ -155,7 +176,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                     color: theme.palette.text.primary,
                   }}
                 >
-                  {getLabel('Title:', 'العنوان:')}
+                  {getLabel('From:', 'من:')}
                 </Typography>
                 <Typography
                   sx={{
@@ -165,7 +186,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                     letterSpacing: 'var(--body-letter-spacing)',
                   }}
                 >
-                  {title}
+                  {from}
                 </Typography>
               </Box>
             )}
@@ -204,9 +225,9 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 {getLabel('Reason:', 'السبب:')}
               </Typography>
               <Typography
+                flex={'1'}
                 sx={{
                   color: 'text.secondary',
-                  flex: 1,
                   fontSize: 'var(--body-font-size)',
                   lineHeight: 'var(--body-line-height)',
                   letterSpacing: 'var(--body-letter-spacing)',
@@ -215,120 +236,316 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                 {reason}
               </Typography>
             </Box>
+            {userRole !== 'employee' && attachments.length > 0 && (
+              <Box display='flex' gap={2} alignItems='center'>
+                <Typography
+                  sx={{
+                    minWidth: '80px',
+                    fontWeight: 500,
+                    fontSize: 'var(--body-font-size)',
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  {getLabel('Attachments:', 'المرفقات:')}
+                </Typography>
+                <IconButton
+                  onClick={handleViewDocs}
+                  size='small'
+                  sx={{ p: 0.5 }}
+                >
+                  <img
+                    src={getIcon('password')}
+                    alt='View Documents'
+                    width={20}
+                    height={20}
+                  />
+                </IconButton>
+              </Box>
+            )}
           </Box>
 
           <Divider
             sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
           />
-
-          {/* Message / Remarks Section — hidden for manager on pending requests */}
-          {(!isManagerView || status !== 'pending') && (
-            <Box
-              sx={{
-                backgroundColor: 'var(--app-table-header-bg)',
-                borderLeft: `4px solid ${theme.palette.primary.main}`,
-                p: '12px 16px',
-                borderRadius: '4px',
-              }}
-            >
-              {managerName && (
-                <Box display='flex' justifyContent='space-between' mb={0.5}>
-                  <Typography
-                    fontWeight={600}
-                    sx={{
-                      fontSize: 'var(--body-font-size)',
-                      color: theme.palette.text.primary,
-                    }}
-                  >
-                    {managerName}:
-                  </Typography>
-                  {managerMessageDate && (
-                    <Typography
-                      sx={{
-                        fontSize: 'var(--label-font-size)',
-                        color: 'text.secondary',
-                      }}
-                    >
-                      {managerMessageDate}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  color: 'text.secondary',
-                  fontStyle: message
-                    ? managerName
-                      ? 'normal'
-                      : 'italic'
-                    : 'italic',
-                  lineHeight: 'var(--body-line-height)',
-                  letterSpacing: 'var(--body-letter-spacing)',
-                }}
-              >
-                {message || getLabel('No remarks yet', 'لا توجد ملاحظات بعد')}
-              </Typography>
-            </Box>
-          )}
-
-          {/* Extra actions passed in from the parent (e.g. Approve / Reject buttons) */}
-          {actions && <Box mt={2}>{actions}</Box>}
         </Box>
 
-        {/* Footer */}
         <Box>
-          <Divider
-            sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
-          />
+          <Box>
+            {/* steps for manager, hr admin and admin  */}
+            {steps && steps?.length > 0 ? (
+              <Box display='flex' flexDirection='column' gap={2}>
+                {steps?.map(step =>
+                  step.status === 'approved' ? (
+                    <Box
+                      key={step.id}
+                      sx={{
+                        backgroundColor: 'var(--app-table-header-bg)',
+                        borderLeft: `4px solid ${theme.palette.primary.main}`,
+                        p: '12px 16px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        mb={0.5}
+                      >
+                        <Typography
+                          fontWeight={600}
+                          sx={{
+                            fontSize: 'var(--body-font-size)',
+                            color: theme.palette.text.primary,
+                          }}
+                        >
+                          {step.step_label}:
+                        </Typography>
 
-          <Box
-            display='flex'
-            justifyContent={
-              isPending && !isManagerView ? 'space-between' : 'flex-start'
-            }
-            alignItems='center'
-          >
-            <Typography
-              sx={{
-                fontSize: 'var(--label-font-size)',
-                color: 'text.secondary',
-              }}
-            >
-              {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
-            </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 'var(--label-font-size)',
+                            color: 'text.secondary',
+                          }}
+                        >
+                          {dayjs(step.acted_at).format('MMM D, h:mm A')}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: '14px',
+                          color: 'text.secondary',
+                          fontStyle: 'normal',
+                          lineHeight: 'var(--body-line-height)',
+                          letterSpacing: 'var(--body-letter-spacing)',
+                        }}
+                      >
+                        {step.remarks ||
+                          getLabel('No remarks yet', 'لا توجد ملاحظات بعد')}
+                      </Typography>
+                    </Box>
+                  ) : step.status === 'withdrawn' ? (
+                    <Box
+                      sx={{
+                        backgroundColor: 'var(--app-table-header-bg)',
+                        borderLeft: `4px solid ${theme.palette.primary.main}`,
+                        p: '12px 16px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        mb={0.5}
+                      >
+                        <Typography
+                          fontWeight={600}
+                          sx={{
+                            fontSize: 'var(--body-font-size)',
+                            color: theme.palette.text.primary,
+                          }}
+                        >
+                          {step.step_label}:
+                        </Typography>
 
-            {/* Edit / Delete — only visible to employees on pending requests */}
-            {!isManagerView && isPending && (
-              <Box display='flex' gap={0.5}>
-                <IconButton size='small' onClick={onEdit}>
-                  <Box
-                    component='img'
-                    src={Icons.edit}
-                    alt='Edit'
-                    sx={{
-                      width: { xs: 16, sm: 20 },
-                      height: { xs: 16, sm: 20 },
-                    }}
-                  />
-                </IconButton>
-                <IconButton
-                  size='small'
-                  onClick={() => setDeleteDialogOpen(true)}
+                        <Typography
+                          sx={{
+                            fontSize: 'var(--label-font-size)',
+                            color: 'text.secondary',
+                          }}
+                        >
+                          {dayjs(step.acted_at).format('MMM D, h:mm A')}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: '14px',
+                          color: 'text.secondary',
+                          fontStyle: 'normal',
+                          lineHeight: 'var(--body-line-height)',
+                          letterSpacing: 'var(--body-letter-spacing)',
+                        }}
+                      >
+                        {step.remarks ||
+                          getLabel('No remarks yet', 'لا توجد ملاحظات بعد')}
+                      </Typography>
+                    </Box>
+                  ) : step.status === 'rejected' ? (
+                    <Box
+                      sx={{
+                        backgroundColor: 'var(--app-table-header-bg)',
+                        borderLeft: `4px solid ${theme.palette.primary.main}`,
+                        p: '12px 16px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        mb={0.5}
+                      >
+                        <Typography
+                          fontWeight={600}
+                          sx={{
+                            fontSize: 'var(--body-font-size)',
+                            color: theme.palette.text.primary,
+                          }}
+                        >
+                          {step.step_label}:
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontSize: 'var(--label-font-size)',
+                            color: 'text.secondary',
+                          }}
+                        >
+                          {dayjs(step.acted_at).format('MMM D, h:mm A')}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: '14px',
+                          color: 'text.secondary',
+                          fontStyle: 'normal',
+                          lineHeight: 'var(--body-line-height)',
+                          letterSpacing: 'var(--body-letter-spacing)',
+                        }}
+                      >
+                        {step.remarks ||
+                          getLabel('No remarks yet', 'لا توجد ملاحظات بعد')}
+                      </Typography>
+                    </Box>
+                  ) : step.status === 'pending' ? (
+                    // waiting message for admin, hr admin and employee
+                    userRole === step.approval_role ? (
+                      <Box
+                        sx={{
+                          backgroundColor: 'var(--app-table-header-bg)',
+                          borderLeft: `4px solid ${theme.palette.primary.main}`,
+                          p: '12px 16px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: '14px',
+                            color: 'text.secondary',
+                            fontStyle: 'normal',
+                            lineHeight: 'var(--body-line-height)',
+                            letterSpacing: 'var(--body-letter-spacing)',
+                          }}
+                        >
+                          {getLabel(
+                            `Waiting for ${step.approver_role} approval`,
+                            'في انتظار الموافقة'
+                          )}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      //waiting message for employee
+                      userRole === 'employee' && (
+                        <Box
+                          sx={{
+                            backgroundColor: 'var(--app-table-header-bg)',
+                            borderLeft: `4px solid ${theme.palette.primary.main}`,
+                            p: '12px 16px',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: '14px',
+                              color: 'text.secondary',
+                              fontStyle: 'normal',
+                              lineHeight: 'var(--body-line-height)',
+                              letterSpacing: 'var(--body-letter-spacing)',
+                            }}
+                          >
+                            {getLabel(
+                              `Waiting for ${step.approver_role} approval`,
+                              'في انتظار الموافقة'
+                            )}
+                          </Typography>
+                        </Box>
+                      )
+                    )
+                  ) : null
+                )}
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  backgroundColor: 'var(--app-table-header-bg)',
+                  borderLeft: `4px solid ${theme.palette.primary.main}`,
+                  p: '12px 16px',
+                  borderRadius: '4px',
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    color: 'text.secondary',
+                    fontStyle: 'normal',
+                    lineHeight: 'var(--body-line-height)',
+                    letterSpacing: 'var(--body-letter-spacing)',
+                  }}
                 >
-                  <Box
-                    component='img'
-                    src={Icons.delete}
-                    alt='Delete'
-                    sx={{
-                      width: { xs: 16, sm: 20 },
-                      height: { xs: 16, sm: 20 },
-                    }}
-                  />
-                </IconButton>
+                  {getLabel('Waiting for Approvals', 'في انتظار الموافقة')}
+                </Typography>
               </Box>
             )}
+
+            {/* Actions performed by admin, hr admin and manager (e.g. Approve / Reject buttons) */}
+            {actions && <Box mt={2}>{actions}</Box>}
+          </Box>
+          {/* Footer */}
+          <Box>
+            <Divider
+              sx={{ borderColor: theme.palette.divider, opacity: 0.5, my: 2 }}
+            />
+
+            <Box
+              display='flex'
+              justifyContent={
+                isPending && userRole !== 'manager'
+                  ? 'space-between'
+                  : 'flex-start'
+              }
+              alignItems='center'
+            >
+              <Typography
+                sx={{
+                  fontSize: 'var(--label-font-size)',
+                  color: 'text.secondary',
+                }}
+              >
+                {getLabel('Submitted:', 'تاريخ التقديم:')} {submittedDate}
+              </Typography>
+
+              {/* Edit / Delete — only visible to employees on pending requests */}
+              {userRole === 'employee' && isPending ? (
+                <Box display='flex' gap={0.5}>
+                  <IconButton size='small' onClick={onEdit}>
+                    <img
+                      src={Icons.edit}
+                      alt='edit'
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </IconButton>
+                  <IconButton
+                    size='small'
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <CancelIcon
+                      sx={{
+                        width: { xs: 16, sm: 20 },
+                        height: { xs: 16, sm: 20 },
+                        color: theme.palette.error.main,
+                      }}
+                    />
+                  </IconButton>
+                </Box>
+              ) : null}
+            </Box>
           </Box>
         </Box>
       </CardContent>
@@ -340,13 +557,108 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
           onDelete?.();
           setDeleteDialogOpen(false);
         }}
-        title={getLabel('Confirm Deletion', 'تأكيد الحذف')}
+        title={getLabel('Confirm Cancellation', 'تأكيد الإلغاء')}
         message={getLabel(
-          'Are you sure you want to delete this request? This action cannot be undone.',
-          'هل أنت متأكد أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.'
+          'Are you sure you want to cancel this request? This action cannot be undone.',
+          'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.'
         )}
-        confirmText={getLabel('Delete', 'حذف')}
+        confirmText={getLabel('Cancel Request', 'إلغاء الطلب')}
       />
+
+      <Dialog
+        open={openDocs}
+        onClose={() => setOpenDocs(false)}
+        maxWidth='md'
+        fullWidth
+      >
+        <DialogTitle
+          display={'flex'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+        >
+          <Typography variant='h6'>
+            {getLabel('Uploaded Documents', 'المستندات المرفوعة')}
+          </Typography>
+          <IconButton onClick={() => setOpenDocs(false)}>
+            <IoCloseCircleOutline />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent>
+          <Box
+            display={'grid'}
+            gridTemplateColumns={'repeat(4, 1fr)'}
+            gap={2}
+            width={'100%'}
+            justifyItems={'center'}
+            paddingBottom={'2'}
+          >
+            {attachments.map((doc, index) => {
+              const imageUrl = getDocumentUrl(doc);
+
+              return (
+                <Box key={index}>
+                  {!failedImages.has(index) ? (
+                    <>
+                      <img
+                        src={imageUrl}
+                        alt={`document-${index}`}
+                        style={{
+                          width: '100%',
+                          height: 120,
+                          objectFit: 'cover',
+                          borderRadius: 6,
+                          border: `1px solid ${theme.palette.divider}`,
+                          cursor: 'pointer',
+                        }}
+                        onError={() => {
+                          setFailedImages(prev => new Set(prev).add(index));
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          mt: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant='caption'
+                          sx={{
+                            cursor: 'pointer',
+                            color: 'primary.main',
+                            mx: 0.5,
+                          }}
+                          onClick={() => window.open(imageUrl, '_blank')}
+                        >
+                          {getLabel('View', 'عرض')} /
+                        </Typography>
+
+                        <Typography
+                          variant='caption'
+                          sx={{ cursor: 'pointer', color: 'primary.main' }}
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = imageUrl;
+                            link.download = `document-${index}`;
+                            link.click();
+                          }}
+                        >
+                          {getLabel('Download', 'تحميل')}
+                        </Typography>
+                      </Box>
+                    </>
+                  ) : (
+                    <Typography variant='caption' color='error'>
+                      {getLabel('Failed to load', 'فشل التحميل')}
+                    </Typography>
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
+        </DialogContent>
+      </Dialog>
     </AppCard>
   );
 };

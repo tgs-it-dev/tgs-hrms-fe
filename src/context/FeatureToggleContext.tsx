@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import workflowApi from '../api/workflowApi';
 
 type FeatureKey =
   | 'attendance'
@@ -15,7 +16,10 @@ type FeatureKey =
   | 'projects'
   | 'accounts'
   | 'app'
-  | 'leaveAnalytics';
+  | 'leaveAnalytics'
+  | 'leave_workflow_enabled'
+  | 'wfh_workflow_enabled'
+  | 'overtime_workflow_enabled';
 
 type FeatureState = Record<FeatureKey, boolean>;
 
@@ -37,6 +41,9 @@ const defaultFeatures: FeatureState = {
   accounts: true,
   app: true,
   leaveAnalytics: true,
+  leave_workflow_enabled: false,
+  wfh_workflow_enabled: false,
+  overtime_workflow_enabled: false,
 };
 
 const FeatureToggleContext = createContext<FeatureToggleContextValue | null>(
@@ -52,12 +59,30 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return;
-      const parsed = JSON.parse(stored) as Partial<FeatureState>;
-      setFeatures(prev => ({ ...prev, ...parsed }));
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<FeatureState>;
+        setFeatures(prev => ({ ...prev, ...parsed }));
+      }
     } catch {
       // Ignore invalid storage
     }
+
+    // Fetch server-side workflow flag
+    const fetchWorkflowFlag = async () => {
+      try {
+        const response = await workflowApi.getFeatureFlag();
+        setFeatures(prev => ({
+          ...prev,
+          // workflow: response.wfh_workflow_enabled,
+          leave_workflow_enabled: response.leave_workflow_enabled,
+          wfh_workflow_enabled: response.wfh_workflow_enabled,
+          overtime_workflow_enabled: response.overtime_workflow_enabled,
+        }));
+      } catch (error) {
+        console.error('Failed to fetch workflow feature flag:', error);
+      }
+    };
+    fetchWorkflowFlag();
   }, []);
 
   // Persist to localStorage whenever features change

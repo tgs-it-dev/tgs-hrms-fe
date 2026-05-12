@@ -1,58 +1,202 @@
-import { Box, useTheme, Typography } from '@mui/material';
+import {
+  Box,
+  Typography,
+  useTheme,
+  CircularProgress,
+  Pagination,
+} from '@mui/material';
 import AppPageTitle from '../common/AppPageTitle';
-import { useState } from 'react';
-import RequestLeaveCard from '../common/RequestLeaveCard';
-import { requests as AllRequests } from '../../data/mock-requests';
-import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import AppButton from '../common/AppButton';
-import AppTextField from '../common/AppTextField';
 import { Check, Close } from '@mui/icons-material';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import dayjs from 'dayjs';
+import workflowApi, {
+  type WorkflowRequest,
+  type WorkflowRequestType,
+  type WorkflowApprovalView,
+} from '../../api/workflowApi';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
+import RequestLeaveCard from '../common/RequestLeaveCard';
+import { useDirectionLabel } from '../../hooks/useDirectionLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import RequestFilters from '../Requests/RequestFilters';
+import { PAGINATION } from '../../constants/appConstants';
 
-function ReviewRequestsPage() {
+import { normalizeRole } from '../../utils/permissions';
+import { getUserRole } from '../../utils/auth';
+import RequestFilters from '../Requests/RequestFilters';
+import { AppTextField } from '../common';
+import { isEmployee, isManager, isAdmin } from '../../utils/roleUtils';
+
+function ReviewRequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
+  const { showError } = useErrorHandler();
+  const userRole = normalizeRole(getUserRole() || '');
+  const employee = isEmployee(userRole);
+  const manager = isManager(userRole);
+  const admin = isAdmin(userRole);
 
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [remarks, setRemarks] = useState<Record<string | number, string>>({});
-  const [requests, setRequests] = useState(AllRequests);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [requests, setRequests] = useState<WorkflowRequest[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
+  const [remarksMap, setRemarksMap] = useState<Record<string, string>>({});
 
-  // Update a single request's remark text as the manager types
-  function handleRemarkChange(id: string | number, text: string) {
-    setRemarks(prev => ({ ...prev, [id]: text }));
-  }
+  const hasLoadedOnceRef = useRef(false);
+  const previousPageRef = useRef(1);
+  const previousStatusFilterRef = useRef('all');
+  const previousTypeFilterRef = useRef('all');
 
-  // Approve: just flip the status to 'approved'
-  function handleApprove(id: string | number) {
-    setRequests(
-      requests.map(req =>
-        req.id === id ? { ...req, status: 'approved' } : req
-      )
-    );
-  }
+  const loadRequests = useCallback(
+    async (options?: { page?: number; skipFullPageLoader?: boolean }) => {
+      const pageToFetch = options?.page ?? currentPage;
+      const showFullPageLoader = !options?.skipFullPageLoader;
 
-  // Reject: flip the status and save the remark as a message
-  function handleReject(id: string | number) {
-    setRequests(
-      requests.map(req =>
-        req.id === id
-          ? { ...req, status: 'rejected', message: remarks[id] || '' }
-          : req
-      )
-    );
-  }
+      if (showFullPageLoader) setInitialLoading(true);
+      else setTableLoading(true);
 
-  // Filter the list — show only requests that match both dropdowns
-  const filteredRequests = requests.filter(req => {
-    const matchStatus =
-      !statusFilter || statusFilter === 'all' || req.status === statusFilter;
-    const matchType =
-      !typeFilter || typeFilter === 'all' || req.type === typeFilter;
-    return matchStatus && matchType;
-  });
+      try {
+        const params = {
+          status:
+            statusFilter !== 'all'
+              ? (statusFilter as WorkflowApprovalView)
+              : undefined,
+          type:
+            typeFilter !== 'all'
+              ? (typeFilter as WorkflowRequestType)
+              : undefined,
+          page: pageToFetch,
+          limit: ITEMS_PER_PAGE,
+        };
+        const response = await workflowApi.getWorkflowApprovals(params);
+        setRequests(response.items || []);
+        setTotalItems(response.total || 0);
+        setTotalPages(
+          response.total
+            ? Math.ceil(response.total / ITEMS_PER_PAGE)
+            : response.items?.length === ITEMS_PER_PAGE
+              ? pageToFetch + 1
+              : pageToFetch
+        );
+        setCurrentPage(response.page || pageToFetch);
+        hasLoadedOnceRef.current = true;
+      } catch (error) {
+        showError(error);
+      } finally {
+        if (showFullPageLoader) setInitialLoading(false);
+        else setTableLoading(false);
+      }
+    },
+    [showError, statusFilter, typeFilter, currentPage, ITEMS_PER_PAGE]
+  );
+
+  const handleDecision = useCallback(
+    async (requestId: string, action: 'approved' | 'rejected') => {
+      try {
+        const remarks = remarksMap[requestId] || '';
+        await workflowApi.submitWorkflowDecision(requestId, {
+          action,
+          remarks,
+        });
+        // Clear remark after successful decision
+        setRemarksMap(prev => {
+          const next = { ...prev };
+          delete next[requestId];
+          return next;
+        });
+        loadRequests({ page: currentPage, skipFullPageLoader: true });
+      } catch (error) {
+        showError(error);
+      }
+    },
+    [loadRequests, currentPage, remarksMap, showError]
+  );
+
+  const handleRemarkChange = (requestId: string, remark: string) => {
+    setRemarksMap(prev => ({
+      ...prev,
+      [requestId]: remark,
+    }));
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, typeFilter]);
+
+  useEffect(() => {
+    const pageChanged = previousPageRef.current !== currentPage;
+    const statusFilterChanged =
+      previousStatusFilterRef.current !== statusFilter;
+    const typeFilterChanged = previousTypeFilterRef.current !== typeFilter;
+
+    if (
+      hasLoadedOnceRef.current &&
+      !pageChanged &&
+      !statusFilterChanged &&
+      !typeFilterChanged
+    ) {
+      return;
+    }
+
+    const skipFullPageLoader =
+      hasLoadedOnceRef.current && !statusFilterChanged && !typeFilterChanged;
+
+    loadRequests({
+      page: currentPage,
+      skipFullPageLoader,
+    });
+
+    previousPageRef.current = currentPage;
+    previousStatusFilterRef.current = statusFilter;
+    previousTypeFilterRef.current = typeFilter;
+  }, [currentPage, statusFilter, typeFilter, loadRequests]);
+
+  const filteredRequests = requests;
+
+  const mapStatus = (
+    status: string
+  ): 'pending' | 'approved' | 'rejected' | 'cancelled' => {
+    if (status === 'approved') return 'approved';
+    if (status === 'rejected') return 'rejected';
+    if (status === 'cancelled') return 'cancelled';
+    return 'pending';
+  };
+
+  const buildCardProps = (request: WorkflowRequest) => {
+    return {
+      title:
+        request?.request_type === 'wfh'
+          ? 'Work From Home'
+          : request?.request_type === 'leave'
+            ? 'Leave'
+            : 'Overtime',
+      from: `${request?.requestor?.first_name?.charAt(0)?.toUpperCase() || ''}${request?.requestor?.first_name?.slice(1) || ''} ${request?.requestor?.last_name?.charAt(0)?.toUpperCase() || ''}${request?.requestor?.last_name?.slice(1) || ''}`,
+      type:
+        request?.request_type === 'wfh'
+          ? 'Work From Home'
+          : request?.request_type === 'leave'
+            ? 'Leave'
+            : 'Overtime',
+      status: mapStatus(request?.status),
+      startDate: request?.request_data?.start_date
+        ? dayjs(request?.request_data?.start_date).format('D/M/YYYY')
+        : '—',
+      endDate: request?.request_data?.end_date
+        ? dayjs(request?.request_data?.end_date).format('D/M/YYYY')
+        : '—',
+      reason: request?.request_data?.reason || '—',
+      submittedDate: dayjs(request?.created_at).format('D/M/YYYY'),
+      attachments: request?.request_data?.attachments || [],
+      role: userRole,
+      steps: request?.steps || [],
+    };
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -80,6 +224,7 @@ function ReviewRequestsPage() {
             onStatusChange={setStatusFilter}
             typeFilter={typeFilter}
             onTypeChange={setTypeFilter}
+            role={userRole}
           />
 
           {/* Request Cards Grid */}
@@ -94,35 +239,52 @@ function ReviewRequestsPage() {
               gap: 3,
               width: '100%',
               minHeight: '200px',
+              opacity: tableLoading ? 0.6 : 1,
+              transition: 'opacity 0.2s',
             }}
           >
-            {filteredRequests.length > 0 ? (
+            {initialLoading ? (
+              <Box
+                sx={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  py: 8,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : filteredRequests.length > 0 ? (
               filteredRequests.map(request => (
                 <RequestLeaveCard
                   key={request.id}
-                  title={request.title}
-                  type={request.type === 'wfh' ? 'Work From Home' : 'Leave'}
-                  status={request.status}
-                  startDate={request.startDate}
-                  endDate={request.endDate}
-                  reason={request.reason}
-                  submittedDate={request.submittedDate || ''}
-                  message={request.message || ''}
-                  managerName={request.managerName || ''}
-                  managerMessageDate={request.managerMessageDate || ''}
-                  isManagerView
+                  {...buildCardProps(request)}
                   actions={
-                    request.status === 'pending' ? (
+                    !employee &&
+                    !(
+                      (manager &&
+                        [
+                          'rejected',
+                          'cancelled',
+                          'approved',
+                          'in_review',
+                        ].includes(request.status)) ||
+                      (admin &&
+                        ['rejected', 'cancelled', 'approved'].includes(
+                          request.status
+                        ))
+                    ) ? (
                       <Box>
                         <AppTextField
                           placeholder={getLabel(
-                            'Add your remarks...',
+                            `Add your remarks... ${userRole} ${request?.status} `,
                             'أضف ملاحظاتك...'
                           )}
                           multiline
                           rows={2}
                           fullWidth
                           sx={{ mb: 2 }}
+                          value={remarksMap[request.id] || ''}
                           onChange={e =>
                             handleRemarkChange(request.id, e.target.value)
                           }
@@ -132,7 +294,9 @@ function ReviewRequestsPage() {
                             variant='contained'
                             text={getLabel('Reject', 'رفض')}
                             startIcon={<Close />}
-                            onClick={() => handleReject(request.id)}
+                            onClick={() =>
+                              handleDecision(request.id, 'rejected')
+                            }
                             sx={{
                               flex: 1,
                               backgroundColor: 'var(--status-rejected-bg)',
@@ -147,7 +311,9 @@ function ReviewRequestsPage() {
                             variant='contained'
                             text={getLabel('Approve', 'موافقة')}
                             startIcon={<Check />}
-                            onClick={() => handleApprove(request.id)}
+                            onClick={() =>
+                              handleDecision(request.id, 'approved')
+                            }
                             sx={{
                               flex: 1,
                               backgroundColor: 'var(--status-approved-bg)',
@@ -190,10 +356,69 @@ function ReviewRequestsPage() {
               </Box>
             )}
           </Box>
+
+          {/* Pagination */}
+          {!initialLoading && (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                mt: 3,
+              }}
+            >
+              {(() => {
+                const shouldShowPagination = totalPages > 1;
+
+                return shouldShowPagination ? (
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(_, value) => setCurrentPage(value)}
+                    sx={{
+                      mb: 1,
+                      '& .MuiPaginationItem-root': {
+                        color: 'var(--primary-dark-color)',
+                      },
+                      '& .MuiPaginationItem-root.Mui-selected': {
+                        backgroundColor: 'var(--primary-dark-color)',
+                        color: 'var(--white-color)',
+                        '&:hover': {
+                          backgroundColor: 'var(--primary-dark-color)',
+                        },
+                      },
+                    }}
+                    showFirstButton
+                    showLastButton
+                  />
+                ) : null;
+              })()}
+
+              {filteredRequests.length > 0 && (
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{
+                    textAlign: 'center',
+                    width: 'fit-content',
+                    mx: 'auto',
+                  }}
+                >
+                  {getLabel(
+                    `Showing page ${currentPage} of ${totalPages} (${totalItems} total records)`,
+                    `عرض الصفحة ${currentPage} من ${totalPages} (${totalItems} إجمالي السجلات)`
+                  )}
+                </Typography>
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
     </LocalizationProvider>
   );
 }
 
-export default ReviewRequestsPage;
+export default ReviewRequestPage;

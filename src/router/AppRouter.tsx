@@ -1,5 +1,10 @@
 import { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import Layout from '../components/Layout/Layout';
 import ProtectedRoute from '../components/common/ProtectedRoute';
@@ -7,6 +12,10 @@ import RouteErrorBoundary from '../components/common/RouteErrorBoundary';
 import { ThemeProvider } from '../theme';
 import { ProtectedProviders } from '../providers/ProtectedProviders';
 import { publicRoutes, themedPublicRoutes, protectedRoutes } from './routes';
+import {
+  useFeatureToggles,
+  type FeatureKey,
+} from '../context/FeatureToggleContext';
 
 const LoadingFallback = () => (
   <Box
@@ -18,6 +27,25 @@ const LoadingFallback = () => (
     <CircularProgress />
   </Box>
 );
+
+const FeatureGuard = ({
+  feature,
+  children,
+}: {
+  feature: FeatureKey | FeatureKey[];
+  children: React.ReactNode;
+}) => {
+  const { isFeatureEnabled } = useFeatureToggles();
+
+  const enabled = Array.isArray(feature)
+    ? feature.some(key => isFeatureEnabled(key))
+    : isFeatureEnabled(feature);
+
+  if (!enabled) {
+    return <Navigate to='/dashboard' replace />;
+  }
+  return <>{children}</>;
+};
 
 export function AppRouter() {
   return (
@@ -56,7 +84,7 @@ export function AppRouter() {
             {protectedRoutes.map((config, i) => {
               const Component = config.component;
               // withErrorBoundary defaults to true — set false on a route to opt out.
-              const wrapped =
+              let wrapped =
                 (config.withErrorBoundary ?? true) ? (
                   <RouteErrorBoundary>
                     <Component />
@@ -64,6 +92,14 @@ export function AppRouter() {
                 ) : (
                   <Component />
                 );
+
+              if (config.requiredFeature) {
+                wrapped = (
+                  <FeatureGuard feature={config.requiredFeature}>
+                    {wrapped}
+                  </FeatureGuard>
+                );
+              }
 
               if (config.index) {
                 return (

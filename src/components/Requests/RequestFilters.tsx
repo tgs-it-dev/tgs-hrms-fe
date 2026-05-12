@@ -8,6 +8,7 @@ interface RequestFiltersProps {
   onStatusChange: (value: string) => void;
   typeFilter: string;
   onTypeChange: (value: string) => void;
+  role: string;
 }
 
 const RequestFilters: React.FC<RequestFiltersProps> = ({
@@ -15,11 +16,36 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
   onStatusChange,
   typeFilter,
   onTypeChange,
+  role,
 }) => {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
   const controlBg = theme.palette.background.paper;
-
+  const statusOptions: { value: string; label: string }[] =
+    role === 'employee'
+      ? [
+          { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
+          {
+            value: 'pending',
+            label: getLabel('Pending', 'قيد الانتظار'),
+          },
+          { value: 'approved', label: getLabel('Approved', 'مقبول') },
+          { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
+          { value: 'cancelled', label: getLabel('Cancelled', 'ملغى') },
+        ]
+      : role === 'manager'
+        ? [
+            { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
+            {
+              value: 'history',
+              label: getLabel('History', 'السجل'),
+            },
+            {
+              value: 'pending',
+              label: getLabel('Pending', 'قيد الانتظار'),
+            },
+          ]
+        : [];
   return (
     <Box
       sx={{
@@ -37,15 +63,7 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
         inputBackgroundColor={controlBg}
         value={statusFilter}
         onChange={e => onStatusChange(String(e.target.value))}
-        options={[
-          { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
-          {
-            value: 'pending',
-            label: getLabel('Pending', 'قيد الانتظار'),
-          },
-          { value: 'approved', label: getLabel('Approved', 'مقبول') },
-          { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
-        ]}
+        options={statusOptions}
         containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
       />
       <AppDropdown
@@ -61,6 +79,7 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
             value: 'wfh',
             label: getLabel('Work From Home', 'العمل من المنزل'),
           },
+          { value: 'overtime', label: getLabel('Overtime', 'إجازة') },
           { value: 'leave', label: getLabel('Leave', 'إجازة') },
         ]}
         containerSx={{ minWidth: { xs: '120px', md: '160px' } }}
