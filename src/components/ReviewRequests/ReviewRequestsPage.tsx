@@ -196,8 +196,6 @@ function ReviewRequestPage() {
 
   const filteredRequests = requests;
 
-
-
   const buildCardProps = (request: WorkflowRequest) => {
     return {
       title:
@@ -295,19 +293,19 @@ function ReviewRequestPage() {
                   {...buildCardProps(request)}
                   actions={
                     !employee &&
-                      !(
-                        (manager &&
-                          [
-                            'rejected',
-                            'cancelled',
-                            'approved',
-                            'in_review',
-                          ].includes(request.status)) ||
-                        ((admin || hrAdmin) &&
-                          ['rejected', 'cancelled', 'approved'].includes(
-                            request.status
-                          ))
-                      ) ? (
+                    !(
+                      (manager &&
+                        [
+                          'rejected',
+                          'cancelled',
+                          'approved',
+                          'in_review',
+                        ].includes(request.status)) ||
+                      ((admin || hrAdmin) &&
+                        ['rejected', 'cancelled', 'approved'].includes(
+                          request.status
+                        ))
+                    ) ? (
                       <Box>
                         <AppTextarea
                           label={getLabel('Remarks', 'ملاحظات')}
