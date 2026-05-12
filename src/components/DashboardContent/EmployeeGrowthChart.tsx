@@ -5,9 +5,9 @@ import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import systemDashboardApiService from '../../api/systemDashboardApi';
-import { getCurrentUser } from '../../utils/auth';
 import { getStoredUser, getTenantIdFromUser } from '../../utils/authSession';
 import { isSystemAdmin } from '../../utils/roleUtils';
+import { useUser } from '../../hooks/useUser';
 import AppDropdown from '../common/AppDropdown';
 // using shared AppDropdown for time selector
 
@@ -35,9 +35,9 @@ const EmployeeGrowthChart: React.FC = () => {
   const theme = useTheme();
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const { user } = useUser();
 
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -71,7 +71,7 @@ const EmployeeGrowthChart: React.FC = () => {
     const fetchTenants = async () => {
       try {
         const data = await systemEmployeeApiService.getAllTenants(true);
-        setTenants((data || []) as unknown as Tenant[]);
+        setTenants(data || []);
 
         if (data && data.length > 0) {
           setSelectedTenant(data[0].id);

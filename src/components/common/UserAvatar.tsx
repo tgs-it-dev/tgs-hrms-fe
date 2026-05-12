@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Avatar, type AvatarProps } from '@mui/material';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useUser } from '../../hooks/useUser';
 import { colorTokens } from '../../theme';
+import { appConfig } from '../../config/appConfig';
 
 interface UserAvatarProps extends Omit<AvatarProps, 'src' | 'alt'> {
   user: {
@@ -21,8 +22,7 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
     { user, size = 40, clickable = false, onClick, sx, ...avatarProps },
     ref
   ) => {
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const API_BASE_URL = appConfig.api.baseUrl;
     const { profilePictureUrl } = useProfilePicture();
     const { user: currentUser } = useUser();
 

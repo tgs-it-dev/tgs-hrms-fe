@@ -3,6 +3,8 @@ import { notificationsApi } from './notificationsApi';
 import systemEmployeeApiService from './systemEmployeeApi';
 import teamApi from './teamApi';
 import { getCurrentUser } from '../utils/auth';
+import type { PaginatedResponse } from '../types/api';
+import { buildPaginationParams } from '../utils/pagination';
 
 export interface CreateLeaveRequest {
   leaveTypeId: string;
@@ -26,13 +28,8 @@ export interface CreateLeaveTypeRequest {
   isPaid: boolean;
 }
 
-export interface LeaveTypeListResponse {
-  items: LeaveType[];
-  total?: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
-}
+/** @deprecated Use PaginatedResponse<LeaveType> from src/types/api.ts */
+export type LeaveTypeListResponse = PaginatedResponse<LeaveType>;
 
 export interface LeaveResponse {
   id: string;
@@ -50,6 +47,10 @@ export interface LeaveResponse {
   remarks?: string | null;
   managerRemarks?: string | null;
   documents?: string[];
+  /** Relation field included by some endpoints */
+  employee?: { id?: string; first_name?: string; last_name?: string };
+  /** Relation field included by some endpoints */
+  user?: { id?: string; first_name?: string; last_name?: string };
 }
 
 export interface CreateLeaveForEmployeeRequest {
@@ -214,7 +215,8 @@ class LeaveApiService {
     limit: number;
     totalPages: number;
   }> {
-    const params = userId ? { userId, page, limit: 25 } : { page, limit: 25 };
+    const paginationParams = buildPaginationParams({ page, pageSize: 25 });
+    const params = userId ? { userId, ...paginationParams } : paginationParams;
     const response = await axiosInstance.get(this.baseUrl, { params });
     const data = response.data;
 
@@ -267,7 +269,7 @@ class LeaveApiService {
     totalPages: number;
   }> {
     const response = await axiosInstance.get(`${this.baseUrl}/team`, {
-      params: { page, limit: 25 },
+      params: buildPaginationParams({ page, pageSize: 25 }),
     });
     const data = response.data;
 

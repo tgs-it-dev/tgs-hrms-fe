@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios';
+import type { ErrorResource } from '../hooks/useErrorHandler';
 
 // Backend error response structure
 interface BackendErrorResponse {
@@ -151,7 +152,7 @@ export function handleApiError(
   error: unknown,
   context?: {
     operation: 'create' | 'update' | 'delete' | 'fetch';
-    resource: 'department' | 'designation' | 'employee';
+    resource: ErrorResource;
     isGlobal?: boolean;
   }
 ): ErrorHandlingResult {

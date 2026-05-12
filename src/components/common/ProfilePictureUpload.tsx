@@ -19,10 +19,11 @@ import { PhotoCamera, Delete, Close, Edit } from '@mui/icons-material';
 import profileApiService from '../../api/profileApi';
 import type { UserProfile } from '../../types/user';
 import { useUser } from '../../hooks/useUser';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from './ErrorSnackbar';
 import AppButton from './AppButton';
+import { appConfig } from '../../config/appConfig';
 
 interface ProfilePictureUploadProps {
   user: UserProfile;
@@ -73,8 +74,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const API_BASE_URL = appConfig.api.baseUrl;
 
     const getInitials = (first: string, last: string): string => {
       return `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
@@ -155,8 +155,6 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
         );
 
         // Update profile picture context with the full API URL
-        const API_BASE_URL =
-          import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
         const profilePicUrl = response.user.profile_pic
           ? `${API_BASE_URL}/users/${correctUserId}/profile-picture?t=${Date.now()}`
           : null;

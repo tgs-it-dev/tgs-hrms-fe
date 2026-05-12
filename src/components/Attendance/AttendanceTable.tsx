@@ -50,6 +50,7 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
 import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
+import { ROLES } from '../../constants/roles';
 
 import TeamCheckInView from './TeamCheckInView';
 import { authService } from '../../api/authService';
@@ -485,7 +486,7 @@ const AttendanceTable = () => {
       );
 
       const teamItems = response.items || [];
-      setTeamAttendance(teamItems as unknown as CheckInTeamMember[]);
+      setTeamAttendance(teamItems);
       if (startDate || endDate) {
         const filteredItems = teamItems
           .map((memberUnknown: unknown) => {
@@ -671,15 +672,7 @@ const AttendanceTable = () => {
           date, // End date (same day)
           selectedTenant || undefined // tenantId
         );
-        response = {
-          items: teamResponse.items,
-          total: teamResponse.total,
-          page: teamResponse.page,
-          limit: 10, // Default limit
-          totalPages: teamResponse.totalPages,
-        };
-        const teamItems =
-          (response.items as unknown as CheckInTeamMember[]) || [];
+        const teamItems = teamResponse.items || [];
         setTeamAttendance(teamItems);
 
         const selectedDateStr = date;
@@ -1312,7 +1305,7 @@ const AttendanceTable = () => {
 
       if (excludedTenants.length > 0) {
         console.warn(
-          ' Excluded tenants:',
+          'Excluded tenants (inactive/deleted/suspended):',
           excludedTenants.map((tUnknown: unknown) => {
             const t = (tUnknown as Record<string, unknown>) || {};
             return {
@@ -1391,12 +1384,19 @@ const AttendanceTable = () => {
     setTeamEndDate('');
     fetchAttendanceByDate(todayStr, 'team');
   };
-  // TODO: TanStack Query migration pending — complex dependency chain
-  // See src/components/Attendance/useAttendanceQueries.ts for the prepared hooks.
-  // fetchAttendance, fetchTeamAttendance, fetchAttendanceByDate and
-  // fetchTenantsFromSystemAttendance are called imperatively from 10+ event handlers.
-  // Role detection, view state, and data building are co-mingled in the same async
-  // functions, making a safe lift-and-shift to useQuery non-trivial.
+  // TODO: complete TanStack Query migration — BLOCKED by component coupling.
+  // See useAttendanceQueries.ts for useAttendanceData() — the prepared hook is ready.
+  // Remaining work before wiring it in:
+  //   1. Extract buildFromEvents / buildFromSummaries / buildFromSystemAll to
+  //      src/components/Attendance/attendanceUtils.ts (they close over toDisplayTime
+  //      and dateFnsFormat which are currently component-local).
+  //   2. Move role-flag side effects (setIsManager, setIsAdminUser, etc.) out of
+  //      fetchAttendance — compute them from contextUser directly in the render body.
+  //   3. Replace the 15+ imperative fetchAttendance() call sites with param state
+  //      updates so the query key drives re-fetches automatically.
+  //
+  // Risk: high — component is 2,859 lines; any missed call site silently stops
+  // refreshing on that interaction. Leave imperative pattern intact until step 1-3 done.
 
   // Sync role flags from context user and set initial attendance view once.
   // Computes role booleans once per contextUser change and reuses them for
@@ -1699,7 +1699,7 @@ const AttendanceTable = () => {
   };
   const userRoleLc = (userRole || '').toLowerCase();
   const isAdminLike =
-    userRoleLc === 'admin' ||
+    userRoleLc === ROLES.ADMIN ||
     userRoleLc === 'system_admin' ||
     userRoleLc === 'network_admin' ||
     userRoleLc === 'hr_admin';

@@ -78,7 +78,7 @@ function mapPayloadToNotification(p: Record<string, unknown>): Notification {
   );
   const status = p.status ?? 'unread';
   const read = status === 'read';
-  return { id, title, text, timestamp, read, raw: p };
+  return { id, title, text, timestamp, read };
 }
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -275,7 +275,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           taskTitle: detail.taskTitle ?? detail.data?.taskTitle ?? undefined,
           oldStatus: detail.oldStatus ?? detail.data?.oldStatus ?? undefined,
           newStatus: detail.newStatus ?? detail.data?.newStatus ?? undefined,
-          raw: detail,
         };
 
         addNotification(notification);

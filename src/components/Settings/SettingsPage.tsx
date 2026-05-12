@@ -50,6 +50,10 @@ const SettingsPage: React.FC = () => {
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<{
+    company_name?: string;
+    domain?: string;
+  }>({});
 
   const isModalOpenRef = useRef(false);
 
@@ -89,10 +93,29 @@ const SettingsPage: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+    setFormErrors(prev => ({ ...prev, [field]: undefined }));
   }, []);
 
   const handleSaveCompany = useCallback(async () => {
     if (!contextCompanyDetails) return;
+
+    // Validate before API call
+    const nextFormErrors: { company_name?: string; domain?: string } = {};
+    if (!editFormData.company_name?.trim()) {
+      nextFormErrors.company_name = 'Company name is required';
+    }
+    if (
+      editFormData.domain &&
+      !/^[a-zA-Z0-9-]+$/.test(editFormData.domain.trim())
+    ) {
+      nextFormErrors.domain =
+        'Domain may only contain letters, numbers, and hyphens';
+    }
+    if (Object.keys(nextFormErrors).length > 0) {
+      setFormErrors(nextFormErrors);
+      return;
+    }
+    setFormErrors({});
 
     setEditLoading(true);
     try {
@@ -568,6 +591,8 @@ const SettingsPage: React.FC = () => {
               disabled={editLoading}
               placeholder='Enter company name'
               inputBackgroundColor={controlBg}
+              error={Boolean(formErrors.company_name)}
+              helperText={formErrors.company_name}
             />
 
             <AppInputField
@@ -578,6 +603,8 @@ const SettingsPage: React.FC = () => {
               disabled={editLoading}
               placeholder='Enter domain'
               inputBackgroundColor={controlBg}
+              error={Boolean(formErrors.domain)}
+              helperText={formErrors.domain}
             />
           </Box>
         ) : (

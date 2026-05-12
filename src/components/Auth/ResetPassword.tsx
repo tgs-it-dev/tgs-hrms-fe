@@ -82,10 +82,43 @@ const ResetPassword = () => {
     (field: keyof typeof formData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
       const value = typeof e === 'string' ? e : (e?.target?.value ?? '');
-      setFormData(prev => ({ ...prev, [field]: value }));
-      if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: undefined }));
-      }
+      setFormData(prev => {
+        const next = { ...prev, [field]: value };
+
+        // Live password strength validation
+        if (field === 'password' && value.length > 0) {
+          const strengthErr = validatePasswordStrength(value);
+          setErrors(errs => ({ ...errs, password: strengthErr ?? undefined }));
+        } else if (field === 'password') {
+          setErrors(errs => ({ ...errs, password: undefined }));
+        }
+
+        // Live confirmPassword match validation
+        if (field === 'confirmPassword') {
+          if (value !== next.password) {
+            setErrors(errs => ({
+              ...errs,
+              confirmPassword: 'Password do not match',
+            }));
+          } else {
+            setErrors(errs => ({ ...errs, confirmPassword: undefined }));
+          }
+        }
+
+        // When password changes, re-check confirmPassword match if it has a value
+        if (field === 'password' && prev.confirmPassword) {
+          if (value !== prev.confirmPassword) {
+            setErrors(errs => ({
+              ...errs,
+              confirmPassword: 'Password do not match',
+            }));
+          } else {
+            setErrors(errs => ({ ...errs, confirmPassword: undefined }));
+          }
+        }
+
+        return next;
+      });
     };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

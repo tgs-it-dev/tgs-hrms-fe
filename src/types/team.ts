@@ -63,6 +63,8 @@ export interface AttendanceTeamMember {
   last_name: string;
   email?: string;
   profile_pic?: string;
+  designation?: string;
+  department?: string;
   attendance: AttendanceEntry[];
   user?: {
     id: string;

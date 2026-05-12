@@ -6,29 +6,6 @@ type Prediction = {
   place_id: string;
 };
 
-type GooglePlacesTypes = {
-  maps?: {
-    places?: {
-      AutocompleteService?: new () => {
-        getPlacePredictions: (
-          req: { input: string },
-          cb: (
-            predictions: Array<Record<string, unknown>> | null,
-            status: unknown
-          ) => void
-        ) => void;
-      };
-      PlacesService?: new (el: HTMLElement) => {
-        getDetails: (
-          req: { placeId: string; fields: string[] },
-          cb: (place: Record<string, unknown> | null, status: unknown) => void
-        ) => void;
-      };
-      PlacesServiceStatus?: { OK: unknown };
-    };
-  };
-};
-
 export function useGooglePlaces() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
@@ -43,9 +20,8 @@ export function useGooglePlaces() {
       'script[src*="maps.googleapis.com/maps/api/js"]'
     );
 
-    const gw = window as unknown as { google?: GooglePlacesTypes };
     if (existing) {
-      if (gw.google?.maps?.places) {
+      if (window.google?.maps?.places) {
         setIsLoaded(true);
       } else {
         existing.addEventListener('load', () => setIsLoaded(true), {
@@ -66,56 +42,45 @@ export function useGooglePlaces() {
 
   const getPredictions = (input: string): Promise<Prediction[]> => {
     return new Promise((resolve, reject) => {
-      const gw = window as unknown as { google?: GooglePlacesTypes };
-      if (!gw.google || !gw.google.maps) {
+      if (!window.google?.maps) {
         reject(new Error('Google Maps script not loaded'));
         return;
       }
 
-      const AutocompleteCtor = gw.google.maps.places?.AutocompleteService;
-      if (!AutocompleteCtor) {
-        reject(new Error('AutocompleteService not available'));
-        return;
-      }
-
-      const svc = new AutocompleteCtor();
-      svc.getPlacePredictions({ input }, (predictions, status) => {
-        const okStatus = gw.google?.maps?.places?.PlacesServiceStatus?.OK;
-        if (status !== okStatus) {
+      const svc = new window.google.maps.places.AutocompleteService();
+      void svc.getPlacePredictions({ input }, (predictions, status) => {
+        if (status !== window.google?.maps.places.PlacesServiceStatus.OK) {
           resolve([]);
           return;
         }
         resolve(
-          (predictions || []).map(p => ({
-            description: String(p.description),
-            place_id: String(p.place_id),
+          (predictions ?? []).map(p => ({
+            description: p.description,
+            place_id: p.place_id,
           }))
         );
       });
     });
   };
 
-  const getPlaceDetails = (placeId: string): Promise<unknown> => {
+  const getPlaceDetails = (
+    placeId: string
+  ): Promise<google.maps.places.PlaceResult> => {
     return new Promise((resolve, reject) => {
-      const gw = window as unknown as { google?: GooglePlacesTypes };
-      if (!gw.google || !gw.google.maps) {
+      if (!window.google?.maps) {
         reject(new Error('Google Maps script not loaded'));
         return;
       }
 
       const element = document.createElement('div');
-      const PlacesCtor = gw.google.maps.places?.PlacesService;
-      if (!PlacesCtor) {
-        reject(new Error('PlacesService not available'));
-        return;
-      }
-
-      const ps = new PlacesCtor(element);
+      const ps = new window.google.maps.places.PlacesService(element);
       ps.getDetails(
         { placeId, fields: ['geometry', 'formatted_address', 'name'] },
         (place, status) => {
-          const okStatus = gw.google?.maps?.places?.PlacesServiceStatus?.OK;
-          if (status !== okStatus) {
+          if (
+            status !== window.google?.maps.places.PlacesServiceStatus.OK ||
+            !place
+          ) {
             reject(new Error('Place details fetch failed'));
             return;
           }

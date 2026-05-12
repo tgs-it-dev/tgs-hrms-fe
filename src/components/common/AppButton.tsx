@@ -14,6 +14,8 @@ interface AppButtonProps extends Omit<ButtonProps, 'children'> {
   text?: string;
   loading?: boolean;
   children?: React.ReactNode;
+  /** Accessible label override — used when button content is not descriptive enough */
+  'aria-label'?: string;
 }
 
 export const AppButton = React.memo(function AppButton({
@@ -122,7 +124,13 @@ export const AppButton = React.memo(function AppButton({
   }, [baseSx, sx]);
 
   return (
-    <Button {...rest} disabled={disabled || loading} sx={finalSx}>
+    <Button
+      type={rest.type || 'button'}
+      {...rest}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      sx={finalSx}
+    >
       {text || children}
     </Button>
   );

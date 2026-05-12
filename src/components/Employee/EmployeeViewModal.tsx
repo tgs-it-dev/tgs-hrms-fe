@@ -185,7 +185,8 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                     height: 120,
                     mx: 'auto',
                     mb: 2,
-                    border: '1px solid #000',
+                    border: '1px solid',
+                    borderColor: 'common.black',
                   }}
                 />
               ) : (
@@ -196,7 +197,8 @@ const EmployeeViewModal: React.FC<EmployeeViewModalProps> = ({
                     mx: 'auto',
                     mb: 2,
                     backgroundColor: 'divider',
-                    border: '1px solid #000',
+                    border: '1px solid',
+                    borderColor: 'common.black',
                   }}
                 >
                   {employee.name.charAt(0).toUpperCase()}

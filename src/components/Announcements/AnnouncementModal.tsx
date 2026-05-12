@@ -17,6 +17,7 @@ type DatetimeLocalString = string; // "YYYY-MM-DDTHH:mm"
 const MIN_TITLE_LENGTH = 5;
 const MAX_TITLE_LENGTH = 70;
 const MIN_CONTENT_LENGTH = 10;
+const MAX_CONTENT_LENGTH = 5000;
 
 const CATEGORY_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'general', label: 'General' },
@@ -187,6 +188,11 @@ export default function AnnouncementModal({
       return isRtl
         ? `يجب أن يكون المحتوى ${MIN_CONTENT_LENGTH} أحرف على الأقل`
         : `Content must be at least ${MIN_CONTENT_LENGTH} characters`;
+    }
+    if (trimmed.length > MAX_CONTENT_LENGTH) {
+      return isRtl
+        ? `يجب أن لا يتجاوز المحتوى ${MAX_CONTENT_LENGTH} حرف`
+        : `Content must be at most ${MAX_CONTENT_LENGTH} characters`;
     }
     return undefined;
   }, [content, isRtl]);
@@ -397,6 +403,7 @@ export default function AnnouncementModal({
         }
         onBlur={() => setContentTouched(true)}
         rows={4}
+        inputProps={{ maxLength: MAX_CONTENT_LENGTH }}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           setContent(e.target.value)
         }

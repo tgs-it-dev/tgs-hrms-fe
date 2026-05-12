@@ -92,8 +92,6 @@ const TimesheetLayout = lazy(
 );
 const TeamManager = lazy(() => import('../components/Teams/TeamManager'));
 const TeamsTaskList = lazy(() => import('../components/Teams/TeamList'));
-const TeamTasks = lazy(() => import('../components/TaskManagement/TeamTasks'));
-const MyTasks = lazy(() => import('../components/TaskManagement/MyTasks'));
 const TenantBasedEmployeeManager = lazy(
   () => import('../components/Employee/TenantBasedEmployeeManager')
 );
@@ -106,12 +104,6 @@ const PerformanceDashboard = lazy(
 );
 const GeofencingManagement = lazy(
   () => import('../components/Geofencing/GeofencingManagement')
-);
-const ManagerTaskBoard = lazy(
-  () => import('../components/TaskManagement/ManagerTaskBoard')
-);
-const EmployeeTasks = lazy(
-  () => import('../components/TaskManagement/EmployeeTasks')
 );
 const FeatureManagementPage = lazy(
   () => import('../components/Settings/FeatureManagementPage')
@@ -167,11 +159,6 @@ export const protectedRoutes: ProtectedRouteConfig[] = [
   { path: 'attendance-check/timesheet-layout', component: TimesheetLayout },
   { path: 'teams', component: TeamManager },
   { path: 'teams/list', component: TeamsTaskList },
-  { path: 'teams/tasks', component: TeamTasks },
-  { path: 'teams/tasks/:teamId', component: TeamTasks },
-  { path: 'my-tasks', component: MyTasks },
-  { path: 'manager-tasks', component: ManagerTaskBoard },
-  { path: 'teams/employee/:employeeId', component: EmployeeTasks },
   { path: 'settings', component: SettingsPage },
   { path: 'feature-management', component: FeatureManagementPage },
   { path: 'performance-dashboard', component: PerformanceDashboard },

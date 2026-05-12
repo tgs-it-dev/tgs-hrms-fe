@@ -1,4 +1,5 @@
 import type { UserShort } from './user';
+import type { AttendanceTeamMember } from './team';
 
 export interface AttendanceEvent {
   id: string;
@@ -92,7 +93,7 @@ export interface TodayTeamAttendanceResponse {
 }
 
 export interface TeamAttendanceResponse {
-  items: AttendanceEvent[];
+  items: AttendanceTeamMember[];
   total: number;
   page: number;
   totalPages: number;

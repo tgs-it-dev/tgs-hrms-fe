@@ -15,7 +15,8 @@ export interface DepartmentFormErrors {
   description?: string;
 }
 
-export interface FormData {
+/** @deprecated Renamed to EmployeeFormData to avoid shadowing the browser global FormData. */
+export interface EmployeeFormData {
   department: string;
   designation: string;
 }

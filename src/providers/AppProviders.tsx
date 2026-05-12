@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { LanguageProvider } from '../context/LanguageContext';
 import { UserProvider } from '../context/UserContext';
-import { ProfilePictureProvider } from '../context/ProfilePictureContext';
 import { queryClientRef } from './queryClientRef';
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -13,9 +13,23 @@ export function AppProviders({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            refetchOnWindowFocus: false,
-            staleTime: 1000 * 60 * 5, // 5 minutes
-            retry: 1,
+            staleTime: 1000 * 60 * 5, // 5 min — data considered fresh
+            gcTime: 1000 * 60 * 10, // 10 min — keep unused cache
+            retry: (failureCount, error) => {
+              // Don't retry 4xx errors (client errors) — only retry network/5xx
+              const status = (error as { response?: { status?: number } })
+                ?.response?.status;
+              if (status && status >= 400 && status < 500) return false;
+              return failureCount < 2;
+            },
+            refetchOnWindowFocus: true,
+            refetchOnReconnect: true,
+          },
+          mutations: {
+            retry: false, // Never auto-retry mutations
+            // TODO: wire normalizeApiError from src/utils/errorHandler.ts into
+            // onError here so all mutation failures are normalized consistently.
+            // e.g. onError: (error) => { const e = normalizeApiError(error); showToast(e.message); }
           },
         },
       })
@@ -28,10 +42,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <UserProvider>
-          <ProfilePictureProvider>{children}</ProfilePictureProvider>
-        </UserProvider>
+        {/* ProfilePictureContext merged into UserProvider — no separate provider needed */}
+        <UserProvider>{children}</UserProvider>
       </LanguageProvider>
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

@@ -33,8 +33,18 @@ const AddHolidayDialog: React.FC<AddHolidayDialogProps> = ({
 
   const handleSubmit = () => {
     const newErrors: typeof errors = {};
-    if (!title.trim()) newErrors.title = 'Title is required';
-    if (!date) newErrors.date = 'Date is required';
+    if (!title.trim() || title.trim().length < 2) {
+      newErrors.title = 'Title must be at least 2 characters';
+    }
+    if (!date) {
+      newErrors.date = 'Date is required';
+    } else {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) {
+        newErrors.date = 'Holiday date cannot be in the past';
+      }
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -81,6 +91,7 @@ const AddHolidayDialog: React.FC<AddHolidayDialogProps> = ({
           onChange={e => setTitle(e.target.value)}
           error={Boolean(errors.title)}
           helperText={errors.title}
+          inputProps={{ maxLength: 200 }}
         />
 
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -107,6 +118,7 @@ const AddHolidayDialog: React.FC<AddHolidayDialogProps> = ({
           rows={3}
           value={description}
           onChange={e => setDescription(e.target.value)}
+          inputProps={{ maxLength: 500 }}
         />
       </DialogContent>
 

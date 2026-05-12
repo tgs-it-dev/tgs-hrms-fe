@@ -1,13 +1,16 @@
 import axiosInstance from './axiosInstance';
 import type { EmployeePerformance } from '../types/employee';
+import type { SystemTenant } from '../types/tenant';
 
 export type { EmployeePerformance } from '../types/employee';
 
-export type SystemEmployee = {
+export interface SystemEmployee {
   id: string;
   name: string;
   email?: string;
   tenantId: string;
+  /** snake_case alias returned by some backend endpoints */
+  tenant_id?: string;
   departmentId: string;
   departmentName: string;
   designationId: string;
@@ -16,7 +19,7 @@ export type SystemEmployee = {
   status: string;
   inviteStatus: string;
   createdAt?: string;
-};
+}
 
 export type SystemEmployeeDetails = SystemEmployee & {
   kpis: EmployeePerformance[];
@@ -179,10 +182,11 @@ class SystemEmployeeApiService {
     return res.data || [];
   }
 
-  async getAllTenants(includeDeleted = true): Promise<SystemEmployee[]> {
-    const res = await axiosInstance.get('/system/tenants', {
-      params: { includeDeleted, limit: 'all' },
-    });
+  async getAllTenants(includeDeleted = true): Promise<SystemTenant[]> {
+    const res = await axiosInstance.get<{ items: SystemTenant[] }>(
+      '/system/tenants',
+      { params: { includeDeleted, limit: 'all' } }
+    );
 
     return res.data?.items || [];
   }

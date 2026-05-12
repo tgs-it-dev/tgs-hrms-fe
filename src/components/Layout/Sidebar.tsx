@@ -22,7 +22,6 @@ import {
   getRoleName,
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
-import { isUser as isEmployeeUser } from '../../utils/auth';
 import { translations } from '../../utils/i18n';
 import { Icons } from '../../assets/icons';
 import {
@@ -269,12 +268,6 @@ const menuItems: MenuItem[] = [
     iconFill: Icons.teamsFill,
     subItems: [
       { label: 'Team Management', i18nKey: 'teamManagement', path: 'teams' },
-      {
-        label: 'Manager Tasks',
-        i18nKey: 'managerTasks',
-        path: 'manager-tasks',
-      },
-      { label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' },
     ],
   },
   {
@@ -434,9 +427,6 @@ export default function Sidebar({
     [isRtl]
   );
   const role = user?.role;
-  const userRoleName = getRoleName(role).toLowerCase();
-  const isEmployee =
-    userRoleName === 'user' || userRoleName === 'employee' || isEmployeeUser();
 
   const handleLogout = () => {
     clearAuthData();
@@ -478,26 +468,6 @@ export default function Sidebar({
           return isSubVisible;
         }),
       }));
-    // If the signed-in user is a plain employee, show a simplified Teams menu
-    // labeled as "My Tasks" (this places quick access to their tasks)
-    if (isEmployee) {
-      return filtered.map(item => {
-        if (item.label === 'Teams') {
-          return {
-            ...item,
-            label: 'My Tasks',
-            i18nKey: 'myTasks',
-            subItems: [
-              { label: 'My Tasks', i18nKey: 'myTasks', path: 'my-tasks' },
-            ],
-          } as MenuItem;
-        }
-        return item;
-      });
-    }
-
-    // For system admins, keep the menu structure but hide the visible label
-    // for the Manager Tasks subitem (show icon/navigation only).
     if (isSystemAdmin) {
       const withFeatureManagement: MenuItem[] = [
         ...filtered,
@@ -515,21 +485,11 @@ export default function Sidebar({
         },
       ];
 
-      return withFeatureManagement.map(item => {
-        if (item.label === 'Teams') {
-          return {
-            ...item,
-            subItems: (item.subItems || []).map(sub =>
-              sub.path === 'manager-tasks' ? { ...sub, label: '' } : sub
-            ),
-          } as MenuItem;
-        }
-        return item;
-      });
+      return withFeatureManagement;
     }
 
     return filtered;
-  }, [role, isEmployee, isFeatureEnabled]);
+  }, [role, isFeatureEnabled]);
 
   useEffect(() => {
     let currentPath = location.pathname.replace('/dashboard/', '');
@@ -565,6 +525,9 @@ export default function Sidebar({
 
   return (
     <Box
+      component='nav'
+      role='navigation'
+      aria-label='Main navigation'
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
@@ -666,6 +629,7 @@ export default function Sidebar({
                   <ListItemButton
                     component={NavLink}
                     to={`/dashboard/${directPath}`}
+                    aria-current={isDirectLinkActive ? 'page' : undefined}
                     onClick={() => {
                       setOpenItem(item.label);
                       setActiveSubItem(isSingleSubItem ? directLabel : '');
@@ -825,6 +789,9 @@ export default function Sidebar({
                               key={sub.path}
                               component={NavLink}
                               to={`/dashboard/${sub.path}`}
+                              aria-current={
+                                activeSubItem === sub.label ? 'page' : undefined
+                              }
                               onClick={() =>
                                 handleSubItemClick(item.label, sub.label)
                               }

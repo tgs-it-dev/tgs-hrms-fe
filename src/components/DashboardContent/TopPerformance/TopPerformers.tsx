@@ -44,6 +44,7 @@ const TopPerformers: React.FC<TopPerformersProps> = ({
   return (
     <Box
       p={1}
+      // Figma-specified rose card bg — not yet in design tokens
       bgcolor='#f1c8db'
       borderRadius={'0.375rem'}
       boxShadow={2}

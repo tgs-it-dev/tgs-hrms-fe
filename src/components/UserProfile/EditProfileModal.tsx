@@ -9,7 +9,7 @@ import {
 } from '../../api/profileApi';
 import type { UserProfile } from '../../types/user';
 import ProfilePictureUpload from '../common/ProfilePictureUpload';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { validateEmailAddress } from '../../utils/validation';
 import { env } from '../../config/env';
 import { TIMEOUTS, ERROR_MESSAGES } from '../../constants/appConstants';

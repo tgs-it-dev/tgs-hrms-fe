@@ -1,6 +1,27 @@
 import { useState, useCallback } from 'react';
 import { extractErrorMessage, handleApiError } from '../utils/errorHandler';
 
+export type ErrorResource =
+  | 'employee'
+  | 'department'
+  | 'designation'
+  | 'leave'
+  | 'leaveType'
+  | 'attendance'
+  | 'team'
+  | 'announcement'
+  | 'notification'
+  | 'profile'
+  | 'company'
+  | 'role'
+  | 'geofencing'
+  | 'holiday'
+  | 'policy'
+  | 'report'
+  | 'timesheet'
+  | 'billing'
+  | 'task';
+
 export interface SnackbarState {
   open: boolean;
   message: string;
@@ -13,7 +34,7 @@ export interface UseErrorHandlerReturn {
     error: unknown,
     context?: {
       operation: 'create' | 'update' | 'delete' | 'fetch';
-      resource: 'department' | 'designation' | 'employee';
+      resource: ErrorResource;
       isGlobal?: boolean;
     }
   ) => void;
@@ -35,7 +56,7 @@ export function useErrorHandler(): UseErrorHandlerReturn {
       error: unknown,
       context?: {
         operation: 'create' | 'update' | 'delete' | 'fetch';
-        resource: 'department' | 'designation' | 'employee';
+        resource: ErrorResource;
         isGlobal?: boolean;
       }
     ) => {

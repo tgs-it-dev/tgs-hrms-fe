@@ -10,8 +10,13 @@ export interface UserShort {
 }
 
 /**
- * Full user profile as returned by the profile API.
- * This is the shape used by the current user's profile page.
+ * Canonical authenticated-user profile.
+ *
+ * This is the single source of truth for the logged-in user's shape.
+ * It merges the profile API response (snake_case, from backend) with the
+ * session fields previously scattered across utils/auth.ts.
+ *
+ * Backend response shape — snake_case matches API contract.
  */
 export interface UserProfile {
   id: string;
@@ -21,14 +26,20 @@ export interface UserProfile {
   phone: string;
   profile_pic?: string | null;
   role: string;
+  /** Role display name when backend returns an object with a name field */
+  role_name?: string;
   tenant: string;
+  /** Tenant ID from the auth token payload */
+  tenant_id?: string;
+  /** Set to true when the tenant's subscription payment is required */
+  requires_payment?: boolean;
   created_at: string;
   updated_at: string;
 }
 
 /**
  * Legacy UI user shape used by management tables and mock data.
- * For the authenticated session user see utils/auth.ts:User.
+ * Not the authenticated session user — see UserProfile above.
  */
 export interface User {
   id: string;

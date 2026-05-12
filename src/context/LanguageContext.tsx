@@ -6,6 +6,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { LanguageContextType } from '../types/context';
+import i18n from '../i18n';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -44,6 +45,8 @@ const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const setLanguage = useCallback((lang: 'en' | 'ar') => {
     setLang(lang);
+    // Keep react-i18next in sync so any component using useTranslation() also switches
+    void i18n.changeLanguage(lang);
   }, []);
 
   return (

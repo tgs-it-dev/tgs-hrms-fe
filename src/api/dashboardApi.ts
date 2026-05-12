@@ -1,19 +1,38 @@
 import axiosInstance from './axiosInstance';
 
-export type DashboardKpi = {
+export interface DashboardKpi {
   totalEmployees: number;
   salaryPaid: number;
   salaryUnpaid: number;
   presentToday: number;
   onLeave: number;
   timestamp?: string;
-};
+}
+
+interface RawDashboardKpi {
+  total_employees?: number;
+  totalEmployees?: number;
+  total_employees_count?: number;
+  salary_paid?: number;
+  salaryPaid?: number;
+  total_salary?: number;
+  salary_unpaid?: number;
+  salaryUnpaid?: number;
+  employees_present_today?: number;
+  presentToday?: number;
+  employeesPresent?: number;
+  employees_present?: number;
+  employees_on_leave_today?: number;
+  onLeave?: number;
+  employeesOnLeave?: number;
+  employees_on_leave?: number;
+  timestamp?: string;
+}
 
 export async function getDashboardKpi(): Promise<DashboardKpi | null> {
   try {
-    const resp =
-      await axiosInstance.get<Record<string, unknown>>('/dashboard/kpi');
-    const data = resp?.data ?? resp;
+    const resp = await axiosInstance.get<RawDashboardKpi>('/dashboard/kpi');
+    const data = resp?.data ?? ({} as RawDashboardKpi);
 
     const mapped: DashboardKpi = {
       totalEmployees:

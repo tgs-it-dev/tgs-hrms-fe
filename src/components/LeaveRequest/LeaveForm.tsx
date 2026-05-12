@@ -132,6 +132,18 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate && startDate < today) {
+      onError?.('Start date cannot be in the past');
+      return;
+    }
+
+    if (reason.trim().length < 10) {
+      onError?.('Reason must be at least 10 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -271,6 +283,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
         <DatePicker
           label='Start Date'
           value={startDate}
+          minDate={new Date()}
           onChange={newValue => {
             if (newValue instanceof Date) {
               setStartDate(newValue);
@@ -311,11 +324,12 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: '#fff !important',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#fff !important',
+                  // !important needed to override MUI Picks specificity; value === common.white
+                  color: '#ffffff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',
@@ -360,11 +374,12 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
                   {
                     backgroundColor: 'var(--primary-dark-color) !important',
-                    color: '#fff !important',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
                   },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#fff !important',
+                  // !important needed to override MUI Picks specificity; value === common.white
+                  color: '#ffffff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',

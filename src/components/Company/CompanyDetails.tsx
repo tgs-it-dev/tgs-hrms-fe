@@ -49,25 +49,29 @@ const CompanyDetails: React.FC = () => {
     setFieldErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  const handleImageFile = (file: File) => {
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showError(new Error('File size must be less than 10MB'));
+      return;
+    }
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+      showError(new Error('Only JPEG, PNG and GIF formats are allowed'));
+      return;
+    }
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        showError(new Error('File size must be less than 10MB'));
-        return;
-      }
-      // Validate file type
-      if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
-        showError(new Error('Only JPEG, PNG and GIF formats are allowed'));
-        return;
-      }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = e => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      handleImageFile(file);
     }
   };
 
@@ -80,10 +84,7 @@ const CompanyDetails: React.FC = () => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const fakeEvent = {
-        target: { files: [file] },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      handleImageChange(fakeEvent);
+      handleImageFile(file);
     }
   };
 
@@ -97,12 +98,17 @@ const CompanyDetails: React.FC = () => {
       domain: '',
     };
 
-    if (!formData.companyName.trim()) {
-      nextErrors.companyName = 'Company name is required';
+    if (
+      !formData.companyName.trim() ||
+      formData.companyName.trim().length < 2
+    ) {
+      nextErrors.companyName = 'Company name must be at least 2 characters';
     }
 
     if (!formData.domain.trim()) {
       nextErrors.domain = 'Domain is required';
+    } else if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.domain.trim())) {
+      nextErrors.domain = 'Please enter a valid domain (e.g. example.com)';
     }
 
     setFieldErrors(nextErrors);

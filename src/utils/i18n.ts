@@ -114,8 +114,6 @@ export const translations = {
     tenantEmployees: { en: 'Tenant Employees', ar: 'موظفو المستأجر' },
     teams: { en: 'Teams', ar: 'الفرق' },
     teamManagement: { en: 'Team Management', ar: 'إدارة الفرق' },
-    managerTasks: { en: 'Manager Tasks', ar: 'مهام المدير' },
-    myTasks: { en: 'My Tasks', ar: 'مهامي' },
     attendance: { en: 'Attendance', ar: 'الحضور' },
     geofencing: { en: 'Geofencing', ar: 'السياج الجغرافي' },
     featureManagement: { en: 'Feature Management', ar: 'إدارة الميزات' },

@@ -42,6 +42,7 @@ import 'leaflet-draw';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import type { Geofence } from '../../types/geofencing';
+import { searchNominatimLocations } from '../../api/geofencingApi';
 import AppButton from '../common/AppButton';
 import { useGooglePlaces } from '../../hooks/useGooglePlaces';
 
@@ -318,6 +319,12 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
     teamId: '',
   });
 
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    location?: string;
+  }>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
   // Track initial snapshot to detect changes for enabling Update button
   const initialSnapshotRef = useRef<{
     name: string;
@@ -563,30 +570,8 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
     }
 
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&extratags=1`,
-        {
-          headers: {
-            'User-Agent': 'TGS-HRMS-Geofencing/1.0',
-            'Accept-Language': 'en',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-
-      const data: LocationSearchResult[] = await response.json();
-      // Ensure place_id is a string for consistency
-      const normalized = data.map(d => {
-        const raw = d as Record<string, unknown> | undefined;
-        return {
-          ...d,
-          place_id: String(raw?.place_id ?? raw?.osm_id ?? d.display_name),
-        };
-      });
-      setSearchResults(normalized);
+      const results = await searchNominatimLocations(query);
+      setSearchResults(results);
       setShowSearchResults(true);
     } catch (error) {
       console.error('Location search error:', error);
@@ -621,37 +606,18 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
       isGoogleLoaded && result.place_id && result.place_id.length > 0;
     if (useGoogle && getPlaceDetails) {
       getPlaceDetails(result.place_id)
-        .then((place: Record<string, unknown>) => {
-          const geometry = place?.['geometry'] as
-            | Record<string, unknown>
-            | undefined;
-          const loc = geometry?.['location'] as
-            | Record<string, unknown>
-            | undefined;
-          const latFn =
-            loc && (loc['lat'] as unknown as (() => number) | undefined);
-          const lngFn =
-            loc && (loc['lng'] as unknown as (() => number) | undefined);
-          if (
-            latFn &&
-            typeof latFn === 'function' &&
-            lngFn &&
-            typeof lngFn === 'function'
-          ) {
-            const lat = latFn();
-            const lon = lngFn();
+        .then((place: google.maps.places.PlaceResult) => {
+          const lat = place.geometry?.location?.lat();
+          const lon = place.geometry?.location?.lng();
+          if (lat !== undefined && lon !== undefined) {
             setSelectedLocation([lat, lon]);
             setSelectedLocationName(
-              (place['formatted_address'] as string) ||
-                (place['name'] as string) ||
-                result.display_name
+              place.formatted_address || place.name || result.display_name
             );
             setMapCenter([lat, lon]);
             setMapZoom(15);
             setSearchQuery(
-              (place['formatted_address'] as string) ||
-                (place['name'] as string) ||
-                result.display_name
+              place.formatted_address || place.name || result.display_name
             );
             setShowSearchResults(false);
             setManualCoordinates({
@@ -905,13 +871,26 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
   };
 
   const handleSubmit = () => {
+    setSubmitAttempted(true);
+    const nextErrors: { name?: string; location?: string } = {};
+
     if (!formData.name.trim()) {
-      return;
+      nextErrors.name = 'Geofence name is required';
+    } else if (formData.name.trim().length > 100) {
+      nextErrors.name = 'Name must be 100 characters or less';
     }
 
     // Allow saving when either a drawn boundary exists, or a manual/selected location is provided
     const hasLocation = !!drawnShape || !!selectedLocation;
-    if (!hasLocation) return;
+    if (!hasLocation) {
+      nextErrors.location = 'Please draw a boundary on the map before saving';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      return;
+    }
+    setFieldErrors({});
 
     let type: 'circle' | 'polygon' | 'rectangle' = formData.type;
     let centerLocation: [number, number] = mapCenter;
@@ -1089,10 +1068,19 @@ const GeofenceFormModal: React.FC<GeofenceFormModalProps> = ({
                 required
                 size='small'
                 value={formData.name}
-                onChange={e =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={e => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (fieldErrors.name)
+                    setFieldErrors(prev => ({ ...prev, name: undefined }));
+                }}
+                error={Boolean(fieldErrors.name)}
+                helperText={fieldErrors.name}
+                inputProps={{ maxLength: 100 }}
               />
+
+              {submitAttempted && fieldErrors.location && (
+                <Alert severity='error'>{fieldErrors.location}</Alert>
+              )}
 
               <TextField
                 label='Description'

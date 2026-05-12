@@ -5,7 +5,7 @@ const Clipboard = () => {
       height='35'
       fill='currentColor'
       viewBox='0 0 16 16'
-      style={{ color: '#5c608d' }}
+      style={{ color: '#5c608d' }} // Figma-specified indigo-grey icon color — not yet in design tokens
       xmlns='http://www.w3.org/2000/svg'
     >
       <path

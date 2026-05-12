@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -38,7 +38,7 @@ import {
 import type { SystemTenant } from '../../types/tenant';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import { PAGINATION } from '../../constants/appConstants';
-// import { extractErrorMessage } from '../../utils/errorHandler';
+import { useUser } from '../../hooks/useUser';
 
 export default function DesignationManager() {
   const theme = useTheme();
@@ -46,13 +46,7 @@ export default function DesignationManager() {
   const isRTL = language === 'ar';
 
   // Get user role
-  const user = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem('user') || '{}');
-    } catch {
-      return {};
-    }
-  }, []);
+  const { user } = useUser();
   const userRoleValue = user?.role;
   const isSystemAdmin = isSystemAdminFn(userRoleValue);
   const isHRAdmin = isHRAdminFn(userRoleValue);
@@ -104,7 +98,7 @@ export default function DesignationManager() {
         // Use the same API as Employee List to get all tenants
         const data = await systemEmployeeApiService.getAllTenants(true);
         // Show all tenants (no filtering) - same as Employee List
-        setAllTenants((data || []) as unknown as SystemTenant[]);
+        setAllTenants(data || []);
       } catch {
         // Ignore; tenant filter list will simply be empty
       } finally {

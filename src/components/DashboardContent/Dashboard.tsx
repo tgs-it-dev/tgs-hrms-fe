@@ -29,7 +29,6 @@ import {
   useAttendanceSummary,
 } from './useDashboardQueries';
 
-// AvailabilityCardsGrid removed — availability column removed from dashboard
 import GenderPercentageChart from './GenderPercentageChart';
 import {
   ResponsiveContainer,
@@ -40,10 +39,6 @@ import {
   CartesianGrid,
   Tooltip as ReTooltip,
 } from 'recharts';
-// import TopPerformersProps from '../DashboardContent/TopPerformance/TopPerformersProps';
-// import IconImageCardProps from '../DashboardContent/TotalApplication/IconImageCardProps';
-// import ApplicationStats from '../DashboardContent/ApplicationStats/ApplicationStats';
-// import UpcomingInterviews from '../DashboardContent/ComingInterview/UpcomingInterviews';
 import KPICard from './KPICard';
 
 import ApartmentIcon from '@mui/icons-material/Apartment';
@@ -55,9 +50,7 @@ import TenantGrowthChart from './TenantGrowthChart';
 import EmployeeGrowthChart from './EmployeeGrowthChart';
 import SystemUptimeCard from './SystemUptimeCard';
 import RecentActivityLogs from './RecentActivityLogs';
-import { getCurrentUser } from '../../utils/auth';
-// import SalaryOverviewChart from './SalaryOverviewChart';
-// import AttendanceDepartmentChart from './AttendanceDepartmentChart';
+import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/roleUtils';
 import { PAGINATION } from '../../constants/appConstants';
 import AppPageTitle from '../common/AppPageTitle';
@@ -72,8 +65,8 @@ const Dashboard: React.FC = () => {
   const { language } = useLanguage();
   const lang = labels[language];
   const theme = useTheme();
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const { user } = useUser();
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
   const [currentPage, setCurrentPage] = useState(1);

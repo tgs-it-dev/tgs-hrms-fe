@@ -27,6 +27,7 @@ import {
   type BackendDesignation,
 } from '../../api/designationApi';
 import rolesApiService from '../../api/rolesApi';
+import { ROLES } from '../../constants/roles';
 import type { Role } from '../../types/user';
 import { validateEmailAddress } from '../../utils/validation';
 import AppButton from '../common/AppButton';
@@ -178,7 +179,12 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   const isInitializingRef = useRef<boolean>(true);
 
   const roleOptions = React.useMemo(() => {
-    const allowedRoles = ['Employee', 'Manager', 'hr-admin', 'network-admin'];
+    const allowedRoles = [
+      'Employee',
+      'Manager',
+      ROLES.HR_ADMIN,
+      ROLES.NETWORK_ADMIN,
+    ];
 
     return (roles || [])
       .map(r => (r.name || '').trim())
@@ -525,13 +531,35 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
 
   const validate = (): boolean => {
     const newErrors: Errors = {};
-    if (!values.first_name)
+    if (!values.first_name) {
       newErrors.first_name = label(
         'First name is required',
         'الاسم الأول مطلوب'
       );
-    if (!values.last_name)
+    } else if (values.first_name.trim().length < 2) {
+      newErrors.first_name = label(
+        'First name must be at least 2 characters',
+        'الاسم الأول يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.first_name.trim().length > 50) {
+      newErrors.first_name = label(
+        'First name must be 50 characters or less',
+        'الاسم الأول يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
+    if (!values.last_name) {
       newErrors.last_name = label('Last name is required', 'اسم العائلة مطلوب');
+    } else if (values.last_name.trim().length < 2) {
+      newErrors.last_name = label(
+        'Last name must be at least 2 characters',
+        'اسم العائلة يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.last_name.trim().length > 50) {
+      newErrors.last_name = label(
+        'Last name must be 50 characters or less',
+        'اسم العائلة يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
     if (values.email.trim()) {
       const emailError = validateEmailAddress(values.email);
       if (emailError) {
@@ -552,6 +580,11 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         );
       }
     }
+    if (!values.departmentId)
+      newErrors.departmentId = label(
+        'Please select a department',
+        'يرجى اختيار القسم'
+      );
     if (!values.designationId)
       newErrors.designationId = label(
         'Please select a designation',
@@ -1479,24 +1512,24 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 ? label(
                     initialData
                       ? 'Updating...'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'Adding Manager...'
                         : 'Adding Employee...',
                     initialData
                       ? 'جاري التحديث...'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'جاري إضافة المدير...'
                         : 'جاري إضافة الموظف...'
                   )
                 : label(
                     initialData
                       ? 'Update Employee'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'Add Manager'
                         : 'Add Employee',
                     initialData
                       ? 'تحديث الموظف'
-                      : values.role === 'manager'
+                      : values.role === ROLES.MANAGER
                         ? 'إضافة مدير'
                         : 'إضافة موظف'
                   )

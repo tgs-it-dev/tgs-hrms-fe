@@ -7,7 +7,6 @@ export * from './context';
 export * from './department';
 export * from './interview';
 export * from './notification';
-export * from './stat';
 export * from './team';
 export * from './tenant';
 export * from './user';
@@ -23,7 +22,7 @@ export type {
   EmployeeProfileAttendanceSummaryItem,
   EmployeeProfileLeaveHistoryItem,
   GenderPercentage,
-  FormData,
+  EmployeeFormData,
   FormErrors,
   EmployeeDto,
   EmployeeUpdateDto,

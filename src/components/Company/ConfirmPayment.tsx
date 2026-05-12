@@ -11,6 +11,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import signupApi from '../../api/signupApi';
 import authApi, { type LoginResponse } from '../../api/authApi';
+import type { UserProfile } from '../../types/user';
 import billingApi from '../../api/billingApi';
 import { useUser } from '../../hooks/useUser';
 import { getStoredUser, persistAuthSession } from '../../utils/authSession';
@@ -21,9 +22,7 @@ const isLoginResponsePayload = (payload: unknown): payload is LoginResponse =>
   'accessToken' in payload &&
   typeof (payload as Record<string, unknown>).accessToken === 'string';
 
-const coerceLoginResponse = (
-  payload: Record<string, unknown> | null
-): LoginResponse | null => {
+const coerceLoginResponse = (payload: object | null): LoginResponse | null => {
   if (!isLoginResponsePayload(payload)) return null;
   return {
     accessToken: payload.accessToken,
@@ -31,8 +30,8 @@ const coerceLoginResponse = (
       typeof payload.refreshToken === 'string'
         ? payload.refreshToken
         : undefined,
-    user: payload.user as Record<string, unknown> | undefined,
-    permissions: payload.permissions as unknown[] | undefined,
+    user: payload.user as UserProfile | undefined,
+    permissions: payload.permissions as string[] | undefined,
     employee: payload.employee as { id?: string | number } | null | undefined,
     requiresPayment:
       typeof payload.requiresPayment === 'boolean'
@@ -125,12 +124,10 @@ const ConfirmPayment: React.FC = () => {
   }, []);
 
   const hydrateUserContext = useCallback(
-    async (userPayload?: Record<string, unknown>) => {
+    async (userPayload?: UserProfile) => {
       if (userPayload && Object.keys(userPayload).length) {
         try {
-          updateUser(
-            userPayload as unknown as Parameters<typeof updateUser>[0]
-          );
+          updateUser(userPayload);
         } catch {
           // ignore, refreshUser will keep context consistent
         }
@@ -268,11 +265,9 @@ const ConfirmPayment: React.FC = () => {
       }
 
       if (isSignupFlow && signupSessionId) {
-        let signupResult: Record<string, unknown> | null = null;
-
-        signupResult = (await signupApi.completeSignup({
+        const signupResult = await signupApi.completeSignup({
           signupSessionId,
-        })) as unknown as Record<string, unknown>;
+        });
 
         const loginResponse =
           (await loginWithPendingCredentials()) ||
@@ -285,9 +280,7 @@ const ConfirmPayment: React.FC = () => {
         }
 
         persistAuthSession(loginResponse);
-        await hydrateUserContext(
-          loginResponse.user as Record<string, unknown> | undefined
-        );
+        await hydrateUserContext(loginResponse.user);
         cleanupPendingSignupData();
       } else if (isLoginFlow) {
         await hydrateUserContext();

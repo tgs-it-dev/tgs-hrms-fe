@@ -37,7 +37,6 @@ export * from './systemDashboardApi';
 export * from './systemEmployeeApi';
 export * from './systemPerformanceApi';
 export * from './systemTenantApi';
-export * from './tasksApi';
 export * from './teamApi';
 export * from './timesheetApi';
 export * from './tenantLeaveApi';
