@@ -28,10 +28,14 @@ import {
   Apps,
   BusinessCenter,
   Campaign,
+  CheckCircle,
+  CheckCircleOutline,
   Code,
   ConfirmationNumber,
   History,
   Insights,
+  Mail,
+  MailOutline,
   Receipt,
   Widgets,
 } from '@mui/icons-material';
@@ -355,9 +359,21 @@ const menuItems: MenuItem[] = [
       { label: 'Modals', i18nKey: 'modals', path: 'modals' },
     ],
   },
+  {
+    label: 'Request',
+    icon: <MailOutline />,
+    iconFill: <Mail />,
+    path: 'requests',
+  },
+  {
+    label: 'Approval',
+    icon: <CheckCircleOutline />,
+    iconFill: <CheckCircle />,
+    path: 'review-requests',
+  },
 ];
 
-const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
+const menuLabelToFeature: Partial<Record<string, FeatureKey | FeatureKey[]>> = {
   Attendance: 'attendance',
   'Leave Analytics': 'leaveAnalytics',
   Performance: 'performance',
@@ -366,6 +382,16 @@ const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
   Projects: 'projects',
   Accounts: 'accounts',
   App: 'app',
+  Request: [
+    'leave_workflow_enabled',
+    'wfh_workflow_enabled',
+    'overtime_workflow_enabled',
+  ],
+  Approval: [
+    'leave_workflow_enabled',
+    'wfh_workflow_enabled',
+    'overtime_workflow_enabled',
+  ],
 };
 
 export default function Sidebar({
@@ -421,8 +447,11 @@ export default function Sidebar({
         if (!isVisible) return false;
 
         const featureKey = menuLabelToFeature[item.label];
-        if (featureKey && !isFeatureEnabled(featureKey)) {
-          return false;
+        if (featureKey) {
+          const enabled = Array.isArray(featureKey)
+            ? featureKey.some(key => isFeatureEnabled(key))
+            : isFeatureEnabled(featureKey);
+          if (!enabled) return false;
         }
 
         return true;

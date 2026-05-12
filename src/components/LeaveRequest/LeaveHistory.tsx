@@ -38,38 +38,14 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import { getIcon } from '../../assets/icons';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import LeaveForm from './LeaveForm';
-import { env } from '../../config/env';
-import { authService } from '../../api/authService';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import MonthPicker from '../common/MonthPicker';
+import { getDocumentUrl } from '../../utils/fileUtils';
 
 const ITEMS_PER_PAGE = PAGINATION.DEFAULT_PAGE_SIZE;
 
-// Helper function to construct full URL for documents with authentication
-const getDocumentUrl = (docUrl: string): string => {
-  if (!docUrl) return '';
-  // If it's already an absolute URL (starts with http:// or https://), return as is
-  if (docUrl.startsWith('http://') || docUrl.startsWith('https://')) {
-    return docUrl;
-  }
-
-  // Get token for authentication
-  const token = authService.getAccessToken();
-  const timestamp = Date.now();
-
-  const baseUrl = docUrl.startsWith('/')
-    ? `${env.apiBaseUrl}${docUrl}`
-    : `${env.apiBaseUrl}/${docUrl}`;
-
-  const separator = baseUrl.includes('?') ? '&' : '?';
-  const params = [`t=${timestamp}`];
-  if (token) {
-    params.push(`token=${encodeURIComponent(token)}`);
-  }
-
-  return `${baseUrl}${separator}${params.join('&')}`;
-};
+// getDocumentUrl helper moved to src/utils/fileUtils.ts
 
 const statusConfig: Record<
   string,
