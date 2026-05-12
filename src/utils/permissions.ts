@@ -174,7 +174,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     department: { deny: ['user list', 'policies', 'holidays'] },
     'leave-analytics': { deny: ['report'] },
     employees: { deny: ['employee list'] },
-    teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
     attendance: { deny: ['leave request', 'geofencing'] },
   },
   'network-admin': {
@@ -182,7 +181,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     department: { deny: ['user list', 'policies', 'holidays'] },
     attendance: { deny: ['reports', 'leave request', 'geofencing'] },
     'audit logs': { denyAll: true },
-    teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
   },
   'hr-admin': {
     employees: { deny: ['tenant employees'] },
@@ -190,7 +188,6 @@ const ROLE_SUBMENU_POLICIES: Record<
     department: { allowOnly: ['designation', 'department'] },
     'leave-analytics': { deny: ['cross tenant leaves'] },
     attendance: { deny: ['geofencing'] },
-    teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
   },
   admin: {
     employees: { deny: ['tenant employees'] },
@@ -198,28 +195,24 @@ const ROLE_SUBMENU_POLICIES: Record<
     'leave-analytics': { deny: ['cross tenant leaves'] },
     attendance: { deny: ['reports', 'geofencing'] },
     'audit logs': { denyAll: true },
-    teams: { deny: ['my tasks'] }, // Admins see Team Management and Manager Tasks only
   },
   manager: {
     employees: { deny: ['tenant employees'] },
     attendance: { deny: ['reports', 'report'] },
     'audit logs': { denyAll: true },
     'leave-analytics': { deny: ['cross tenant leaves'] },
-    teams: { deny: ['my tasks'] }, // Managers see Team Management and Manager Tasks only
   },
   employee: {
     employees: { deny: ['tenant employees'] },
     attendance: { deny: ['report', 'geofencing'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    teams: { allowOnly: ['my tasks'] }, // Employees see only My Tasks
   },
   user: {
     employees: { deny: ['tenant employees'] },
     attendance: { deny: ['report'] },
     'leave-analytics': { allowOnly: ['report'] },
     'audit logs': { denyAll: true },
-    teams: { allowOnly: ['my tasks'] }, // Users see only My Tasks
   },
   unknown: {},
 };
@@ -291,9 +284,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'CrossTenantLeaveManagement',
     'teams',
     'teams/list',
-    'teams/tasks',
-    'manager-tasks',
-    'my-tasks',
     'employee-profile-view',
     'settings',
     'cross-tenant-leaves',
@@ -314,9 +304,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'attendance-check/timesheet-layout',
     'teams',
     'teams/list',
-    'teams/tasks',
-    'manager-tasks',
-    'my-tasks',
     'employee-profile-view',
     'attendance-summary',
     'settings',
@@ -335,9 +322,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'settings',
     'teams',
     'teams/list',
-    'teams/tasks',
-    'manager-tasks',
-    'my-tasks',
     'leaves',
     'reports',
     'employee-salary',
@@ -359,8 +343,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'reports',
     'teams',
     'teams/list',
-    'teams/tasks',
-    'manager-tasks',
     'employee-profile-view',
     'attendance-summary',
     'settings',
@@ -376,9 +358,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'teams',
     'geofencing',
     'teams/list',
-    'teams/tasks',
-    'manager-tasks',
-    'my-tasks',
     'leaves',
     'user-profile',
     'settings',
@@ -392,7 +371,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'reports',
     'attendance-check/timesheet-layout',
     'leaves',
-    'my-tasks',
     'user-profile',
     'settings',
     'my-salary',
@@ -403,7 +381,6 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'attendance-check/timesheet-layout',
     'leaves',
     'announcements',
-    'my-tasks',
     'user-profile',
     'settings',
     'my-salary',
