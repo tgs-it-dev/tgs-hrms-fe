@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import AppFormModal, { type FormField } from '../common/AppFormModal';
 import AppInputField from '../common/AppInputField';
 import AppTextarea from '../common/AppTextarea';
@@ -30,31 +30,34 @@ interface LeaveTypeFormModalProps {
   isSubmitting?: boolean;
 }
 
-const schema = yup.object({
-  name: yup
+const schema = z.object({
+  name: z
     .string()
-    .required('Name is required')
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name must be 100 characters or less'),
-  description: yup
+  description: z
     .string()
-    .required('Description is required')
     .min(5, 'Description must be at least 5 characters')
     .max(500, 'Description must be 500 characters or less'),
-  maxDaysPerYear: yup
-    .number()
-    .typeError('Max days per year is required')
-    .integer('Max days per year must be a whole number')
-    .min(1, 'Max days per year must be at least 1')
-    .max(365, 'Max days per year cannot exceed 365'),
-  carryForward: yup
-    .string()
-    .oneOf(['true', 'false'], 'Please select if days can be carried forward')
-    .required('Carry forward is required'),
-  isPaid: yup
-    .string()
-    .oneOf(['true', 'false'], 'Please select if this leave is paid')
-    .required('Paid status is required'),
+  maxDaysPerYear: z
+    .union([z.string(), z.number()])
+    .refine(v => v !== '' && v !== null && v !== undefined, {
+      message: 'Max days per year is required',
+    })
+    .transform(v => Number(v))
+    .refine(v => Number.isInteger(v), {
+      message: 'Max days per year must be a whole number',
+    })
+    .refine(v => v >= 1, { message: 'Max days per year must be at least 1' })
+    .refine(v => v <= 365, { message: 'Max days per year cannot exceed 365' }),
+  carryForward: z.enum(['true', 'false'], {
+    errorMap: () => ({
+      message: 'Please select if days can be carried forward',
+    }),
+  }),
+  isPaid: z.enum(['true', 'false'], {
+    errorMap: () => ({ message: 'Please select if this leave is paid' }),
+  }),
 });
 
 const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
@@ -72,7 +75,7 @@ const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
     setValue,
     formState: { errors, isSubmitting: formIsSubmitting },
   } = useForm<LeaveTypeFormRawValues>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
       name: '',
