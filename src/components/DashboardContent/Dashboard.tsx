@@ -30,15 +30,7 @@ import {
 } from './useDashboardQueries';
 
 import GenderPercentageChart from './GenderPercentageChart';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as ReTooltip,
-} from 'recharts';
+import Chart from 'react-apexcharts';
 import KPICard from './KPICard';
 
 import ApartmentIcon from '@mui/icons-material/Apartment';
@@ -1114,39 +1106,62 @@ const Dashboard: React.FC = () => {
                         </Typography>
                       </Box>
                     ) : (
-                      <ResponsiveContainer width='100%' height='100%'>
-                        <BarChart
-                          data={displayedAttendance}
-                          margin={{ top: 10, right: 20, left: -10, bottom: 70 }}
-                          barSize={attendanceBarSize}
-                        >
-                          <CartesianGrid strokeDasharray='3 3' />
-                          <XAxis
-                            dataKey='department'
-                            interval={0}
-                            height={70}
-                            tick={{
-                              angle: -45,
-                              textAnchor: 'end',
-                              fontSize: 12,
-                            }}
-                          />
-                          <YAxis />
-                          <ReTooltip />
-                          <Bar
-                            dataKey='present'
-                            stackId='a'
-                            fill={theme.palette.primary.main}
-                            style={{ outline: 'none' }}
-                          />
-                          <Bar
-                            dataKey='absent'
-                            stackId='a'
-                            fill={theme.palette.error.main}
-                            style={{ outline: 'none' }}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <Chart
+                        type='bar'
+                        width='100%'
+                        height='100%'
+                        series={[
+                          {
+                            name: 'Present',
+                            data: displayedAttendance.map(d => d.present),
+                          },
+                          {
+                            name: 'Absent',
+                            data: displayedAttendance.map(d => d.absent),
+                          },
+                        ]}
+                        options={{
+                          chart: {
+                            type: 'bar',
+                            stacked: true,
+                            toolbar: { show: false },
+                            background: 'transparent',
+                            animations: { enabled: false },
+                          },
+                          theme: { mode: theme.palette.mode },
+                          plotOptions: {
+                            bar: {
+                              columnWidth: `${attendanceBarSize}px`,
+                            },
+                          },
+                          colors: [
+                            theme.palette.primary.main,
+                            theme.palette.error.main,
+                          ],
+                          xaxis: {
+                            categories: displayedAttendance.map(
+                              d => d.department
+                            ),
+                            labels: {
+                              rotate: -45,
+                              style: {
+                                colors: theme.palette.text.primary,
+                                fontSize: '12px',
+                              },
+                            },
+                          },
+                          yaxis: {
+                            labels: {
+                              style: { colors: theme.palette.text.secondary },
+                            },
+                          },
+                          grid: {
+                            borderColor: theme.palette.divider,
+                          },
+                          tooltip: { theme: theme.palette.mode },
+                          legend: { show: true, position: 'top' },
+                        }}
+                      />
                     )}
                   </Box>
                 </Box>

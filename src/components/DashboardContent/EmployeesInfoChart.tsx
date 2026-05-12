@@ -5,16 +5,8 @@ import {
   CircularProgress,
   useTheme,
 } from '@mui/material';
-// useOutletContext removed (darkMode not used)
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+import Chart from 'react-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useState, useEffect } from 'react';
 import {
@@ -35,17 +27,14 @@ export default function EmployeesInfoChart() {
     string | number | null
   >('all-time');
 
-  // Fetch employee joining report data
   useEffect(() => {
     const fetchJoiningData = async () => {
       try {
         setLoading(true);
         setError(null);
         const data = await getEmployeeJoiningReport();
-
         setJoiningData(data);
       } catch {
-        // If API fails (including 401), show zero-values instead of an error block
         setError(null);
         const currentYear = new Date().getFullYear();
         setJoiningData(
@@ -63,24 +52,33 @@ export default function EmployeesInfoChart() {
     fetchJoiningData();
   }, []);
 
-  // Get unique years from API data
   const availableYears = [...new Set(joiningData.map(item => item.year))].sort(
     (a, b) => b - a
   );
 
-  // Filter data by selected time range
   const filteredData =
     selectedTimeRange === 'all-time' || selectedTimeRange === null
       ? joiningData
       : joiningData.filter(item => item.year === (selectedTimeRange as number));
 
-  // Translations
-  const chartTitle = {
-    en: 'Employee Growth',
-    ar: 'نمو الموظفين',
-  };
+  const chartTitle = { en: 'Employee Growth', ar: 'نمو الموظفين' };
 
-  const months: Record<string, Record<string, string>> = {
+  const monthKeys = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  const monthLabels: Record<string, Record<string, string>> = {
     Jan: { en: 'Jan', ar: 'يناير' },
     Feb: { en: 'Feb', ar: 'فبراير' },
     Mar: { en: 'Mar', ar: 'مارس' },
@@ -95,67 +93,53 @@ export default function EmployeesInfoChart() {
     Dec: { en: 'Dec', ar: 'ديسمبر' },
   };
 
-  // Process API data for chart - show only month names
-  const originalDates = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug', // Added August to show backend data
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
+  const categories = monthKeys.map(m => monthLabels[m][language]);
 
-  // Map API data to original chart format
-  const chartData = originalDates.map(monthStr => {
-    const monthIndex =
-      [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ].indexOf(monthStr) + 1;
-
-    // If "All Time" is selected, aggregate data across all years for this month
+  const seriesData = monthKeys.map((_, i) => {
+    const monthIndex = i + 1;
     if (selectedTimeRange === 'all-time' || selectedTimeRange === null) {
-      const monthData = filteredData.filter(item => item.month === monthIndex);
-      const value = monthData.reduce((sum, item) => sum + item.total, 0);
-      return {
-        date: monthStr,
-        value: value,
-      };
+      return filteredData
+        .filter(item => item.month === monthIndex)
+        .reduce((sum, item) => sum + item.total, 0);
     }
-
-    // For specific year, find corresponding API data for this month
-    const apiData = filteredData.find(item => item.month === monthIndex);
-    const value = apiData ? apiData.total : 0;
-
-    return {
-      date: monthStr,
-      value: value,
-    };
+    return filteredData.find(item => item.month === monthIndex)?.total ?? 0;
   });
 
-  // Translate data - show month names in selected language
-  const translatedData = chartData.map(item => {
-    return {
-      date: months[item.date]?.[language] || item.date,
-      value: item.value,
-    };
-  });
+  const options: ApexOptions = {
+    chart: {
+      type: 'line',
+      toolbar: { show: false },
+      background: 'transparent',
+      animations: { enabled: false },
+    },
+    theme: { mode: theme.palette.mode },
+    stroke: { curve: 'smooth', width: 3 },
+    colors: [theme.palette.secondary.main],
+    markers: { size: 3, colors: [theme.palette.warning.light] },
+    grid: {
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: false } },
+      borderColor: theme.palette.divider,
+    },
+    xaxis: {
+      categories,
+      labels: {
+        rotate: isMobile ? -45 : 0,
+        style: {
+          colors: theme.palette.text.primary,
+          fontSize: '12px',
+        },
+      },
+      axisBorder: { color: theme.palette.divider },
+      axisTicks: { color: theme.palette.divider },
+    },
+    yaxis: { labels: { show: false }, axisBorder: { show: false } },
+    tooltip: {
+      theme: theme.palette.mode,
+      style: { fontSize: '14px' },
+    },
+    legend: { show: false },
+  };
 
   return (
     <Box
@@ -166,7 +150,6 @@ export default function EmployeesInfoChart() {
       }}
     >
       <Box
-        className='Ramish selected'
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -194,9 +177,7 @@ export default function EmployeesInfoChart() {
             onChange={setSelectedTimeRange}
             allTimeLabel={language === 'ar' ? 'كل الوقت' : 'All Time'}
             language={language}
-            buttonSx={{
-              width: { xs: '100%', sm: 'auto' },
-            }}
+            buttonSx={{ width: { xs: '100%', sm: 'auto' } }}
           />
         </Box>
       </Box>
@@ -222,80 +203,13 @@ export default function EmployeesInfoChart() {
           </Typography>
         </Box>
       ) : (
-        <Box
-          sx={{
-            '& svg': {
-              outline: 'none',
-              border: 'none',
-            },
-            width: '100%',
-            height: '200px',
-            overflow: 'hidden',
-          }}
-        >
-          <ResponsiveContainer width='100%' height={200}>
-            <LineChart
-              data={translatedData}
-              margin={{ top: 10, right: 10, bottom: 10, left: -40 }}
-            >
-              <CartesianGrid horizontal={false} vertical={false} />
-              <XAxis
-                dataKey='date'
-                tick={props => {
-                  const { x, y, payload } = props;
-                  return (
-                    <text
-                      x={x}
-                      y={y}
-                      dy={16}
-                      fontSize={12}
-                      transform={
-                        isMobile ? `rotate(-45, ${x}, ${y})` : undefined
-                      }
-                      textAnchor={isMobile ? 'end' : 'middle'}
-                      fill={theme.palette.text.primary}
-                    >
-                      {payload.value}
-                    </text>
-                  );
-                }}
-                height={isMobile ? 50 : 30}
-                interval={0}
-                axisLine={{ stroke: theme.palette.divider }}
-                tickLine={{ stroke: theme.palette.divider }}
-              />
-
-              <YAxis
-                stroke={theme.palette.divider}
-                axisLine={{ stroke: theme.palette.divider }}
-                tickLine={false}
-                tick={false}
-              />
-
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: '6px',
-                  color: theme.palette.text.primary,
-                  fontSize: '14px',
-                }}
-                labelStyle={{
-                  color: theme.palette.text.secondary,
-                  fontWeight: 600,
-                }}
-              />
-
-              <Line
-                type='monotone'
-                dataKey='value'
-                stroke={theme.palette.secondary.main}
-                strokeWidth={3}
-                dot={{ r: 3, fill: theme.palette.warning.light }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </Box>
+        <Chart
+          type='line'
+          series={[{ name: chartTitle[language], data: seriesData }]}
+          options={options}
+          height={220}
+          width='100%'
+        />
       )}
     </Box>
   );
