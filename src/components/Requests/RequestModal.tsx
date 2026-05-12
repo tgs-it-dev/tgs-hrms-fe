@@ -212,7 +212,7 @@ function RequestModal({
       };
       fetchLeaveTypes();
     }
-  }, [open, reqType, leaveTypes.length]);
+  }, [open, reqType, leaveTypes.length, showError]);
 
   // Memoize custom component nodes to avoid re-creation on every render
   const datesComponent = useMemo(
@@ -251,7 +251,6 @@ function RequestModal({
       getLabel,
       reqType,
       overtimeMode,
-      showError,
     ]
   );
 
@@ -420,8 +419,7 @@ function RequestModal({
               if (type === 'existing') {
                 const docUrl = existingDocuments[index];
                 if (initialData) {
-                  console.log('Let me check initial data : ', initialData);
-                  const id = initialData.request_data.id;
+                  const id = initialData?.request_data?.id;
 
                   try {
                     if (reqType === 'wfh') {

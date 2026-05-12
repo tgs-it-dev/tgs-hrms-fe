@@ -277,7 +277,7 @@ function ReviewRequestPage() {
                       <Box>
                         <AppTextField
                           placeholder={getLabel(
-                            `Add your remarks... ${userRole} ${request?.status} `,
+                            `Add your remarks...  `,
                             'أضف ملاحظاتك...'
                           )}
                           multiline
