@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box, Stack, Typography } from '@mui/material';
-import { UserContext } from '../../context/UserContext';
-import { ProfilePictureContext } from '../../context/ProfilePictureContext';
 import type { UserProfile } from '../../types/user';
-import type { UserContextType } from '../../types/context';
+import { useUserStore } from '../../store/userStore';
 import UserAvatar from './UserAvatar';
 
 type AvatarUser = Pick<
@@ -25,26 +23,22 @@ const mockUserWithPic: AvatarUser = {
   profile_pic: 'https://i.pravatar.cc/150?img=3',
 };
 
-const mockUserContextValue: UserContextType = {
-  user: {
-    ...mockUser,
-    email: '',
-    phone: '',
-    role: '',
-    tenant: '',
-    created_at: '',
-    updated_at: '',
-  },
-  loading: false,
-  updateUser: () => {},
-  refreshUser: async () => {},
-  clearUser: () => {},
+const baseProfile: UserProfile = {
+  ...mockUser,
+  email: '',
+  phone: '',
+  role: '',
+  tenant: '',
+  created_at: '',
+  updated_at: '',
 };
 
-const mockProfilePictureContextValue = {
-  profilePictureUrl: null,
-  updateProfilePicture: () => {},
-  clearProfilePicture: () => {},
+const seedStore = (profilePictureUrl: string | null = null) => {
+  useUserStore.setState({
+    user: baseProfile,
+    loading: false,
+    profilePictureUrl,
+  });
 };
 
 const meta: Meta<typeof UserAvatar> = {
@@ -67,15 +61,14 @@ const meta: Meta<typeof UserAvatar> = {
     },
   },
   decorators: [
-    Story => (
-      <UserContext.Provider value={mockUserContextValue}>
-        <ProfilePictureContext.Provider value={mockProfilePictureContextValue}>
-          <Box sx={{ p: 3 }}>
-            <Story />
-          </Box>
-        </ProfilePictureContext.Provider>
-      </UserContext.Provider>
-    ),
+    Story => {
+      seedStore();
+      return (
+        <Box sx={{ p: 3 }}>
+          <Story />
+        </Box>
+      );
+    },
   ],
 };
 

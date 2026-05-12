@@ -1,13 +1,5 @@
-import { useContext } from 'react';
-import { UserContext } from '../context/UserContext';
+import { useUserStore } from '../store/userStore';
 import type { UserContextType } from '../types/context';
 
-export const useUser = (): UserContextType => {
-  const context = useContext(UserContext);
-
-  if (!context) {
-    throw new Error('useUser must be used within UserProvider');
-  }
-
-  return context;
-};
+/** Drop-in replacement for the old context-based useUser. Reads from Zustand. */
+export const useUser = (): UserContextType => useUserStore();

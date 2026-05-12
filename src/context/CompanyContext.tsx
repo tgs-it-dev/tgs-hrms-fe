@@ -1,12 +1,12 @@
-import React, {
-  createContext,
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  type ReactNode,
-} from 'react';
-import companyApi, { type CompanyDetails } from '../api/companyApi';
+/**
+ * CompanyContext is kept for backward-compat exports only.
+ * All state is now managed by useCompanyStore (src/store/companyStore.ts).
+ */
+import type { ReactNode } from 'react';
+import { useCompanyStore } from '../store/companyStore';
+import type { CompanyDetails } from '../api/companyApi';
+
+export type { CompanyDetails };
 
 export interface CompanyContextType {
   companyDetails: CompanyDetails | null;
@@ -14,56 +14,15 @@ export interface CompanyContextType {
   companyLogo: string | null;
   refreshCompanyDetails: () => Promise<void>;
 }
+
+/** @deprecated Use useCompanyStore() from src/store directly. */
 // eslint-disable-next-line react-refresh/only-export-components
-export const CompanyContext = createContext<CompanyContextType | undefined>(
-  undefined
+export const useCompany = (): CompanyContextType => useCompanyStore();
+
+/**
+ * No-op provider — kept so existing JSX (<CompanyProvider>) compiles.
+ * Bootstrap happens in ProtectedBootstrapper inside ProtectedProviders.tsx.
+ */
+export const CompanyProvider = ({ children }: { children: ReactNode }) => (
+  <>{children}</>
 );
-export const CompanyProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [companyDetails, setCompanyDetails] = useState<CompanyDetails | null>(
-    null
-  );
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
-  const refreshCompanyDetails = useCallback(async () => {
-    try {
-      const details = await companyApi.getCompanyDetails();
-      setCompanyDetails(details);
-      const tenantId = details.tenant_id;
-      setCompanyLogo(details.logo_url);
-      const logoUrl = await companyApi.getCompanyLogo(tenantId);
-      setCompanyLogo(logoUrl);
-    } catch {
-      // Leave company context empty on failure; UI can handle missing branding
-    }
-  }, []);
-  useEffect(() => {
-    refreshCompanyDetails();
-  }, [refreshCompanyDetails]);
-  const companyName = useMemo(
-    () => companyDetails?.company_name || 'HRMS',
-    [companyDetails]
-  );
-  const contextValue = useMemo(
-    () => ({
-      companyDetails,
-      companyName,
-      companyLogo,
-      refreshCompanyDetails,
-    }),
-    [companyDetails, companyName, companyLogo, refreshCompanyDetails]
-  );
-  return (
-    <CompanyContext.Provider value={contextValue}>
-      {children}
-    </CompanyContext.Provider>
-  );
-};
-// eslint-disable-next-line react-refresh/only-export-components
-export const useCompany = (): CompanyContextType => {
-  const context = React.useContext(CompanyContext);
-  if (!context) {
-    throw new Error('useCompany must be used within CompanyProvider');
-  }
-  return context;
-};
