@@ -3,6 +3,8 @@ import { notificationsApi } from './notificationsApi';
 import systemEmployeeApiService from './systemEmployeeApi';
 import teamApi from './teamApi';
 import { getCurrentUser } from '../utils/auth';
+import type { PaginatedResponse } from '../types/api';
+import { buildPaginationParams } from '../utils/pagination';
 
 export interface CreateLeaveRequest {
   leaveTypeId: string;
@@ -26,13 +28,8 @@ export interface CreateLeaveTypeRequest {
   isPaid: boolean;
 }
 
-export interface LeaveTypeListResponse {
-  items: LeaveType[];
-  total?: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
-}
+/** @deprecated Use PaginatedResponse<LeaveType> from src/types/api.ts */
+export type LeaveTypeListResponse = PaginatedResponse<LeaveType>;
 
 export interface LeaveResponse {
   id: string;
@@ -50,6 +47,10 @@ export interface LeaveResponse {
   remarks?: string | null;
   managerRemarks?: string | null;
   documents?: string[];
+  /** Relation field included by some endpoints */
+  employee?: { id?: string; first_name?: string; last_name?: string };
+  /** Relation field included by some endpoints */
+  user?: { id?: string; first_name?: string; last_name?: string };
 }
 
 export interface CreateLeaveForEmployeeRequest {
@@ -113,12 +114,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.post<LeaveResponse>(
       this.baseUrl,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     const res = response.data;
 
@@ -133,12 +129,15 @@ class LeaveApiService {
         'Employee';
 
       try {
-       
         if (employeeId) {
           try {
-            const profile = await systemEmployeeApiService.getSystemEmployeeById(String(employeeId));
+            const profile =
+              await systemEmployeeApiService.getSystemEmployeeById(
+                String(employeeId)
+              );
             const prof = profile as Record<string, unknown> | undefined;
-            const teamIdRaw = prof?.team ?? prof?.team_id ?? prof?.teamId ?? undefined;
+            const teamIdRaw =
+              prof?.team ?? prof?.team_id ?? prof?.teamId ?? undefined;
             const teamId = teamIdRaw ?? undefined;
             if (teamId) {
               try {
@@ -158,7 +157,6 @@ class LeaveApiService {
                       notif.correlationId
                     );
                   }
-                  
                 }
               } catch {
                 // ignore and continue to admin notify
@@ -169,13 +167,15 @@ class LeaveApiService {
           }
         }
 
-        
         try {
           // Dynamic import to avoid circular dependency
           const { searchApiService } = await import('./searchApi');
           const adminsResp = await searchApiService.search({ limit: 10 });
           const adminItems = adminsResp?.results?.employees ?? [];
-          const adminIds = (adminItems as Array<Record<string, unknown>>).map(it => String(it.id)).filter(Boolean).slice(0, 5);
+          const adminIds = (adminItems as Array<Record<string, unknown>>)
+            .map(it => String(it.id))
+            .filter(Boolean)
+            .slice(0, 5);
           if (adminIds.length > 0) {
             const message = `${employeeName} has applied for leave`;
             const notif = await notificationsApi.sendNotification({
@@ -184,32 +184,22 @@ class LeaveApiService {
               type: 'leave',
             });
             if (!notif.ok) {
-              console.warn('Notification send failed for createLeave (admins)', notif.message, notif.correlationId);
+              console.warn(
+                'Notification send failed for createLeave (admins)',
+                notif.message,
+                notif.correlationId
+              );
             }
           }
         } catch (e) {
           console.warn('Failed to fetch/notify admins for leave creation', e);
         }
       } catch (err) {
-
-        console.warn('Unexpected error while sending leave creation notification', err);
+        console.warn(
+          'Unexpected error while sending leave creation notification',
+          err
+        );
       }
-      // Dispatch an in-app event to update local UI immediately
-      /* 
-      try {
-        const detail = {
-          title: 'Leave Applied',
-          message: `${employeeName} has applied for leave`,
-          employeeName,
-          data: res,
-          actorId: getCurrentUser()?.id ?? undefined,
-        };
-        const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
-        window.dispatchEvent(ev);
-      } catch {
-        // ignore
-      }
-      */
     })();
 
     return res;
@@ -225,7 +215,8 @@ class LeaveApiService {
     limit: number;
     totalPages: number;
   }> {
-    const params = userId ? { userId, page, limit: 25 } : { page, limit: 25 };
+    const paginationParams = buildPaginationParams({ page, pageSize: 25 });
+    const params = userId ? { userId, ...paginationParams } : paginationParams;
     const response = await axiosInstance.get(this.baseUrl, { params });
     const data = response.data;
 
@@ -278,7 +269,7 @@ class LeaveApiService {
     totalPages: number;
   }> {
     const response = await axiosInstance.get(`${this.baseUrl}/team`, {
-      params: { page, limit: 25 },
+      params: buildPaginationParams({ page, pageSize: 25 }),
     });
     const data = response.data;
 
@@ -341,18 +332,25 @@ class LeaveApiService {
           });
           if (!notif.ok) {
             // Log for debugging: backend message + correlationId if available
-            console.warn('Notification send failed for approveLeave', notif.message, notif.correlationId);
+            console.warn(
+              'Notification send failed for approveLeave',
+              notif.message,
+              notif.correlationId
+            );
           }
           // Dispatch in-app event for immediate UI update
           try {
             const detail = {
-              title: 'Leave Applied',
-              message: `${employeeName} has applied for leave`,
+              title: 'Leave Approved',
+              message: `Your leave has been approved`,
               employeeName,
               data: res,
               actorId: getCurrentUser()?.id ?? undefined,
             };
-            const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
+            const ev = new CustomEvent<Record<string, unknown>>(
+              'hrms:notification',
+              { detail }
+            );
             window.dispatchEvent(ev);
           } catch {
             // ignore
@@ -376,7 +374,6 @@ class LeaveApiService {
     const res = response.data;
 
     // Notify employee about rejection (non-blocking)
-    // Notify employee about rejection (non-blocking)
     (async () => {
       try {
         const resTyped = res as LeaveResWithRelations;
@@ -390,7 +387,11 @@ class LeaveApiService {
             type: 'leave',
           });
           if (!notif.ok) {
-            console.warn('Notification send failed for rejectLeave', notif.message, notif.correlationId);
+            console.warn(
+              'Notification send failed for rejectLeave',
+              notif.message,
+              notif.correlationId
+            );
           }
           // Dispatch in-app event for immediate UI update
           try {
@@ -399,7 +400,10 @@ class LeaveApiService {
               message: `Your leave has been rejected`,
               data: res,
             };
-            const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
+            const ev = new CustomEvent<Record<string, unknown>>(
+              'hrms:notification',
+              { detail }
+            );
             window.dispatchEvent(ev);
           } catch {
             // ignore
@@ -449,7 +453,11 @@ class LeaveApiService {
             type: 'leave',
           });
           if (!notif.ok) {
-            console.warn('Notification send failed for approveManagerLeave', notif.message, notif.correlationId);
+            console.warn(
+              'Notification send failed for approveManagerLeave',
+              notif.message,
+              notif.correlationId
+            );
           }
           try {
             const detail = {
@@ -457,7 +465,10 @@ class LeaveApiService {
               message,
               data: res,
             };
-            const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
+            const ev = new CustomEvent<Record<string, unknown>>(
+              'hrms:notification',
+              { detail }
+            );
             window.dispatchEvent(ev);
           } catch {
             // ignore
@@ -501,7 +512,11 @@ class LeaveApiService {
             type: 'leave',
           });
           if (!notif.ok) {
-            console.warn('Notification send failed for approveLeaveByManager', notif.message, notif.correlationId);
+            console.warn(
+              'Notification send failed for approveLeaveByManager',
+              notif.message,
+              notif.correlationId
+            );
           }
           // Only show in-app notification to the employee (recipient), not to the manager who approved
           const currentUserId = getCurrentUser()?.id;
@@ -512,7 +527,10 @@ class LeaveApiService {
                 message,
                 data: res,
               };
-              const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
+              const ev = new CustomEvent<Record<string, unknown>>(
+                'hrms:notification',
+                { detail }
+              );
               window.dispatchEvent(ev);
             } catch {
               // ignore
@@ -562,7 +580,11 @@ class LeaveApiService {
             type: 'alert',
           });
           if (!notif.ok) {
-            console.warn('Notification send failed for rejectLeaveByManager', notif.message, notif.correlationId);
+            console.warn(
+              'Notification send failed for rejectLeaveByManager',
+              notif.message,
+              notif.correlationId
+            );
           }
           // Only show in-app notification to the employee (recipient), not to the manager who rejected
           const currentUserId = getCurrentUser()?.id;
@@ -573,7 +595,10 @@ class LeaveApiService {
                 message,
                 data: res,
               };
-              const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
+              const ev = new CustomEvent<Record<string, unknown>>(
+                'hrms:notification',
+                { detail }
+              );
               window.dispatchEvent(ev);
             } catch {
               // ignore
@@ -588,13 +613,8 @@ class LeaveApiService {
     return res;
   }
 
-  async createLeaveType(
-    data: CreateLeaveTypeRequest
-  ): Promise<LeaveType> {
-    const response = await axiosInstance.post<LeaveType>(
-      '/leave-types',
-      data
-    );
+  async createLeaveType(data: CreateLeaveTypeRequest): Promise<LeaveType> {
+    const response = await axiosInstance.post<LeaveType>('/leave-types', data);
     return response.data;
   }
 
@@ -673,12 +693,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.post<LeaveResponse>(
       `${this.baseUrl}/for-employee`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     const res = response.data;
 
@@ -690,11 +705,13 @@ class LeaveApiService {
           data.employeeId || resTyped.employeeId || resTyped.user?.id;
         if (employeeId) {
           try {
-            const profile = await systemEmployeeApiService.getSystemEmployeeById(
-              String(employeeId)
-            );
+            const profile =
+              await systemEmployeeApiService.getSystemEmployeeById(
+                String(employeeId)
+              );
             const prof = profile as Record<string, unknown> | undefined;
-            const teamIdRaw = prof?.team ?? prof?.team_id ?? prof?.teamId ?? undefined;
+            const teamIdRaw =
+              prof?.team ?? prof?.team_id ?? prof?.teamId ?? undefined;
             const teamId = teamIdRaw ?? undefined;
             if (teamId) {
               try {
@@ -708,7 +725,11 @@ class LeaveApiService {
                     type: 'alert',
                   });
                   if (!notif.ok) {
-                    console.warn('Notification send failed for createLeaveForEmployee (team manager)', notif.message, notif.correlationId);
+                    console.warn(
+                      'Notification send failed for createLeaveForEmployee (team manager)',
+                      notif.message,
+                      notif.correlationId
+                    );
                   }
                   return;
                 }
@@ -724,7 +745,10 @@ class LeaveApiService {
         // Fallback: notify available managers
         try {
           const managers = await teamApi.getAvailableManagers();
-          const managerIds = managers.map(m => m.id).filter(Boolean).slice(0, 5);
+          const managerIds = managers
+            .map(m => m.id)
+            .filter(Boolean)
+            .slice(0, 5);
           if (managerIds.length > 0) {
             const message = `A new leave request (id: ${res.id}) was submitted. Please review.`;
             const notif = await notificationsApi.sendNotification({
@@ -733,37 +757,25 @@ class LeaveApiService {
               type: 'alert',
             });
             if (!notif.ok) {
-              console.warn('Notification send failed for createLeaveForEmployee (available managers)', notif.message, notif.correlationId);
+              console.warn(
+                'Notification send failed for createLeaveForEmployee (available managers)',
+                notif.message,
+                notif.correlationId
+              );
             }
           }
         } catch (e) {
-          console.warn('Failed to notify managers for leave creation (for-employee)', e);
+          console.warn(
+            'Failed to notify managers for leave creation (for-employee)',
+            e
+          );
         }
       } catch (err) {
-        console.warn('Unexpected error while sending leave creation notification (for-employee)', err);
+        console.warn(
+          'Unexpected error while sending leave creation notification (for-employee)',
+          err
+        );
       }
-
-      // Dispatch an in-app event to update local UI immediately
-      /*
-      try {
-        const resTyped = res as LeaveResWithRelations;
-        const employeeName =
-          resTyped.employee?.first_name ||
-          resTyped.user?.first_name ||
-          getCurrentUser()?.first_name ||
-          'Employee';
-        const detail = {
-          title: 'Leave Applied',
-          message: `${employeeName} has applied for leave`,
-          employeeName,
-          data: res,
-        } as Record<string, unknown>;
-        const ev = new CustomEvent<Record<string, unknown>>('hrms:notification', { detail });
-        window.dispatchEvent(ev);
-      } catch {
-        // ignore
-      }
-      */
     })();
 
     return res;
@@ -800,12 +812,7 @@ class LeaveApiService {
 
     const response = await axiosInstance.patch<LeaveResponse>(
       `${this.baseUrl}/${id}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
 
     return response.data;
@@ -829,5 +836,4 @@ class LeaveApiService {
   }
 }
 
-export const leaveApiService = new LeaveApiService();
-export const leaveApi = leaveApiService;
+export const leaveApi = new LeaveApiService();

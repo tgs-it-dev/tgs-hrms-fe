@@ -1,4 +1,5 @@
 import { TIMEOUTS } from '../constants/appConstants';
+import { colorTokens } from '../theme/tokens';
 
 interface SnackbarOptions {
   message: string;
@@ -27,14 +28,15 @@ class SnackbarManager {
   private getSnackbarColor(type: string) {
     switch (type) {
       case 'success':
-        return '#2e7d32'; // Material-UI success color
+        return colorTokens.semantic.successLight;
       case 'error':
-        return '#d32f2f'; // Material-UI error color
+        return colorTokens.semantic.errorLight;
       case 'warning':
-        return '#ed6c02'; // Material-UI warning color
+        return colorTokens.semantic.warningLight;
       case 'info':
-        return '#0288d1'; // Material-UI info color
+        return colorTokens.semantic.infoLight;
       default:
+        // runtime fallback — type is widened at call site
         return '#484c7f';
     }
   }
@@ -54,7 +56,11 @@ class SnackbarManager {
     }
   }
 
-  show({ message, type = 'info', duration = TIMEOUTS.SNACKBAR_DURATION }: SnackbarOptions) {
+  show({
+    message,
+    type = 'info',
+    duration = TIMEOUTS.SNACKBAR_DURATION,
+  }: SnackbarOptions) {
     this.createContainer();
 
     const snackbar = document.createElement('div');
@@ -96,7 +102,7 @@ class SnackbarManager {
     snackbar.appendChild(icon);
     snackbar.appendChild(messageText);
 
-    this.container!.appendChild(snackbar);
+    this.container?.appendChild(snackbar);
 
     // Animate in
     setTimeout(() => {

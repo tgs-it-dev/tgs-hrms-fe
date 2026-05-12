@@ -13,7 +13,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 // useOutletContext removed (darkMode not used)
-import type { RecentLog } from '../../api/systemDashboardApi';
+import type { RecentLog } from '../../types/audit';
 
 const timeAgo = (dateString: string) => {
   const now = new Date();
@@ -79,14 +79,14 @@ const RecentActivityLogs: React.FC<RecentActivityLogsProps> = ({ logs }) => {
               width: '8px',
             },
             '&::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ccc',
+              backgroundColor: theme.palette.divider,
               borderRadius: '4px',
             },
             '&::-webkit-scrollbar-track': {
               backgroundColor:
                 theme.palette.mode === 'dark'
                   ? theme.palette.background.default
-                  : '#f5f5f5',
+                  : theme.palette.background.default,
               borderRadius: '4px',
             },
           }}

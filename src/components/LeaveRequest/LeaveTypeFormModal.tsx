@@ -31,8 +31,16 @@ interface LeaveTypeFormModalProps {
 }
 
 const schema = yup.object({
-  name: yup.string().required('Leave type name is required'),
-  description: yup.string().required('Description is required'),
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be 100 characters or less'),
+  description: yup
+    .string()
+    .required('Description is required')
+    .min(5, 'Description must be at least 5 characters')
+    .max(500, 'Description must be 500 characters or less'),
   maxDaysPerYear: yup
     .number()
     .typeError('Max days per year is required')
@@ -84,8 +92,7 @@ const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
         typeof safeValues.maxDaysPerYear === 'number'
           ? safeValues.maxDaysPerYear
           : '',
-      carryForward:
-        safeValues.carryForward === false ? 'false' : 'true',
+      carryForward: safeValues.carryForward === false ? 'false' : 'true',
       isPaid: safeValues.isPaid === false ? 'false' : 'true',
     };
   }, [initialValues]);
@@ -228,4 +235,3 @@ const LeaveTypeFormModal: React.FC<LeaveTypeFormModalProps> = ({
 };
 
 export default LeaveTypeFormModal;
-

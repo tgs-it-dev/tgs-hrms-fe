@@ -37,9 +37,7 @@ const DateTimePickerField: React.FC<DateTimePickerFieldProps> = ({
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateTimePicker
         label={label}
-        value={
-          value && value.trim() ? new Date(value.trim()) : null
-        }
+        value={value && value.trim() ? new Date(value.trim()) : null}
         onChange={val => {
           if (val instanceof Date && !Number.isNaN(val.getTime())) {
             onChange(toDatetimeLocal(val.toISOString()));
@@ -58,7 +56,7 @@ const DateTimePickerField: React.FC<DateTimePickerFieldProps> = ({
                 backgroundColor:
                   theme.palette.mode === 'dark'
                     ? theme.palette.background.default
-                    : '#F8F8F8',
+                    : theme.palette.background.default,
               },
               '& .MuiSvgIcon-root': {
                 color: theme.palette.text.primary,
@@ -69,7 +67,7 @@ const DateTimePickerField: React.FC<DateTimePickerFieldProps> = ({
             },
           },
           desktopPaper: {
-            sx: { backgroundColor: '#FFFFFF' },
+            sx: { backgroundColor: 'background.paper' },
           },
           popper: {
             sx: { '& .MuiPaper-root': { borderRadius: '12px' } },

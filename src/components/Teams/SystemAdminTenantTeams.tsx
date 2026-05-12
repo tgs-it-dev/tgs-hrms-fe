@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { colorTokens } from '../../theme';
 import {
   Box,
   Card,
@@ -30,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import { useLanguage } from '../../hooks/useLanguage';
 import type { AllTenantsTeamsResponse, TenantTeam } from '../../api/teamApi';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 
 interface SystemAdminTenantTeamsProps {
   data: AllTenantsTeamsResponse;
@@ -39,7 +40,7 @@ interface SystemAdminTenantTeamsProps {
 
 const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   data,
-  darkMode = false,
+  darkMode: _darkMode = false,
 }) => {
   const theme = useTheme();
   const [selectedTeam, setSelectedTeam] = useState<TenantTeam | null>(null);
@@ -49,8 +50,8 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   const [loadingTenants, setLoadingTenants] = useState(true);
   const { language } = useLanguage();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const borderColor = darkMode ? '#252525' : '#f0f0f0';
+  const bgColor = theme.palette.background.paper;
+  const borderColor = theme.palette.divider;
 
   useEffect(() => {
     // Extract tenant list from GET:/teams/all-tenants API response
@@ -63,7 +64,7 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
           uniqueTenantsMap.set(tenant.tenant_id, {
             id: tenant.tenant_id,
             name: tenant.tenant_name,
-            status: tenant.tenant_status as 'active' | 'suspended' | 'delelted',
+            status: tenant.tenant_status as 'active' | 'suspended' | 'deleted',
             isDeleted: false,
             created_at: '',
             updated_at: '',
@@ -146,18 +147,7 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
   const lang = labels[language];
 
   const generateAvatarColor = (name: string): string => {
-    const colors = [
-      '#1976d2',
-      '#388e3c',
-      '#f57c00',
-      '#d32f2f',
-      '#7b1fa2',
-      '#303f9f',
-      '#ff6f00',
-      '#388e3c',
-      '#c2185b',
-      '#0097a7',
-    ];
+    const colors = colorTokens.avatar;
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
   };
@@ -331,169 +321,172 @@ const SystemAdminTenantTeams: React.FC<SystemAdminTenantTeamsProps> = ({
               return (
                 <Card
                   key={team.id}
-                sx={{
-                  backgroundColor: theme => theme.palette.background.paper,
-                  height: { xs: 'auto', sm: 'auto', md: 'auto' },
-                  minHeight: {
-                    xs: '200px',
-                    sm: '220px',
-                    md: '240px',
-                    lg: '260px',
-                  },
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '100%',
-                  borderRadius: 2,
-                }}
-              >
-                <CardContent
                   sx={{
-                    flexGrow: 1,
-                    p: { xs: 2.5, sm: 3.5 },
+                    backgroundColor: theme => theme.palette.background.paper,
+                    height: { xs: 'auto', sm: 'auto', md: 'auto' },
+                    minHeight: {
+                      xs: '200px',
+                      sm: '220px',
+                      md: '240px',
+                      lg: '260px',
+                    },
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '100%',
+                    width: '100%',
+                    borderRadius: 2,
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <Avatar
-                      sx={{
-                        backgroundColor: generateAvatarColor(team.name),
-                        mr: 2,
-                        width: { xs: 40, sm: 48 },
-                        height: { xs: 40, sm: 48 },
-                        flexShrink: 0,
-                      }}
-                    >
-                      <GroupIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1, minWidth: 0, overflow: 'hidden' }}>
-                      <Typography
-                        variant='h6'
-                        sx={{
-                          color: theme.palette.text.primary,
-                          fontWeight: 600,
-                          fontSize: { xs: '1rem', sm: '1.25rem' },
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          lineHeight: 1.2,
-                          minHeight: 'auto',
-                        }}
-                        title={team.name}
-                      >
-                        {team.name}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          lineHeight: 1.2,
-                          minHeight: 'auto',
-                        }}
-                        title={`${team.manager.first_name} ${team.manager.last_name}`}
-                      >
-                        {team.manager.first_name} {team.manager.last_name}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {teamDescription && (
-                    <Tooltip title={teamDescription} arrow placement='top'>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 3,
-                          lineHeight: 1.6,
-                          fontSize: 'var(--body-font-size)',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          minHeight: { xs: '3.6em', sm: '4.2em' },
-                          cursor: 'help',
-                        }}
-                      >
-                        {teamDescription}
-                      </Typography>
-                    </Tooltip>
-                  )}
-
-                  <Box
+                  <CardContent
                     sx={{
+                      flexGrow: 1,
+                      p: { xs: 2.5, sm: 3.5 },
                       display: 'flex',
-                      alignItems: 'center',
-                      mb: 3,
-                      flexWrap: 'wrap',
-                      gap: 1.5,
+                      flexDirection: 'column',
+                      height: '100%',
                     }}
                   >
-                    <Chip
-                      label={`${team.members.length} ${lang.members}`}
-                      size='small'
-                      icon={
-                        <PersonIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
-                      }
-                      color='primary'
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                      <Avatar
+                        sx={{
+                          backgroundColor: generateAvatarColor(team.name),
+                          mr: 2,
+                          width: { xs: 40, sm: 48 },
+                          height: { xs: 40, sm: 48 },
+                          flexShrink: 0,
+                        }}
+                      >
+                        <GroupIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                      </Avatar>
+                      <Box
+                        sx={{ flexGrow: 1, minWidth: 0, overflow: 'hidden' }}
+                      >
+                        <Typography
+                          variant='h6'
+                          sx={{
+                            color: theme.palette.text.primary,
+                            fontWeight: 600,
+                            fontSize: { xs: '1rem', sm: '1.25rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineHeight: 1.2,
+                            minHeight: 'auto',
+                          }}
+                          title={team.name}
+                        >
+                          {team.name}
+                        </Typography>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineHeight: 1.2,
+                            minHeight: 'auto',
+                          }}
+                          title={`${team.manager.first_name} ${team.manager.last_name}`}
+                        >
+                          {team.manager.first_name} {team.manager.last_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {teamDescription && (
+                      <Tooltip title={teamDescription} arrow placement='top'>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            mb: 3,
+                            lineHeight: 1.6,
+                            fontSize: 'var(--body-font-size)',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            minHeight: { xs: '3.6em', sm: '4.2em' },
+                            cursor: 'help',
+                          }}
+                        >
+                          {teamDescription}
+                        </Typography>
+                      </Tooltip>
+                    )}
+
+                    <Box
                       sx={{
-                        backgroundColor: '#3083DC',
-                        color:
-                          theme.palette.mode === 'dark'
-                            ? theme.palette.text.primary
-                            : theme.palette.common.white,
-                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                        height: { xs: 24, sm: 28 },
-                        '& .MuiChip-icon': {
+                        display: 'flex',
+                        alignItems: 'center',
+                        mb: 3,
+                        flexWrap: 'wrap',
+                        gap: 1.5,
+                      }}
+                    >
+                      <Chip
+                        label={`${team.members.length} ${lang.members}`}
+                        size='small'
+                        icon={
+                          <PersonIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                        }
+                        color='primary'
+                        sx={{
+                          backgroundColor: 'primary.main',
                           color:
                             theme.palette.mode === 'dark'
                               ? theme.palette.text.primary
                               : theme.palette.common.white,
-                        },
-                      }}
-                    />
-                  </Box>
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                          height: { xs: 24, sm: 28 },
+                          '& .MuiChip-icon': {
+                            color:
+                              theme.palette.mode === 'dark'
+                                ? theme.palette.text.primary
+                                : theme.palette.common.white,
+                          },
+                        }}
+                      />
+                    </Box>
 
-                  <Box
-                    sx={{
-                      mt: 'auto',
-                      pt: 2,
-                      borderTop: theme => `1px solid ${theme.palette.divider}`,
-                    }}
-                  >
-                    <AppButton
-                      variantType='secondary'
-                      variant='outlined'
-                      size='small'
-                      text={lang.viewMembers}
-                      startIcon={
-                        <GroupIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
-                      }
-                      onClick={() => handleViewMembers(team)}
-                      fullWidth
+                    <Box
                       sx={{
-                        borderColor: '#3083DC',
-                        color: '#3083DC',
-                        backgroundColor: 'transparent',
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                        py: { xs: 0.5, sm: 0.75 },
-                        px: { xs: 1, sm: 1.5 },
-                        '&:hover': {
-                          borderColor: '#3083DC',
-                          backgroundColor: 'rgba(48, 131, 220, 0.1)',
-                        },
+                        mt: 'auto',
+                        pt: 2,
+                        borderTop: theme =>
+                          `1px solid ${theme.palette.divider}`,
                       }}
                     >
-                      {lang.viewMembers}
-                    </AppButton>
-                  </Box>
-                </CardContent>
-              </Card>
+                      <AppButton
+                        variantType='secondary'
+                        variant='outlined'
+                        size='small'
+                        text={lang.viewMembers}
+                        startIcon={
+                          <GroupIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                        }
+                        onClick={() => handleViewMembers(team)}
+                        fullWidth
+                        sx={{
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
+                          backgroundColor: 'transparent',
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                          py: { xs: 0.5, sm: 0.75 },
+                          px: { xs: 1, sm: 1.5 },
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            backgroundColor: 'rgba(48, 131, 220, 0.1)',
+                          },
+                        }}
+                      >
+                        {lang.viewMembers}
+                      </AppButton>
+                    </Box>
+                  </CardContent>
+                </Card>
               );
             })}
           </Box>

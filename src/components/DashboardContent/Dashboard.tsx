@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   useTheme,
-  useMediaQuery,
   Grid,
   TableHead,
   TableRow,
@@ -22,20 +21,17 @@ import AppCard from '../common/AppCard';
 import AppDropdown from '../common/AppDropdown';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useLanguage } from '../../hooks/useLanguage';
-import systemDashboardApiService, {
-  type SystemDashboardResponse,
-  type RecentLog,
-} from '../../api/systemDashboardApi';
-import { getDashboardKpi, getAttendanceSummary } from '../../api/dashboardApi';
+import systemDashboardApiService from '../../api/systemDashboardApi';
+import {
+  useSystemDashboard,
+  useSystemLogs,
+  useDashboardKpi,
+  useAttendanceSummary,
+} from './useDashboardQueries';
 
-// AvailabilityCardsGrid removed — availability column removed from dashboard
 import GenderPercentageChart from './GenderPercentageChart';
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -43,10 +39,6 @@ import {
   CartesianGrid,
   Tooltip as ReTooltip,
 } from 'recharts';
-// import TopPerformersProps from '../DashboardContent/TopPerformance/TopPerformersProps';
-// import IconImageCardProps from '../DashboardContent/TotalApplication/IconImageCardProps';
-// import ApplicationStats from '../DashboardContent/ApplicationStats/ApplicationStats';
-// import UpcomingInterviews from '../DashboardContent/ComingInterview/UpcomingInterviews';
 import KPICard from './KPICard';
 
 import ApartmentIcon from '@mui/icons-material/Apartment';
@@ -58,12 +50,11 @@ import TenantGrowthChart from './TenantGrowthChart';
 import EmployeeGrowthChart from './EmployeeGrowthChart';
 import SystemUptimeCard from './SystemUptimeCard';
 import RecentActivityLogs from './RecentActivityLogs';
-import { getCurrentUser } from '../../utils/auth';
-// import SalaryOverviewChart from './SalaryOverviewChart';
-// import AttendanceDepartmentChart from './AttendanceDepartmentChart';
+import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/roleUtils';
 import { PAGINATION } from '../../constants/appConstants';
 import AppPageTitle from '../common/AppPageTitle';
+import { FEATURE_FLAGS } from '../../flags';
 
 const labels = {
   en: { title: 'Dashboard' },
@@ -74,48 +65,25 @@ const Dashboard: React.FC = () => {
   const { language } = useLanguage();
   const lang = labels[language];
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const { user } = useUser();
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
-  const [dashboardData, setDashboardData] =
-    useState<SystemDashboardResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const [logs, setLogs] = useState<RecentLog[]>([]);
-  const [logsLoading, setLogsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE; // Backend returns records per page
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isSysAdmin) {
-        setLoading(true);
-        const data = await systemDashboardApiService.getSystemDashboard();
-        setDashboardData(data);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [isSysAdmin]);
+  // TanStack Query hooks — no useEffect + useState for data fetching
+  const { data: dashboardData, isLoading: loading } =
+    useSystemDashboard(isSysAdmin);
+  const { data: logs = [], isLoading: logsLoading } = useSystemLogs(
+    currentPage,
+    isSysAdmin
+  );
+  const { data: liveKpi, isLoading: kpiLoading } = useDashboardKpi(!isSysAdmin);
+  const { data: attendanceData = [], isLoading: attendanceLoading } =
+    useAttendanceSummary(!isSysAdmin);
 
-  const fetchLogs = useCallback(async (page: number = 1) => {
-    try {
-      setLogsLoading(true);
-      const response = await systemDashboardApiService.getSystemLogs(page);
-      setLogs(response);
-    } finally {
-      setLogsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isSysAdmin) fetchLogs(currentPage);
-  }, [isSysAdmin, currentPage, fetchLogs]);
-
-  // Live KPI state (no frontend mock; show loader while fetching)
+  // Live KPI type
   type LiveKpi = {
     totalEmployees?: number;
     salaryPaid?: number;
@@ -124,32 +92,7 @@ const Dashboard: React.FC = () => {
     onLeave?: number;
   };
 
-  const [liveKpi, setLiveKpi] = useState<LiveKpi | null>(null);
-  const [kpiLoading, setKpiLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchKpi = async () => {
-      try {
-        if (mounted) setKpiLoading(true);
-        const mapped = await getDashboardKpi();
-        if (mounted && mapped) setLiveKpi(mapped);
-      } catch (err) {
-        console.warn('Failed to fetch dashboard KPI', err);
-      } finally {
-        if (mounted) setKpiLoading(false);
-      }
-    };
-
-    fetchKpi();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const displayedKpi =
+  const displayedKpi: LiveKpi =
     liveKpi ??
     ({
       totalEmployees: 0,
@@ -158,45 +101,6 @@ const Dashboard: React.FC = () => {
       presentToday: 0,
       onLeave: 0,
     } as LiveKpi);
-
-  const salaryOverview = [
-    { name: 'Paid', value: displayedKpi.salaryPaid },
-    { name: 'Unpaid', value: displayedKpi.salaryUnpaid },
-  ];
-
-  // Live attendance summary fetched from backend
-  const [attendanceData, setAttendanceData] = useState<
-    Array<{
-      department: string;
-      total: number;
-      present: number;
-      absent: number;
-    }>
-  >([]);
-
-  const [attendanceLoading, setAttendanceLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchAttendance = async () => {
-      try {
-        setAttendanceLoading(true);
-        const data = await getAttendanceSummary();
-        if (mounted) setAttendanceData(data);
-      } catch (err) {
-        console.warn('Failed to fetch attendance summary', err);
-      } finally {
-        if (mounted) setAttendanceLoading(false);
-      }
-    };
-
-    fetchAttendance();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Horizontal-scroll helpers for Attendance chart (px per bar)
   const attendanceBarSize = 28;
@@ -392,8 +296,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -408,8 +312,8 @@ const Dashboard: React.FC = () => {
                                   : 'var(--primary-color)',
                               color:
                                 theme.palette.mode === 'dark'
-                                  ? '#ffffff'
-                                  : '#2C2C2C',
+                                  ? theme.palette.common.white
+                                  : theme.palette.text.primary,
                               fontWeight: 700,
                             }}
                           >
@@ -528,8 +432,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -541,8 +444,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -554,8 +456,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -567,8 +468,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -580,8 +480,7 @@ const Dashboard: React.FC = () => {
                           theme.palette.mode === 'dark'
                             ? 'var(--primary-light-color)'
                             : 'var(--primary-color)',
-                        color:
-                          theme.palette.mode === 'dark' ? '#ffffff' : '#2C2C2C',
+                        color: theme.palette.text.primary,
                         fontWeight: 700,
                       }}
                     >
@@ -796,185 +695,191 @@ const Dashboard: React.FC = () => {
                   </CardContent>
                 </AppCard>
               </Box>
-
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
-                <AppCard
-                  sx={{
-                    borderRadius: '20px',
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      p: 0,
-
-                      overflow: 'visible',
-                      width: '100%',
-                    }}
+              {FEATURE_FLAGS.payrollModule && (
+                <>
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
                   >
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 0.5,
-                          fontWeight: 500,
-                          fontSize: {
-                            xs: '0.8rem',
-                            sm: '0.875rem',
-                            lg: '0.78rem',
-                          },
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        Salary Paid
-                      </Typography>
-                      <Tooltip
-                        title={`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                      >
-                        <Typography
-                          variant='h4'
-                          sx={{
-                            color: theme.palette.text.primary,
-                            fontWeight: 700,
-                            fontSize: {
-                              xs: '1.4rem',
-                              sm: '1.5rem',
-                              lg: '1.3rem',
-                            },
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                        </Typography>
-                      </Tooltip>
-                    </Box>
-                    <Avatar
+                    <AppCard
                       sx={{
-                        bgcolor: theme.palette.primary.main,
-                        color: theme.palette.getContrastText(
-                          theme.palette.primary.main
-                        ),
-                        width: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        height: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        ml: 1,
-                        flexShrink: 0,
-                        '& svg': {
-                          fontSize: {
-                            xs: '1rem',
-                            sm: '1.2rem',
-                            md: '1.1rem',
-                            lg: '1.05rem',
-                          },
-                        },
+                        borderRadius: '20px',
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
                       }}
                     >
-                      <AttachMoneyIcon />
-                    </Avatar>
-                  </CardContent>
-                </AppCard>
-              </Box>
-
-              <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
-                <AppCard
-                  sx={{
-                    borderRadius: '20px',
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      p: 0,
-
-                      overflow: 'visible',
-                      width: '100%',
-                    }}
-                  >
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant='body2'
+                      <CardContent
                         sx={{
-                          color: theme.palette.text.secondary,
-                          mb: 0.5,
-                          fontWeight: 500,
-                          fontSize: {
-                            xs: '0.8rem',
-                            sm: '0.875rem',
-                            lg: '0.78rem',
-                          },
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 0,
+
+                          overflow: 'visible',
+                          width: '100%',
                         }}
                       >
-                        Salary Unpaid
-                      </Typography>
-                      <Tooltip
-                        title={`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                      >
-                        <Typography
-                          variant='h4'
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              mb: 0.5,
+                              fontWeight: 500,
+                              fontSize: {
+                                xs: '0.8rem',
+                                sm: '0.875rem',
+                                lg: '0.78rem',
+                              },
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            Salary Paid
+                          </Typography>
+                          <Tooltip
+                            title={`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          >
+                            <Typography
+                              variant='h4'
+                              sx={{
+                                color: theme.palette.text.primary,
+                                fontWeight: 700,
+                                fontSize: {
+                                  xs: '1.4rem',
+                                  sm: '1.5rem',
+                                  lg: '1.3rem',
+                                },
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {`$${(displayedKpi.salaryPaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </Typography>
+                          </Tooltip>
+                        </Box>
+                        <Avatar
                           sx={{
-                            color: theme.palette.text.primary,
-                            fontWeight: 700,
-                            fontSize: {
-                              xs: '1.4rem',
-                              sm: '1.5rem',
-                              lg: '1.3rem',
+                            bgcolor: theme.palette.primary.main,
+                            color: theme.palette.getContrastText(
+                              theme.palette.primary.main
+                            ),
+                            width: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            height: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            ml: 1,
+                            flexShrink: 0,
+                            '& svg': {
+                              fontSize: {
+                                xs: '1rem',
+                                sm: '1.2rem',
+                                md: '1.1rem',
+                                lg: '1.05rem',
+                              },
                             },
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
                           }}
                         >
-                          {`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                        </Typography>
-                      </Tooltip>
-                    </Box>
-                    <Avatar
+                          <AttachMoneyIcon />
+                        </Avatar>
+                      </CardContent>
+                    </AppCard>
+                  </Box>
+
+                  <Box
+                    sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}
+                  >
+                    <AppCard
                       sx={{
-                        bgcolor: theme.palette.error.main,
-                        color: theme.palette.getContrastText(
-                          theme.palette.error.main
-                        ),
-                        width: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        height: { xs: 40, sm: 48, md: 48, lg: 44 },
-                        ml: 1,
-                        flexShrink: 0,
-                        '& svg': {
-                          fontSize: {
-                            xs: '1rem',
-                            sm: '1.2rem',
-                            md: '1.1rem',
-                            lg: '1.05rem',
-                          },
-                        },
+                        borderRadius: '20px',
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
                       }}
                     >
-                      <MoneyOffIcon />
-                    </Avatar>
-                  </CardContent>
-                </AppCard>
-              </Box>
+                      <CardContent
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 0,
 
+                          overflow: 'visible',
+                          width: '100%',
+                        }}
+                      >
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              mb: 0.5,
+                              fontWeight: 500,
+                              fontSize: {
+                                xs: '0.8rem',
+                                sm: '0.875rem',
+                                lg: '0.78rem',
+                              },
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            Salary Unpaid
+                          </Typography>
+                          <Tooltip
+                            title={`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          >
+                            <Typography
+                              variant='h4'
+                              sx={{
+                                color: theme.palette.text.primary,
+                                fontWeight: 700,
+                                fontSize: {
+                                  xs: '1.4rem',
+                                  sm: '1.5rem',
+                                  lg: '1.3rem',
+                                },
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {`$${(displayedKpi.salaryUnpaid ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </Typography>
+                          </Tooltip>
+                        </Box>
+                        <Avatar
+                          sx={{
+                            bgcolor: theme.palette.error.main,
+                            color: theme.palette.getContrastText(
+                              theme.palette.error.main
+                            ),
+                            width: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            height: { xs: 40, sm: 48, md: 48, lg: 44 },
+                            ml: 1,
+                            flexShrink: 0,
+                            '& svg': {
+                              fontSize: {
+                                xs: '1rem',
+                                sm: '1.2rem',
+                                md: '1.1rem',
+                                lg: '1.05rem',
+                              },
+                            },
+                          }}
+                        >
+                          <MoneyOffIcon />
+                        </Avatar>
+                      </CardContent>
+                    </AppCard>
+                  </Box>
+                </>
+              )}
               <Box sx={{ flex: { xs: '0 0 100%', lg: '1 1 0' }, minWidth: 0 }}>
                 <AppCard
                   sx={{
@@ -1110,112 +1015,6 @@ const Dashboard: React.FC = () => {
               </Box>
             </Box>
           )}
-          {/* Salary Overview (compact left) + Employee Growth (wide right) - Box-based layout for large screens */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              gap: { xs: 2, md: 3 },
-              alignItems: 'stretch',
-              minWidth: 0,
-              maxWidth: '100%',
-            }}
-          >
-            <Box sx={{ flex: 1, minWidth: { xs: '100%', md: 0 } }}>
-              <AppCard
-                sx={{
-                  p: 3,
-                  minHeight: { xs: 280, md: 420 },
-                  borderRadius: '20px',
-                }}
-              >
-                <EmployeeGrowthChart />
-              </AppCard>
-            </Box>
-            <Box
-              sx={{
-                width: { xs: '100%', md: '45%', lg: '33%' },
-                minWidth: 0,
-                maxWidth: '100%',
-                order: { xs: 2, md: 0 },
-              }}
-            >
-              <AppCard
-                sx={{
-                  p: { xs: 1.5, sm: 2 },
-                  borderRadius: { xs: '16px', sm: '20px' },
-                  height: '100%',
-                  overflow: 'hidden',
-                  maxWidth: '100%',
-                }}
-              >
-                <Typography
-                  variant='h6'
-                  mb={1}
-                  sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}
-                >
-                  Salary Overview
-                </Typography>
-                <Box
-                  sx={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    height: { xs: 220, sm: 260, md: 320 },
-                    minHeight: 180,
-                  }}
-                >
-                  <ResponsiveContainer width='100%' height='91%'>
-                    <PieChart
-                      margin={{ top: 0, right: 0, bottom: 20, left: 0 }}
-                    >
-                      <Pie
-                        data={salaryOverview}
-                        dataKey='value'
-                        nameKey='name'
-                        innerRadius={isMobile ? 45 : 60}
-                        outerRadius={isMobile ? 70 : 90}
-                        paddingAngle={3}
-                        stroke='none'
-                        strokeWidth={0}
-                        startAngle={50}
-                        endAngle={450}
-                        label={({ percent }) =>
-                          `${(percent * 100).toFixed(0)}%`
-                        }
-                        labelLine={false}
-                      >
-                        {salaryOverview.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              index === 0
-                                ? theme.palette.success.main
-                                : theme.palette.error.main
-                            }
-                            style={{ outline: 'none' }}
-                          />
-                        ))}
-                      </Pie>
-                      <Legend
-                        verticalAlign='bottom'
-                        height={36}
-                        iconType='circle'
-                      />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </Box>
-                  <Box mt={1}>
-                    <Typography
-                      variant='caption'
-                      color='text.secondary'
-                      sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
-                    >
-                      Total payroll and unpaid summary for current cycle
-                    </Typography>
-                  </Box>
-                </AppCard>
-            </Box>
-          </Box>
 
           {/* Attendance and Gender */}
           <Box
@@ -1285,10 +1084,9 @@ const Dashboard: React.FC = () => {
                         xs: attendanceShouldForceMinWidthOnXs
                           ? `${attendanceMinChartWidth}px`
                           : '100%',
-                        md:
-                          attendanceShouldForceMinWidthOnXs
-                            ? `${attendanceMinChartWidth}px`
-                            : '100%',
+                        md: attendanceShouldForceMinWidthOnXs
+                          ? `${attendanceMinChartWidth}px`
+                          : '100%',
                       },
                       height: { xs: 360, md: 420 },
                     }}

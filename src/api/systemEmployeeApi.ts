@@ -1,33 +1,16 @@
 import axiosInstance from './axiosInstance';
+import type { EmployeePerformance } from '../types/employee';
+import type { SystemTenant } from '../types/tenant';
 
-export type Benefit = {
-  id: string;
-  employeeId: string;
-  benefitId: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  assignedBy: string;
-  tenant_id: string;
-  createdAt: string;
-  benefit: {
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    eligibilityCriteria: string;
-    status: string;
-    tenant_id: string;
-    createdBy: string;
-    createdAt: string;
-  };
-};
+export type { EmployeePerformance } from '../types/employee';
 
-export type SystemEmployee = {
+export interface SystemEmployee {
   id: string;
   name: string;
   email?: string;
   tenantId: string;
+  /** snake_case alias returned by some backend endpoints */
+  tenant_id?: string;
   departmentId: string;
   departmentName: string;
   designationId: string;
@@ -36,10 +19,9 @@ export type SystemEmployee = {
   status: string;
   inviteStatus: string;
   createdAt?: string;
-};
+}
 
 export type SystemEmployeeDetails = SystemEmployee & {
-  benefits: Benefit[];
   kpis: EmployeePerformance[];
   promotions: EmployeePromotion[];
   performanceReviews: EmployeePerformanceReview[];
@@ -86,28 +68,6 @@ export type EmployeeAsset = {
   tenant_id: string;
   created_at: string;
 };
-
-export interface EmployeePerformance {
-  id: string;
-  employee_id: string;
-  kpi_id: string;
-  targetValue?: number | null;
-  achievedValue?: number | null;
-  score?: number | null;
-  reviewCycle?: string | null;
-  reviewedBy: string;
-  remarks: string;
-  tenant_id: string;
-  createdAt: string;
-  kpi?: {
-    id: string;
-    title: string;
-    description: string;
-    weight: number;
-    category: string;
-    status: string;
-  } | null;
-}
 
 export interface EmployeePromotion {
   id?: string;
@@ -222,10 +182,11 @@ class SystemEmployeeApiService {
     return res.data || [];
   }
 
-  async getAllTenants(includeDeleted = true): Promise<SystemEmployee[]> {
-    const res = await axiosInstance.get('/system/tenants', {
-      params: { includeDeleted, limit: 'all' },
-    });
+  async getAllTenants(includeDeleted = true): Promise<SystemTenant[]> {
+    const res = await axiosInstance.get<{ items: SystemTenant[] }>(
+      '/system/tenants',
+      { params: { includeDeleted, limit: 'all' } }
+    );
 
     return res.data?.items || [];
   }

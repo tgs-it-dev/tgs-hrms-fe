@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -35,10 +35,10 @@ import {
   isSystemAdmin as isSystemAdminFn,
   isHRAdmin as isHRAdminFn,
 } from '../../utils/roleUtils';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import { PAGINATION } from '../../constants/appConstants';
-// import { extractErrorMessage } from '../../utils/errorHandler';
+import { useUser } from '../../hooks/useUser';
 
 export default function DesignationManager() {
   const theme = useTheme();
@@ -46,13 +46,7 @@ export default function DesignationManager() {
   const isRTL = language === 'ar';
 
   // Get user role
-  const user = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem('user') || '{}');
-    } catch {
-      return {};
-    }
-  }, []);
+  const { user } = useUser();
   const userRoleValue = user?.role;
   const isSystemAdmin = isSystemAdminFn(userRoleValue);
   const isHRAdmin = isHRAdminFn(userRoleValue);
@@ -88,6 +82,7 @@ export default function DesignationManager() {
   const [allTenants, setAllTenants] = useState<SystemTenant[]>([]);
   const [selectedTenantId, setSelectedTenantId] = useState<string>('all');
   const [loadingTenants, setLoadingTenants] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
   const { snackbar, showError, showSuccess, closeSnackbar } = useErrorHandler();
 
@@ -103,7 +98,7 @@ export default function DesignationManager() {
         // Use the same API as Employee List to get all tenants
         const data = await systemEmployeeApiService.getAllTenants(true);
         // Show all tenants (no filtering) - same as Employee List
-        setAllTenants((data || []) as unknown as SystemTenant[]);
+        setAllTenants(data || []);
       } catch {
         // Ignore; tenant filter list will simply be empty
       } finally {
@@ -417,6 +412,7 @@ export default function DesignationManager() {
     departmentId: string;
   }) => {
     try {
+      setIsSubmitting(true);
       if (editingDesignation) {
         const designationDto = {
           title: data.title,
@@ -465,6 +461,8 @@ export default function DesignationManager() {
       setEditingDesignation(null);
     } catch (error: unknown) {
       showError(error, { operation: 'create', resource: 'designation' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -586,7 +584,7 @@ export default function DesignationManager() {
               />
               <AppDropdown
                 label={getText('Filter by department', 'تصفية حسب القسم')}
-                showLabel={false}
+                showLabel={true}
                 options={[
                   {
                     value: 'all',
@@ -674,6 +672,17 @@ export default function DesignationManager() {
 
       {!isSystemAdmin && (
         <Box sx={{ mb: 3 }}>
+          <Typography
+            variant='body2'
+            sx={{
+              fontSize: { xs: '14px', lg: '16px' },
+              lineHeight: 'var(--body-line-height)',
+              color: theme.palette.text.secondary,
+              mb: 1,
+            }}
+          >
+            {getText('Filter by department', 'تصفية حسب القسم')}
+          </Typography>
           <AppDropdown
             label={getText('Filter by department', 'تصفية حسب القسم')}
             showLabel={false}
@@ -1019,9 +1028,10 @@ export default function DesignationManager() {
             ? getText('Update', 'تحديث')
             : getText('Create', 'إنشاء')
         }
+        isSubmitting={isSubmitting}
         cancelLabel={getText('Cancel', 'إلغاء')}
         hasChanges={hasChanges}
-        submitDisabled={!hasChanges || !isFormValid}
+        submitDisabled={!hasChanges || !isFormValid || isSubmitting}
         isRtl={isRTL}
       />
 

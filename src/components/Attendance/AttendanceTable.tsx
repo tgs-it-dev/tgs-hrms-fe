@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -37,6 +37,7 @@ import {
 } from '../../utils/roleUtils';
 import DateNavigation from './DateNavigation';
 import { useTheme } from '../../theme/hooks';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { formatDate } from '../../utils/dateUtils';
 // systemEmployeeApiService removed; not used after cleanup
 import { useErrorHandler } from '../../hooks/useErrorHandler';
@@ -47,10 +48,18 @@ import AppDropdown from '../common/AppDropdown';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import AppPageTitle from '../common/AppPageTitle';
-import { type CheckInTeamMember } from './TeamCheckInDialog';
+import type { CheckInTeamMember } from './TeamCheckInDialog';
 import { PAGINATION } from '../../constants/appConstants';
+import { ROLES } from '../../constants/roles';
 
 import TeamCheckInView from './TeamCheckInView';
+import { authService } from '../../api/authService';
+import {
+  format as dateFnsFormat,
+  isAfter,
+  differenceInSeconds,
+} from 'date-fns';
+import { useUser } from '../../hooks/useUser';
 
 const ATTENDANCE_PAGE_SIZE = PAGINATION.DEFAULT_PAGE_SIZE;
 
@@ -98,7 +107,9 @@ const getApprovalStatus = (obj: unknown): string | null => {
 };
 
 const AttendanceTable = () => {
+  const { user: contextUser } = useUser();
   const { mode } = useTheme();
+  const muiTheme = useMuiTheme();
   const { snackbar, showError, closeSnackbar } = useErrorHandler();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [filteredData, setFilteredData] = useState<AttendanceRecord[]>([]);
@@ -147,9 +158,42 @@ const AttendanceTable = () => {
   const [teamStartDate, setTeamStartDate] = useState('');
   const [teamEndDate, setTeamEndDate] = useState('');
 
-  const toDisplayTime = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleTimeString() : null;
-  const token = localStorage.getItem('token');
+  const toDisplayTime = (iso: string | null) => {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return isNaN(d.getTime())
+      ? '-'
+      : dateFnsFormat(d, 'hh:mm a').replace('am', 'AM').replace('pm', 'PM');
+  };
+  const token = authService.getAccessToken();
+
+  /**
+   * Converts decimal hours (e.g., 1.5) to a string "1 hr 30 min 0 sec"
+   * using Day.js Duration plugin
+   */
+  const formatWorkedHours = (
+    decimalHours: number | null | undefined
+  ): string => {
+    if (
+      decimalHours === null ||
+      decimalHours === undefined ||
+      isNaN(decimalHours)
+    ) {
+      return '-';
+    }
+
+    const totalSeconds = Math.round(decimalHours * 3600);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const parts = [];
+    if (hours > 0) parts.push(`${hours} hr`);
+    if (minutes > 0 || hours > 0) parts.push(`${minutes} min`);
+    parts.push(`${seconds} sec`);
+
+    return parts.join(' ') || '0 sec';
+  };
 
   // Build query params for CSV export based on current filters
   const buildExportFilters = () => {
@@ -218,7 +262,7 @@ const AttendanceTable = () => {
         const finalUserId =
           eventUserId ?? userObjId ?? (isAllAttendance ? null : currentUserId);
 
-        console.log('Processing event:', {
+        console.warn('Processing event:', {
           eventId: e.id,
           eventUserId,
           userObjId,
@@ -275,12 +319,12 @@ const AttendanceTable = () => {
         if (!userEvents.has(currentUserId)) {
           userEvents.set(currentUserId, []);
         }
-        userEvents.get(currentUserId)!.push({
+        userEvents.get(currentUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       } else {
         // For all attendance view (no employee selected), process all events
@@ -290,12 +334,12 @@ const AttendanceTable = () => {
         if (!userEvents.has(finalUserId)) {
           userEvents.set(finalUserId, []);
         }
-        userEvents.get(finalUserId)!.push({
+        userEvents.get(finalUserId)?.push({
           id: String(ev.id),
           timestamp: String(ev.timestamp),
           type: ev.type as 'check-in' | 'check-out',
           user: ev.user as UserShort | undefined,
-          approvalStatus: (ev as any).approvalStatus ?? null,
+          approvalStatus: ev.approvalStatus ?? null,
         });
       }
     }
@@ -331,7 +375,7 @@ const AttendanceTable = () => {
               timestamp: event.timestamp,
               near_boundary: nearBoundary,
               user: event.user,
-              approvalStatus: (event as any).approvalStatus ?? null,
+              approvalStatus: event.approvalStatus ?? null,
             },
             checkOut: null,
           });
@@ -351,7 +395,7 @@ const AttendanceTable = () => {
       }
       for (const session of openSessions) {
         const checkInDate = new Date(session.checkIn.timestamp);
-        const shiftDate = formatLocalYMD(checkInDate); // Use check-in date as the shift date
+        const shiftDate = dateFnsFormat(checkInDate, 'yyyy-MM-dd');
 
         let workedHours = null;
         let checkOutISO = null;
@@ -361,43 +405,28 @@ const AttendanceTable = () => {
           checkOutISO = session.checkOut.timestamp;
           checkOutDisplay = toDisplayTime(checkOutISO);
 
-          const inTime = new Date(session.checkIn.timestamp).getTime();
-          const outTime = new Date(checkOutISO).getTime();
+          const inTime = new Date(session.checkIn.timestamp);
+          const outTime = new Date(checkOutISO);
 
-          if (outTime > inTime) {
-            workedHours = parseFloat(((outTime - inTime) / 3600000).toFixed(2));
+          if (isAfter(outTime, inTime)) {
+            workedHours = parseFloat(
+              (differenceInSeconds(outTime, inTime) / 3600).toFixed(2)
+            );
           }
         }
 
         sessions.push({
           id: `${session.checkIn.id}-${session.checkOut ? session.checkOut.id : 'open'}`,
-          userId: userId, // Use the userId from the map key (this is the user_id from events)
+          userId: userId,
           date: shiftDate,
           checkInISO: session.checkIn.timestamp,
           checkOutISO,
           checkIn: toDisplayTime(session.checkIn.timestamp),
-          checkOut: checkOutDisplay,
+          checkOut: checkOutDisplay || '-',
           workedHours,
-          near_boundary:
-            session.checkIn.near_boundary ||
-            session.checkOut?.near_boundary ||
-            false,
-          user: {
-            first_name: session.checkIn.user?.first_name || 'N/A',
-            last_name: session.checkIn.user?.last_name || '',
-          },
-          approvalStatus:
-            (session.checkIn as { approvalStatus?: string | null })
-              .approvalStatus ?? null,
         });
       }
     }
-    sessions.sort((a, b) => {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      const at = a.checkInISO ? new Date(a.checkInISO).getTime() : 0;
-      const bt = b.checkInISO ? new Date(b.checkInISO).getTime() : 0;
-      return bt - at;
-    });
 
     return sessions;
   };
@@ -457,7 +486,7 @@ const AttendanceTable = () => {
       );
 
       const teamItems = response.items || [];
-      setTeamAttendance(teamItems as unknown as CheckInTeamMember[]);
+      setTeamAttendance(teamItems);
       if (startDate || endDate) {
         const filteredItems = teamItems
           .map((memberUnknown: unknown) => {
@@ -541,8 +570,7 @@ const AttendanceTable = () => {
     }
 
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         if (view === 'all' || view === 'my') {
           setLoading(false);
         } else {
@@ -551,7 +579,7 @@ const AttendanceTable = () => {
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      const currentUser = contextUser;
       let response: AttendanceResponse;
 
       if (view === 'all') {
@@ -644,15 +672,7 @@ const AttendanceTable = () => {
           date, // End date (same day)
           selectedTenant || undefined // tenantId
         );
-        response = {
-          items: teamResponse.items,
-          total: teamResponse.total,
-          page: teamResponse.page,
-          limit: 10, // Default limit
-          totalPages: teamResponse.totalPages,
-        };
-        const teamItems =
-          (response.items as unknown as CheckInTeamMember[]) || [];
+        const teamItems = teamResponse.items || [];
         setTeamAttendance(teamItems);
 
         const selectedDateStr = date;
@@ -735,26 +755,17 @@ const AttendanceTable = () => {
         return;
       }
 
-      const storedUserForCheck = localStorage.getItem('user');
-      if (storedUserForCheck) {
-        try {
-          const userForCheck = JSON.parse(storedUserForCheck);
-          if (isSystemAdmin(userForCheck.role) && !selectedTenant) {
-            setEmployees([]);
-            return;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setEmployees([]);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
+      if (isSystemAdmin(contextUser.role) && !selectedTenant) {
+        setEmployees([]);
+        return;
+      }
+
+      const currentUser = contextUser;
       const isSystemAdminFlag = isSystemAdmin(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
       const isNetworkAdminFlag = isNetworkAdmin(currentUser.role);
@@ -867,6 +878,7 @@ const AttendanceTable = () => {
           }
 
           return {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeUserId is non-null: events without user_id are filtered above
             id: employeeUserId!,
             name: employeeName,
           };
@@ -880,26 +892,12 @@ const AttendanceTable = () => {
   };
 
   const getAdminTenantId = (currentUser: unknown): string | undefined => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return storedTenantId.trim();
-      }
-    } catch {
-      // Ignore; fall back to user object
-    }
-
-    try {
-      const userObj = (currentUser as Record<string, unknown>) || {};
-      const tenantId = userObj?.tenant_id || userObj?.tenant;
-      if (tenantId) {
-        return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; tenant id will remain undefined
-    }
-
-    return undefined;
+    const userObj = (currentUser as Record<string, unknown>) ?? {};
+    const tenantId = userObj?.tenant_id ?? userObj?.tenant;
+    if (tenantId) return String(tenantId).trim();
+    // TODO: replace with useUser() hook — direct localStorage access bypasses React state
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? storedTenantId.trim() : undefined;
   };
 
   const fetchAttendance = async (
@@ -910,18 +908,22 @@ const AttendanceTable = () => {
   ) => {
     setLoading(true);
     try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
+      if (!contextUser) {
         setLoading(false);
         return;
       }
 
-      const currentUser = JSON.parse(storedUser);
-      const roleName = (
-        currentUser.role?.name ||
-        currentUser.role ||
-        ''
-      ).toString();
+      const currentUser = contextUser;
+      const roleName =
+        ((currentUser as Record<string, unknown>).role instanceof Object
+          ? (
+              (currentUser as Record<string, unknown>).role as Record<
+                string,
+                unknown
+              >
+            )?.name
+          : (currentUser.role ?? '')
+        )?.toString() ?? '';
       setUserRole(roleName);
       const isManagerFlag = checkIsManager(currentUser.role);
       const isAdminFlag = isAdmin(currentUser.role);
@@ -1024,7 +1026,7 @@ const AttendanceTable = () => {
           (response.items as AttendanceEvent[]) || [];
 
         if (events.length > 0) {
-          console.log(
+          console.warn(
             'Sample events with user_id:',
             events.slice(0, 3).map(ev => ({
               id: ev.id,
@@ -1056,15 +1058,17 @@ const AttendanceTable = () => {
 
       // Debug: log first few built rows to verify approvalStatus comes from API
       try {
-        // eslint-disable-next-line no-console
-        console.log(
+        console.warn(
           'Attendance rows sample (approvalStatus):',
           rows
             .slice(0, 5)
             .map(r => ({ id: r.id, approvalStatus: r.approvalStatus }))
         );
-      } catch (e) {
-        // ignore
+      } catch (err) {
+        console.error(
+          '[AttendanceTable] Failed to process attendance rows',
+          err
+        );
       }
 
       setAttendanceData(rows);
@@ -1119,7 +1123,9 @@ const AttendanceTable = () => {
 
       // For system admin "all" view, use client-side pagination to avoid rendering too many rows
       const useSystemAdminPagination =
-        isSystemAdminFlag && effectiveView === 'all' && filteredRows.length > ATTENDANCE_PAGE_SIZE;
+        isSystemAdminFlag &&
+        effectiveView === 'all' &&
+        filteredRows.length > ATTENDANCE_PAGE_SIZE;
       if (useSystemAdminPagination) {
         setCurrentPage(1);
         setTotalPages(Math.ceil(filteredRows.length / ATTENDANCE_PAGE_SIZE));
@@ -1142,6 +1148,7 @@ const AttendanceTable = () => {
   // being forced to include the function reference in dependency arrays.
   const fetchAttendanceRef = useRef<typeof fetchAttendance | null>(null);
   fetchAttendanceRef.current = fetchAttendance;
+  const hasInitializedViewRef = useRef(false);
 
   // Refresh attendance when manager approves/disapproves in Team view
   useEffect(() => {
@@ -1176,6 +1183,7 @@ const AttendanceTable = () => {
       );
     };
     // include relevant state so handler uses latest filters
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchTeamAttendance is a ref-based callback, intentionally excluded
   }, [
     tab,
     adminView,
@@ -1253,20 +1261,8 @@ const AttendanceTable = () => {
     setCurrentNavigationDate(todayStr);
     fetchAttendanceByDate(todayStr, 'all');
 
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const currentUser = JSON.parse(storedUser);
-        const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-        if (isSystemAdminFlag) {
-          console.log('handleAllAttendance: Loading tenants for system admin');
-          // No await here – let tenants load in background
-          fetchTenantsFromSystemAttendance();
-        }
-      } catch (error) {
-        console.error('Error in handleAllAttendance:', error);
-      }
+    if (contextUser && isSystemAdmin(contextUser.role)) {
+      fetchTenantsFromSystemAttendance();
     }
 
     // Employees will be automatically extracted from attendance data in fetchAttendance
@@ -1278,7 +1274,7 @@ const AttendanceTable = () => {
       // Use the same API as Employee List to get all tenants
       const allTenants = await systemEmployeeApiService.getAllTenants(true);
 
-      console.log('Fetched tenants from API:', allTenants);
+      console.warn('Fetched tenants from API:', allTenants);
 
       // Use tenants directly like Employee List does - map to the expected format
       const tenantOptions = (allTenants || [])
@@ -1288,9 +1284,9 @@ const AttendanceTable = () => {
         }))
         .filter((t: { id: string; name: string }) => t.id && t.name); // Only keep tenants with valid id and name
 
-      console.log('Mapped tenant options:', tenantOptions);
+      console.warn('Mapped tenant options:', tenantOptions);
       setTenants(tenantOptions);
-      console.log(' Set tenants in dropdown:', {
+      console.warn(' Set tenants in dropdown:', {
         count: tenantOptions.length,
         tenants: tenantOptions.map(t => t.name),
       });
@@ -1308,8 +1304,8 @@ const AttendanceTable = () => {
       });
 
       if (excludedTenants.length > 0) {
-        console.log(
-          ' Excluded tenants:',
+        console.warn(
+          'Excluded tenants (inactive/deleted/suspended):',
           excludedTenants.map((tUnknown: unknown) => {
             const t = (tUnknown as Record<string, unknown>) || {};
             return {
@@ -1330,7 +1326,6 @@ const AttendanceTable = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _fetchEmployeesFromSystemAttendance = async (_tenantId?: string) => {
     try {
       const response = await attendanceApi.getSystemAllAttendance();
@@ -1389,82 +1384,61 @@ const AttendanceTable = () => {
     setTeamEndDate('');
     fetchAttendanceByDate(todayStr, 'team');
   };
-  useEffect(() => {
-    if (mode === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-    } else {
-      document.body.removeAttribute('data-theme');
-    }
-  }, [mode]);
+  // TODO: complete TanStack Query migration — BLOCKED by component coupling.
+  // See useAttendanceQueries.ts for useAttendanceData() — the prepared hook is ready.
+  // Remaining work before wiring it in:
+  //   1. Extract buildFromEvents / buildFromSummaries / buildFromSystemAll to
+  //      src/components/Attendance/attendanceUtils.ts (they close over toDisplayTime
+  //      and dateFnsFormat which are currently component-local).
+  //   2. Move role-flag side effects (setIsManager, setIsAdminUser, etc.) out of
+  //      fetchAttendance — compute them from contextUser directly in the render body.
+  //   3. Replace the 15+ imperative fetchAttendance() call sites with param state
+  //      updates so the query key drives re-fetches automatically.
+  //
+  // Risk: high — component is 2,859 lines; any missed call site silently stops
+  // refreshing on that interaction. Leave imperative pattern intact until step 1-3 done.
 
-  // Set role flags from stored user on mount so All Attendance button shows immediately (without waiting for fetchAttendance)
+  // Sync role flags from context user and set initial attendance view once.
+  // Computes role booleans once per contextUser change and reuses them for
+  // both setState calls and the initial view decision — avoids redundant checks.
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        const roleName = (user.role?.name || user.role || '').toString();
-        setUserRole(roleName);
-        setIsManager(checkIsManager(user.role));
-        setIsAdminUser(isAdmin(user.role));
-        setIsSystemAdminUser(isSystemAdmin(user.role));
-        setIsNetworkAdminUser(isNetworkAdmin(user.role));
-        setIsHRAdminUser(isHRAdmin(user.role));
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
+    if (!contextUser) return;
 
-  useEffect(() => {
-    // Check if we should default to 'all' view for admins who have 'My Attendance' hidden
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      if (
-        isSystemAdmin(user.role) ||
-        isAdmin(user.role) ||
-        isHRAdmin(user.role)
-      ) {
-        // If "My Attendance" is hidden, default to 'all' with current date selected in date nav
+    const isAdminRole = isAdmin(contextUser.role);
+    const isSystemAdminRole = isSystemAdmin(contextUser.role);
+    const isNetworkAdminRole = isNetworkAdmin(contextUser.role);
+    const isHRAdminRole = isHRAdmin(contextUser.role);
+
+    setUserRole((contextUser.role ?? '').toString());
+    setIsManager(checkIsManager(contextUser.role));
+    setIsAdminUser(isAdminRole);
+    setIsSystemAdminUser(isSystemAdminRole);
+    setIsNetworkAdminUser(isNetworkAdminRole);
+    setIsHRAdminUser(isHRAdminRole);
+
+    if (!hasInitializedViewRef.current) {
+      hasInitializedViewRef.current = true;
+      const todayStr = formatLocalYMD(new Date());
+      if (isSystemAdminRole || isAdminRole || isHRAdminRole) {
         setAdminView('all');
-        const todayStr = formatLocalYMD(new Date());
         setCurrentNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'all');
-      } else if (checkIsManager(user.role)) {
-        // Manager (not admin): default to current date in date nav for My Attendance
-        const todayStr = formatLocalYMD(new Date());
-        setMyAttendanceNavigationDate(todayStr);
-        fetchAttendanceByDate(todayStr, 'my');
       } else {
-        // Employee (not admin, not manager): default to current date in date nav
-        const todayStr = formatLocalYMD(new Date());
         setMyAttendanceNavigationDate(todayStr);
         fetchAttendanceByDate(todayStr, 'my');
       }
-    } else {
-      fetchAttendanceRef.current?.('my', undefined, '', '');
-    }
-  }, []);
-
-  // Load tenants when system admin views "All Attendance" - using same API as Employee List
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser || adminView !== 'all') return;
-
-    try {
-      const currentUser = JSON.parse(storedUser);
-      const isSystemAdminFlag = isSystemAdmin(currentUser.role);
-
-      if (isSystemAdminFlag && tenants.length === 0 && !tenantsLoading) {
-        console.log('Loading tenants for system admin in All Attendance view');
-        fetchTenantsFromSystemAttendance();
-      }
-    } catch (error) {
-      console.error('Error checking user role:', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminView]);
+  }, [contextUser]);
+
+  // Load tenants when system admin switches to "All Attendance" view
+  useEffect(() => {
+    if (adminView !== 'all' || !isSystemAdminUser) return;
+    if (tenants.length === 0 && !tenantsLoading) {
+      fetchTenantsFromSystemAttendance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminView, isSystemAdminUser]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser) {
@@ -1476,12 +1450,14 @@ const AttendanceTable = () => {
         fetchAttendanceRef.current?.('all', undefined, startDate, endDate);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAttendanceByDate is a stable callback ref, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser, startDate, endDate]);
 
   useEffect(() => {
     if (adminView === 'all' && isSystemAdminUser && selectedTenant) {
       _fetchEmployeesFromAttendance('all');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- _fetchEmployeesFromAttendance is stable, intentionally excluded
   }, [selectedTenant, adminView, isSystemAdminUser]);
 
   useEffect(() => {
@@ -1670,6 +1646,28 @@ const AttendanceTable = () => {
     }
   };
 
+  // Add this inside the AttendanceTable component
+  const totalWorkedHours = useMemo(() => {
+    // If in My/All Attendance tab (tab 0)
+    if (tab === 0) {
+      return filteredData.reduce(
+        (acc, record) => acc + (record.workedHours || 0),
+        0
+      );
+    }
+    // If in Team Attendance tab (tab 1)
+    else {
+      return filteredTeamAttendance.reduce((acc, member) => {
+        const memberHours =
+          member.attendance?.reduce(
+            (sum, att) => sum + (att.workedHours || 0),
+            0
+          ) || 0;
+        return acc + memberHours;
+      }, 0);
+    }
+  }, [filteredData, filteredTeamAttendance, tab]);
+
   // Handle filter changes - reset page to 1 and fetch new data
   const handleFilterChange = () => {
     setCurrentPage(1);
@@ -1701,7 +1699,7 @@ const AttendanceTable = () => {
   };
   const userRoleLc = (userRole || '').toLowerCase();
   const isAdminLike =
-    userRoleLc === 'admin' ||
+    userRoleLc === ROLES.ADMIN ||
     userRoleLc === 'system_admin' ||
     userRoleLc === 'network_admin' ||
     userRoleLc === 'hr_admin';
@@ -1782,8 +1780,9 @@ const AttendanceTable = () => {
                         boxSizing: 'border-box',
                         flexShrink: 0,
                         backgroundColor:
-                          adminView === 'my' ? 'primary.dark' : undefined,
-                        color: adminView === 'my' ? '#fff' : 'primary.dark',
+                          adminView === 'my' ? 'primary.main' : undefined,
+                        color:
+                          adminView === 'my' ? 'common.white' : 'primary.dark',
                         borderColor: 'primary.dark',
                         '&:hover': {
                           backgroundColor:
@@ -1805,13 +1804,6 @@ const AttendanceTable = () => {
                       maxWidth: { sm: '200px' },
                       boxSizing: 'border-box',
                       flexShrink: 0,
-                      backgroundColor: 'primary.dark',
-                      color: '#fff',
-                      borderColor: 'primary.dark',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
-                        borderColor: 'primary.dark',
-                      },
                     }}
                   >
                     All Attendance
@@ -1832,12 +1824,13 @@ const AttendanceTable = () => {
                       boxSizing: 'border-box',
                       flexShrink: 0,
                       backgroundColor:
-                        managerView === 'my' ? 'primary.dark' : undefined,
-                      color: managerView === 'my' ? '#fff' : 'primary.dark',
+                        adminView === 'my' ? 'primary.main' : undefined,
+                      color:
+                        adminView === 'my' ? 'common.white' : 'primary.dark',
                       borderColor: 'primary.dark',
                       '&:hover': {
                         backgroundColor:
-                          managerView === 'my' ? 'primary.dark' : undefined,
+                          adminView === 'my' ? 'primary.dark' : undefined,
                         borderColor: 'primary.dark',
                       },
                     }}
@@ -1971,7 +1964,7 @@ const AttendanceTable = () => {
                     width: '100%',
                     height: '40px',
                     padding: '6.5px 14px',
-                    border: '1px solid #3083DC',
+                    border: `1px solid ${muiTheme.palette.primary.main}`,
                     borderRadius: '12px',
                     fontSize: '16px',
                     outline: 'none',
@@ -2009,6 +2002,17 @@ const AttendanceTable = () => {
                 }}
               >
                 Clear Filters
+              </AppButton>
+              <AppButton
+                variant='outlined'
+                color='info'
+                sx={{
+                  pointerEvents: 'none', // Makes it look like a badge/tag rather than a clickable button
+                  fontWeight: 'bold',
+                  borderColor: 'info.main',
+                }}
+              >
+                Total Hours: {totalWorkedHours.toFixed(2)}
               </AppButton>
             </Box>
 
@@ -2073,8 +2077,7 @@ const AttendanceTable = () => {
                         token || '',
                         selfParams
                       );
-                    }
-                    else if (isAdminLike) {
+                    } else if (isAdminLike) {
                       const allParams: Record<string, string> = {};
                       if (startDate) allParams.startDate = startDate;
                       if (endDate) allParams.endDate = endDate;
@@ -2101,12 +2104,12 @@ const AttendanceTable = () => {
                     }
                   }}
                   sx={{
-                    backgroundColor: '#3083DC',
+                    backgroundColor: 'primary.main',
                     borderRadius: '6px',
                     padding: '6px',
-                    color: 'white',
+                    color: 'common.white',
                     '&:hover': {
-                      backgroundColor: '#3083DC',
+                      backgroundColor: 'primary.main',
                     },
                   }}
                 >
@@ -2155,7 +2158,12 @@ const AttendanceTable = () => {
                     </TableCell>
                     <TableCell>{record.checkIn || '--'}</TableCell>
                     <TableCell>{record.checkOut || '--'}</TableCell>
-                    <TableCell>{record.workedHours ?? '--'}</TableCell>
+                    <TableCell>
+                      <Typography variant='body2'>
+                        {/* Use the formatter here */}
+                        {formatWorkedHours(record.workedHours)}
+                      </Typography>
+                    </TableCell>
                     <TableCell>
                       <Box
                         sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
@@ -2228,20 +2236,18 @@ const AttendanceTable = () => {
             </TableBody>
           </AppTable>
 
-          {isSystemAdminUser &&
-            adminView === 'all' &&
-            totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={(_, page) => setCurrentPage(page)}
-                  color='primary'
-                  showFirstButton
-                  showLastButton
-                />
-              </Box>
-            )}
+          {isSystemAdminUser && adminView === 'all' && totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, page) => setCurrentPage(page)}
+                color='primary'
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
 
           {canViewAllAttendance && adminView === 'all' && (
             <DateNavigation
@@ -2268,7 +2274,7 @@ const AttendanceTable = () => {
                 fontSize='16px'
                 lineHeight='24px'
                 letterSpacing='-1%'
-                color='#2C2C2C'
+                color='text.primary'
               >
                 Showing all {totalItems} records
               </Typography>
@@ -2292,7 +2298,7 @@ const AttendanceTable = () => {
               fontSize={{ xs: '20px', lg: '28px' }}
               lineHeight='36px'
               letterSpacing='-2%'
-              color='#2C2C2C'
+              color='text.primary'
             >
               Team Attendance
             </Typography>
@@ -2372,7 +2378,7 @@ const AttendanceTable = () => {
                   width: '100%',
                   height: '40px',
                   padding: '6.5px 14px',
-                  border: '1px solid #3083DC',
+                  border: `1px solid ${muiTheme.palette.primary.main}`,
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
@@ -2485,20 +2491,18 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? new Date(
-                                  attendance.checkIn
-                                ).toLocaleTimeString()
+                              ? toDisplayTime(attendance.checkIn)
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? new Date(
-                                  attendance.checkOut
-                                ).toLocaleTimeString()
+                              ? toDisplayTime(attendance.checkOut)
                               : '--'}
                           </TableCell>
                           <TableCell>{member.totalDaysWorked}</TableCell>
-                          <TableCell>{attendance.workedHours || 0}</TableCell>
+                          <TableCell>
+                            {formatWorkedHours(attendance.workedHours)}
+                          </TableCell>
                         </TableRow>
                       )
                     );
@@ -2642,7 +2646,7 @@ const AttendanceTable = () => {
                   width: '100%',
                   height: '40px',
                   padding: '6.5px 14px',
-                  border: '1px solid #3083DC',
+                  border: `1px solid ${muiTheme.palette.primary.main}`,
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
@@ -2747,12 +2751,12 @@ const AttendanceTable = () => {
                   );
                 }}
                 sx={{
-                  backgroundColor: '#3083DC',
+                  backgroundColor: 'primary.main',
                   borderRadius: '6px',
                   padding: '6px',
-                  color: 'white',
+                  color: 'common.white',
                   '&:hover': {
-                    backgroundColor: '#3083DC',
+                    backgroundColor: 'primary.main',
                   },
                 }}
               >
@@ -2804,19 +2808,17 @@ const AttendanceTable = () => {
                           </TableCell>
                           <TableCell>
                             {attendance.checkIn
-                              ? new Date(
-                                  attendance.checkIn
-                                ).toLocaleTimeString()
+                              ? toDisplayTime(attendance.checkIn)
                               : '--'}
                           </TableCell>
                           <TableCell>
                             {attendance.checkOut
-                              ? new Date(
-                                  attendance.checkOut
-                                ).toLocaleTimeString()
+                              ? toDisplayTime(attendance.checkOut)
                               : '--'}
                           </TableCell>
-                          <TableCell>{attendance.workedHours || 0}</TableCell>
+                          <TableCell>
+                            {formatWorkedHours(attendance.workedHours)}
+                          </TableCell>
                         </TableRow>
                       )
                     );
@@ -2844,7 +2846,8 @@ const AttendanceTable = () => {
           />
           {(() => {
             const teamRecordCount = filteredTeamAttendance.reduce(
-              (sum, m) => sum + ((m as CheckInTeamMember).attendance?.length || 0),
+              (sum, m) =>
+                sum + ((m as CheckInTeamMember).attendance?.length || 0),
               0
             );
             return teamRecordCount > 0 ? (
@@ -2854,7 +2857,7 @@ const AttendanceTable = () => {
                   fontSize='16px'
                   lineHeight='24px'
                   letterSpacing='-1%'
-                  color='#2C2C2C'
+                  color='text.primary'
                 >
                   Showing all {teamRecordCount} records
                 </Typography>

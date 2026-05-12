@@ -30,7 +30,7 @@ interface PromotionsListProps {
 }
 
 const PromotionsList: React.FC<PromotionsListProps> = ({ tenantId }) => {
-   const theme = useTheme();
+  const theme = useTheme();
   const [promotions, setPromotions] = useState<PromotionRecord[]>([]);
   const [stats, setStats] = useState<PromotionStats[]>([]);
   const [loading, setLoading] = useState(true);

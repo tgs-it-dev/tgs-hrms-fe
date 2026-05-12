@@ -29,6 +29,7 @@ import { teamApiService } from '../../api/teamApi';
 import type { TeamMember } from '../../api/teamApi';
 import { useLanguage } from '../../hooks/useLanguage';
 import { getUserRole, isAdmin } from '../../utils/auth';
+import { ROLES } from '../../constants/roles';
 
 // Extended interface for admin team members with team info
 interface AdminTeamMember extends TeamMember {
@@ -63,7 +64,7 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
   // Check if user is a manager
   const checkIsManager = (): boolean => {
     const userRole = getUserRole();
-    return userRole === 'manager' || userRole === 'Manager';
+    return userRole === ROLES.MANAGER || userRole === 'Manager';
   };
 
   const labels = {
@@ -203,8 +204,10 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
       PaperProps={{
         sx: {
           backgroundColor: theme.palette.background.paper,
-          // color: theme.palette.text.primary,
           borderRadius: 2,
+          maxHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -273,7 +276,8 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          paddingBottom: 500,
+          p: 0,
+          minHeight: 400,
         }}
       >
         {loading ? (
@@ -312,7 +316,7 @@ const TeamMembersModal: React.FC<TeamMembersModalProps> = ({
               onClick={handleAddMember}
               sx={{
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#ffffff',
+                color: 'common.white',
                 '&:hover': {
                   backgroundColor: 'var(--primary-dark-color)',
                   opacity: 0.9,

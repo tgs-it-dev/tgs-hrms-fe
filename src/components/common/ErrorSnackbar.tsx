@@ -50,7 +50,12 @@ export const ErrorSnackbar: React.FC<ErrorSnackbarProps> = ({
       <Alert
         onClose={onClose}
         severity={severity}
-        variant="standard"
+        variant='standard'
+        // WCAG 4.1.3: live region so screen readers announce status messages.
+        // errors use assertive (interrupts current reading); others use polite.
+        role={severity === 'error' ? 'alert' : 'status'}
+        aria-live={severity === 'error' ? 'assertive' : 'polite'}
+        aria-atomic='true'
         sx={{
           width: '100%',
           ...errorSx,

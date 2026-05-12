@@ -39,7 +39,7 @@ const CompanyDetails: React.FC = () => {
   useEffect(() => {
     const signupSessionId = localStorage.getItem('signupSessionId');
     if (!signupSessionId) {
-      navigate('/Signup');
+      navigate('/signup');
     }
   }, [navigate]);
 
@@ -49,25 +49,29 @@ const CompanyDetails: React.FC = () => {
     setFieldErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  const handleImageFile = (file: File) => {
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showError(new Error('File size must be less than 10MB'));
+      return;
+    }
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+      showError(new Error('Only JPEG, PNG and GIF formats are allowed'));
+      return;
+    }
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        showError(new Error('File size must be less than 10MB'));
-        return;
-      }
-      // Validate file type
-      if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
-        showError(new Error('Only JPEG, PNG and GIF formats are allowed'));
-        return;
-      }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = e => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      handleImageFile(file);
     }
   };
 
@@ -80,10 +84,7 @@ const CompanyDetails: React.FC = () => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const fakeEvent = {
-        target: { files: [file] },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      handleImageChange(fakeEvent);
+      handleImageFile(file);
     }
   };
 
@@ -97,12 +98,17 @@ const CompanyDetails: React.FC = () => {
       domain: '',
     };
 
-    if (!formData.companyName.trim()) {
-      nextErrors.companyName = 'Company name is required';
+    if (
+      !formData.companyName.trim() ||
+      formData.companyName.trim().length < 2
+    ) {
+      nextErrors.companyName = 'Company name must be at least 2 characters';
     }
 
     if (!formData.domain.trim()) {
       nextErrors.domain = 'Domain is required';
+    } else if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.domain.trim())) {
+      nextErrors.domain = 'Please enter a valid domain (e.g. example.com)';
     }
 
     setFieldErrors(nextErrors);
@@ -202,7 +208,7 @@ const CompanyDetails: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/Signup');
+    navigate('/signup');
   };
 
   return (
@@ -236,7 +242,10 @@ const CompanyDetails: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -284,7 +293,7 @@ const CompanyDetails: React.FC = () => {
               // maxWidth: { xs: '100%', sm: '90%' },
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '20px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -317,7 +326,7 @@ const CompanyDetails: React.FC = () => {
                 sx={{
                   mb: '6px',
                   fontWeight: 700,
-                  color: { xs: '#001218', lg: 'inherit' },
+                  color: { xs: 'text.primary', lg: 'inherit' },
                 }}
               >
                 Company Details
@@ -325,7 +334,7 @@ const CompanyDetails: React.FC = () => {
               <Typography
                 className='body'
                 sx={{
-                  color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                  color: { xs: 'text.secondary', lg: 'var(--dark-grey-color)' },
                   fontSize: { xs: '16px', lg: '24px' },
                   fontWeight: 400,
                 }}
@@ -393,7 +402,10 @@ const CompanyDetails: React.FC = () => {
                       letterSpacing: { xs: '-1%', lg: 'normal' },
                       display: 'block',
                       mb: 0.5,
-                      color: { xs: '#001218', lg: 'var(--dark-black-color)' },
+                      color: {
+                        xs: 'text.primary',
+                        lg: 'var(--dark-black-color)',
+                      },
                     }}
                   >
                     Company Logo
@@ -446,7 +458,10 @@ const CompanyDetails: React.FC = () => {
                           fontWeight: { xs: 400, lg: 'inherit' },
                           lineHeight: { xs: '20px', lg: 'inherit' },
                           letterSpacing: { xs: '-1%', lg: 'inherit' },
-                          color: { xs: '#001218', lg: 'var(--text-color)' },
+                          color: {
+                            xs: 'text.primary',
+                            lg: 'var(--text-color)',
+                          },
                           mb: 1,
                         }}
                       >
@@ -458,7 +473,7 @@ const CompanyDetails: React.FC = () => {
                           fontWeight: { xs: 400, lg: 'inherit' },
                           lineHeight: { xs: '16px', lg: 'inherit' },
                           color: {
-                            xs: '#888888',
+                            xs: 'text.secondary',
                             lg: 'var(--dark-grey-color)',
                           },
                         }}
@@ -530,8 +545,8 @@ const CompanyDetails: React.FC = () => {
                   onClick={handleBack}
                   disabled={loading}
                   sx={{
-                    borderColor: '#2C2C2C',
-                    color: { xs: '#2C2C2C', lg: '#2C2C2C' },
+                    borderColor: 'text.primary',
+                    color: { xs: 'text.primary', lg: 'text.primary' },
                     backgroundColor: 'transparent',
                     borderRadius: '12px',
                     fontSize: { xs: '16px', lg: 'var(--body-font-size)' },

@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import { env } from '../config/env';
 import { authService } from './authService';
 import { axiosErrorHandler } from './axiosErrorHandler';
@@ -13,19 +13,16 @@ const axiosInstance = axios.create({
 // Request interceptor to attach token and handle FormData header
 axiosInstance.interceptors.request.use(
   config => {
-    try {
-      const token = authService.getAccessToken();
-      if (token) {
-        (config.headers as Record<string, unknown>).Authorization = `Bearer ${token}`;
-      }
-
-      // If payload is FormData, remove Content-Type so browser/axios adds boundary
-      if (config.data instanceof FormData) {
-        delete (config.headers as Record<string, unknown>)['Content-Type'];
-      }
-    } catch (e) {
-      void e;
+    const token = authService.getAccessToken();
+    if (token) {
+      config.headers.set('Authorization', `Bearer ${token}`);
     }
+
+    // If payload is FormData, remove Content-Type so browser sets it with the correct boundary
+    if (config.data instanceof FormData) {
+      config.headers.delete('Content-Type');
+    }
+
     return config;
   },
   error => Promise.reject(error)
@@ -39,11 +36,15 @@ axiosInstance.interceptors.response.use(undefined, async (error: unknown) => {
     }
 
     const axiosError = error as AxiosError;
-    const originalRequest = (axiosError.config as AxiosRequestConfig & {
-      _retry?: boolean;
-    }) || undefined;
+    const originalRequest =
+      (axiosError.config as AxiosRequestConfig & {
+        _retry?: boolean;
+      }) || undefined;
 
-    const handlerResult = axiosErrorHandler.handleError(axiosError, originalRequest ?? null);
+    const handlerResult = axiosErrorHandler.handleError(
+      axiosError,
+      originalRequest ?? null
+    );
 
     if (handlerResult.shouldLogout) {
       return Promise.reject(handlerResult.error ?? axiosError);
@@ -84,7 +85,8 @@ async function handleTokenRefresh(
 
     authService.processQueueSuccess(newToken);
 
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    axiosInstance.defaults.headers.common['Authorization'] =
+      `Bearer ${newToken}`;
 
     originalRequest.headers = {
       ...(originalRequest.headers ?? {}),

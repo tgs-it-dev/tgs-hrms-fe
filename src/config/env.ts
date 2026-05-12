@@ -5,10 +5,8 @@ export const REQUIRED_ENV_VARS = [
 
 type RequiredEnvKey = (typeof REQUIRED_ENV_VARS)[number];
 
-const rawEnv = import.meta.env as unknown as Record<string, string | undefined>;
-
 function getEnvVar(key: RequiredEnvKey): string {
-  const value = rawEnv[key];
+  const value = import.meta.env[key];
   if (!value) {
     const message = `Missing required environment variable: ${key}`;
     // Fail fast if required environment variables are missing
@@ -21,5 +19,5 @@ function getEnvVar(key: RequiredEnvKey): string {
 export const env = {
   googleClientId: getEnvVar('VITE_GOOGLE_CLIENT_ID'),
   apiBaseUrl: getEnvVar('VITE_API_BASE_URL'),
-  placesApiKey: rawEnv['VITE_GOOGLE_PLACES_API_KEY'] ?? '',
+  placesApiKey: import.meta.env.VITE_GOOGLE_PLACES_API_KEY ?? '',
 };

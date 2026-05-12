@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   TableContainer,
   Table,
@@ -13,12 +13,16 @@ import {
 interface AppTableProps extends TableContainerProps {
   children: React.ReactNode;
   tableProps?: TableProps;
+  /** Accessible label for the table — required for WCAG 1.3.1.
+   *  Passed as aria-label on the underlying <Table> element. */
+  tableLabel?: string;
 }
 
-export function AppTable({
+export const AppTable = memo(function AppTable({
   children,
   sx,
   tableProps,
+  tableLabel,
   ...rest
 }: AppTableProps) {
   const theme = useTheme();
@@ -44,7 +48,9 @@ export function AppTable({
         letterSpacing: 'var(--subheading2-letter-spacing)',
         color: theme.palette.common.white,
         backgroundColor:
-          theme.palette.mode === 'dark' ? 'var(--primary-dark-color)' : 'var(--primary-light-color)',
+          theme.palette.mode === 'dark'
+            ? 'var(--primary-dark-color)'
+            : 'var(--primary-light-color)',
         whiteSpace: 'nowrap',
       },
     },
@@ -80,9 +86,11 @@ export function AppTable({
       {...rest}
       sx={{ ...baseSx, ...(sx as object) }}
     >
-      <Table {...(tableProps ?? {})}>{children}</Table>
+      <Table aria-label={tableLabel || 'Data table'} {...(tableProps ?? {})}>
+        {children}
+      </Table>
     </TableContainer>
   );
-}
+});
 
 export default AppTable;

@@ -10,7 +10,6 @@ import {
 import AppPageTitle from '../common/AppPageTitle';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
-import { useIsDarkMode } from '../../theme';
 import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/roleUtils';
 import {
@@ -24,12 +23,6 @@ const featureDefinitions: {
   description: string;
 }[] = [
   {
-    key: 'payroll',
-    label: 'Payroll',
-    description:
-      'Run payroll, manage employee salaries, and view payroll reports.',
-  },
-  {
     key: 'attendance',
     label: 'Attendance & Leaves',
     description:
@@ -42,21 +35,10 @@ const featureDefinitions: {
       'View leave analytics, reports, and cross-tenant leave metrics.',
   },
   {
-    key: 'benefits',
-    label: 'Benefits',
-    description:
-      'Configure benefits, assign employee benefits, and view benefit reports.',
-  },
-  {
     key: 'performance',
     label: 'Performance',
     description:
       'Enable performance dashboards and insights for employees and teams.',
-  },
-  {
-    key: 'recruitment',
-    label: 'Recruitment',
-    description: 'Manage job requisitions and hiring-related workflows.',
   },
   {
     key: 'announcements',
@@ -67,7 +49,6 @@ const featureDefinitions: {
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
-  const darkMode = useIsDarkMode();
   const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
 
@@ -91,7 +72,7 @@ const FeatureManagementPage: React.FC = () => {
       <AppPageTitle
         sx={{
           mb: 2,
-          color: darkMode ? '#8f8f8f' : theme.palette.text.primary,
+          color: theme.palette.text.secondary,
         }}
       >
         Feature Management
@@ -117,10 +98,8 @@ const FeatureManagementPage: React.FC = () => {
                 px: { xs: 1, sm: 1.5 },
                 py: { xs: 1, sm: 1.5 },
                 borderRadius: 2,
-                backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
-                border: `1px solid ${
-                  darkMode ? '#333' : 'rgba(0,0,0,0.04)'
-                }`,
+                backgroundColor: 'background.default',
+                border: `1px solid ${theme.palette.divider}`,
                 flexWrap: 'wrap',
               }}
             >
@@ -138,7 +117,7 @@ const FeatureManagementPage: React.FC = () => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#a0a0a0' : '#666',
+                    color: 'text.secondary',
                   }}
                 >
                   {feature.description}
@@ -186,4 +165,3 @@ const FeatureManagementPage: React.FC = () => {
 };
 
 export default FeatureManagementPage;
-

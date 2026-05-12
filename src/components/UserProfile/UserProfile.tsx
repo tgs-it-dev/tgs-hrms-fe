@@ -25,9 +25,9 @@ import {
 } from '@mui/icons-material';
 // UserProfile type available if needed
 import { useUser } from '../../hooks/useUser';
-import type { UserProfile } from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import { profileApiService } from '../../api/profileApi';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { env } from '../../config/env';
 import {
   getRoleName,
@@ -38,7 +38,6 @@ import {
 import ProfilePictureUpload from '../common/ProfilePictureUpload';
 import EmployeeProfileView from '../Employee/EmployeeProfileView';
 import EditProfileModal from './EditProfileModal';
-import { useIsDarkMode } from '../../theme';
 import { formatDate } from '../../utils/dateUtils';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
@@ -55,7 +54,6 @@ const UserProfileComponent = React.memo(() => {
   const { updateProfilePicture } = useProfilePicture();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const theme = useTheme();
-  const darkMode = useIsDarkMode();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const tenantFetchedRef = useRef(false);
 
@@ -198,7 +196,7 @@ const UserProfileComponent = React.memo(() => {
           <AppPageTitle
             sx={{
               mb: 0,
-              color: darkMode ? '#8f8f8f' : theme.palette.text.primary,
+              color: theme.palette.text.secondary,
             }}
           >
             User Profile
@@ -321,7 +319,7 @@ const UserProfileComponent = React.memo(() => {
                 variant='body2'
                 sx={{
                   mb: 0.5,
-                  color: darkMode ? '#8f8f8f' : theme.palette.text.secondary,
+                  color: theme.palette.text.secondary,
                   textAlign: { xs: 'center', sm: 'left' },
                 }}
               >
@@ -331,7 +329,7 @@ const UserProfileComponent = React.memo(() => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#8f8f8f' : theme.palette.text.secondary,
+                    color: theme.palette.text.secondary,
                     textAlign: { xs: 'center', sm: 'left' },
                   }}
                 >
@@ -369,9 +367,7 @@ const UserProfileComponent = React.memo(() => {
                       mb: 0.5,
                       fontWeight: 500,
                       fontSize: { xs: '13px', sm: '14px' },
-                      color: darkMode
-                        ? '#8f8f8f'
-                        : theme.palette.text.secondary,
+                      color: theme.palette.text.secondary,
                     }}
                   >
                     {item.label}

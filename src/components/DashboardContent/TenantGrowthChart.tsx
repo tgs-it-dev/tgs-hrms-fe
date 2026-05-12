@@ -1,12 +1,18 @@
-import { Box, Typography, CircularProgress, useTheme, Tooltip } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  useTheme,
+  Tooltip,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import systemDashboardApiService from '../../api/systemDashboardApi';
-import { getCurrentUser } from '../../utils/auth';
 import { isSystemAdmin } from '../../utils/roleUtils';
+import { useUser } from '../../hooks/useUser';
 import AppDropdown from '../common/AppDropdown';
 // using shared AppDropdown for time selector
 
@@ -34,6 +40,7 @@ const TenantGrowthChart: React.FC = () => {
   const theme = useTheme();
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const { user } = useUser();
 
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
@@ -43,8 +50,7 @@ const TenantGrowthChart: React.FC = () => {
   const [tenantGrowthData, setTenantGrowthData] = useState<TenantGrowth[]>([]);
 
   // Check if user is system admin
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
   const labels = {
@@ -64,18 +70,14 @@ const TenantGrowthChart: React.FC = () => {
         // Use the same API as Employee List to get all tenants
         const data = await systemEmployeeApiService.getAllTenants(true);
         // Show all tenants (no filtering) - same as Employee List
-        setTenants((data || []) as unknown as Tenant[]);
+        setTenants(data || []);
 
         if (data && data.length > 0) {
-          const ibexTenant = data.find(
-            (t: Record<string, unknown>) => t.name === 'Ibex Tech.'
-          );
+          const ibexTenant = data.find(t => t.name === 'Ibex Tech.');
           if (ibexTenant) {
-            setSelectedTenant(ibexTenant.id as string);
+            setSelectedTenant(ibexTenant.id);
           } else {
-            setSelectedTenant(
-              (data[0] as Record<string, unknown>).id as string
-            );
+            setSelectedTenant(data[0].id);
           }
         }
       } catch {
@@ -131,7 +133,7 @@ const TenantGrowthChart: React.FC = () => {
       bar: { horizontal: false, columnWidth: '55%' },
     },
     dataLabels: { enabled: false },
-    stroke: { show: true, width: 1, colors: ['#fff'] },
+    stroke: { show: true, width: 1, colors: [theme.palette.common.white] },
     xaxis: {
       categories: months,
       labels: {
@@ -153,7 +155,11 @@ const TenantGrowthChart: React.FC = () => {
       borderColor: theme.palette.divider,
       padding: { top: 20, left: 10, right: 10, bottom: 10 },
     },
-    colors: ['#4E79A7', '#F28E2B', '#E15759'],
+    colors: [
+      theme.palette.primary.main,
+      theme.palette.warning.main,
+      theme.palette.error.main,
+    ],
     tooltip: {
       theme: darkMode ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val}` },
@@ -212,13 +218,10 @@ const TenantGrowthChart: React.FC = () => {
               const num = typeof v === 'number' ? v : parseInt(v as string);
               if (!isNaN(num)) setSelectedYear(num);
             }}
-            options={Array.from(
-              { length: 6 },
-              (_, i) => {
-                const year = currentYear - 4 + i;
-                return { value: year, label: String(year) };
-              }
-            )}
+            options={Array.from({ length: 6 }, (_, i) => {
+              const year = currentYear - 4 + i;
+              return { value: year, label: String(year) };
+            })}
             containerSx={{ minWidth: 120 }}
             sx={{
               width: { xs: '100%', sm: 120 },

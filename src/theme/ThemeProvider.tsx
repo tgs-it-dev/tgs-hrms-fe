@@ -1,79 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { ReactNode } from 'react';
 import { ThemeProvider as MuiThemeProvider, CssBaseline } from '@mui/material';
 import { createAppTheme } from './themeConfig';
 import { ThemeContext } from './context';
 import type { ThemeContextType } from './context';
+import { useThemeStore } from '../store/themeStore';
 
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
+/**
+ * AppThemeProvider reads mode from useThemeStore — the single source of truth.
+ * Toggle the theme by calling useThemeStore().toggleMode() anywhere in the app;
+ * this provider will re-render and supply the updated MUI theme automatically.
+ *
+ * NOTE: The Zustand store persists to localStorage under the key "theme-mode"
+ * (see src/store/themeStore.ts), so the preference survives page reloads.
+ */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Get initial theme from localStorage or default to 'light'
-  const getInitialTheme = (): 'light' | 'dark' => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme-mode');
-      if (savedTheme === 'dark' || savedTheme === 'light') {
-        return savedTheme;
-      }
+  // Single source of truth: Zustand store (persisted to localStorage "theme-mode")
+  const { mode, toggleMode, setMode } = useThemeStore();
 
-      // Check system preference
-      if (
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      ) {
-        return 'dark';
-      }
-    }
-    return 'light';
-  };
-
-  const [mode, setMode] = useState<'light' | 'dark'>(getInitialTheme);
-
-  // Create theme based on current mode
   const theme = createAppTheme(mode);
 
-  // Toggle between light and dark mode
-  const toggleTheme = () => {
-    const newMode = mode === 'light' ? 'dark' : 'light';
-    setMode(newMode);
-  };
-
-  // Update theme mode
-  const updateMode = (newMode: 'light' | 'dark') => {
-    setMode(newMode);
-  };
-
-  // Save theme preference to localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme-mode', mode);
-    }
+  // Keep body class in sync for any CSS that targets it directly.
+  React.useEffect(() => {
+    document.body.classList.toggle('dark-mode', mode === 'dark');
+    document.body.classList.toggle('light-mode', mode === 'light');
   }, [mode]);
 
-  // Listen for system theme changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  // Mirror system preference changes only when user has not set a preference.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-      const handleChange = (e: MediaQueryListEvent) => {
-        // Only auto-switch if user hasn't manually set a preference
-        const savedTheme = localStorage.getItem('theme-mode');
-        if (!savedTheme) {
-          setMode(e.matches ? 'dark' : 'light');
-        }
-      };
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, []);
+    const handleChange = (e: MediaQueryListEvent) => {
+      // The zustand-persist middleware writes the key on every setMode call, so
+      // check the raw stored value to detect "never explicitly set by user".
+      const stored = localStorage.getItem('theme-mode');
+      if (!stored) {
+        setMode(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [setMode]);
 
   const contextValue: ThemeContextType = {
     mode,
-    toggleTheme,
-    setMode: updateMode,
+    toggleTheme: toggleMode,
+    setMode,
   };
 
   return (

@@ -90,9 +90,8 @@ const TenantBasedEmployeeManager: React.FC = () => {
       return;
     }
     try {
-      const res = await departmentApiService.getAllTenantsWithDepartments(
-        tenantId
-      );
+      const res =
+        await departmentApiService.getAllTenantsWithDepartments(tenantId);
       const tenantData = res?.tenants?.find(
         t => t.tenant_id === tenantId || String(t.tenant_id) === tenantId
       );
@@ -152,32 +151,12 @@ const TenantBasedEmployeeManager: React.FC = () => {
 
       // Map flat API fields to include tenantName (match by tenantId)
       const mapped: EmployeeWithTenantName[] = employeesData.map(emp => {
-        const e = emp as unknown as Record<string, unknown>;
-        const tenantId =
-          (typeof e.tenantId === 'string' && e.tenantId) ||
-          (typeof e.tenant_id === 'string' && e.tenant_id) ||
-          (typeof e.tenant === 'object' &&
-            e.tenant &&
-            typeof (e.tenant as Record<string, unknown>).id === 'string' &&
-            (e.tenant as Record<string, unknown>).id) ||
-          undefined;
-
+        const tenantId = emp.tenantId || emp.tenant_id;
         const matchedTenant = tenants.find(t => t.id === String(tenantId));
 
-        // Safely read departmentName / designationTitle from backend shapes
-        const departmentName =
-          typeof e.departmentName === 'string'
-            ? e.departmentName
-            : typeof e.department_name === 'string'
-              ? e.department_name
-              : '';
-
-        const designationTitle =
-          typeof e.designationTitle === 'string'
-            ? e.designationTitle
-            : typeof e.designation_title === 'string'
-              ? e.designation_title
-              : '';
+        // departmentName / designationTitle may come in different casing from backend
+        const departmentName = emp.departmentName || '';
+        const designationTitle = emp.designationTitle || '';
 
         return {
           ...emp,
@@ -539,7 +518,7 @@ const TenantBasedEmployeeManager: React.FC = () => {
             setOpenProfile(false);
             setSelectedEmployee(null);
           }}
-          employeeId={selectedEmployee!.id}
+          employeeId={selectedEmployee.id}
         />
       )}
 

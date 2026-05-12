@@ -9,7 +9,7 @@ export const TIMEOUTS = {
 export const VALIDATION_LIMITS = {
   MIN_DEPARTMENT_NAME_LENGTH: 2,
   MAX_DESCRIPTION_LENGTH: 200,
-  MAX_PASSWORD_LENGTH: 15,
+  MAX_PASSWORD_LENGTH: 128,
   MIN_PASSWORD_LENGTH: 8,
   MAX_FILE_SIZE: 5 * 1024 * 1024,
   MAX_PROFILE_PICTURE_SIZE: 5 * 1024 * 1024,
@@ -20,25 +20,6 @@ export const PAGINATION = {
   DEFAULT_PAGE: 1,
   PAGE_SIZE_OPTIONS: [5, 10, 25, 50] as const,
   MOBILE_PAGE_SIZE_OPTIONS: [5, 10] as const,
-} as const;
-
-export const COLORS = {
-  PRIMARY: '#464b8a',
-  ACCENT: '#f19828',
-  SUCCESS: '#4caf50',
-  ERROR: '#d32f2f',
-  WARNING: '#ff9800',
-  INFO: '#1976d2',
-  DARK_BG: '#1e1e1e',
-  LIGHT_BG: '#fff',
-  DARK_TEXT: '#8f8f8f',
-  LIGHT_TEXT: '#000',
-  DARK_BORDER: '#333',
-  LIGHT_BORDER: '#ddd',
-  DARK_FIELD_BG: '#2e2e2e',
-  LIGHT_FIELD_BG: '#f1f1f1',
-  DARK_CARD_BG: '#2a2a2a',
-  LIGHT_CARD_BG: '#f9f9f9',
 } as const;
 
 export const SIZES = {
@@ -76,7 +57,7 @@ export const BREAKPOINTS = {
 } as const;
 
 export const API_CONFIG = {
-  DEFAULT_LIMIT: 25,
+  DEFAULT_LIMIT: PAGINATION.DEFAULT_PAGE_SIZE,
   MAX_LIMIT: 100,
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000,

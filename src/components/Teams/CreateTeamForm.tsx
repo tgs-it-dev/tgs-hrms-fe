@@ -24,6 +24,10 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [loadingManagers, setLoadingManagers] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    manager_id?: string;
+  }>({});
   // Check if form has changes (for create, check if any field has content)
   const hasChanges =
     formData.name.trim() !== '' ||
@@ -81,15 +85,21 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({
     loadManagers();
   }, [open]);
   const handleSubmit = async () => {
-    // Validation
+    // Per-field validation
+    const nextFieldErrors: { name?: string; manager_id?: string } = {};
     if (!formData.name.trim()) {
-      setError(lang.nameRequired);
+      nextFieldErrors.name = lang.nameRequired;
+    } else if (formData.name.trim().length > 100) {
+      nextFieldErrors.name = 'Team name must be 100 characters or less';
+    }
+    if (!formData.manager_id || formData.manager_id === 'all') {
+      nextFieldErrors.manager_id = lang.managerRequired;
+    }
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
       return;
     }
-    if (!formData.manager_id) {
-      setError(lang.managerRequired);
-      return;
-    }
+    setFieldErrors({});
     try {
       setLoading(true);
       setError(null);
@@ -108,6 +118,7 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({
       manager_id: '',
     });
     setError(null);
+    setFieldErrors({});
     setLoading(false);
     onClose();
   };
@@ -118,9 +129,14 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({
       type: 'text',
       required: true,
       value: formData.name,
-      onChange: value =>
-        setFormData(prev => ({ ...prev, name: String(value) })),
+      onChange: value => {
+        setFormData(prev => ({ ...prev, name: String(value) }));
+        if (fieldErrors.name)
+          setFieldErrors(prev => ({ ...prev, name: undefined }));
+      },
       placeholder: lang.name,
+      maxLength: 100,
+      error: fieldErrors.name,
     },
     {
       name: 'description',
@@ -130,14 +146,19 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({
       onChange: value =>
         setFormData(prev => ({ ...prev, description: String(value) })),
       placeholder: lang.description,
+      maxLength: 500,
     },
     {
       name: 'manager_id',
       label: lang.manager,
       type: 'dropdown',
       value: formData.manager_id || 'all',
-      onChange: value =>
-        setFormData(prev => ({ ...prev, manager_id: String(value) })),
+      onChange: value => {
+        setFormData(prev => ({ ...prev, manager_id: String(value) }));
+        if (fieldErrors.manager_id)
+          setFieldErrors(prev => ({ ...prev, manager_id: undefined }));
+      },
+      error: fieldErrors.manager_id,
       placeholder: lang.selectManager,
       options: loadingManagers
         ? [{ value: 'all', label: lang.loadingManagers }]

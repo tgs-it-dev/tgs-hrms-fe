@@ -217,7 +217,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
         inputBackgroundColor={
           theme.palette.mode === 'dark'
             ? theme.palette.background.default
-            : '#F8F8F8'
+            : theme.palette.background.default
         }
       />
 
@@ -239,6 +239,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
         onClick={onClose}
         disabled={isSubmitting}
         text={isRtl ? 'إلغاء' : 'Cancel'}
+        sx={{ flex: 1 }}
       />
       <AppButton
         variantType='primary'
@@ -258,6 +259,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
                 ? 'إنشاء'
                 : 'Create'
         }
+        sx={{ flex: 1 }}
       />
     </>
   );
@@ -299,11 +301,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
             </IconButton>
           </Box>
           {formContent}
-          <Box
-            sx={{ display: 'flex', gap: 1, mt: 3, justifyContent: 'flex-end' }}
-          >
-            {actionButtons}
-          </Box>
+          <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>{actionButtons}</Box>
         </Box>
       </Drawer>
     );
@@ -356,7 +354,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({
         {formContent}
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, pt: 2, ...paperSx }}>
+      <DialogActions sx={{ p: 3, pt: 2, gap: 1, ...paperSx }}>
         {actionButtons}
       </DialogActions>
     </Dialog>

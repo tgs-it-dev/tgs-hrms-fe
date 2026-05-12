@@ -15,11 +15,11 @@ import {
 import AppDropdown from '../common/AppDropdown';
 import AppTable from '../common/AppTable';
 import DownloadIcon from '@mui/icons-material/Download';
-import systemDashboardApiService, {
-  type RecentLog,
-} from '../../api/systemDashboardApi';
+import systemDashboardApiService from '../../api/systemDashboardApi';
+import type { RecentLog } from '../../types/audit';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
-import rolesApiService, { type Role } from '../../api/rolesApi';
+import rolesApiService from '../../api/rolesApi';
+import type { Role } from '../../types/user';
 import { PAGINATION } from '../../constants/appConstants';
 import AppPageTitle from '../common/AppPageTitle';
 

@@ -1,16 +1,18 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import Chart from 'react-apexcharts';
 import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
+import { colorTokens } from '../../theme';
 
 const PerformanceChart: React.FC = () => {
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const theme = useTheme();
 
-  const bgColor = darkMode ? '#111' : '#fff';
-  const borderColor = darkMode ? '#252525' : '#f0f0f0';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
+  const bgColor = theme.palette.background.paper;
+  const borderColor = theme.palette.divider;
+  const textColor = theme.palette.text.secondary;
 
   // Translations
   const labels = {
@@ -96,7 +98,7 @@ const PerformanceChart: React.FC = () => {
       },
     },
     grid: {
-      borderColor: darkMode ? '#333' : '#e0e0e0',
+      borderColor: theme.palette.divider,
       padding: {
         top: 20,
         bottom: 10,
@@ -108,7 +110,7 @@ const PerformanceChart: React.FC = () => {
     stroke: {
       show: true,
       width: 1,
-      colors: ['#fff'],
+      colors: [theme.palette.common.white],
     },
     xaxis: {
       categories: months[language],
@@ -142,7 +144,12 @@ const PerformanceChart: React.FC = () => {
         colors: textColor,
       },
     },
-    colors: ['#484c7f', '#f19828', '#f5558d', '#a7daff'],
+    colors: [
+      colorTokens.chart[0],
+      theme.palette.warning.main,
+      theme.palette.secondary.main,
+      theme.palette.info.light,
+    ],
     fill: {
       opacity: 1,
     },

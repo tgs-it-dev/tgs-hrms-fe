@@ -55,7 +55,11 @@ function ErrorFallback({ error }: { error: Error | null }) {
       <Typography variant='h4' gutterBottom>
         Something went wrong
       </Typography>
-      <Typography variant='body1' color='text.secondary' sx={{ mb: 3, maxWidth: 500 }}>
+      <Typography
+        variant='body1'
+        color='text.secondary'
+        sx={{ mb: 3, maxWidth: 500 }}
+      >
         {error?.message || 'An unexpected error occurred in this route.'}
       </Typography>
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -75,4 +79,3 @@ function ErrorFallback({ error }: { error: Error | null }) {
 }
 
 export default RouteErrorBoundary;
-

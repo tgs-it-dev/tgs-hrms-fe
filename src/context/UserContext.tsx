@@ -6,7 +6,8 @@ import React, {
   useMemo,
   type ReactNode,
 } from 'react';
-import { profileApiService, type UserProfile } from '../api/profileApi';
+import { profileApiService } from '../api/profileApi';
+import type { UserProfile } from '../types/user';
 import type { UserContextType } from '../types/context';
 import { setupTokenValidation, clearAuthData } from '../utils/authValidation';
 
@@ -18,6 +19,9 @@ export const UserContext = createContext<UserContextType | undefined>(
 const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
+    null
+  );
 
   // Update user state and localStorage
   const updateUser = useCallback((updatedUser: UserProfile) => {
@@ -45,9 +49,18 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, []);
 
+  const updateProfilePicture = useCallback((url: string | null) => {
+    setProfilePictureUrl(url);
+  }, []);
+
+  const clearProfilePicture = useCallback(() => {
+    setProfilePictureUrl(null);
+  }, []);
+
   // Clear user data (for logout)
   const clearUser = useCallback(() => {
     setUser(null);
+    setProfilePictureUrl(null);
     clearAuthData();
   }, []);
 
@@ -133,8 +146,20 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       updateUser,
       refreshUser,
       clearUser,
+      profilePictureUrl,
+      updateProfilePicture,
+      clearProfilePicture,
     }),
-    [user, loading, updateUser, refreshUser, clearUser]
+    [
+      user,
+      loading,
+      updateUser,
+      refreshUser,
+      clearUser,
+      profilePictureUrl,
+      updateProfilePicture,
+      clearProfilePicture,
+    ]
   );
 
   return (
@@ -144,3 +169,18 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 // Export provider separately
 export { UserProvider };
+
+/**
+ * Backward-compat alias — prefer useUser() for new code.
+ * All profile picture state is now part of UserContext.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const useProfilePicture = () => {
+  const context = React.useContext(UserContext);
+  if (!context) {
+    throw new Error('useProfilePicture must be used within UserProvider');
+  }
+  const { profilePictureUrl, updateProfilePicture, clearProfilePicture } =
+    context;
+  return { profilePictureUrl, updateProfilePicture, clearProfilePicture };
+};

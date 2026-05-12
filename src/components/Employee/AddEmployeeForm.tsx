@@ -17,7 +17,7 @@ import '../UserProfile/PhoneInput.css';
 import { useOutletContext } from 'react-router-dom';
 import type { AppOutletContext } from '../../types/outletContexts';
 import { env } from '../../config/env';
-import type { EmployeeDto } from '../../api/employeeApi';
+import type { EmployeeDto } from '../../types/employee';
 import {
   departmentApiService,
   type BackendDepartment,
@@ -26,7 +26,9 @@ import {
   designationApiService,
   type BackendDesignation,
 } from '../../api/designationApi';
-import { rolesApiService, type Role } from '../../api/rolesApi';
+import rolesApiService from '../../api/rolesApi';
+import { ROLES } from '../../constants/roles';
+import type { Role } from '../../types/user';
 import { validateEmailAddress } from '../../utils/validation';
 import AppButton from '../common/AppButton';
 import AppInputField from '../common/AppInputField';
@@ -95,9 +97,11 @@ interface AddEmployeeFormProps {
     cnicBackPicture?: string; // URL or path to existing image
   } | null;
   submitting?: boolean;
-  onDeleteDocument?: (type: 'profile' | 'cnicFront' | 'cnicBack', url: string) => Promise<void>;
+  onDeleteDocument?: (
+    type: 'profile' | 'cnicFront' | 'cnicBack',
+    url: string
+  ) => Promise<void>;
 }
-
 
 // Component
 const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
@@ -114,7 +118,8 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   const toAbsoluteUrl = (path?: string | null) => {
     if (!path) return '';
     const trimmed = path.trim();
-    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('blob:')) return trimmed;
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('blob:'))
+      return trimmed;
     const base = API_BASE_URL.replace(/\/$/, '');
     return `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}?t=${Date.now()}`;
   };
@@ -166,13 +171,20 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
     src: string;
     title: string;
   } | null>(null);
-  const [deletingType, setDeletingType] = useState<'profile' | 'cnicFront' | 'cnicBack' | null>(null);
+  const [deletingType, setDeletingType] = useState<
+    'profile' | 'cnicFront' | 'cnicBack' | null
+  >(null);
   const [hasDeletedDocument, setHasDeletedDocument] = useState(false);
   // Track initialization to avoid clearing designation on first prefill
   const isInitializingRef = useRef<boolean>(true);
 
   const roleOptions = React.useMemo(() => {
-    const allowedRoles = ['Employee', 'Manager', 'hr-admin', 'network-admin'];
+    const allowedRoles = [
+      'Employee',
+      'Manager',
+      ROLES.HR_ADMIN,
+      ROLES.NETWORK_ADMIN,
+    ];
 
     return (roles || [])
       .map(r => (r.name || '').trim())
@@ -213,6 +225,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
       if (initialData.departmentId) {
         // Load designations for department; keep designationId as provided
         (async () => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- departmentId is truthy (checked by `if (initialData.departmentId)` above)
           await loadDesignations(initialData.departmentId!);
           isInitializingRef.current = false;
         })();
@@ -228,36 +241,36 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   // Check if form has changes
   const hasChanges = initialData
     ? values.first_name !== originalValues.first_name ||
-    values.last_name !== originalValues.last_name ||
-    values.email !== originalValues.email ||
-    values.phone !== originalValues.phone ||
-    values.designationId !== originalValues.designationId ||
-    values.departmentId !== originalValues.departmentId ||
-    values.gender !== originalValues.gender ||
-    values.role !== originalValues.role ||
-    values.role_name !== originalValues.role_name ||
-    // values.role_id !== originalValues.role_id ||
-    values.team_id !== originalValues.team_id ||
-    values.cnicNumber !== originalValues.cnicNumber ||
-    values.profilePicture !== null ||
-    values.cnicFrontPicture !== null ||
-    values.cnicBackPicture !== null ||
-    hasDeletedDocument
+      values.last_name !== originalValues.last_name ||
+      values.email !== originalValues.email ||
+      values.phone !== originalValues.phone ||
+      values.designationId !== originalValues.designationId ||
+      values.departmentId !== originalValues.departmentId ||
+      values.gender !== originalValues.gender ||
+      values.role !== originalValues.role ||
+      values.role_name !== originalValues.role_name ||
+      // values.role_id !== originalValues.role_id ||
+      values.team_id !== originalValues.team_id ||
+      values.cnicNumber !== originalValues.cnicNumber ||
+      values.profilePicture !== null ||
+      values.cnicFrontPicture !== null ||
+      values.cnicBackPicture !== null ||
+      hasDeletedDocument
     : values.first_name.trim() !== '' ||
-    values.last_name.trim() !== '' ||
-    values.email.trim() !== '' ||
-    values.phone.trim() !== '' ||
-    values.designationId !== '' ||
-    values.departmentId !== '' ||
-    values.gender !== '' ||
-    values.role !== 'Employee' ||
-    values.role_name !== '' ||
-    // values.role_id !== '' ||
-    values.team_id !== '' ||
-    values.cnicNumber !== '' ||
-    values.profilePicture !== null ||
-    values.cnicFrontPicture !== null ||
-    values.cnicBackPicture !== null;
+      values.last_name.trim() !== '' ||
+      values.email.trim() !== '' ||
+      values.phone.trim() !== '' ||
+      values.designationId !== '' ||
+      values.departmentId !== '' ||
+      values.gender !== '' ||
+      values.role !== 'Employee' ||
+      values.role_name !== '' ||
+      // values.role_id !== '' ||
+      values.team_id !== '' ||
+      values.cnicNumber !== '' ||
+      values.profilePicture !== null ||
+      values.cnicFrontPicture !== null ||
+      values.cnicBackPicture !== null;
 
   // Remove filtering: always show all designations in the dropdown
   // const filteredDesignations = designations;
@@ -346,9 +359,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
 
   const handleChange =
     (field: keyof FormValues) =>
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFieldValue(field, (e.target.value ?? '').toString());
-      };
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFieldValue(field, (e.target.value ?? '').toString());
+    };
 
   const handlePhoneChange = (value: string | undefined) => {
     const phoneValue = value || '';
@@ -365,52 +378,52 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   // Handle image uploads
   const handleImageUpload =
     (type: 'profile' | 'cnicFront' | 'cnicBack') =>
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-          // Validate file type
-          if (!file.type.startsWith('image/')) {
-            setErrors(prev => ({
-              ...prev,
-              general: 'Please select a valid image file',
-            }));
-            return;
-          }
-
-          // Validate file size (max 5MB)
-          if (file.size > 5 * 1024 * 1024) {
-            setErrors(prev => ({
-              ...prev,
-              general: 'Image size should not exceed 5MB',
-            }));
-            return;
-          }
-
-          setValues(prev => ({
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          setErrors(prev => ({
             ...prev,
-            [type === 'profile'
-              ? 'profilePicture'
-              : type === 'cnicFront'
-                ? 'cnicFrontPicture'
-                : 'cnicBackPicture']: file,
+            general: 'Please select a valid image file',
           }));
-
-          // Clear errors
-          setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.general;
-            // Clear the specific picture error
-            if (type === 'profile') {
-              delete newErrors.profilePicture;
-            } else if (type === 'cnicFront') {
-              delete newErrors.cnicFrontPicture;
-            } else if (type === 'cnicBack') {
-              delete newErrors.cnicBackPicture;
-            }
-            return newErrors;
-          });
+          return;
         }
-      };
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setErrors(prev => ({
+            ...prev,
+            general: 'Image size should not exceed 5MB',
+          }));
+          return;
+        }
+
+        setValues(prev => ({
+          ...prev,
+          [type === 'profile'
+            ? 'profilePicture'
+            : type === 'cnicFront'
+              ? 'cnicFrontPicture'
+              : 'cnicBackPicture']: file,
+        }));
+
+        // Clear errors
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.general;
+          // Clear the specific picture error
+          if (type === 'profile') {
+            delete newErrors.profilePicture;
+          } else if (type === 'cnicFront') {
+            delete newErrors.cnicFrontPicture;
+          } else if (type === 'cnicBack') {
+            delete newErrors.cnicBackPicture;
+          }
+          return newErrors;
+        });
+      }
+    };
 
   // Handle CNIC number formatting
   const handleCnicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -448,7 +461,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
     setPreviewImage(null);
   };
 
-  const handleDeleteExistingDocument = async (type: 'profile' | 'cnicFront' | 'cnicBack', url: string) => {
+  const handleDeleteExistingDocument = async (
+    type: 'profile' | 'cnicFront' | 'cnicBack',
+    url: string
+  ) => {
     if (!onDeleteDocument) return;
     try {
       setDeletingType(type);
@@ -460,8 +476,15 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   };
 
   // Clear newly uploaded picture (show cross on image, click to remove)
-  const handleClearUploadedPicture = (type: 'profile' | 'cnicFront' | 'cnicBack') => {
-    const field = type === 'profile' ? 'profilePicture' : type === 'cnicFront' ? 'cnicFrontPicture' : 'cnicBackPicture';
+  const handleClearUploadedPicture = (
+    type: 'profile' | 'cnicFront' | 'cnicBack'
+  ) => {
+    const field =
+      type === 'profile'
+        ? 'profilePicture'
+        : type === 'cnicFront'
+          ? 'cnicFrontPicture'
+          : 'cnicBackPicture';
     setValues(prev => ({ ...prev, [field]: null }));
     setErrors(prev => {
       const next = { ...prev };
@@ -493,7 +516,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   };
 
   const handleDesignationChange = (e: SelectChangeEvent<string | number>) => {
-    const selectedDesignationId = String(e.target.value ?? '').replace(/^all$/, '');
+    const selectedDesignationId = String(e.target.value ?? '').replace(
+      /^all$/,
+      ''
+    );
     setValues(prev => ({ ...prev, designationId: selectedDesignationId }));
     setErrors(prev => {
       const newErrors = { ...prev };
@@ -505,13 +531,35 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
 
   const validate = (): boolean => {
     const newErrors: Errors = {};
-    if (!values.first_name)
+    if (!values.first_name) {
       newErrors.first_name = label(
         'First name is required',
         'الاسم الأول مطلوب'
       );
-    if (!values.last_name)
+    } else if (values.first_name.trim().length < 2) {
+      newErrors.first_name = label(
+        'First name must be at least 2 characters',
+        'الاسم الأول يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.first_name.trim().length > 50) {
+      newErrors.first_name = label(
+        'First name must be 50 characters or less',
+        'الاسم الأول يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
+    if (!values.last_name) {
       newErrors.last_name = label('Last name is required', 'اسم العائلة مطلوب');
+    } else if (values.last_name.trim().length < 2) {
+      newErrors.last_name = label(
+        'Last name must be at least 2 characters',
+        'اسم العائلة يجب أن يكون حرفين على الأقل'
+      );
+    } else if (values.last_name.trim().length > 50) {
+      newErrors.last_name = label(
+        'Last name must be 50 characters or less',
+        'اسم العائلة يجب أن لا يتجاوز 50 حرفاً'
+      );
+    }
     if (values.email.trim()) {
       const emailError = validateEmailAddress(values.email);
       if (emailError) {
@@ -532,6 +580,11 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         );
       }
     }
+    if (!values.departmentId)
+      newErrors.departmentId = label(
+        'Please select a department',
+        'يرجى اختيار القسم'
+      );
     if (!values.designationId)
       newErrors.designationId = label(
         'Please select a designation',
@@ -574,9 +627,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         );
       }
     }
-
-    // Only require gender when creating new employee, not when editing
+    // if (!initialData && !values.gender) return false;
     if (!initialData && !values.gender) newErrors.gender = 'Gender is required';
+    // Gender is always required
+    if (!values.gender) newErrors.gender = 'Gender is required';
     // Only require role when creating new employee, not when editing
     if (!initialData && !values.role) newErrors.role = 'Role is required';
     setErrors(newErrors);
@@ -638,7 +692,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
     if (!values.designationId) return false;
     if (!values.departmentId) return false;
     if (!values.cnicNumber) return false;
-    if (!initialData && !values.gender) return false;
+    if (!values.gender) return false;
     if (!initialData && !values.role) return false;
 
     // Require pictures only for create; for edit they are optional
@@ -672,10 +726,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   } as const;
 
   // Match the common form control background used across modals (e.g., Designation modal/AppFormModal)
-  const controlBg =
-    theme.palette.mode === 'dark'
-      ? theme.palette.background.default
-      : '#F8F8F8';
+  const controlBg = theme.palette.background.default;
 
   return (
     <Box component='form' onSubmit={handleSubmit} dir={dir}>
@@ -814,28 +865,28 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
           />
         </Box>
 
-        {/* Gender - Only show when creating new employee, not when editing */}
-        {!initialData && (
-          <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
-            <AppDropdown
-              label={label('Gender', 'الجنس')}
-              value={values.gender || 'all'}
-              onChange={e =>
-                setFieldValue('gender', String(e.target.value ?? ''))
-              }
-              error={!!errors.gender}
-              helperText={errors.gender}
-              inputBackgroundColor={controlBg}
-              placeholder={label('Select gender', 'اختر الجنس')}
-              sx={dropdownControlSx}
-              options={[
-                { value: 'all', label: label('Select Gender', 'اختر الجنس') },
-                { value: 'male', label: label('Male', 'ذكر') },
-                { value: 'female', label: label('Female', 'أنثى') },
-              ]}
-            />
-          </Box>
-        )}
+        {/* {!initialData && ( */}
+        {/* Gender Dropdown */}
+        <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
+          <AppDropdown
+            label={label('Gender', 'الجنس')}
+            value={values.gender || 'all'}
+            onChange={e =>
+              setFieldValue('gender', String(e.target.value ?? ''))
+            }
+            error={!!errors.gender}
+            helperText={errors.gender}
+            inputBackgroundColor={controlBg}
+            placeholder={label('Select gender', 'اختر الجنس')}
+            sx={dropdownControlSx}
+            options={[
+              { value: 'all', label: label('Select Gender', 'اختر الجنس') },
+              { value: 'male', label: label('Male', 'ذكر') },
+              { value: 'female', label: label('Female', 'أنثى') },
+            ]}
+          />
+        </Box>
+        {/* )} */}
 
         {/* Role Selection */}
         <Box flex={isSm ? '1 1 100%' : '1 1 48%'}>
@@ -859,9 +910,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               ...(roleOptions.length === 0
                 ? []
                 : roleOptions.map(name => ({
-                  value: name,
-                  label: name.charAt(0).toUpperCase() + name.slice(1),
-                }))),
+                    value: name,
+                    label: name.charAt(0).toUpperCase() + name.slice(1),
+                  }))),
             ]}
           />
         </Box>
@@ -940,7 +991,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept='.jpg,.jpeg,.png,.gif,.webp'
                     style={{ display: 'none' }}
                     id='profile-picture-upload'
                     type='file'
@@ -1007,7 +1058,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept='.jpg,.jpeg,.png,.gif,.webp'
                     style={{ display: 'none' }}
                     id='cnic-front-upload'
                     type='file'
@@ -1077,7 +1128,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               endAdornment: (
                 <InputAdornment position='end'>
                   <input
-                    accept='image/*'
+                    accept='.jpg,.jpeg,.png,.gif,.webp'
                     style={{ display: 'none' }}
                     id='cnic-back-upload'
                     type='file'
@@ -1142,241 +1193,252 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
           initialData?.profilePicture ||
           initialData?.cnicFrontPicture ||
           initialData?.cnicBackPicture) && (
-            <Box flex='1 1 100%' sx={{ mt: 2 }}>
-              <Box display='flex' flexWrap='wrap' gap={2} justifyContent='center'>
-                {(values.profilePicture || initialData?.profilePicture) && (
-                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
+          <Box flex='1 1 100%' sx={{ mt: 2 }}>
+            <Box display='flex' flexWrap='wrap' gap={2} justifyContent='center'>
+              {(values.profilePicture || initialData?.profilePicture) && (
+                <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: 150,
+                      height: 150,
+                      mb: 1,
+                    }}
+                  >
                     <Box
+                      component='img'
+                      src={
+                        values.profilePicture
+                          ? URL.createObjectURL(values.profilePicture)
+                          : toAbsoluteUrl(initialData?.profilePicture)
+                      }
+                      alt='Profile Preview'
                       sx={{
-                        position: 'relative',
-                        width: 150,
-                        height: 150,
-                        mb: 1,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          opacity: 0.8,
+                          transform: 'scale(1.05)',
+                          transition: 'all 0.3s ease',
+                        },
                       }}
-                    >
-                      <Box
-                        component='img'
-                        src={
+                      onClick={() =>
+                        handleImagePreviewClick(
                           values.profilePicture
                             ? URL.createObjectURL(values.profilePicture)
-                            : toAbsoluteUrl(initialData?.profilePicture)
+                            : toAbsoluteUrl(initialData?.profilePicture ?? ''),
+                          'Profile Picture'
+                        )
+                      }
+                    />
+                    <IconButton
+                      size='small'
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (values.profilePicture) {
+                          handleClearUploadedPicture('profile');
+                        } else if (initialData?.profilePicture) {
+                          handleDeleteExistingDocument(
+                            'profile',
+                            initialData.profilePicture
+                          );
                         }
-                        alt='Profile Preview'
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: 2,
-                          border: '2px solid',
-                          borderColor: 'primary.main',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            opacity: 0.8,
-                            transform: 'scale(1.05)',
-                            transition: 'all 0.3s ease',
-                          },
-                        }}
-                        onClick={() =>
-                          handleImagePreviewClick(
-                            values.profilePicture
-                              ? URL.createObjectURL(values.profilePicture)
-                              : toAbsoluteUrl(initialData!.profilePicture!),
-                            'Profile Picture'
-                          )
-                        }
-                      />
-                      <IconButton
-                        size='small'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (values.profilePicture) {
-                            handleClearUploadedPicture('profile');
-                          } else if (initialData?.profilePicture) {
-                            handleDeleteExistingDocument('profile', initialData.profilePicture);
-                          }
-                        }}
-                        disabled={deletingType === 'profile'}
-                        sx={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 4,
-                          bgcolor: 'rgba(255, 255, 255, 0.9)',
-                          color: 'error.main',
-                          '&:hover': {
-                            bgcolor: 'rgba(255, 255, 255, 1)',
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                      >
-                        {deletingType === 'profile' ? (
-                          <CircularProgress size={16} color="inherit" />
-                        ) : (
-                          <CloseIcon fontSize="small" />
-                        )}
-                      </IconButton>
-                    </Box>
-                    <Typography variant='caption' sx={{ display: 'block' }}>
-                      {label('Profile Picture', 'الصورة الشخصية')}
-                    </Typography>
-                  </Box>
-                )}
-
-                {(values.cnicFrontPicture || initialData?.cnicFrontPicture) && (
-                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
-                    <Box
+                      }}
+                      disabled={deletingType === 'profile'}
                       sx={{
-                        position: 'relative',
-                        width: 150,
-                        height: 150,
-                        mb: 1,
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        color: 'error.main',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 1)',
+                          transform: 'scale(1.1)',
+                        },
                       }}
                     >
-                      <Box
-                        component='img'
-                        src={
+                      {deletingType === 'profile' ? (
+                        <CircularProgress size={16} color='inherit' />
+                      ) : (
+                        <CloseIcon fontSize='small' />
+                      )}
+                    </IconButton>
+                  </Box>
+                  <Typography variant='caption' sx={{ display: 'block' }}>
+                    {label('Profile Picture', 'الصورة الشخصية')}
+                  </Typography>
+                </Box>
+              )}
+
+              {(values.cnicFrontPicture || initialData?.cnicFrontPicture) && (
+                <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: 150,
+                      height: 150,
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      component='img'
+                      src={
+                        values.cnicFrontPicture
+                          ? URL.createObjectURL(values.cnicFrontPicture)
+                          : toAbsoluteUrl(initialData?.cnicFrontPicture)
+                      }
+                      alt='CNIC Front Preview'
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          opacity: 0.8,
+                          transform: 'scale(1.1)',
+                          transition: 'all 0.3s ease',
+                        },
+                      }}
+                      onClick={() =>
+                        handleImagePreviewClick(
                           values.cnicFrontPicture
                             ? URL.createObjectURL(values.cnicFrontPicture)
-                            : toAbsoluteUrl(initialData?.cnicFrontPicture)
+                            : toAbsoluteUrl(
+                                initialData?.cnicFrontPicture ?? ''
+                              ),
+                          'CNIC Front'
+                        )
+                      }
+                    />
+                    <IconButton
+                      size='small'
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (values.cnicFrontPicture) {
+                          handleClearUploadedPicture('cnicFront');
+                        } else if (initialData?.cnicFrontPicture) {
+                          handleDeleteExistingDocument(
+                            'cnicFront',
+                            initialData.cnicFrontPicture
+                          );
                         }
-                        alt='CNIC Front Preview'
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: 2,
-                          border: '2px solid',
-                          borderColor: 'primary.main',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            opacity: 0.8,
-                            transform: 'scale(1.1)',
-                            transition: 'all 0.3s ease',
-                          },
-                        }}
-                        onClick={() =>
-                          handleImagePreviewClick(
-                            values.cnicFrontPicture
-                              ? URL.createObjectURL(values.cnicFrontPicture)
-                              : toAbsoluteUrl(initialData!.cnicFrontPicture!),
-                            'CNIC Front'
-                          )
-                        }
-                      />
-                      <IconButton
-                        size='small'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (values.cnicFrontPicture) {
-                            handleClearUploadedPicture('cnicFront');
-                          } else if (initialData?.cnicFrontPicture) {
-                            handleDeleteExistingDocument('cnicFront', initialData.cnicFrontPicture);
-                          }
-                        }}
-                        disabled={deletingType === 'cnicFront'}
-                        sx={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 4,
-                          bgcolor: 'rgba(255, 255, 255, 0.9)',
-                          color: 'error.main',
-                          '&:hover': {
-                            bgcolor: 'rgba(255, 255, 255, 1)',
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                      >
-                        {deletingType === 'cnicFront' ? (
-                          <CircularProgress size={16} color="inherit" />
-                        ) : (
-                          <CloseIcon fontSize="small" />
-                        )}
-                      </IconButton>
-                    </Box>
-                    <Typography variant='caption' sx={{ display: 'block' }}>
-                      {label('CNIC Front', 'الوجه الأمامي للهوية')}
-                    </Typography>
-                  </Box>
-                )}
-
-                {(values.cnicBackPicture || initialData?.cnicBackPicture) && (
-                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
-                    <Box
+                      }}
+                      disabled={deletingType === 'cnicFront'}
                       sx={{
-                        position: 'relative',
-                        width: 150,
-                        height: 150,
-                        mb: 1,
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        color: 'error.main',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 1)',
+                          transform: 'scale(1.1)',
+                        },
                       }}
                     >
-                      <Box
-                        component='img'
-                        src={
+                      {deletingType === 'cnicFront' ? (
+                        <CircularProgress size={16} color='inherit' />
+                      ) : (
+                        <CloseIcon fontSize='small' />
+                      )}
+                    </IconButton>
+                  </Box>
+                  <Typography variant='caption' sx={{ display: 'block' }}>
+                    {label('CNIC Front', 'الوجه الأمامي للهوية')}
+                  </Typography>
+                </Box>
+              )}
+
+              {(values.cnicBackPicture || initialData?.cnicBackPicture) && (
+                <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: 150,
+                      height: 150,
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      component='img'
+                      src={
+                        values.cnicBackPicture
+                          ? URL.createObjectURL(values.cnicBackPicture)
+                          : toAbsoluteUrl(initialData?.cnicBackPicture)
+                      }
+                      alt='CNIC Back Preview'
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          opacity: 0.8,
+                          transform: 'scale(1.1)',
+                          transition: 'all 0.3s ease',
+                        },
+                      }}
+                      onClick={() =>
+                        handleImagePreviewClick(
                           values.cnicBackPicture
                             ? URL.createObjectURL(values.cnicBackPicture)
-                            : toAbsoluteUrl(initialData?.cnicBackPicture)
+                            : toAbsoluteUrl(initialData?.cnicBackPicture ?? ''),
+                          'CNIC Back'
+                        )
+                      }
+                    />
+                    <IconButton
+                      size='small'
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (values.cnicBackPicture) {
+                          handleClearUploadedPicture('cnicBack');
+                        } else if (initialData?.cnicBackPicture) {
+                          handleDeleteExistingDocument(
+                            'cnicBack',
+                            initialData.cnicBackPicture
+                          );
                         }
-                        alt='CNIC Back Preview'
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: 2,
-                          border: '2px solid',
-                          borderColor: 'primary.main',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            opacity: 0.8,
-                            transform: 'scale(1.1)',
-                            transition: 'all 0.3s ease',
-                          },
-                        }}
-                        onClick={() =>
-                          handleImagePreviewClick(
-                            values.cnicBackPicture
-                              ? URL.createObjectURL(values.cnicBackPicture)
-                              : toAbsoluteUrl(initialData!.cnicBackPicture!),
-                            'CNIC Back'
-                          )
-                        }
-                      />
-                      <IconButton
-                        size='small'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (values.cnicBackPicture) {
-                            handleClearUploadedPicture('cnicBack');
-                          } else if (initialData?.cnicBackPicture) {
-                            handleDeleteExistingDocument('cnicBack', initialData.cnicBackPicture);
-                          }
-                        }}
-                        disabled={deletingType === 'cnicBack'}
-                        sx={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 4,
-                          bgcolor: 'rgba(255, 255, 255, 0.9)',
-                          color: 'error.main',
-                          '&:hover': {
-                            bgcolor: 'rgba(255, 255, 255, 1)',
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                      >
-                        {deletingType === 'cnicBack' ? (
-                          <CircularProgress size={16} color="inherit" />
-                        ) : (
-                          <CloseIcon fontSize="small" />
-                        )}
-                      </IconButton>
-                    </Box>
-                    <Typography variant='caption' sx={{ display: 'block' }}>
-                      {label('CNIC Back', 'الوجه الخلفي للهوية')}
-                    </Typography>
+                      }}
+                      disabled={deletingType === 'cnicBack'}
+                      sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        color: 'error.main',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 1)',
+                          transform: 'scale(1.1)',
+                        },
+                      }}
+                    >
+                      {deletingType === 'cnicBack' ? (
+                        <CircularProgress size={16} color='inherit' />
+                      ) : (
+                        <CloseIcon fontSize='small' />
+                      )}
+                    </IconButton>
                   </Box>
-                )}
-              </Box>
+                  <Typography variant='caption' sx={{ display: 'block' }}>
+                    {label('CNIC Back', 'الوجه الخلفي للهوية')}
+                  </Typography>
+                </Box>
+              )}
             </Box>
-          )}
+          </Box>
+        )}
 
         {/* Password reset info - show only on create (no initialData) */}
         {!initialData && (
@@ -1418,7 +1480,8 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                     width: 16,
                     height: 16,
                     borderRadius: '50%',
-                    border: '2px solid #ffffff',
+                    border: '2px solid',
+                    borderColor: 'common.white',
                     borderTop: '2px solid transparent',
                     animation: 'spin 1s linear infinite',
                     '@keyframes spin': {
@@ -1447,29 +1510,29 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
             text={
               submitting
                 ? label(
-                  initialData
-                    ? 'Updating...'
-                    : values.role === 'manager'
-                      ? 'Adding Manager...'
-                      : 'Adding Employee...',
-                  initialData
-                    ? 'جاري التحديث...'
-                    : values.role === 'manager'
-                      ? 'جاري إضافة المدير...'
-                      : 'جاري إضافة الموظف...'
-                )
+                    initialData
+                      ? 'Updating...'
+                      : values.role === ROLES.MANAGER
+                        ? 'Adding Manager...'
+                        : 'Adding Employee...',
+                    initialData
+                      ? 'جاري التحديث...'
+                      : values.role === ROLES.MANAGER
+                        ? 'جاري إضافة المدير...'
+                        : 'جاري إضافة الموظف...'
+                  )
                 : label(
-                  initialData
-                    ? 'Update Employee'
-                    : values.role === 'manager'
-                      ? 'Add Manager'
-                      : 'Add Employee',
-                  initialData
-                    ? 'تحديث الموظف'
-                    : values.role === 'manager'
-                      ? 'إضافة مدير'
-                      : 'إضافة موظف'
-                )
+                    initialData
+                      ? 'Update Employee'
+                      : values.role === ROLES.MANAGER
+                        ? 'Add Manager'
+                        : 'Add Employee',
+                    initialData
+                      ? 'تحديث الموظف'
+                      : values.role === ROLES.MANAGER
+                        ? 'إضافة مدير'
+                        : 'إضافة موظف'
+                  )
             }
           />
         </Box>

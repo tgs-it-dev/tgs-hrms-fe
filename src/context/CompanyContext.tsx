@@ -7,7 +7,8 @@ import React, {
   type ReactNode,
 } from 'react';
 import companyApi, { type CompanyDetails } from '../api/companyApi';
-interface CompanyContextType {
+
+export interface CompanyContextType {
   companyDetails: CompanyDetails | null;
   companyName: string;
   companyLogo: string | null;
@@ -30,8 +31,8 @@ export const CompanyProvider: React.FC<{ children: ReactNode }> = ({
       setCompanyDetails(details);
       const tenantId = details.tenant_id;
       setCompanyLogo(details.logo_url);
-        const logoUrl = await companyApi.getCompanyLogo(tenantId);
-        setCompanyLogo(logoUrl);
+      const logoUrl = await companyApi.getCompanyLogo(tenantId);
+      setCompanyLogo(logoUrl);
     } catch {
       // Leave company context empty on failure; UI can handle missing branding
     }

@@ -12,14 +12,18 @@ import {
   DialogActions,
   Paper,
   Fade,
+  useTheme,
 } from '@mui/material';
+import { colorTokens } from '../../theme';
 import { PhotoCamera, Delete, Close, Edit } from '@mui/icons-material';
-import { profileApiService, type UserProfile } from '../../api/profileApi';
+import profileApiService from '../../api/profileApi';
+import type { UserProfile } from '../../types/user';
 import { useUser } from '../../hooks/useUser';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from './ErrorSnackbar';
 import AppButton from './AppButton';
+import { appConfig } from '../../config/appConfig';
 
 interface ProfilePictureUploadProps {
   user: UserProfile;
@@ -55,50 +59,30 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
     onRemoveSelected,
     suppressExistingImage = false,
   }) => {
+    const theme = useTheme();
     const { updateUser } = useUser();
-    const { snackbar, showSuccess, showError, closeSnackbar } = useErrorHandler();
+    const { snackbar, showSuccess, showError, closeSnackbar } =
+      useErrorHandler();
     const { updateProfilePicture, clearProfilePicture } = useProfilePicture();
     const [uploading, setUploading] = useState(false);
     const [removing, setRemoving] = useState(false);
     const [showUploadDialog, setShowUploadDialog] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const API_BASE_URL = appConfig.api.baseUrl;
 
     const getInitials = (first: string, last: string): string => {
       return `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
     };
 
     const generateAvatarColor = (name: string): string => {
-      const colors = [
-        '#f44336',
-        '#e91e63',
-        '#6054f4',
-        '#673ab7',
-        '#3f51b5',
-        '#2196f3',
-        '#03a9f4',
-        '#00bcd4',
-        '#009688',
-        '#4caf50',
-        '#8bc34a',
-        '#cddc39',
-        '#ffeb3b',
-        '#ffc107',
-        '#ff9800',
-        '#ff5722',
-        '#795548',
-        '#9e9e9e',
-        '#607d8b',
-      ];
-      const index = name.charCodeAt(0) % colors.length;
-      return colors[index];
+      const index = name.charCodeAt(0) % colorTokens.avatar.length;
+      return colorTokens.avatar[index];
     };
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +93,9 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
       if (!validTypes.includes(file.type)) {
         setError('Please select a valid image file (JPG, PNG, or GIF)');
-        showError(new Error('Please select a valid image file (JPG, PNG, or GIF)'));
+        showError(
+          new Error('Please select a valid image file (JPG, PNG, or GIF)')
+        );
         return;
       }
 
@@ -169,8 +155,6 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
         );
 
         // Update profile picture context with the full API URL
-        const API_BASE_URL =
-          import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
         const profilePicUrl = response.user.profile_pic
           ? `${API_BASE_URL}/users/${correctUserId}/profile-picture?t=${Date.now()}`
           : null;
@@ -252,6 +236,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       } finally {
         setRemoving(false);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- showError is stable; intentionally excluded to avoid spurious re-renders
     }, [
       clearProfilePicture,
       deferDelete,
@@ -259,7 +244,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
       onPictureChanged,
       updateUser,
       user,
-    ]); // ✅ Removed refreshUser from dependencies
+    ]);
 
     const handleAvatarClick = useCallback(() => {
       if (clickable && showUploadButton) {
@@ -274,7 +259,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
         fontSize: `${size * 0.4}px`,
         cursor: clickable ? 'pointer' : 'default',
         backgroundColor: imgError
-          ? '#9e9e9e'
+          ? theme.palette.text.secondary
           : user.profile_pic
             ? 'transparent'
             : generateAvatarColor(user.first_name),
@@ -290,7 +275,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
             }
           : {},
       }),
-      [size, clickable, user.profile_pic, user.first_name, imgError]
+      [size, clickable, user.profile_pic, user.first_name, imgError, theme]
     );
 
     const { profilePictureUrl } = useProfilePicture();
@@ -444,13 +429,13 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
                     position: 'absolute',
                     top: 5,
                     right: -10,
-                    backgroundColor: '#f44336',
-                    color: 'white',
+                    backgroundColor: 'error.main',
+                    color: 'common.white',
                     width: 28,
                     height: 28,
                     boxShadow: '0 2px 8px rgba(244, 67, 54, 0.3)',
                     '&:hover': {
-                      backgroundColor: '#d32f2f',
+                      backgroundColor: 'error.dark',
                       transform: 'scale(1.1)',
                     },
                     transition: 'all 0.2s ease-in-out',
@@ -520,7 +505,9 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              borderBottom: '1px solid #e0e0e0',
+              borderBottomWidth: '1px',
+              borderBottomStyle: 'solid',
+              borderBottomColor: 'divider',
               pb: 2,
             }}
           >
@@ -552,7 +539,9 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
                       height: 120,
                       mx: 'auto',
                       mb: 2,
-                      border: '3px solid #e0e0e0',
+                      borderWidth: '3px',
+                      borderStyle: 'solid',
+                      borderColor: 'divider',
                     }}
                   >
                     <img
@@ -612,7 +601,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = React.memo(
               variantType='primary'
               disabled={Boolean(
                 uploading ||
-                  (selectedFile && selectedFile.size > 5 * 1024 * 1024)
+                (selectedFile && selectedFile.size > 5 * 1024 * 1024)
               )}
               startIcon={uploading ? <CircularProgress size={16} /> : null}
             >

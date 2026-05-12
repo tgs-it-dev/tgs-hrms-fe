@@ -59,7 +59,7 @@ const SystemUptimeCard: React.FC<SystemUptimeCardProps> = ({
         dynamicAnimation: { enabled: true, speed: 350 },
       },
     },
-    colors: ['#4CAF50'],
+    colors: [theme.palette.success.main],
     plotOptions: {
       radialBar: {
         hollow: { size: '70%' },
@@ -118,7 +118,7 @@ const SystemUptimeCard: React.FC<SystemUptimeCardProps> = ({
             left: '50%',
             transform: 'translate(-50%, -50%)',
             fontSize: 42,
-            color: '#4CAF50',
+            color: theme.palette.success.main,
           }}
         />
       </Box>

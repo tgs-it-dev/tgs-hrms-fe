@@ -8,9 +8,10 @@ import {
   Collapse,
   useTheme as useMuiTheme,
 } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../theme/hooks';
 import {
   isMenuVisibleForRole,
@@ -21,7 +22,7 @@ import {
   getRoleName,
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
-import { isUser as isEmployeeUser } from '../../utils/auth';
+import { translations } from '../../utils/i18n';
 import { Icons } from '../../assets/icons';
 import {
   Apps,
@@ -39,9 +40,12 @@ import {
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
 
+type SidebarKey = keyof typeof translations.sidebar;
+
 interface SubItem {
   label: string;
   path: string;
+  i18nKey?: SidebarKey;
 }
 interface MenuItem {
   label: string;
@@ -49,6 +53,7 @@ interface MenuItem {
   iconFill?: string | React.ReactNode;
   path?: string;
   subItems?: SubItem[];
+  i18nKey?: SidebarKey;
 }
 
 type IconSize =
@@ -185,163 +190,176 @@ interface SidebarProps {
 const menuItems: MenuItem[] = [
   {
     label: 'Dashboard',
+    i18nKey: 'dashboard',
     icon: Icons.dashboard,
     iconFill: Icons.dashboardFill,
-    subItems: [{ label: 'Dashboard', path: '' }],
+    subItems: [{ label: 'Dashboard', i18nKey: 'dashboard', path: '' }],
   },
   {
     label: 'Announcements',
+    i18nKey: 'announcements',
     icon: <Campaign />,
-    subItems: [{ label: 'Announcements', path: 'announcements' }],
+    subItems: [
+      {
+        label: 'Announcements',
+        i18nKey: 'announcements',
+        path: 'announcements',
+      },
+    ],
   },
   {
     label: 'Projects',
+    i18nKey: 'projects',
     icon: <BusinessCenter />,
     subItems: [
-      { label: 'Project List', path: 'project-list' },
-      { label: 'Add Project', path: 'add-project' },
+      { label: 'Project List', i18nKey: 'projectList', path: 'project-list' },
+      { label: 'Add Project', i18nKey: 'addProject', path: 'add-project' },
     ],
   },
   {
     label: 'Tenant',
+    i18nKey: 'tenant',
     icon: <ConfirmationNumber />,
-    subItems: [{ label: 'Add Tenant', path: 'tenant' }],
+    subItems: [{ label: 'Add Tenant', i18nKey: 'addTenant', path: 'tenant' }],
   },
   {
     label: 'Department',
+    i18nKey: 'department',
     icon: Icons.department,
     iconFill: Icons.departmentFill,
     subItems: [
-      { label: 'Department List', path: 'departments' },
-      { label: 'Designation', path: 'Designations' },
-      { label: 'User List', path: 'UserList' },
-      { label: 'Policies', path: 'policies' },
-      { label: 'Holidays', path: 'holidays' },
+      {
+        label: 'Department List',
+        i18nKey: 'departmentList',
+        path: 'departments',
+      },
+      { label: 'Designation', i18nKey: 'designation', path: 'designations' },
+      { label: 'User List', i18nKey: 'userList', path: 'user-list' },
+      { label: 'Policies', i18nKey: 'policies', path: 'policies' },
+      { label: 'Holidays', i18nKey: 'holidays', path: 'holidays' },
     ],
   },
   {
     label: 'Employees',
+    i18nKey: 'employees',
     icon: Icons.employee,
     iconFill: Icons.employeeFill,
     subItems: [
-      { label: 'Employee List', path: 'EmployeeManager' },
-      { label: 'Tenant Employees', path: 'TenantEmployees' },
+      {
+        label: 'Employee List',
+        i18nKey: 'employeeList',
+        path: 'employee-manager',
+      },
+      {
+        label: 'Tenant Employees',
+        i18nKey: 'tenantEmployees',
+        path: 'tenant-employees',
+      },
     ],
   },
   {
     label: 'Teams',
+    i18nKey: 'teams',
     icon: Icons.teams,
     iconFill: Icons.teamsFill,
     subItems: [
-      { label: 'Team Management', path: 'teams' },
-      { label: 'Manager Tasks', path: 'manager-tasks' },
-      { label: 'My Tasks', path: 'my-tasks' },
+      { label: 'Team Management', i18nKey: 'teamManagement', path: 'teams' },
     ],
   },
   {
     label: 'Attendance',
+    i18nKey: 'attendance',
     icon: Icons.attendance,
     iconFill: Icons.attendanceFill,
     subItems: [
-      { label: 'Geofencing', path: 'geofencing' },
-      { label: 'Attendance', path: 'AttendanceCheck' },
-      { label: 'Daily Attendance', path: 'AttendanceTable' },
-      { label: 'Report', path: 'attendance-summary' },
-      { label: 'Leave Request', path: 'leaves' },
+      { label: 'Geofencing', i18nKey: 'geofencing', path: 'geofencing' },
+      { label: 'Attendance', i18nKey: 'attendance', path: 'attendance-check' },
+      {
+        label: 'Daily Attendance',
+        i18nKey: 'dailyAttendance',
+        path: 'attendance-table',
+      },
+      { label: 'Report', i18nKey: 'report', path: 'attendance-summary' },
+      { label: 'Leave Request', i18nKey: 'leaveRequest', path: 'leaves' },
     ],
   },
   {
     label: 'Leave Analytics',
+    i18nKey: 'leaveAnalytics',
     icon: Icons.leaveAnalytics,
     iconFill: Icons.leaveAnalyticsFill,
     subItems: [
-      { label: 'Reports', path: 'Reports' },
-      { label: 'Cross Tenant Leaves', path: 'cross-tenant-leaves' },
-    ],
-  },
-  {
-    label: 'Benefits',
-    icon: Icons.benefits,
-    iconFill: Icons.benefitsFill,
-    subItems: [
-      { label: 'Benefits List', path: 'benefits-list' },
-      { label: 'Employee Benefits', path: 'employee-benefit' },
-      { label: 'Benefit Details', path: 'benefit-details' },
-      { label: 'Benefits Report', path: 'benefit-report' },
+      { label: 'Reports', i18nKey: 'reports', path: 'reports' },
+      {
+        label: 'Cross Tenant Leaves',
+        i18nKey: 'crossTenantLeaves',
+        path: 'cross-tenant-leaves',
+      },
     ],
   },
   {
     label: 'Performance',
+    i18nKey: 'performance',
     icon: <Insights />,
     subItems: [
-      { label: 'Employee Performance', path: 'performance-dashboard' },
+      {
+        label: 'Employee Performance',
+        i18nKey: 'employeePerformance',
+        path: 'performance-dashboard',
+      },
     ],
   },
   {
     label: 'Accounts',
+    i18nKey: 'accounts',
     icon: <Receipt />,
     subItems: [
-      { label: 'Invoice', path: 'invoice' },
-      { label: 'Payments', path: 'payments' },
-    ],
-  },
-  {
-    label: 'Payroll',
-    icon: Icons.payroll,
-    iconFill: Icons.payrollFill,
-    subItems: [
-      { label: 'Payroll Configuration', path: 'payroll-configuration' },
-      { label: 'Employee Salary', path: 'employee-salary' },
-      { label: 'Payroll Records', path: 'payroll-records' },
-      { label: 'Payroll Reports', path: 'payroll-reports' },
-      { label: 'My Salary', path: 'my-salary' },
-    ],
-  },
-  {
-    label: 'Recruitment',
-    icon: <BusinessCenter />,
-    subItems: [
-      { label: 'Job Requisitions', path: 'job-requisitions' },
+      { label: 'Invoice', i18nKey: 'invoice', path: 'invoice' },
+      { label: 'Payments', i18nKey: 'payments', path: 'payments' },
     ],
   },
   {
     label: 'Audit Logs',
+    i18nKey: 'auditLogs',
     icon: <History />,
-    subItems: [{ label: 'Audit Logs', path: 'audit-logs' }],
+    subItems: [
+      { label: 'Audit Logs', i18nKey: 'auditLogs', path: 'audit-logs' },
+    ],
   },
   {
     label: 'App',
+    i18nKey: 'app',
     icon: <Apps />,
     subItems: [
-      { label: 'Chat', path: 'chat' },
-      { label: 'Calendar', path: 'calendar' },
+      { label: 'Chat', i18nKey: 'chat', path: 'chat' },
+      { label: 'Calendar', i18nKey: 'calendar', path: 'calendar' },
     ],
   },
   {
     label: 'Other Pages',
+    i18nKey: 'otherPages',
     icon: <Code />,
     subItems: [
-      { label: 'Login', path: 'login' },
-      { label: 'Register', path: 'register' },
-      { label: 'Error', path: 'error' },
+      { label: 'Login', i18nKey: 'login', path: 'login' },
+      { label: 'Register', i18nKey: 'register', path: 'register' },
+      { label: 'Error', i18nKey: 'error', path: 'error' },
     ],
   },
   {
     label: 'UI Components',
+    i18nKey: 'uiComponents',
     icon: <Widgets />,
     subItems: [
-      { label: 'Buttons', path: 'buttons' },
-      { label: 'Cards', path: 'cards' },
-      { label: 'Modals', path: 'modals' },
+      { label: 'Buttons', i18nKey: 'buttons', path: 'buttons' },
+      { label: 'Cards', i18nKey: 'cards', path: 'cards' },
+      { label: 'Modals', i18nKey: 'modals', path: 'modals' },
     ],
   },
 ];
 
 const menuLabelToFeature: Partial<Record<string, FeatureKey>> = {
-  Payroll: 'payroll',
   Attendance: 'attendance',
   'Leave Analytics': 'leaveAnalytics',
-  Benefits: 'benefits',
   Performance: 'performance',
   Recruitment: 'recruitment',
   Announcements: 'announcements',
@@ -365,10 +383,24 @@ export default function Sidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser();
+  const { language } = useLanguage();
+  const isRtl = language === 'ar';
+
+  const translateLabel = useCallback(
+    (key: SidebarKey | undefined, fallback = ''): string => {
+      if (!key) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[Sidebar] Missing i18nKey, falling back to: "${fallback}"`
+          );
+        }
+        return fallback;
+      }
+      return translations.sidebar[key][isRtl ? 'ar' : 'en'];
+    },
+    [isRtl]
+  );
   const role = user?.role;
-  const userRoleName = getRoleName(role).toLowerCase();
-  const isEmployee =
-    userRoleName === 'user' || userRoleName === 'employee' || isEmployeeUser();
 
   const handleLogout = () => {
     clearAuthData();
@@ -407,50 +439,28 @@ export default function Sidebar({
           return isSubVisible;
         }),
       }));
-    // If the signed-in user is a plain employee, show a simplified Teams menu
-    // labeled as "My Tasks" (this places quick access to their tasks)
-    if (isEmployee) {
-      return filtered.map(item => {
-        if (item.label === 'Teams') {
-          return {
-            ...item,
-            label: 'My Tasks',
-            subItems: [{ label: 'My Tasks', path: 'my-tasks' }],
-          } as MenuItem;
-        }
-        return item;
-      });
-    }
-
-    // For system admins, keep the menu structure but hide the visible label
-    // for the Manager Tasks subitem (show icon/navigation only).
     if (isSystemAdmin) {
       const withFeatureManagement: MenuItem[] = [
         ...filtered,
         {
           label: 'Feature Management',
+          i18nKey: 'featureManagement',
           icon: <Apps />,
           subItems: [
-            { label: 'Feature Management', path: 'feature-management' },
+            {
+              label: 'Feature Management',
+              i18nKey: 'featureManagement',
+              path: 'feature-management',
+            },
           ],
         },
       ];
 
-      return withFeatureManagement.map(item => {
-        if (item.label === 'Teams') {
-          return {
-            ...item,
-            subItems: (item.subItems || []).map(sub =>
-              sub.path === 'manager-tasks' ? { ...sub, label: '' } : sub
-            ),
-          } as MenuItem;
-        }
-        return item;
-      });
+      return withFeatureManagement;
     }
 
     return filtered;
-  }, [role, isEmployee, isFeatureEnabled]);
+  }, [role, isFeatureEnabled]);
 
   useEffect(() => {
     let currentPath = location.pathname.replace('/dashboard/', '');
@@ -486,6 +496,9 @@ export default function Sidebar({
 
   return (
     <Box
+      component='nav'
+      role='navigation'
+      aria-label='Main navigation'
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
@@ -554,8 +567,8 @@ export default function Sidebar({
       >
         <List>
           {filteredMenuItems.map(item => {
-            const visibleSubItems = (item.subItems || []).filter(sub =>
-              !!(sub.label && String(sub.label).trim())
+            const visibleSubItems = (item.subItems || []).filter(
+              sub => !!(sub.label && String(sub.label).trim())
             );
             const hasSubMenu = visibleSubItems.length > 1;
             const isSingleSubItem = visibleSubItems.length === 1;
@@ -568,6 +581,9 @@ export default function Sidebar({
             const directLabel = isSingleSubItem
               ? visibleSubItems[0].label
               : item.label;
+            const directI18nKey = isSingleSubItem
+              ? visibleSubItems[0].i18nKey
+              : item.i18nKey;
 
             // Match current route for highlight (same logic as useEffect)
             const currentPath =
@@ -584,6 +600,7 @@ export default function Sidebar({
                   <ListItemButton
                     component={NavLink}
                     to={`/dashboard/${directPath}`}
+                    aria-current={isDirectLinkActive ? 'page' : undefined}
                     onClick={() => {
                       setOpenItem(item.label);
                       setActiveSubItem(isSingleSubItem ? directLabel : '');
@@ -602,7 +619,7 @@ export default function Sidebar({
                       backgroundColor: isDirectLinkActive
                         ? theme.palette.mode === 'dark'
                           ? theme.palette.action.selected
-                          : '#efefef'
+                          : theme.palette.background.default
                         : 'transparent',
                       borderRadius: isDirectLinkActive
                         ? 'var(--border-radius-lg)'
@@ -631,7 +648,7 @@ export default function Sidebar({
                       />
                     </ListItemIcon>
                     <ListItemText
-                      primary={directLabel}
+                      primary={translateLabel(directI18nKey, directLabel)}
                       primaryTypographyProps={{
                         fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                         fontWeight: isDirectLinkActive ? 600 : 400,
@@ -662,7 +679,7 @@ export default function Sidebar({
                         backgroundColor: isParentActive
                           ? theme.palette.mode === 'dark'
                             ? theme.palette.action.selected
-                            : '#efefef'
+                            : theme.palette.background.default
                           : 'transparent',
                         borderRadius: isParentActive
                           ? 'var(--border-radius-lg)'
@@ -674,9 +691,9 @@ export default function Sidebar({
                         //   borderRadius: 'var(--border-radius-lg)',
                         // },
                       }}
-                      aria-label={`${item.label} menu`}
+                      aria-label={`${translateLabel(item.i18nKey, item.label)} menu`}
                       aria-expanded={isParentActive}
-                      aria-controls={`${item.label}-submenu`}
+                      aria-controls={`${item.i18nKey ?? item.label}-submenu`}
                     >
                       <ListItemIcon
                         sx={{
@@ -695,7 +712,7 @@ export default function Sidebar({
                         />
                       </ListItemIcon>
                       <ListItemText
-                        primary={item.label}
+                        primary={translateLabel(item.i18nKey, item.label)}
                         primaryTypographyProps={{
                           fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
                           fontWeight: isParentActive ? 600 : 400,
@@ -731,7 +748,7 @@ export default function Sidebar({
                       in={isParentActive}
                       timeout='auto'
                       unmountOnExit
-                      id={`${item.label}-submenu`}
+                      id={`${item.i18nKey ?? item.label}-submenu`}
                     >
                       <List component='div' disablePadding role='menu'>
                         {item.subItems
@@ -743,6 +760,9 @@ export default function Sidebar({
                               key={sub.path}
                               component={NavLink}
                               to={`/dashboard/${sub.path}`}
+                              aria-current={
+                                activeSubItem === sub.label ? 'page' : undefined
+                              }
                               onClick={() =>
                                 handleSubItemClick(item.label, sub.label)
                               }
@@ -765,10 +785,10 @@ export default function Sidebar({
                                 // },
                               }}
                               role='menuitem'
-                              aria-label={`Navigate to ${sub.label}`}
+                              aria-label={`${translateLabel('navigateTo')} ${translateLabel(sub.i18nKey, sub.label)}`}
                             >
                               <ListItemText
-                                primary={sub.label}
+                                primary={translateLabel(sub.i18nKey, sub.label)}
                                 primaryTypographyProps={{
                                   fontSize: {
                                     xs: '14px',
@@ -814,7 +834,7 @@ export default function Sidebar({
               cursor: 'pointer',
             }}
           >
-            Dark Mode
+            {translateLabel('darkMode')}
           </Typography>
           <Box
             component='button'
@@ -849,7 +869,7 @@ export default function Sidebar({
                 borderRadius: '12px',
                 backgroundColor: darkMode
                   ? 'var(--primary-dark-color)'
-                  : '#bdbdbd',
+                  : 'grey.400',
                 transition: 'background-color 300ms ease',
               }}
             />
@@ -906,7 +926,7 @@ export default function Sidebar({
             />
           </ListItemIcon>
           <ListItemText
-            primary='Log out'
+            primary={translateLabel('logout')}
             primaryTypographyProps={{
               fontSize: { xs: '14px', lg: 'var(--body-font-size)' },
               fontWeight: 500,
