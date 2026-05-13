@@ -1,11 +1,18 @@
 import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Typography,
+  useTheme,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import AppFormModal from '../common/AppFormModal';
 import AppInputField from '../common/AppInputField';
 import AppDropdown from '../common/AppDropdown';
 import AppButton from '../common/AppButton';
 import { validateEmailAddress } from '../../utils/validation';
+import { submitBookDemo } from '../../api/bookDemoApi';
 
 type BookDemoModalProps = {
   open: boolean;
@@ -34,6 +41,8 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
     companyName?: string;
     teamSize?: string;
   }>({});
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   const reset = React.useCallback(() => {
     setFullName('');
@@ -41,6 +50,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
     setCompanyName('');
     setTeamSize('');
     setErrors({});
+    setSubmitError(null);
   }, []);
 
   const handleClose = React.useCallback(() => {
@@ -48,7 +58,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
     reset();
   }, [onClose, reset]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const nextErrors: typeof errors = {};
 
     if (!fullName.trim() || fullName.trim().length < 2) {
@@ -73,7 +83,19 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
       return;
     }
 
-    handleClose();
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await submitBookDemo({ fullName, workEmail, companyName, teamSize });
+      handleClose();
+    } catch {
+      setSubmitError(
+        'Something went wrong. Please try again or contact support.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -109,6 +131,12 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
           See Workonnect.ai in action. A 30-minute walkthrough built around your
           team&apos;s needs.
         </Typography>
+
+        {submitError && (
+          <Alert severity='error' sx={{ mt: 2 }}>
+            {submitError}
+          </Alert>
+        )}
 
         <Box
           sx={{
@@ -189,7 +217,7 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             fullWidth
             variant='contained'
             onClick={handleSubmit}
-            disabled={hasErrors}
+            disabled={hasErrors || isSubmitting}
             sx={{
               backgroundColor: 'text.primary',
               borderRadius: '999px',
@@ -203,7 +231,11 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
               },
             }}
           >
-            Book a Demo
+            {isSubmitting ? (
+              <CircularProgress size={20} sx={{ color: 'common.white' }} />
+            ) : (
+              'Book a Demo'
+            )}
           </AppButton>
           <Typography
             sx={{
