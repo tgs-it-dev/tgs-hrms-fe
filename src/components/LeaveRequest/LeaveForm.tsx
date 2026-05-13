@@ -11,7 +11,7 @@ import AppTextarea from '../common/AppTextarea';
 import DocumentUpload from '../common/DocumentUpload';
 import { leaveApi, type LeaveType } from '../../api/leaveApi';
 import AppPageTitle from '../common/AppPageTitle';
-import type { Leave } from '../../type/levetypes';
+import type { Leave } from '../../types/leave';
 
 interface LeaveFormProps {
   /** create | edit */
@@ -91,13 +91,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     };
 
     fetchLeaveTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onError is a callback prop; intentionally excluded to avoid re-fetching
   }, []);
-
-  const getToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  };
 
   const formatDate = (date: Date) => {
     const y = date.getFullYear();
@@ -122,8 +117,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
     }
   };
 
-
-
   /* ------------------ SUBMIT ------------------ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +132,18 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate && startDate < today) {
+      onError?.('Start date cannot be in the past');
+      return;
+    }
+
+    if (reason.trim().length < 10) {
+      onError?.('Reason must be at least 10 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -146,49 +151,47 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
       if (mode === 'edit' && leaveId && initialData) {
         const payload: Record<string, unknown> = {};
 
+        // 1. Basic Field Comparisons
         if (leaveTypeId !== initialData.leaveTypeId)
           payload.leaveTypeId = leaveTypeId;
-
         if (formatDate(startDate) !== initialData.startDate)
           payload.startDate = formatDate(startDate);
-
         if (formatDate(endDate) !== initialData.endDate)
           payload.endDate = formatDate(endDate);
-
         if (reason.trim() !== initialData.reason)
           payload.reason = reason.trim();
 
-        // Handle removed documents explicitly
-        if (documentsToRemove.length > 0) {
-          try {
-            await Promise.all(
-              documentsToRemove.map(doc => leaveApi.deleteDocument(leaveId, doc))
-            );
-          } catch (error) {
-            console.error('Failed to delete some documents', error);
-            // We continue even if delete fails, implicitly relying on backend or user creates another request?
-            // Ideally we should warn, but for now we proceed.
+        // 2. Sequential Deletion
+        const docsDeletedCount = documentsToRemove.length;
+        if (docsDeletedCount > 0) {
+          for (const doc of documentsToRemove) {
+            try {
+              await leaveApi.deleteDocument(leaveId, doc);
+            } catch (_error) {
+              onError?.(`Failed to delete document: ${doc}`);
+            }
           }
+          // Clear so we don't re-delete if user hits Save twice
+          setDocumentsToRemove([]);
         }
 
-        const hasNewDocuments = documents.length > 0;
-
-        if (hasNewDocuments) {
-          // Send new documents
+        // 3. New Document Handling
+        if (documents.length > 0) {
           payload.documents = documents;
         }
 
+        // 4. Final Update call
         const updatesAvailable = Object.keys(payload).length > 0;
-        const removalsProcessed = documentsToRemove.length > 0;
-
-        if (!updatesAvailable && !removalsProcessed) {
-          onError?.('No changes to update.');
-          return;
-        }
 
         if (updatesAvailable) {
           await leaveApi.updateLeave(leaveId, payload);
+        } else if (docsDeletedCount === 0) {
+          // Only show "no changes" when truly nothing changed (captures count before clearing)
+          onError?.('No changes to update.');
+          setLoading(false);
+          return;
         }
+
         onSuccess?.();
         return;
       }
@@ -280,6 +283,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
         <DatePicker
           label='Start Date'
           value={startDate}
+          minDate={new Date()}
           onChange={newValue => {
             if (newValue instanceof Date) {
               setStartDate(newValue);
@@ -305,7 +309,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             },
             desktopPaper: {
               sx: {
-                backgroundColor: '#FFFFFF', // popup background
+                backgroundColor: 'background.paper',
               },
             },
             popper: {
@@ -318,13 +322,14 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
+                  // !important needed to override MUI Picks specificity; value === common.white
+                  color: '#ffffff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',
@@ -359,7 +364,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
               },
             },
             desktopPaper: {
-              sx: { backgroundColor: '#FFFFFF' },
+              sx: { backgroundColor: 'background.paper' },
             },
             popper: {
               sx: { '& .MuiPaper-root': { borderRadius: '12px' } },
@@ -367,13 +372,14 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             day: {
               sx: {
                 '&.MuiPickersDay-root.Mui-selected, &.MuiPickersDay-root.Mui-selected:hover':
-                {
-                  backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
-                },
+                  {
+                    backgroundColor: 'var(--primary-dark-color) !important',
+                    color: 'common.white', // selected day — MUI applies its own selected styles, no specificity conflict
+                  },
                 '&.MuiPickersDay-root.MuiPickersDay-today:not(.Mui-selected)': {
                   backgroundColor: 'var(--primary-dark-color) !important',
-                  color: '#FFFFFF !important',
+                  // !important needed to override MUI Picks specificity; value === common.white
+                  color: '#ffffff !important',
                 },
                 '&.MuiPickersDay-root.MuiPickersDay-today': {
                   borderColor: 'var(--primary-dark-color) !important',
@@ -398,7 +404,6 @@ const LeaveForm: React.FC<LeaveFormProps> = ({
             newDocuments={documents}
             onDocumentsChange={handleDocumentsChange}
             onDocumentRemove={handleDocumentRemove}
-
             multiple
             accept='image/*'
           />

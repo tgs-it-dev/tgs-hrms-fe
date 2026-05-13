@@ -1,18 +1,8 @@
 import { AxiosError } from 'axios';
 import axiosInstance from './axiosInstance';
+import type { UserProfile } from '../types/user';
 
-export interface UserProfile {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  profile_pic?: string | null;
-  role: string;
-  tenant: string;
-  created_at: string;
-  updated_at: string;
-}
+export type { UserProfile } from '../types/user';
 
 export interface ProfilePictureResponse {
   message: string;
@@ -50,12 +40,7 @@ class ProfileApiService {
 
       const response = await axiosInstance.post<ProfilePictureResponse>(
         `/users/${authenticatedUserId}/profile-picture`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return response.data;
     } catch (err) {

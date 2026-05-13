@@ -5,9 +5,9 @@ import { useOutletContext } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import systemEmployeeApiService from '../../api/systemEmployeeApi';
 import systemDashboardApiService from '../../api/systemDashboardApi';
-import { getCurrentUser } from '../../utils/auth';
 import { getStoredUser, getTenantIdFromUser } from '../../utils/authSession';
 import { isSystemAdmin } from '../../utils/roleUtils';
+import { useUser } from '../../hooks/useUser';
 import AppDropdown from '../common/AppDropdown';
 // using shared AppDropdown for time selector
 
@@ -35,16 +35,16 @@ const EmployeeGrowthChart: React.FC = () => {
   const theme = useTheme();
   const { darkMode } = useOutletContext<{ darkMode: boolean }>();
   const { language } = useLanguage();
+  const { user } = useUser();
 
-  const currentUser = getCurrentUser();
-  const userRole = currentUser?.role;
+  const userRole = user?.role;
   const isSysAdmin = isSystemAdmin(userRole);
 
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
   const [selectedTenant, setSelectedTenant] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<number>(
-    () => new Date().getFullYear()
+  const [selectedYear, setSelectedYear] = useState<number>(() =>
+    new Date().getFullYear()
   );
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [tenantGrowthData, setTenantGrowthData] = useState<TenantGrowth[]>([]);
@@ -71,7 +71,7 @@ const EmployeeGrowthChart: React.FC = () => {
     const fetchTenants = async () => {
       try {
         const data = await systemEmployeeApiService.getAllTenants(true);
-        setTenants((data || []) as unknown as Tenant[]);
+        setTenants(data || []);
 
         if (data && data.length > 0) {
           setSelectedTenant(data[0].id);
@@ -146,12 +146,12 @@ const EmployeeGrowthChart: React.FC = () => {
     stroke: {
       curve: 'smooth',
       width: 3,
-      colors: ['#C61952'],
+      colors: [theme.palette.secondary.main],
     },
     markers: {
       size: 5,
-      colors: ['#C61952'],
-      strokeColors: '#fff',
+      colors: [theme.palette.secondary.main],
+      strokeColors: theme.palette.common.white,
       strokeWidth: 2,
       hover: {
         size: 7,
@@ -186,7 +186,7 @@ const EmployeeGrowthChart: React.FC = () => {
       borderColor: theme.palette.divider,
       padding: { top: 20, left: 15, right: 15, bottom: 10 },
     },
-    colors: ['#C61952'],
+    colors: [theme.palette.secondary.main],
     tooltip: {
       theme: darkMode ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val}` },
@@ -346,7 +346,13 @@ const EmployeeGrowthChart: React.FC = () => {
             padding: 0,
           }}
         >
-          <Chart options={options} series={series} type='line' width='100%' height={300} />
+          <Chart
+            options={options}
+            series={series}
+            type='line'
+            width='100%'
+            height={300}
+          />
         </Box>
       </Box>
     </Box>

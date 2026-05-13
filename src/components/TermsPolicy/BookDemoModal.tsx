@@ -5,6 +5,7 @@ import AppFormModal from '../common/AppFormModal';
 import AppInputField from '../common/AppInputField';
 import AppDropdown from '../common/AppDropdown';
 import AppButton from '../common/AppButton';
+import { validateEmailAddress } from '../../utils/validation';
 
 type BookDemoModalProps = {
   open: boolean;
@@ -27,12 +28,19 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   const [workEmail, setWorkEmail] = React.useState('');
   const [companyName, setCompanyName] = React.useState('');
   const [teamSize, setTeamSize] = React.useState<string>('');
+  const [errors, setErrors] = React.useState<{
+    fullName?: string;
+    workEmail?: string;
+    companyName?: string;
+    teamSize?: string;
+  }>({});
 
   const reset = React.useCallback(() => {
     setFullName('');
     setWorkEmail('');
     setCompanyName('');
     setTeamSize('');
+    setErrors({});
   }, []);
 
   const handleClose = React.useCallback(() => {
@@ -41,8 +49,39 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
   }, [onClose, reset]);
 
   const handleSubmit = () => {
+    const nextErrors: typeof errors = {};
+
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      nextErrors.fullName = 'Full name must be at least 2 characters';
+    }
+
+    const emailError = validateEmailAddress(workEmail);
+    if (emailError) {
+      nextErrors.workEmail = emailError;
+    }
+
+    if (!companyName.trim() || companyName.trim().length < 2) {
+      nextErrors.companyName = 'Company name must be at least 2 characters';
+    }
+
+    if (!teamSize) {
+      nextErrors.teamSize = 'Please select a team size';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
     handleClose();
   };
+
+  const hasErrors = Object.values(errors).some(Boolean);
+
+  const controlBg =
+    theme.palette.mode === 'dark'
+      ? theme.palette.background.default
+      : theme.palette.background.default;
 
   return (
     <AppFormModal
@@ -64,8 +103,11 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
       }}
     >
       <Box sx={{ mx: -2 }}>
-        <Typography sx={{ color: theme.palette.text.secondary, fontSize: '14px', mt: -1 }}>
-          See Workonnect.ai in action. A 30-minute walkthrough built around your team&apos;s needs.
+        <Typography
+          sx={{ color: theme.palette.text.secondary, fontSize: '14px', mt: -1 }}
+        >
+          See Workonnect.ai in action. A 30-minute walkthrough built around your
+          team&apos;s needs.
         </Typography>
 
         <Box
@@ -86,24 +128,42 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             labelClassName='book-demo-label'
             value={fullName}
             placeholder='Name'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
-            onChange={(value: unknown) => setFullName(String(value ?? ''))}
+            inputBackgroundColor={controlBg}
+            onValueChange={value => {
+              setFullName(String(value));
+              if (errors.fullName)
+                setErrors(prev => ({ ...prev, fullName: undefined }));
+            }}
+            error={Boolean(errors.fullName)}
+            helperText={errors.fullName}
           />
           <AppInputField
             label='Work Email'
             labelClassName='book-demo-label'
             value={workEmail}
             placeholder='Email'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
-            onChange={(value: unknown) => setWorkEmail(String(value ?? ''))}
+            inputBackgroundColor={controlBg}
+            onValueChange={value => {
+              setWorkEmail(String(value));
+              if (errors.workEmail)
+                setErrors(prev => ({ ...prev, workEmail: undefined }));
+            }}
+            error={Boolean(errors.workEmail)}
+            helperText={errors.workEmail}
           />
           <AppInputField
             label='Company Name'
             labelClassName='book-demo-label'
             value={companyName}
             placeholder='Company Name'
-            inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
-            onChange={(value: unknown) => setCompanyName(String(value ?? ''))}
+            inputBackgroundColor={controlBg}
+            onValueChange={value => {
+              setCompanyName(String(value));
+              if (errors.companyName)
+                setErrors(prev => ({ ...prev, companyName: undefined }));
+            }}
+            error={Boolean(errors.companyName)}
+            helperText={errors.companyName}
           />
           <Box>
             <AppDropdown
@@ -112,10 +172,14 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
               options={[...TEAM_SIZE_OPTIONS]}
               value={teamSize}
               placeholder='Select'
-              inputBackgroundColor={theme.palette.mode === 'dark' ? theme.palette.background.default : '#FFFFFF'}
-              onChange={(e: SelectChangeEvent<string | number | string[]>) =>
-                setTeamSize(String(e.target.value ?? ''))
-              }
+              inputBackgroundColor={controlBg}
+              onChange={(e: SelectChangeEvent<string | number | string[]>) => {
+                setTeamSize(String(e.target.value ?? ''));
+                if (errors.teamSize)
+                  setErrors(prev => ({ ...prev, teamSize: undefined }));
+              }}
+              error={Boolean(errors.teamSize)}
+              helperText={errors.teamSize}
             />
           </Box>
         </Box>
@@ -125,18 +189,30 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
             fullWidth
             variant='contained'
             onClick={handleSubmit}
+            disabled={hasErrors}
             sx={{
-              backgroundColor: '#2C2C2C',
+              backgroundColor: 'text.primary',
               borderRadius: '999px',
               py: 1.3,
               fontWeight: 700,
-              '&:hover': { backgroundColor: '#0b1220' },
-              '&:disabled': { backgroundColor: '#2C2C2C', opacity: 0.5, color: '#ffffff' },
+              '&:hover': { backgroundColor: 'text.primary', opacity: 0.85 },
+              '&:disabled': {
+                backgroundColor: 'text.primary',
+                opacity: 0.5,
+                color: 'common.white',
+              },
             }}
           >
             Book a Demo
           </AppButton>
-          <Typography sx={{ mt: 1.25, textAlign: 'center', color: theme.palette.text.secondary, fontSize: '13px' }}>
+          <Typography
+            sx={{
+              mt: 1.25,
+              textAlign: 'center',
+              color: theme.palette.text.secondary,
+              fontSize: '13px',
+            }}
+          >
             No commitment. Free 30 minutes.
           </Typography>
         </Box>
@@ -146,4 +222,3 @@ const BookDemoModal: React.FC<BookDemoModalProps> = ({ open, onClose }) => {
 };
 
 export default BookDemoModal;
-

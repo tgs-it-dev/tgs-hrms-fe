@@ -61,6 +61,8 @@ export const DeleteConfirmationDialog: React.FC<
       onClose={onClose}
       maxWidth='sm'
       fullWidth
+      aria-labelledby='delete-dialog-title'
+      aria-describedby='delete-dialog-description'
       PaperProps={{
         sx: {
           direction: isRTL ? 'rtl' : 'ltr',
@@ -71,6 +73,7 @@ export const DeleteConfirmationDialog: React.FC<
       }}
     >
       <DialogTitle
+        id='delete-dialog-title'
         sx={{ textAlign: 'center', pb: 1, color: theme.palette.text.primary }}
       >
         <Box
@@ -103,7 +106,7 @@ export const DeleteConfirmationDialog: React.FC<
       </DialogTitle>
 
       <DialogContent>
-        <Box sx={{ textAlign: 'center' }}>
+        <Box id='delete-dialog-description' sx={{ textAlign: 'center' }}>
           <WarningIcon
             sx={{ fontSize: 64, color: theme.palette.warning.main, mb: 2 }}
             aria-hidden='true'
@@ -118,11 +121,13 @@ export const DeleteConfirmationDialog: React.FC<
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: 'center', p: 3, pt: 1 }}>
+        {/* autoFocus on the safe action prevents accidental destructive Enter-key press */}
         <AppButton
           onClick={onClose}
           variantType='secondary'
           text={isRTL ? 'إلغاء' : cancelText}
           disabled={loading}
+          autoFocus
           sx={{ minWidth: 80 }}
         />
         <AppButton

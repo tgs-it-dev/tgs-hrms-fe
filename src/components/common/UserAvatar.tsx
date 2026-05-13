@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Avatar, type AvatarProps } from '@mui/material';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { useUser } from '../../hooks/useUser';
+import { colorTokens } from '../../theme';
+import { appConfig } from '../../config/appConfig';
 
 interface UserAvatarProps extends Omit<AvatarProps, 'src' | 'alt'> {
   user: {
@@ -16,9 +18,11 @@ interface UserAvatarProps extends Omit<AvatarProps, 'src' | 'alt'> {
 }
 
 const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
-  ({ user, size = 40, clickable = false, onClick, sx, ...avatarProps }, ref) => {
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+  (
+    { user, size = 40, clickable = false, onClick, sx, ...avatarProps },
+    ref
+  ) => {
+    const API_BASE_URL = appConfig.api.baseUrl;
     const { profilePictureUrl } = useProfilePicture();
     const { user: currentUser } = useUser();
 
@@ -28,30 +32,8 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
     const getInitials = (first: string, last: string) =>
       `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
 
-    const generateAvatarColor = (name: string) => {
-      const colors = [
-        '#f44336',
-        '#e91e63',
-        '#9c27b0',
-        '#673ab7',
-        '#3f51b5',
-        '#2196f3',
-        '#03a9f4',
-        '#00bcd4',
-        '#009688',
-        '#4caf50',
-        '#8bc34a',
-        '#cddc39',
-        '#ffeb3b',
-        '#ffc107',
-        '#ff9800',
-        '#ff5722',
-        '#795548',
-        '#9e9e9e',
-        '#607d8b',
-      ];
-      return colors[name.charCodeAt(0) % colors.length];
-    };
+    const generateAvatarColor = (name: string) =>
+      colorTokens.avatar[name.charCodeAt(0) % colorTokens.avatar.length];
 
     const isCurrentUser = currentUser?.id === user.id;
     const effectiveProfilePictureUrl = isCurrentUser ? profilePictureUrl : null;
@@ -64,7 +46,7 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
       fontSize: `${size * 0.4}px`,
       cursor: clickable ? 'pointer' : 'default',
       backgroundColor: imgError
-        ? '#9e9e9e'
+        ? 'text.secondary'
         : effectiveProfilePictureUrl || user.profile_pic
           ? 'transparent'
           : generateAvatarColor(user.first_name),
@@ -74,10 +56,10 @@ const UserAvatar = React.forwardRef<HTMLDivElement, UserAvatarProps>(
       },
       '&:hover': clickable
         ? {
-          opacity: 0.8,
-          transform: 'scale(1.05)',
-          transition: 'all 0.2s ease-in-out',
-        }
+            opacity: 0.8,
+            transform: 'scale(1.05)',
+            transition: 'all 0.2s ease-in-out',
+          }
         : {},
       ...sx,
     };

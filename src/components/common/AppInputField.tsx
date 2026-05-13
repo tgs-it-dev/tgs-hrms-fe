@@ -7,13 +7,18 @@ import {
   InputAdornment,
   IconButton,
   type TextFieldProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 interface AppInputFieldProps extends Omit<TextFieldProps, 'label'> {
+  // onChange is inherited from TextFieldProps unchanged — do NOT narrow it to
+  // HTMLInputElement only; TextFieldProps['onChange'] covers HTMLTextAreaElement too.
+  onValueChange?: (value: string | number) => void;
   label: string;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   inputBackgroundColor?: string;
   hideErrorsOnSmallScreen?: boolean;
 }
@@ -27,6 +32,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
       sx,
       inputBackgroundColor,
       hideErrorsOnSmallScreen = false,
+      onValueChange,
       ...rest
     },
     ref
@@ -36,7 +42,8 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
     // Check if this is a phone input (has PhoneInput in InputProps)
     const isPhoneInput = rest.InputProps?.startAdornment !== undefined;
     const isDateInput = String(rest.type) === 'date';
-    const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
+    const isFirefox =
+      typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
 
     const handleAdornmentClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -97,6 +104,8 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
           </Typography>
           {rest.helperText && (
             <Typography
+              id={`${rest.id || (rest.name ? `input-${rest.name}` : 'field')}-helper`}
+              role={rest.error ? 'alert' : undefined}
               title={String(rest.helperText)}
               sx={{
                 display: hideErrorsOnSmallScreen
@@ -137,17 +146,23 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
             fullWidth
             id={rest.id || (rest.name ? `input-${rest.name}` : undefined)}
             variant='outlined'
+            aria-invalid={rest.error ? true : undefined}
+            aria-required={rest.required ? true : undefined}
+            aria-describedby={
+              rest.helperText
+                ? `${rest.id || (rest.name ? `input-${rest.name}` : 'field')}-helper`
+                : undefined
+            }
             inputProps={{ maxLength: 50, ...(rest.inputProps || {}) }}
             InputProps={
               // If caller provided InputProps, keep them and merge
               isDateInput
                 ? {
-                  ...rest.InputProps,
-                  endAdornment:
-                    rest.InputProps && rest.InputProps.endAdornment ? (
-                      rest.InputProps.endAdornment
-                    ) : (
-                      !isFirefox ? (
+                    ...rest.InputProps,
+                    endAdornment:
+                      rest.InputProps && rest.InputProps.endAdornment ? (
+                        rest.InputProps.endAdornment
+                      ) : !isFirefox ? (
                         <InputAdornment position='end'>
                           <IconButton
                             size='small'
@@ -158,40 +173,26 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
                             <CalendarTodayIcon fontSize='small' />
                           </IconButton>
                         </InputAdornment>
-                      ) : null
-                    ),
-                }
+                      ) : null,
+                  }
                 : rest.InputProps
             }
             inputRef={inputRef}
             helperText={undefined}
-            onChange={e => {
-              // Normalize the change event into a simple value passed to callers.
-              const native = e as React.ChangeEvent<HTMLInputElement>;
-              const raw = native.target.value;
-              let out: string | number = raw;
-              if (String(rest.type) === 'number') {
-                if (raw === '') out = '';
-                else {
-                  const parsed = Number(raw);
-                  out = Number.isNaN(parsed) ? raw : parsed;
+            onChange={(
+              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              rest.onChange?.(e);
+              if (onValueChange) {
+                const val = (e.target as HTMLInputElement).value;
+                if (rest.type === 'number' && val !== '') {
+                  const parsed = Number(val);
+                  if (!Number.isNaN(parsed)) {
+                    onValueChange(parsed);
+                    return;
+                  }
                 }
-              }
-              // Call the provided onChange handler with the normalized value
-              // If caller expects the native event, they can wrap it accordingly.
-              if (typeof rest.onChange === 'function') {
-                try {
-                  (
-                    rest.onChange as unknown as (v: string | number) => void
-                  )(out);
-                } catch {
-                  // fallback: call with native event
-                  (
-                    rest.onChange as unknown as (
-                      e: React.ChangeEvent<HTMLInputElement>
-                    ) => void
-                  )(native);
-                }
+                onValueChange(val);
               }
             }}
             sx={{
@@ -233,7 +234,7 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiOutlinedInput-input:-webkit-autofill': {
                 padding: rest.multiline ? undefined : '10px 16px !important',
-                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : '#EFEFEF')} inset`,
+                WebkitBoxShadow: `0 0 0 1000px ${inputBackgroundColor || (theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.default)} inset`,
                 WebkitTextFillColor: theme.palette.text.primary,
               },
               '& .MuiInputLabel-root': {
@@ -244,14 +245,14 @@ const AppInputField = React.forwardRef<HTMLDivElement, AppInputFieldProps>(
               },
               '& .MuiInputAdornment-root': isPhoneInput
                 ? {
-                  width: '100%',
-                  margin: 0,
-                }
+                    width: '100%',
+                    margin: 0,
+                  }
                 : {},
               '& .MuiInputAdornment-positionStart': isPhoneInput
                 ? {
-                  marginRight: 0,
-                }
+                    marginRight: 0,
+                  }
                 : {},
               ...sx,
             }}

@@ -30,7 +30,7 @@ const EmployeePaymentReturn: React.FC = () => {
             'pendingEmployeePayment',
             JSON.stringify({
               checkoutSessionId,
-              returnTo: '/dashboard/EmployeeManager',
+              returnTo: '/dashboard/employee-manager',
               createdAt: new Date().toISOString(),
             })
           );
@@ -42,7 +42,7 @@ const EmployeePaymentReturn: React.FC = () => {
 
     // If payment was cancelled or we don't have a session, just go back to employees list.
     if (!checkoutSessionId || (paymentResult && paymentResult !== 'success')) {
-      navigate('/dashboard/EmployeeManager', { replace: true });
+      navigate('/dashboard/employee-manager', { replace: true });
       return;
     }
 
@@ -63,7 +63,7 @@ const EmployeePaymentReturn: React.FC = () => {
         justifyContent: 'center',
         flexDirection: 'column',
         gap: 2,
-        bgcolor: '#f3f4f6',
+        bgcolor: 'background.default',
       }}
     >
       <CircularProgress size={56} />

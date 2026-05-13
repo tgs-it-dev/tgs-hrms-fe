@@ -8,9 +8,19 @@ on:
       - master
       - dev
 
+  # Allow manual trigger for any PR (e.g. to review existing open PRs)
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: true
+        type: string
+
 jobs:
   claude-review:
     runs-on: ubuntu-latest
+    environment: production
+    continue-on-error: true
     permissions:
       pull-requests: write
       contents: read
@@ -21,122 +31,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch diff and build Claude payload
+      - name: Resolve PR number
+        id: pr
+        env:
+          EVENT_PR: ${{ github.event.pull_request.number }}
+          INPUT_PR: ${{ github.event.inputs.pr_number }}
+        run: |
+          PR="${INPUT_PR:-$EVENT_PR}"
+          echo "number=$PR" >> $GITHUB_OUTPUT
+
+      - name: Run Claude review
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
-        run: |
-          # Fetch the PR diff via gh CLI (falls back to git diff)
-          gh pr diff "$PR_NUMBER" > pr.diff 2>/dev/null || \
-            git diff "origin/${BASE_REF}...HEAD" > pr.diff
-
-          # Build JSON payload using Python for safe escaping
-          python3 << 'PYEOF'
-          import json, os
-
-          pr_title = os.environ.get('PR_TITLE', '(no title)')
-          pr_body  = os.environ.get('PR_BODY', '').strip() or '(no description)'
-
-          with open('pr.diff', 'r', errors='replace') as f:
-              diff = f.read()
-
-          # Truncate diff to ~80 KB to stay within Claude's token budget
-          MAX_DIFF_BYTES = 80_000
-          if len(diff.encode()) > MAX_DIFF_BYTES:
-              diff = diff.encode()[:MAX_DIFF_BYTES].decode(errors='replace')
-              diff += '\n\n... [diff truncated — too large to display in full] ...'
-
-          prompt = f"""You are a senior software engineer performing a pull-request code review.
-The project is a React 18 + TypeScript SPA (Vite, MUI v7, React Router v7).
-
-**PR title:** {pr_title}
-**PR description:**
-{pr_body}
-
-**Diff:**
-```diff
-{diff}
-```
-
-Please provide a structured code review with these sections:
-
-## Overview
-Brief summary of what this PR does.
-
-## Code Quality
-TypeScript correctness, React patterns, component design, naming, readability.
-
-## Issues & Risks
-Any bugs, edge cases, security concerns, or performance problems.
-
-## Suggestions
-Concrete improvement ideas with short code examples where helpful.
-
-## Verdict
-One of: ✅ **Approve** | ⚠️ **Request Changes** | 💬 **Comment**
-One-sentence rationale.
-
-Keep the review concise and actionable. Use GitHub-flavoured markdown."""
-
-          payload = {
-              "model": "claude-sonnet-4-6",
-              "max_tokens": 4096,
-              "messages": [{"role": "user", "content": prompt}],
-          }
-
-          with open('payload.json', 'w') as f:
-              json.dump(payload, f)
-
-          print("✅ Payload written to payload.json")
-          PYEOF
-
-      - name: Call Claude API
-        env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          curl -sf https://api.anthropic.com/v1/messages \
-            -H "x-api-key: ${ANTHROPIC_API_KEY}" \
-            -H "anthropic-version: 2023-06-01" \
-            -H "content-type: application/json" \
-            -d @payload.json \
-            -o response.json
-
-          echo "✅ Claude API response received"
-
-      - name: Extract review and post comment
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          python3 << 'PYEOF'
-          import json, os, subprocess, sys
-
-          with open('response.json', 'r') as f:
-              response = json.load(f)
-
-          if 'error' in response:
-              err = response['error']
-              review = f"⚠️ Claude API error: **{err.get('type', 'unknown')}** — {err.get('message', 'no message')}"
-          elif response.get('content'):
-              review = response['content'][0].get('text', '_(empty response)_')
-          else:
-              review = "_(Claude returned an unexpected response format)_"
-
-          sha = os.environ.get('GITHUB_SHA', '')[:7]
-          comment = (
-              "## Claude Code Review 🤖\n\n"
-              + review
-              + f"\n\n---\n*Reviewed commit `{sha}` · Powered by [Claude](https://www.anthropic.com/claude)*"
-          )
-
-          with open('review_comment.txt', 'w') as f:
-              f.write(comment)
-
-          print("✅ Review comment written")
-          PYEOF
-
-          gh pr comment "$PR_NUMBER" --body-file review_comment.txt
-          echo "✅ Review posted to PR #${PR_NUMBER}"
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: python3 .github/scripts/claude_review.py

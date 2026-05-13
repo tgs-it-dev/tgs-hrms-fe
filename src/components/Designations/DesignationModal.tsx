@@ -133,9 +133,14 @@ export default function DesignationModal({
         'Designation title is required',
         'عنوان المسمى الوظيفي مطلوب'
       );
+    } else if (title.trim().length > 100) {
+      newErrors.title = getText(
+        'Designation title must be 100 characters or less',
+        'عنوان المسمى الوظيفي يجب أن لا يتجاوز 100 حرف'
+      );
     }
 
-    if (!designation && !departmentId) {
+    if (!departmentId) {
       newErrors.departmentId = getText(
         'Please select a department',
         'يرجى اختيار قسم'
@@ -300,10 +305,7 @@ export default function DesignationModal({
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor:
-                  theme.palette.mode === 'dark'
-                    ? theme.palette.background.default
-                    : '#F8F8F8',
+                backgroundColor: theme.palette.background.default,
               },
             }}
           />
@@ -329,14 +331,17 @@ export default function DesignationModal({
         sx={{
           p: 0,
           pt: 0,
-          px: 2,
-          pb: 2,
+          px: 0,
+          pb: 0,
+          gap: 1,
+          display: 'flex',
         }}
       >
         <AppButton
           variantType='secondary'
           onClick={handleClose}
           text={getText('Cancel', 'إلغاء')}
+          sx={{ flex: 1 }}
         />
         <AppButton
           variantType='primary'
@@ -347,6 +352,7 @@ export default function DesignationModal({
               ? getText('Update', 'تحديث')
               : getText('Create', 'إنشاء')
           }
+          sx={{ flex: 1 }}
         />
       </DialogActions>
     </Dialog>

@@ -3,6 +3,7 @@ import {
   useMediaQuery,
   useTheme as useMuiTheme,
   CircularProgress,
+  type Theme,
 } from '@mui/material';
 import React, {
   useEffect,
@@ -24,6 +25,101 @@ import {
   getDefaultDashboardRoute,
   isDashboardPathAllowedForRole,
 } from '../../utils/permissions';
+import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from '../../constants/layout';
+
+interface SidebarPanelProps {
+  panelRef: React.RefObject<HTMLDivElement | null>;
+  rtlMode: boolean;
+  darkMode: boolean;
+  muiTheme: Theme;
+  closeSidebar: () => void;
+  handleSetDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  setRtlMode: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const SidebarPanel = React.memo(function SidebarPanel({
+  panelRef,
+  rtlMode,
+  darkMode,
+  muiTheme,
+  closeSidebar,
+  handleSetDarkMode,
+  setRtlMode,
+}: SidebarPanelProps) {
+  return (
+    <Box
+      ref={panelRef}
+      sx={{
+        backgroundColor: muiTheme.palette.background.paper,
+        color: muiTheme.palette.text.primary,
+        padding: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        direction: rtlMode ? 'rtl' : 'ltr',
+        height: { xs: '100dvh', lg: 'auto' },
+        width: { xs: `${SIDEBAR_WIDTH_COLLAPSED}px`, lg: `${SIDEBAR_WIDTH}px` },
+        position: { xs: 'fixed', lg: 'relative' },
+        top: { xs: 0, lg: 'auto' },
+        bottom: { xs: 0, lg: 'auto' },
+        left: rtlMode ? 'auto' : { xs: 0, lg: 'auto' },
+        right: rtlMode ? { xs: 0, lg: 'auto' } : 'auto',
+        mt: { xs: 0, lg: 2.5 },
+        ml: { xs: 0, lg: 2.5 },
+        mb: { xs: 0, lg: 2.5 },
+        borderRadius: { xs: 0, lg: '20px' },
+        zIndex: { xs: 1000, lg: 'auto' },
+      }}
+    >
+      <Sidebar
+        rtlMode={rtlMode}
+        setRtlMode={setRtlMode}
+        darkMode={darkMode}
+        setDarkMode={handleSetDarkMode}
+        onMenuItemClick={closeSidebar}
+      />
+    </Box>
+  );
+});
+
+interface NavbarPanelProps {
+  darkMode: boolean;
+  inviteModalOpen: boolean;
+  toggleSidebar: () => void;
+  handleOpenInviteModal: () => void;
+  handleCloseInviteModal: () => void;
+}
+
+const NavbarPanel = React.memo(function NavbarPanel({
+  darkMode,
+  inviteModalOpen,
+  toggleSidebar,
+  handleOpenInviteModal,
+  handleCloseInviteModal,
+}: NavbarPanelProps) {
+  return (
+    <Box
+      sx={{
+        height: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        flexShrink: 0,
+        px: { xs: 2, lg: 3 },
+        pt: { xs: 2, lg: 0 },
+      }}
+    >
+      <Navbar
+        onOpenInviteModal={handleOpenInviteModal}
+        onToggleSidebar={toggleSidebar}
+        darkMode={darkMode}
+      />
+      <EmployeeInviteModal
+        open={inviteModalOpen}
+        darkMode={darkMode}
+        onClose={handleCloseInviteModal}
+      />
+    </Box>
+  );
+});
 
 const Layout = () => {
   const muiTheme = useMuiTheme();
@@ -147,88 +243,6 @@ const Layout = () => {
   // Memoize Outlet context to prevent unnecessary re-renders of child components
   const outletContext = useMemo(() => ({ darkMode }), [darkMode]);
 
-  // Memoized Sidebar & Navbar (render once)
-  const MemoizedSidebar = useMemo(
-    () =>
-      sidebarOpen && (
-        <Box
-          ref={sidebarRef}
-          sx={{
-            backgroundColor: muiTheme.palette.background.paper,
-            color: muiTheme.palette.text.primary,
-            padding: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            direction: rtlMode ? 'rtl' : 'ltr',
-            // On mobile, make sidebar truly full-height (avoid fixed/partial height)
-            height: { xs: '100dvh', lg: 'auto' },
-            width: { xs: '240px', lg: '280px' },
-            // Use fixed positioning on mobile so it spans the full viewport height
-            position: { xs: 'fixed', lg: 'relative' },
-            top: { xs: 0, lg: 'auto' },
-            bottom: { xs: 0, lg: 'auto' },
-            left: rtlMode ? 'auto' : { xs: 0, lg: 'auto' },
-            right: rtlMode ? { xs: 0, lg: 'auto' } : 'auto',
-            mt: { xs: 0, lg: 2.5 },
-            ml: { xs: 0, lg: 2.5 },
-            mb: { xs: 0, lg: 2.5 },
-            borderRadius: {
-              // No rounding on mobile so it can fill the full height cleanly
-              xs: 0,
-              lg: '20px',
-            },
-            zIndex: { xs: 1000, lg: 'auto' },
-            // boxShadow:
-            //   muiTheme.palette.mode === 'dark'
-            //     ? '0 1px 3px rgba(0,0,0,0.3)'
-            //     : '0 1px 3px rgba(0,0,0,0.1)',
-          }}
-        >
-          <Sidebar
-            rtlMode={rtlMode}
-            setRtlMode={setRtlMode}
-            darkMode={darkMode}
-            setDarkMode={handleSetDarkMode}
-            onMenuItemClick={closeSidebar}
-          />
-        </Box>
-      ),
-    [sidebarOpen, rtlMode, darkMode, closeSidebar, handleSetDarkMode, muiTheme]
-  );
-
-  const MemoizedNavbar = useMemo(
-    () => (
-      <Box
-        sx={{
-          height: 'auto',
-          display: 'flex',
-          alignItems: 'center',
-          flexShrink: 0,
-          px: { xs: 2, lg: 3 },
-          pt: { xs: 2, lg: 0 },
-        }}
-      >
-        <Navbar
-          onOpenInviteModal={handleOpenInviteModal}
-          onToggleSidebar={toggleSidebar}
-          darkMode={darkMode}
-        />
-        <EmployeeInviteModal
-          open={inviteModalOpen}
-          darkMode={darkMode}
-          onClose={handleCloseInviteModal}
-        />
-      </Box>
-    ),
-    [
-      darkMode,
-      inviteModalOpen,
-      toggleSidebar,
-      handleOpenInviteModal,
-      handleCloseInviteModal,
-    ]
-  );
-
   return (
     <Box
       sx={{
@@ -240,6 +254,11 @@ const Layout = () => {
         py: { xs: 2, md: 0 },
       }}
     >
+      {/* Skip to main content — WCAG 2.4.1 Level A */}
+      <a href='#main-content' className='skip-link'>
+        Skip to main content
+      </a>
+
       <Box
         sx={{
           width: '100%',
@@ -257,6 +276,7 @@ const Layout = () => {
       >
         {sidebarOpen && !isLargeScreen && (
           <Box
+            aria-hidden='true'
             sx={{
               position: 'fixed',
               top: 0,
@@ -273,8 +293,17 @@ const Layout = () => {
           />
         )}
 
-        {/* Sidebar (rendered once, static) */}
-        {MemoizedSidebar}
+        {sidebarOpen && (
+          <SidebarPanel
+            panelRef={sidebarRef}
+            rtlMode={rtlMode}
+            darkMode={darkMode}
+            muiTheme={muiTheme}
+            closeSidebar={closeSidebar}
+            handleSetDarkMode={handleSetDarkMode}
+            setRtlMode={setRtlMode}
+          />
+        )}
 
         {/* Main Area */}
         <Box
@@ -293,17 +322,26 @@ const Layout = () => {
             backgroundColor: muiTheme.palette.background.default,
           }}
         >
-          {/* Navbar (static) */}
-          {MemoizedNavbar}
+          <NavbarPanel
+            darkMode={darkMode}
+            inviteModalOpen={inviteModalOpen}
+            toggleSidebar={toggleSidebar}
+            handleOpenInviteModal={handleOpenInviteModal}
+            handleCloseInviteModal={handleCloseInviteModal}
+          />
 
-          {/* Scrollable Outlet */}
+          {/* Scrollable Outlet — WCAG 2.4.1: skip-link target; WCAG 1.3.6: main landmark */}
           <Box
             component='main'
+            id='main-content'
+            role='main'
+            tabIndex={-1}
             sx={{
               flex: 1,
               px: { xs: 2, md: 3 },
               py: { xs: 2, md: 3 },
               backgroundColor: muiTheme.palette.background.default,
+              outline: 'none',
             }}
           >
             {isDashboardRoute && (loading || !user || !isAllowed) ? (

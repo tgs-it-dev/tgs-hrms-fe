@@ -1,5 +1,6 @@
 // src/api/signupApi.ts
 import axiosInstance from './axiosInstance';
+import type { UserProfile } from '../types/user';
 
 export interface PersonalDetailsRequest {
   first_name: string;
@@ -90,8 +91,8 @@ export interface GoogleSignupInitResponse {
   alreadyRegistered?: boolean;
   accessToken?: string;
   refreshToken?: string;
-  user?: Record<string, unknown>;
-  permissions?: unknown[];
+  user?: Partial<UserProfile>;
+  permissions?: string[];
   signupSessionId?: string;
   email?: string;
   first_name?: string;
@@ -225,12 +226,7 @@ class SignupApiService {
 
     const response = await axiosInstance.post(
       `${this.baseUrl}/upload-logo`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     return response.data;
   }

@@ -22,11 +22,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { isAdmin, isManager, isHRAdmin, isSystemAdmin } from '../../utils/auth';
 import { teamApiService } from '../../api/teamApi';
 import AppButton from '../common/AppButton';
-import type {
-  Team,
-  TeamMember,
-  AllTenantsTeamsResponse,
-} from '../../api/teamApi';
+import type { Team, AllTenantsTeamsResponse } from '../../api/teamApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import TeamList from './TeamList';
@@ -40,6 +36,11 @@ interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+}
+
+interface PaginatedTeams {
+  items: Team[];
+  total: number;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -70,7 +71,6 @@ const TeamManager: React.FC<TeamManagerProps> = ({
   const { snackbar, showSuccess, closeSnackbar } = useErrorHandler();
 
   const [tabValue, setTabValue] = useState(0);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [tenantsWithTeams, setTenantsWithTeams] =
     useState<AllTenantsTeamsResponse>({ tenants: [] });
   const [teams, setTeams] = useState<Team[]>([]);
@@ -79,6 +79,8 @@ const TeamManager: React.FC<TeamManagerProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { language } = useLanguage();
   const theme = useTheme();
+  const [totalMembers, setTotalMembers] = useState(0);
+  const [totalTeams, setTotalTeams] = useState(0);
 
   const labels = {
     en: {
@@ -126,16 +128,19 @@ const TeamManager: React.FC<TeamManagerProps> = ({
             teamApiService.getMyTeams(),
             teamApiService.getMyTeamMembers(1),
           ]);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
-          setTeamMembers((membersData as any)?.items || []);
+          setTeams(teamsData);
+          setTotalTeams(teamsData.length);
+          setTotalMembers(membersData.total);
         } else if (isAdmin()) {
           // Load all teams for admin with members included
           const teamsData = await teamApiService.getAllTeams(1);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
+          setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
         } else if (isHRAdmin()) {
           // Load all teams for HR admin without members
           const teamsData = await teamApiService.getAllTeams(1);
-          setTeams((teamsData as any)?.items || (teamsData as any) || []);
+          setTeams(teamsData.items);
+          setTotalTeams(teamsData.total);
         }
       } catch {
         setError('Failed to load team data');
@@ -165,16 +170,19 @@ const TeamManager: React.FC<TeamManagerProps> = ({
               teamApiService.getMyTeams(),
               teamApiService.getMyTeamMembers(1),
             ]);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
-            setTeamMembers((membersData as any)?.items || []);
+            setTeams(teamsData);
+            setTotalTeams(teamsData.length);
+            setTotalMembers(membersData.total);
           } else if (isAdmin()) {
             // Load all teams for admin with members included
             const teamsData = await teamApiService.getAllTeams(1);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
+            setTeams(teamsData.items);
+            setTotalTeams(teamsData.total);
           } else if (isHRAdmin()) {
             // Load all teams of the current tenant (view-only)
             const teamsData = await teamApiService.getAllTeams(1);
-            setTeams((teamsData as any)?.items || (teamsData as any) || []);
+            setTeams(teamsData.items);
+            setTotalTeams(teamsData.total);
           }
         } catch {
           setError('Failed to refresh team data');
@@ -225,6 +233,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
     }
 
     setTeams(prev => [teamWithMembers, ...prev]);
+    setTotalTeams(prev => prev + 1);
     setShowCreateForm(false);
 
     // Show success snackbar
@@ -250,12 +259,25 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           teamApiService.getMyTeams(),
           teamApiService.getMyTeamMembers(1),
         ]);
-        setTeams((teamsData as any)?.items || (teamsData as any) || []);
-        setTeamMembers((membersData as any)?.items || []);
+        // Check if teamsData is an array or a paginated object
+        const teamsList = Array.isArray(teamsData)
+          ? teamsData
+          : (teamsData as PaginatedTeams).items;
+        const teamsCount = Array.isArray(teamsData)
+          ? teamsData.length
+          : (teamsData as PaginatedTeams).total;
+
+        setTeams(teamsList || []);
+        setTotalTeams(teamsCount || 0);
+        setTotalMembers(membersData.total || 0);
       } else if (isAdmin()) {
         // Load all teams for admin with members included
         const teamsData = await teamApiService.getAllTeams(1);
-        setTeams((teamsData as any)?.items || (teamsData as any) || []);
+        // Cast to your specific paginated interface instead of any
+        const adminTeams = teamsData as PaginatedTeams;
+
+        setTeams(adminTeams.items || []);
+        setTotalTeams(adminTeams.total || 0);
       }
     } catch {
       setError('Failed to refresh team data');
@@ -389,7 +411,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                       fontSize: { xs: '1.75rem', sm: '2.125rem' },
                     }}
                   >
-                    {teams.length}
+                    {totalTeams}
                   </Typography>
                   <Typography
                     variant='body2'
@@ -404,7 +426,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                 <BusinessIcon
                   sx={{
                     fontSize: { xs: 32, sm: 40 },
-                    color: '#3083DC',
+                    color: theme.palette.primary.main,
                   }}
                 />
               </Box>
@@ -430,7 +452,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                         fontSize: { xs: '1.75rem', sm: '2.125rem' },
                       }}
                     >
-                      {teamMembers.length}
+                      {totalMembers}
                     </Typography>
                     <Typography
                       variant='body2'
@@ -479,9 +501,9 @@ const TeamManager: React.FC<TeamManagerProps> = ({
                   minHeight: { xs: 48, sm: 56 },
                   minWidth: 'auto',
                   '&.Mui-selected': {
-                    color: '#3083DC',
+                    color: theme.palette.primary.main,
                     '& .MuiSvgIcon-root': {
-                      color: '#3083DC',
+                      color: theme.palette.primary.main,
                     },
                   },
                   '& .MuiSvgIcon-root': {
@@ -510,7 +532,7 @@ const TeamManager: React.FC<TeamManagerProps> = ({
           {/* Tab Panels */}
           {isManager() && (
             <TabPanel value={tabValue} index={0}>
-              <MyTeams teams={teams} darkMode={darkMode} />
+              <MyTeams teams={teams} />
             </TabPanel>
           )}
 

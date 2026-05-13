@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link as RouterLink } from 'react-router-dom';
+import {
+  useNavigate,
+  useSearchParams,
+  Link as RouterLink,
+} from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -76,13 +80,46 @@ const ResetPassword = () => {
 
   const handleInputChange =
     (field: keyof typeof formData) =>
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
-        const value = typeof e === 'string' ? e : e?.target?.value ?? '';
-        setFormData(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-          setErrors(prev => ({ ...prev, [field]: undefined }));
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
+      const value = typeof e === 'string' ? e : (e?.target?.value ?? '');
+      setFormData(prev => {
+        const next = { ...prev, [field]: value };
+
+        // Live password strength validation
+        if (field === 'password' && value.length > 0) {
+          const strengthErr = validatePasswordStrength(value);
+          setErrors(errs => ({ ...errs, password: strengthErr ?? undefined }));
+        } else if (field === 'password') {
+          setErrors(errs => ({ ...errs, password: undefined }));
         }
-      };
+
+        // Live confirmPassword match validation
+        if (field === 'confirmPassword') {
+          if (value !== next.password) {
+            setErrors(errs => ({
+              ...errs,
+              confirmPassword: 'Password do not match',
+            }));
+          } else {
+            setErrors(errs => ({ ...errs, confirmPassword: undefined }));
+          }
+        }
+
+        // When password changes, re-check confirmPassword match if it has a value
+        if (field === 'password' && prev.confirmPassword) {
+          if (value !== prev.confirmPassword) {
+            setErrors(errs => ({
+              ...errs,
+              confirmPassword: 'Password do not match',
+            }));
+          } else {
+            setErrors(errs => ({ ...errs, confirmPassword: undefined }));
+          }
+        }
+
+        return next;
+      });
+    };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -95,6 +132,7 @@ const ResetPassword = () => {
 
     try {
       const response = await authApi.resetPassword({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- token is validated as truthy before this block
         token: token!,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
@@ -155,7 +193,10 @@ const ResetPassword = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -202,7 +243,7 @@ const ResetPassword = () => {
             sx={{
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '30px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -238,7 +279,7 @@ const ResetPassword = () => {
                     fontWeight: 700,
                     textAlign: 'center',
                     mb: 1,
-                    color: '#D32F2F',
+                    color: 'error.main',
                   }}
                 >
                   {lang === 'ar' ? 'رابط غير صالح' : 'Invalid Link'}
@@ -248,7 +289,7 @@ const ResetPassword = () => {
                     fontSize: { xs: '14px', sm: '16px' },
                     textAlign: 'center',
                     mb: 3,
-                    color: '#666',
+                    color: 'text.secondary',
                     fontWeight: 400,
                   }}
                 >
@@ -273,9 +314,7 @@ const ResetPassword = () => {
                       height: { xs: '40px', lg: 'auto' },
                     }}
                   >
-                    {lang === 'ar'
-                      ? 'طلب رابط جديد'
-                      : 'Request New Link'}
+                    {lang === 'ar' ? 'طلب رابط جديد' : 'Request New Link'}
                   </Button>
                 </Box>
                 <Box
@@ -290,7 +329,7 @@ const ResetPassword = () => {
                     component={RouterLink}
                     to='/'
                     sx={{
-                      color: '#656565',
+                      color: 'text.secondary',
                       textDecoration: 'none',
                       fontSize: { xs: '14px', sm: '16px' },
                       fontWeight: 400,
@@ -310,7 +349,7 @@ const ResetPassword = () => {
                   sx={{
                     mb: 0,
                     fontWeight: 700,
-                    color: { xs: '#001218', lg: 'inherit' },
+                    color: { xs: 'text.primary', lg: 'inherit' },
                   }}
                 >
                   {lang === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}
@@ -318,7 +357,10 @@ const ResetPassword = () => {
 
                 <Typography
                   sx={{
-                    color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                    color: {
+                      xs: 'text.secondary',
+                      lg: 'var(--dark-grey-color)',
+                    },
                     mb: 3,
                     fontSize: { xs: '14px', sm: '16px', lg: '24px' },
                     fontWeight: 400,
@@ -342,7 +384,9 @@ const ResetPassword = () => {
                   <Box sx={{ mb: 3 }}>
                     <AppInputField
                       name='password'
-                      label={lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'}
+                      label={
+                        lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'
+                      }
                       type={showPassword ? 'text' : 'password'}
                       required
                       fullWidth
@@ -351,7 +395,9 @@ const ResetPassword = () => {
                       disabled={loading}
                       error={Boolean(errors.password)}
                       helperText={errors.password}
-                      placeholder={lang === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'}
+                      placeholder={
+                        lang === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'
+                      }
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position='end'>
@@ -360,7 +406,11 @@ const ResetPassword = () => {
                               edge='end'
                               aria-label='toggle password visibility'
                             >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
@@ -409,7 +459,9 @@ const ResetPassword = () => {
                     />
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}
+                  >
                     <Button
                       type='submit'
                       variant='contained'
@@ -433,12 +485,14 @@ const ResetPassword = () => {
                         width: { xs: '100%', lg: '200px' },
                         '&:disabled': {
                           backgroundColor: 'var(--grey-color)',
-                          color: '#FFFFFF',
+                          color: 'common.white',
                         },
                       }}
                     >
                       {loading ? (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                        >
                           <CircularProgress size={16} color='inherit' />
                           {lang === 'ar' ? 'جاري التحديث...' : 'Updating...'}
                         </Box>
@@ -462,7 +516,7 @@ const ResetPassword = () => {
                       component={RouterLink}
                       to='/'
                       sx={{
-                        color: '#656565',
+                        color: 'text.secondary',
                         textDecoration: 'none',
                         fontSize: { xs: '14px', sm: '16px' },
                         fontWeight: 400,

@@ -1,19 +1,40 @@
 import { useState, useCallback } from 'react';
 import { extractErrorMessage, handleApiError } from '../utils/errorHandler';
 
-interface SnackbarState {
+export type ErrorResource =
+  | 'employee'
+  | 'department'
+  | 'designation'
+  | 'leave'
+  | 'leaveType'
+  | 'attendance'
+  | 'team'
+  | 'announcement'
+  | 'notification'
+  | 'profile'
+  | 'company'
+  | 'role'
+  | 'geofencing'
+  | 'holiday'
+  | 'policy'
+  | 'report'
+  | 'timesheet'
+  | 'billing'
+  | 'task';
+
+export interface SnackbarState {
   open: boolean;
   message: string;
   severity: 'success' | 'error' | 'warning' | 'info';
 }
 
-interface UseErrorHandlerReturn {
+export interface UseErrorHandlerReturn {
   snackbar: SnackbarState;
   showError: (
     error: unknown,
     context?: {
       operation: 'create' | 'update' | 'delete' | 'fetch';
-      resource: 'department' | 'designation' | 'employee';
+      resource: ErrorResource;
       isGlobal?: boolean;
     }
   ) => void;
@@ -23,10 +44,6 @@ interface UseErrorHandlerReturn {
   closeSnackbar: () => void;
 }
 
-/**
- * Custom hook for consistent error handling across components
- * Provides centralized error message extraction and snackbar management
- */
 export function useErrorHandler(): UseErrorHandlerReturn {
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     open: false,
@@ -39,7 +56,7 @@ export function useErrorHandler(): UseErrorHandlerReturn {
       error: unknown,
       context?: {
         operation: 'create' | 'update' | 'delete' | 'fetch';
-        resource: 'department' | 'designation' | 'employee';
+        resource: ErrorResource;
         isGlobal?: boolean;
       }
     ) => {
@@ -92,26 +109,4 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     showInfo,
     closeSnackbar,
   };
-}
-
-/**
- * Higher-order function to wrap API calls with error handling
- * @param apiCall - The API function to call
- * @param errorHandler - The error handler function
- * @param context - Context for error handling
- * @returns Promise that resolves to the API result or rejects with handled error
- */
-export function withErrorHandling<T>(
-  apiCall: () => Promise<T>,
-  errorHandler: (error: unknown) => void
-  // context?: {
-  //   operation: 'create' | 'update' | 'delete' | 'fetch';
-  //   resource: 'department' | 'designation' | 'employee';
-  //   isGlobal?: boolean;
-  // }
-): Promise<T> {
-  return apiCall().catch((error: unknown) => {
-    errorHandler(error);
-    throw error; // Re-throw to maintain error flow
-  });
 }

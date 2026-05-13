@@ -18,13 +18,14 @@ import {
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import AppDropdown from '../common/AppDropdown';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useUser } from '../../hooks/useUser';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 import AppTable from '../common/AppTable';
 
 interface AttendanceChartItem {
   id?: string;
-  name: string; 
+  name: string;
   presents: number;
   absents: number;
   leaves: number;
@@ -36,6 +37,7 @@ const AttendanceDepartmentChart: React.FC = () => {
   const theme = useTheme();
   const { language } = useLanguage();
   const { showError } = useErrorHandler();
+  const { user } = useUser();
 
   const [chartData, setChartData] = useState<AttendanceChartItem[]>([]);
   const [departments, setDepartments] = useState<BackendDepartment[]>([]);
@@ -51,14 +53,7 @@ const AttendanceDepartmentChart: React.FC = () => {
   } | null>(null);
 
   const getTenantId = () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      const user = JSON.parse(userStr);
-      return user.tenant_id || user.tenant || null;
-    } catch {
-      return null;
-    }
+    return user?.tenant_id || user?.tenant || null;
   };
 
   const formatDate = (date: Date) => {
@@ -128,6 +123,7 @@ const AttendanceDepartmentChart: React.FC = () => {
         if (!deptStats.has(deptInfo.id)) {
           deptStats.set(deptInfo.id, { presents: 0, absents: 0, count: 0 });
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed non-null: we just set it above with has() check
         const stat = deptStats.get(deptInfo.id)!;
         stat.presents += daysPresent;
         stat.absents += daysAbsent;
@@ -206,7 +202,7 @@ const AttendanceDepartmentChart: React.FC = () => {
 
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30); 
+        startDate.setDate(startDate.getDate() - 30);
 
         const startStr = formatDate(startDate);
         const endStr = formatDate(endDate);
@@ -247,7 +243,7 @@ const AttendanceDepartmentChart: React.FC = () => {
     };
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   const departmentOptions = [
     {

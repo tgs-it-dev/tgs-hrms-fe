@@ -18,13 +18,14 @@ import {
 } from '@mui/material';
 import { useUser } from '../../hooks/useUser';
 import { getDefaultDashboardRoute } from '../../utils/permissions';
+import { getRoleName } from '../../utils/roleUtils';
+import { validateEmailAddress } from '../../utils/validation';
 import { useGoogleScript } from '../../hooks/useGoogleScript';
 import authApi from '../../api/authApi';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import signupApi from '../../api/signupApi';
 import { persistAuthSession } from '../../utils/authSession';
-import type { UserProfile } from '../../api/profileApi';
 import AppInputField from '../common/AppInputField';
 import AuthSidebar from '../common/AuthSidebar';
 import { env } from '../../config/env';
@@ -170,16 +171,14 @@ const Login: React.FC = () => {
                 });
                 try {
                   if (data.user) {
-                    updateUser(data.user as unknown as UserProfile);
+                    updateUser(data.user);
                   }
                 } catch {
                   // Ignore update error
                 }
-                const role =
-                  typeof data.user?.role === 'string'
-                    ? data.user?.role
-                    : (data.user?.role as { name?: string } | undefined)?.name;
-                const target = getDefaultDashboardRoute(role);
+                const target = getDefaultDashboardRoute(
+                  getRoleName(data.user?.role)
+                );
                 navigate(target, { replace: true });
               } else {
                 if (data.signupSessionId) {
@@ -240,18 +239,10 @@ const Login: React.FC = () => {
     setEmailError('');
     setPasswordError('');
 
-    if (!email) {
+    const emailValidationError = validateEmailAddress(email);
+    if (emailValidationError) {
       setEmailError(
-        lang === 'ar'
-          ? 'يرجى إدخال البريد الإلكتروني'
-          : 'Please enter your email'
-      );
-      valid = false;
-    } else if (!email.includes('@')) {
-      setEmailError(
-        lang === 'ar'
-          ? 'يرجى إدخال بريد إلكتروني صحيح'
-          : 'Please enter a valid email'
+        lang === 'ar' ? 'يرجى إدخال بريد إلكتروني صحيح' : emailValidationError
       );
       valid = false;
     }
@@ -302,18 +293,16 @@ const Login: React.FC = () => {
       persistAuthSession(authPayload);
 
       if (authPayload.user) {
-        updateUser(authPayload.user as unknown as UserProfile);
+        updateUser(authPayload.user);
       }
-
-      const role =
-        typeof authPayload.user?.role === 'string'
-          ? authPayload.user.role
-          : (authPayload.user?.role as { name?: string } | undefined)?.name;
 
       if (authPayload.requiresPayment) {
         navigate('/signup/select-plan', { replace: true });
       } else {
-        navigate(getDefaultDashboardRoute(role), { replace: true });
+        navigate(
+          getDefaultDashboardRoute(getRoleName(authPayload.user?.role)),
+          { replace: true }
+        );
       }
     } catch (err: unknown) {
       const error = err as {
@@ -428,7 +417,10 @@ const Login: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: { xs: '16px 12px', sm: '24px 16px', md: '48px' },
-            backgroundColor: { xs: '#3083DC', lg: 'var(--white-100-color)' },
+            backgroundColor: {
+              xs: 'primary.main',
+              lg: 'var(--white-100-color)',
+            },
             overflowY: 'auto',
             overflowX: 'hidden',
             position: 'relative',
@@ -475,7 +467,7 @@ const Login: React.FC = () => {
               // maxWidth: { xs: '100%', sm: '90%' },
               width: '100%',
               mx: 'auto',
-              backgroundColor: { xs: '#FFFFFF', lg: 'transparent' },
+              backgroundColor: { xs: 'background.paper', lg: 'transparent' },
               borderRadius: { xs: '30px', lg: 0 },
               p: { xs: 2, sm: 3, md: 4 },
               mt: { xs: 0, lg: 0 },
@@ -499,14 +491,14 @@ const Login: React.FC = () => {
               sx={{
                 mb: 0,
                 fontWeight: 700,
-                color: { xs: '#001218', lg: 'inherit' },
+                color: { xs: 'text.primary', lg: 'inherit' },
               }}
             >
               {lang === 'ar' ? 'تسجيل الدخول' : 'Login'}
             </AppPageTitle>
             <Typography
               sx={{
-                color: { xs: '#888888', lg: 'var(--dark-grey-color)' },
+                color: { xs: 'text.secondary', lg: 'var(--dark-grey-color)' },
                 mb: 3,
                 fontSize: { xs: '14px', sm: '16px', lg: '24px' },
                 fontWeight: 400,
@@ -538,7 +530,9 @@ const Login: React.FC = () => {
                   disabled={isLoading}
                   error={Boolean(emailError)}
                   helperText={emailError}
-                  placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                  placeholder={
+                    lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'
+                  }
                 />
               </Box>
               <Box
@@ -647,7 +641,12 @@ const Login: React.FC = () => {
                 <Button
                   type='submit'
                   variant='contained'
-                  disabled={isLoading || !email || !password}
+                  disabled={
+                    isLoading ||
+                    !email ||
+                    !password ||
+                    Boolean(validateEmailAddress(email))
+                  }
                   sx={{
                     backgroundColor: 'var(--primary-dark-color)',
                     color: 'var(--white-color)',
@@ -682,7 +681,7 @@ const Login: React.FC = () => {
                   sx={{
                     color: 'var(--dark-grey-color)',
                     my: 2,
-                    '&::before, &::after': { borderColor: '#BDBDBD' },
+                    '&::before, &::after': { borderColor: 'text.disabled' },
                   }}
                 >
                   <Box px={1.5} fontSize={{ xs: '14px', lg: '20px' }}>
@@ -702,7 +701,7 @@ const Login: React.FC = () => {
                     align='center'
                     className='label'
                     sx={{
-                      color: '#2D3748',
+                      color: 'text.primary',
                       fontSize: { xs: '12px', sm: 'var(--body-font-size)' },
                     }}
                   >
@@ -711,7 +710,7 @@ const Login: React.FC = () => {
                       : "Don't have an account? "}
                     <Link
                       component={RouterLink}
-                      to='/Signup'
+                      to='/signup'
                       sx={{
                         color: 'var(--primary-dark-color)',
                         textDecoration: 'none',
@@ -728,7 +727,7 @@ const Login: React.FC = () => {
                     onClick={initGoogleButton}
                     sx={{
                       color: 'var(--text-color)',
-                      borderColor: '#BDBDBD',
+                      borderColor: 'text.disabled',
                       textTransform: 'none',
                       fontSize: { xs: '12px', sm: '24px' },
                       fontWeight: 600,

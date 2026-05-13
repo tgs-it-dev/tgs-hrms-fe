@@ -8,6 +8,8 @@ import {
   useTheme,
   Checkbox,
   type SelectProps,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { Icons } from '../../assets/icons';
@@ -17,17 +19,16 @@ interface AppDropdownOption {
   label: string;
 }
 
-interface AppDropdownProps
-  extends Omit<
-    SelectProps<unknown>,
-    'label' | 'onChange' | 'variant' | 'open' | 'onOpen' | 'onClose'
-  > {
+interface AppDropdownProps extends Omit<
+  SelectProps<unknown>,
+  'label' | 'onChange' | 'variant' | 'open' | 'onOpen' | 'onClose'
+> {
   label: string;
   options: AppDropdownOption[];
   value: string | number | Array<string | number>;
   onChange: (event: SelectChangeEvent<string | number | string[]>) => void;
   labelClassName?: string;
-  containerSx?: object;
+  containerSx?: SxProps<Theme>;
   placeholder?: string;
   error?: boolean;
   helperText?: string;
@@ -128,7 +129,7 @@ const AppDropdown = React.forwardRef<HTMLDivElement, AppDropdownProps>(
                 sx={{
                   fontSize: 'var(--label-font-size)',
                   lineHeight: 'var(--label-line-height)',
-                  color: '#d32f2f',
+                  color: 'error.main',
                   fontWeight: 400,
                   textAlign: 'right',
                   ml: 2,

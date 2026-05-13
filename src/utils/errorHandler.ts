@@ -1,4 +1,5 @@
-import { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
+import type { ErrorResource } from '../hooks/useErrorHandler';
 
 // Backend error response structure
 interface BackendErrorResponse {
@@ -22,6 +23,24 @@ export interface ErrorHandlingResult {
  * @param error - The error object from API call
  * @returns ErrorHandlingResult with message, type, and whether to show
  */
+// Patterns that indicate an internal server crash — never show these raw to users
+const INTERNAL_ERROR_PATTERNS = [
+  /is not defined/i,
+  /cannot read propert/i,
+  /undefined is not/i,
+  /null is not/i,
+  /TypeError:/i,
+  /ReferenceError:/i,
+  /SyntaxError:/i,
+];
+
+function sanitizeMessage(msg: string): string {
+  if (INTERNAL_ERROR_PATTERNS.some(p => p.test(msg))) {
+    return 'An unexpected server error occurred. Please try again or contact support.';
+  }
+  return msg;
+}
+
 export function extractErrorMessage(error: unknown): ErrorHandlingResult {
   // Default error message
   const defaultMessage = 'An unexpected error occurred. Please try again.';
@@ -37,7 +56,7 @@ export function extractErrorMessage(error: unknown): ErrorHandlingResult {
       // Backend returns structured error messages
       if (typeof backendError === 'object' && 'message' in backendError) {
         return {
-          message: backendError.message,
+          message: sanitizeMessage(backendError.message),
           type: 'error',
           shouldShow: true,
         };
@@ -50,7 +69,7 @@ export function extractErrorMessage(error: unknown): ErrorHandlingResult {
 
     if (backendMessage) {
       return {
-        message: backendMessage,
+        message: sanitizeMessage(backendMessage),
         type: 'error',
         shouldShow: true,
       };
@@ -133,7 +152,7 @@ export function handleApiError(
   error: unknown,
   context?: {
     operation: 'create' | 'update' | 'delete' | 'fetch';
-    resource: 'department' | 'designation' | 'employee';
+    resource: ErrorResource;
     isGlobal?: boolean;
   }
 ): ErrorHandlingResult {

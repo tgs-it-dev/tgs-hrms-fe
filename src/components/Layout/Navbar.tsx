@@ -1,19 +1,17 @@
 import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from '../../hooks/useLanguage';
 import { useUser } from '../../hooks/useUser';
-import { useProfilePicture } from '../../context/ProfilePictureContext';
+import { useProfilePicture } from '../../context/UserContext';
 import { env } from '../../config/env';
 import {
   getRoleDisplayName,
   getRoleName,
   isManager,
   isEmployee,
-  isNetworkAdmin,
-  isAdmin,
-  isHRAdmin,
 } from '../../utils/roleUtils';
 
 import {
@@ -22,7 +20,6 @@ import {
   IconButton,
   Typography,
   InputBase,
-  Badge,
   Menu,
   MenuItem,
   Divider,
@@ -38,8 +35,8 @@ import {
   ListItemText,
   ListItemButton,
 } from '@mui/material';
-import { useNotifications } from '../../context/NotificationContext';
 import UserAvatar from '../common/UserAvatar';
+import NotificationButton from './NotificationButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -47,51 +44,24 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { Icons } from '../../assets/icons';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
 import TeamMembersAvatar from '../Teams/TeamMembersAvatar';
 import TeamMembersModal from '../Teams/TeamMembersModal';
-import { teamApiService, type Team, type TeamMember } from '../../api/teamApi';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import EventIcon from '@mui/icons-material/Event';
-import DescriptionIcon from '@mui/icons-material/Description';
-import {
-  isDashboardPathAllowedForRole,
-  isMenuVisibleForRole,
-} from '../../utils/permissions';
-import { isSystemAdmin as roleIsSystemAdmin } from '../../utils/roleUtils';
+import teamApiService from '../../api/teamApi';
+import type { Team, TeamMember } from '../../types/team';
+import { isDashboardPathAllowedForRole } from '../../utils/permissions';
 import {
   useFeatureToggles,
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
-
-const labels = {
-  en: {
-    search: 'Search',
-    members: 'Members',
-    settings: 'Settings',
-    signout: 'Log out',
-    adminProfile: 'Admin Profile',
-    dylan: 'Dylan Hunter',
-    email: 'Dylan.hunter@gmail.com',
-  },
-  ar: {
-    search: 'بحث',
-    members: 'الأعضاء',
-    settings: 'الإعدادات',
-    signout: 'تسجيل الخروج',
-    adminProfile: 'ملف المشرف',
-    dylan: 'ديلان هنتر',
-    email: 'Dylan.hunter@gmail.com',
-  },
-};
+import { useScopedTranslations } from '../../hooks/useScopedTranslations';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: '16px',
   backgroundColor:
-    theme.palette.mode === 'dark' ? theme.palette.action.hover : '#e0ecfa',
+    theme.palette.mode === 'dark'
+      ? theme.palette.action.hover
+      : theme.palette.primary.light,
   height: '36px',
   display: 'flex',
   alignItems: 'center',
@@ -127,14 +97,12 @@ interface SearchResult {
     | 'team'
     | 'department'
     | 'designation'
-    | 'benefit'
     | 'leave'
     | 'policy'
     | 'holiday'
     | 'tenant'
     | 'project'
-    | 'attendance'
-    | 'payroll';
+    | 'attendance';
   id?: string;
   icon?: React.ReactNode;
   subtitle?: string;
@@ -174,13 +142,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Designation',
-    path: 'Designations',
+    path: 'designations',
     category: 'Department',
     type: 'route',
   },
   {
     label: 'User List',
-    path: 'UserList',
+    path: 'user-list',
     category: 'Department',
     type: 'route',
   },
@@ -198,13 +166,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Employee List',
-    path: 'EmployeeManager',
+    path: 'employee-manager',
     category: 'Employees',
     type: 'route',
   },
   {
     label: 'Tenant Employees',
-    path: 'TenantEmployees',
+    path: 'tenant-employees',
     category: 'Employees',
     type: 'route',
   },
@@ -216,13 +184,13 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Attendance',
-    path: 'AttendanceCheck',
+    path: 'attendance-check',
     category: 'Attendance',
     type: 'route',
   },
   {
     label: 'Daily Attendance',
-    path: 'AttendanceTable',
+    path: 'attendance-table',
     category: 'Attendance',
     type: 'route',
   },
@@ -240,7 +208,7 @@ const searchableRoutes: SearchResult[] = [
   },
   {
     label: 'Reports',
-    path: 'Reports',
+    path: 'reports',
     category: 'Leave Analytics',
     type: 'route',
   },
@@ -251,62 +219,11 @@ const searchableRoutes: SearchResult[] = [
     type: 'route',
   },
   {
-    label: 'Benefits List',
-    path: 'benefits-list',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Employee Benefits',
-    path: 'employee-benefit',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefit Details',
-    path: 'benefit-details',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
-    label: 'Benefits Report',
-    path: 'benefit-report',
-    category: 'Benefits',
-    type: 'route',
-  },
-  {
     label: 'Employee Performance',
     path: 'performance-dashboard',
     category: 'Performance',
     type: 'route',
   },
-  { label: 'Invoice', path: 'invoice', category: 'Accounts', type: 'route' },
-  { label: 'Payments', path: 'payments', category: 'Accounts', type: 'route' },
-  {
-    label: 'Payroll Configuration',
-    path: 'payroll-configuration',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Employee Salary',
-    path: 'employee-salary',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Records',
-    path: 'payroll-records',
-    category: 'Payroll',
-    type: 'route',
-  },
-  {
-    label: 'Payroll Reports',
-    path: 'payroll-reports',
-    category: 'Payroll',
-    type: 'route',
-  },
-  { label: 'My Salary', path: 'my-salary', category: 'Payroll', type: 'route' },
   { label: 'Audit Logs', path: 'audit-logs', category: 'Audit', type: 'route' },
   { label: 'Settings', path: 'settings', category: 'Settings', type: 'route' },
   {
@@ -315,33 +232,10 @@ const searchableRoutes: SearchResult[] = [
     category: 'Profile',
     type: 'route',
   },
-  // App routes
-  { label: 'Chat', path: 'chat', category: 'App', type: 'route' },
-  { label: 'Calendar', path: 'calendar', category: 'App', type: 'route' },
-  // Other Pages
-  { label: 'Login', path: 'login', category: 'Other Pages', type: 'route' },
-  {
-    label: 'Register',
-    path: 'register',
-    category: 'Other Pages',
-    type: 'route',
-  },
-  { label: 'Error', path: 'error', category: 'Other Pages', type: 'route' },
-  // UI Components
-  {
-    label: 'Buttons',
-    path: 'buttons',
-    category: 'UI Components',
-    type: 'route',
-  },
-  { label: 'Cards', path: 'cards', category: 'UI Components', type: 'route' },
-  { label: 'Modals', path: 'modals', category: 'UI Components', type: 'route' },
 ];
 
 const categoryToFeature: Partial<Record<string, FeatureKey>> = {
-  Payroll: 'payroll',
   Attendance: 'attendance',
-  Benefits: 'benefits',
   Performance: 'performance',
   Recruitment: 'recruitment',
   'Leave Analytics': 'leaveAnalytics',
@@ -356,172 +250,6 @@ interface NavbarProps {
   onToggleSidebar: () => void;
   onOpenInviteModal: () => void;
 }
-
-/**
- * NotificationButton - small component to render notification bell with unread badge
- * and a Menu listing notifications from NotificationContext.
- */
-const NotificationButton: React.FC = () => {
-  const theme = useTheme();
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    clearNotification,
-    clearAllNotifications,
-  } = useNotifications();
-
-  const [anchor, setAnchor] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchor);
-
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
-    setAnchor(e.currentTarget);
-  const handleClose = () => setAnchor(null);
-
-  return (
-    <>
-      <IconButton
-        onClick={handleOpen}
-        sx={{ padding: { xs: '6px', md: '8px' } }}
-        aria-label='Notifications'
-        aria-haspopup='true'
-        aria-expanded={open ? 'true' : undefined}
-      >
-        <Badge
-          badgeContent={unreadCount > 0 ? unreadCount : 0}
-          color='error'
-          overlap='circular'
-          showZero={false}
-          sx={{
-            '& .MuiBadge-badge': {
-              fontSize: '0.65rem',
-              minWidth: 18,
-              height: 18,
-            },
-          }}
-        >
-          <Box
-            component='img'
-            src={Icons.notification}
-            alt='Notifications'
-            sx={{
-              width: { xs: 18, md: 24 },
-              height: { xs: 18, md: 24 },
-              filter:
-                theme.palette.mode === 'dark'
-                  ? 'brightness(0) saturate(100%) invert(56%)'
-                  : 'brightness(0) saturate(100%)',
-            }}
-          />
-        </Badge>
-      </IconButton>
-
-      <Menu
-        anchorEl={anchor}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            width: { xs: 300, sm: 360 },
-            maxHeight: 420,
-            bgcolor: theme.palette.background.paper,
-          },
-        }}
-      >
-        <Box
-          sx={{ px: 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-            Notifications
-          </Typography>
-          <Box sx={{ flex: 1 }} />
-          <Button
-            size='small'
-            onClick={() => {
-              markAllAsRead();
-            }}
-          >
-            Mark all read
-          </Button>
-          <Button
-            size='small'
-            onClick={() => {
-              clearAllNotifications();
-            }}
-          >
-            Clear
-          </Button>
-        </Box>
-        <Divider />
-        {(() => {
-          const unreadList = notifications.filter(n => !n.read);
-          return unreadList.length === 0 ? (
-          <List sx={{ p: 2 }}>
-            <ListItem>
-              <ListItemText
-                primary='No notifications'
-                primaryTypographyProps={{ color: 'text.secondary' }}
-              />
-            </ListItem>
-          </List>
-        ) : (
-          <List>
-            {unreadList.map(n => (
-              <ListItemButton
-                key={n.id}
-                onClick={() => {
-                  markAsRead(n.id);
-                }}
-                sx={{
-                  alignItems: 'flex-start',
-                  bgcolor: n.read
-                    ? 'transparent'
-                    : theme.palette.action.selected,
-                }}
-              >
-                <ListItemText
-                  primary={n.title}
-                  secondary={
-                    <>
-                      <Typography
-                        component='span'
-                        variant='body2'
-                        color='text.secondary'
-                      >
-                        {n.text}
-                      </Typography>
-                      <Typography
-                        component='div'
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{ mt: 0.5 }}
-                      >
-                        {new Date(n.timestamp).toLocaleString()}
-                      </Typography>
-                    </>
-                  }
-                />
-                <IconButton
-                  size='small'
-                  onClick={e => {
-                    e.stopPropagation();
-                    clearNotification(n.id);
-                  }}
-                >
-                  ×
-                </IconButton>
-              </ListItemButton>
-            ))}
-          </List>
-        );
-        })()}
-      </Menu>
-    </>
-  );
-};
 
 const Navbar: React.FC<NavbarProps> = ({
   darkMode,
@@ -541,6 +269,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const { updateProfilePicture, clearProfilePicture } = useProfilePicture();
 
   // Cache for API responses to avoid redundant calls
   const dataCacheRef = React.useRef<{
@@ -548,7 +277,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: Team[] | null;
     departments: unknown[] | null;
     designations: unknown[] | null;
-    benefits: unknown[] | null;
     leaves: unknown[] | null;
     policies: unknown[] | null;
     tenants: unknown[] | null;
@@ -558,7 +286,6 @@ const Navbar: React.FC<NavbarProps> = ({
     teams: null,
     departments: null,
     designations: null,
-    benefits: null,
     leaves: null,
     policies: null,
     tenants: null,
@@ -573,9 +300,10 @@ const Navbar: React.FC<NavbarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { language, setLanguage } = useLanguage();
-  const lang = labels[language];
+  const t = useScopedTranslations('navbar');
+  const tc = useScopedTranslations('common');
   const { user, clearUser } = useUser();
-  const { updateProfilePicture } = useProfilePicture();
+  const queryClient = useQueryClient();
   const { isFeatureEnabled } = useFeatureToggles();
   const currentUserRole = React.useMemo(() => {
     if (!user) return '';
@@ -613,140 +341,19 @@ const Navbar: React.FC<NavbarProps> = ({
     [currentUserRole]
   );
 
-  // Helper functions to check if user can search specific data types
-  const canSearchEmployees = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Check if employees menu is visible for role
-    return isMenuVisibleForRole('employees', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchTeams = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('teams', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchDepartments = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('department', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchBenefits = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    return isMenuVisibleForRole('benefits', currentUserRole);
-  }, [currentUserRole]);
-
-  const canSearchLeaves = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Explicitly deny for network-admin
-    if (isNetworkAdmin(currentUserRole)) {
-      return false;
-    }
-
-    // Leaves are part of attendance/leave-analytics
-    return (
-      isMenuVisibleForRole('attendance', currentUserRole) ||
-      isMenuVisibleForRole('leave-analytics', currentUserRole)
-    );
-  }, [currentUserRole]);
-
-  const canSearchTenants = React.useCallback((): boolean => {
-    // If no role, deny access
-    if (
-      !currentUserRole ||
-      currentUserRole.trim() === '' ||
-      currentUserRole === 'Unknown'
-    ) {
-      return false;
-    }
-    // Only system-admin can search tenants
-    return roleIsSystemAdmin(currentUserRole);
-  }, [currentUserRole]);
-
-  // Get current user's tenantId for tenant-specific search
-  const getCurrentTenantId = React.useCallback((): string | null => {
-    try {
-      // Try localStorage first
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-
-      // Fallback to user object
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId =
-          userFromStorage?.tenant_id ||
-          userFromStorage?.tenantId ||
-          userFromStorage?.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-
-      // Last fallback: user context
-      if (user) {
-        const userWithTenant = user as {
-          tenant_id?: string;
-          tenantId?: string;
-          tenant?: { id?: string };
-        };
-        const tenantId =
-          userWithTenant.tenant_id ||
-          userWithTenant.tenantId ||
-          userWithTenant.tenant?.id ||
-          '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore errors
-    }
-    return null;
-  }, [user]);
-
   // Initialize profile picture state when user data loads
   React.useEffect(() => {
     if (user?.profile_pic) {
+      // 1. If user exists and has a pic, set it
       const profilePicUrl = user.profile_pic.startsWith('http')
         ? user.profile_pic
         : `${env.apiBaseUrl}/users/${user.id}/profile-picture`;
       updateProfilePicture(profilePicUrl);
+    } else if (!user) {
+      // 2. If user is null (logged out), clear the picture state immediately
+      clearProfilePicture();
     }
-  }, [user?.profile_pic, user?.id, updateProfilePicture]);
+  }, [user, updateProfilePicture, clearProfilePicture]);
 
   // Fetch manager's team members when user is manager
   React.useEffect(() => {
@@ -783,7 +390,6 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
-    // Clear all authentication and signup data
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -792,15 +398,13 @@ const Navbar: React.FC<NavbarProps> = ({
     localStorage.removeItem('companyDetails');
     localStorage.removeItem('signupSessionId');
 
-    // Clear user context
+    // Clear TanStack Query cache so the next user never sees stale data
+    queryClient.clear();
+
     clearUser();
+    clearProfilePicture();
 
-    // Navigate to login page with replace to prevent back navigation
     navigate('/', { replace: true });
-  };
-
-  const handleOpenTeamMembersModal = () => {
-    setTeamMembersModalOpen(true);
   };
 
   const handleCloseTeamMembersModal = () => {
@@ -972,7 +576,7 @@ const Navbar: React.FC<NavbarProps> = ({
           setShowSearchResults(results.length > 0);
           setSelectedResultIndex(-1);
         }
-      } catch (error) {
+      } catch {
         if (!abortController.signal.aborted) {
           setSearchResults([]);
           setShowSearchResults(false);
@@ -1004,7 +608,7 @@ const Navbar: React.FC<NavbarProps> = ({
     setSelectedResultIndex(-1);
     if (!result) return;
     if (result.type === 'employee' && result.id) {
-      navigate(`/dashboard/EmployeeProfileView/${result.id}`, {
+      navigate(`/dashboard/employee-profile-view/${result.id}`, {
         state: {
           fromSearch: true,
           userId: result.metadata?.userId,
@@ -1029,17 +633,9 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'designation' && result.id) {
-      navigate('/dashboard/Designations', {
+      navigate('/dashboard/designations', {
         state: {
           designationId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'benefit' && result.id) {
-      navigate('/dashboard/benefits-list', {
-        state: {
-          benefitId: result.id,
           fromSearch: true,
         },
         replace: false,
@@ -1069,18 +665,9 @@ const Navbar: React.FC<NavbarProps> = ({
         replace: false,
       });
     } else if (result.type === 'attendance' && result.id) {
-      navigate('/dashboard/AttendanceCheck', {
+      navigate('/dashboard/attendance-check', {
         state: {
           attendanceId: result.id,
-          fromSearch: true,
-        },
-        replace: false,
-      });
-    } else if (result.type === 'payroll' && result.id) {
-      navigate('/dashboard/payroll-records', {
-        state: {
-          payrollId: result.id,
-          viewPayroll: true,
           fromSearch: true,
         },
         replace: false,
@@ -1145,7 +732,6 @@ const Navbar: React.FC<NavbarProps> = ({
         cacheRef.teams = null;
         cacheRef.departments = null;
         cacheRef.designations = null;
-        cacheRef.benefits = null;
         cacheRef.leaves = null;
         cacheRef.policies = null;
         cacheRef.tenants = null;
@@ -1159,7 +745,6 @@ const Navbar: React.FC<NavbarProps> = ({
       cacheRef.teams = null;
       cacheRef.departments = null;
       cacheRef.designations = null;
-      cacheRef.benefits = null;
       cacheRef.leaves = null;
       cacheRef.policies = null;
       cacheRef.tenants = null;
@@ -1239,8 +824,17 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Search>
                   <StyledInputBase
                     ref={searchInputRef}
-                    placeholder={lang.search}
-                    inputProps={{ 'aria-label': 'search' }}
+                    placeholder={t.search}
+                    inputProps={{
+                      'aria-label': 'Search pages and features',
+                      'aria-autocomplete': 'list',
+                      'aria-controls': showSearchResults
+                        ? 'desktop-search-results'
+                        : undefined,
+                      'aria-expanded': showSearchResults,
+                      role: 'combobox',
+                      id: 'desktop-global-search',
+                    }}
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onKeyDown={handleSearchKeyDown}
@@ -1259,6 +853,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   {isSearching && (
                     <CircularProgress
                       size={16}
+                      aria-label='Searching...'
                       sx={{
                         position: 'absolute',
                         right: '50px',
@@ -1277,7 +872,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   }}
                   sx={{
                     backgroundColor: 'var(--primary-dark-color)',
-                    color: '#ffffff',
+                    color: 'common.white',
                     borderRadius: '16px',
                     width: { xs: '36px', md: '44px' },
                     height: { xs: '36px', md: '44px' },
@@ -1287,12 +882,13 @@ const Navbar: React.FC<NavbarProps> = ({
                       opacity: 0.9,
                     },
                   }}
-                  aria-label='Search'
+                  aria-label='Submit search'
                 >
                   <Box
                     component='img'
                     src={Icons.search}
-                    alt='Search'
+                    alt=''
+                    aria-hidden='true'
                     sx={{
                       width: { xs: 16, md: 20 },
                       height: { xs: 16, md: 20 },
@@ -1302,6 +898,9 @@ const Navbar: React.FC<NavbarProps> = ({
                 </IconButton>
                 {showSearchResults && searchResults.length > 0 && (
                   <Paper
+                    id='desktop-search-results'
+                    role='listbox'
+                    aria-label='Search results'
                     elevation={4}
                     onClick={e => e.stopPropagation()}
                     onMouseDown={e => e.stopPropagation()}
@@ -1328,6 +927,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         <ListItem
                           key={`${result.type}-${result.id || result.path}-${index}`}
                           disablePadding
+                          role='option'
+                          aria-selected={selectedResultIndex === index}
                         >
                           <ListItemButton
                             selected={selectedResultIndex === index}
@@ -1360,7 +961,7 @@ const Navbar: React.FC<NavbarProps> = ({
                               },
                               '&.Mui-selected': {
                                 backgroundColor: 'var(--primary-dark-color)',
-                                color: '#ffffff',
+                                color: 'common.white',
                               },
                             }}
                           >
@@ -1421,7 +1022,7 @@ const Navbar: React.FC<NavbarProps> = ({
                           color: theme.palette.text.secondary,
                         }}
                       >
-                        No results found
+                        {tc.noResults}
                       </Typography>
                     </Paper>
                   )}
@@ -1467,7 +1068,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 backgroundColor:
                   theme.palette.mode === 'dark'
                     ? theme.palette.action.hover
-                    : '#efefef',
+                    : theme.palette.background.default,
                 borderRadius: '16px',
                 p: { xs: 0.25, md: 0.5 },
                 display: 'flex',
@@ -1631,8 +1232,17 @@ const Navbar: React.FC<NavbarProps> = ({
             >
               <StyledInputBase
                 ref={searchInputRef}
-                placeholder={lang.search}
-                inputProps={{ 'aria-label': 'search' }}
+                placeholder={t.search}
+                inputProps={{
+                  'aria-label': 'Search pages and features',
+                  'aria-autocomplete': 'list',
+                  'aria-controls': showSearchResults
+                    ? 'mobile-search-results'
+                    : undefined,
+                  'aria-expanded': showSearchResults,
+                  role: 'combobox',
+                  id: 'mobile-global-search',
+                }}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onKeyDown={handleSearchKeyDown}
@@ -1653,6 +1263,7 @@ const Navbar: React.FC<NavbarProps> = ({
               {isSearching && (
                 <CircularProgress
                   size={14}
+                  aria-label='Searching...'
                   sx={{
                     position: 'absolute',
                     right: { xs: '48px', md: '40px' },
@@ -1678,7 +1289,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   top: '50%',
                   transform: 'translateY(-50%)',
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#ffffff',
+                  color: 'common.white',
                   borderRadius: { xs: '8px', md: '12px' },
                   width: { xs: '28px', md: '36px' },
                   height: { xs: '28px', md: '36px' },
@@ -1689,12 +1300,13 @@ const Navbar: React.FC<NavbarProps> = ({
                   //   opacity: 0.9,
                   // },
                 }}
-                aria-label='Search'
+                aria-label='Submit search'
               >
                 <Box
                   component='img'
                   src={Icons.search}
-                  alt='Search'
+                  alt=''
+                  aria-hidden='true'
                   sx={{
                     width: { xs: 14, md: 18 },
                     height: { xs: 14, md: 18 },
@@ -1706,6 +1318,9 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Search Results Dropdown */}
             {showSearchResults && searchResults.length > 0 && (
               <Paper
+                id='mobile-search-results'
+                role='listbox'
+                aria-label='Search results'
                 elevation={4}
                 onClick={e => e.stopPropagation()}
                 onMouseDown={e => e.stopPropagation()}
@@ -1732,6 +1347,8 @@ const Navbar: React.FC<NavbarProps> = ({
                     <ListItem
                       key={`${result.type}-${result.id || result.path}-${index}`}
                       disablePadding
+                      role='option'
+                      aria-selected={selectedResultIndex === index}
                     >
                       <ListItemButton
                         selected={selectedResultIndex === index}
@@ -1824,7 +1441,7 @@ const Navbar: React.FC<NavbarProps> = ({
                       color: theme.palette.text.secondary,
                     }}
                   >
-                    No results found
+                    {tc.noResults}
                   </Typography>
                 </Paper>
               )}
@@ -1908,7 +1525,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <MenuItem
             onClick={() => {
               handleMenuClose();
-              navigate('/dashboard/EmployeeManager');
+              navigate('/dashboard/employee-manager');
             }}
             aria-label='Navigate to employee manager'
             sx={{
@@ -1929,14 +1546,14 @@ const Navbar: React.FC<NavbarProps> = ({
               color={theme.palette.text.primary}
               sx={{ fontSize: { xs: '12px', sm: '14px' } }}
             >
-              {lang.members}
+              {t.members}
             </Typography>
           </MenuItem>
         )}
         <MenuItem
           onClick={() => {
             handleMenuClose();
-            navigate('/dashboard/UserProfile');
+            navigate('/dashboard/user-profile');
           }}
           aria-label='Navigate to user profile'
           sx={{
@@ -1957,7 +1574,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={theme.palette.text.primary}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            Profile
+            {t.profile}
           </Typography>
         </MenuItem>
         <MenuItem
@@ -1984,7 +1601,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={theme.palette.text.primary}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            {lang.settings}
+            {t.settings}
           </Typography>
         </MenuItem>
         <MenuItem
@@ -2008,7 +1625,7 @@ const Navbar: React.FC<NavbarProps> = ({
             color={'var(--secondary-color)'}
             sx={{ fontSize: { xs: '12px', sm: '14px' } }}
           >
-            {lang.signout}
+            {t.signout}
           </Typography>
         </MenuItem>
         {/* <Divider sx={{ my: 1 }} /> */}

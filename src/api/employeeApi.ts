@@ -1,116 +1,24 @@
+import { extractErrorMessage } from '../utils/errorHandler';
 import axiosInstance from './axiosInstance';
+import type {
+  BackendEmployee,
+  GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
+} from '../types/employee';
 
-export interface EmployeeJoiningReport {
-  month: number;
-  year: number;
-  total: number;
-}
-
-export interface GenderPercentage {
-  male: number;
-  female: number;
-  total: number;
-}
-
-export interface BackendEmployee {
-  id: string;
-  user_id?: string; // User ID for fetching profile pictures
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  phone: string;
-  role_id?: string;
-  role_name?: string;
-  departmentId: string;
-  designationId: string;
-  status?: string;
-  cnic_number?: string;
-  profile_picture?: string;
-  cnic_picture?: string;
-  cnic_back_picture?: string;
-  department: {
-    id: string;
-    name: string;
-    description: string;
-    tenantId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  designation: {
-    id: string;
-    title: string;
-    tenantId: string;
-    departmentId: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  tenantId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EmployeeProfileAttendanceSummaryItem {
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workedHours: number;
-}
-
-export interface EmployeeProfileLeaveHistoryItem {
-  id: string;
-  fromDate: string;
-  toDate: string;
-  reason: string;
-  type: string;
-  status: string;
-}
-
-export interface EmployeeFullProfile {
-  id: string; // user id
-  name: string;
-  email: string;
-  role: string;
-  designation: string | null;
-  department: string | null;
-  joinedAt: string;
-  profile_pic?: string | null;
-  attendanceSummary: EmployeeProfileAttendanceSummaryItem[];
-  leaveHistory: EmployeeProfileLeaveHistoryItem[];
-}
-
-export interface EmployeeDto {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  password?: string; // Made optional since backend will generate temporary password
-  designationId: string; // UX carries department selection separately
-  gender: string; // <-- Add gender
-  role_name?: string; // Role name for employee creation
-  role_id?: string; // Role ID (optional)
-  team_id?: string; // Team ID (optional)
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
-
-export interface EmployeeUpdateDto {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  designationId?: string;
-  role_id?: string;
-  role_name?: string;
-  gender?: string; // <-- Optionally add gender for updates
-  cnicNumber?: string; // CNIC Number
-  profilePicture?: File | null; // Profile Picture
-  cnicFrontPicture?: File | null; // CNIC Front Picture
-  cnicBackPicture?: File | null; // CNIC Back Picture
-}
+export type {
+  BackendEmployee,
+  GenderPercentage,
+  EmployeeJoiningReport,
+  EmployeeProfileAttendanceSummaryItem,
+  EmployeeProfileLeaveHistoryItem,
+  EmployeeFullProfile,
+  EmployeeDto,
+  EmployeeUpdateDto,
+} from '../types/employee';
 
 type EmployeeFilters = {
   departmentId?: string;
@@ -125,6 +33,7 @@ type RawUser = {
   last_name: string;
   tenant_id: string;
   profile_pic?: string;
+  gender?: string;
 };
 
 type RawDepartment = {
@@ -156,6 +65,7 @@ type RawEmployee = {
   designation?: RawDesignation;
   role_id?: string;
   role_name?: string;
+  gender?: string;
 };
 
 function normalizeEmployee(raw: unknown): BackendEmployee {
@@ -172,37 +82,6 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
     (data.role_name as string) ||
     (user && ((user as Record<string, unknown>).role_name as string)) ||
     '';
-
-  if (data.title && !data.user) {
-    return {
-      id: (data.id as string) || `mock-${Date.now()}`,
-      user_id: (data.user_id as string) || '',
-      name: `Employee ${data.title as string}`,
-      firstName: 'Employee',
-      lastName: data.title as string,
-      email: `employee.${(data.title as string)
-        .toLowerCase()
-        .replace(/\s+/g, '.')}@company.com`,
-      phone: '+1234567890',
-      departmentId: (data.department_id as string) || '',
-      designationId: (data.id as string) || '',
-      status: data.invite_status as string,
-      role_id: roleId,
-      role_name: roleName,
-      department: null,
-      designation: {
-        id: data.id as string,
-        title: data.title as string,
-        tenantId: '',
-        departmentId: (data.department_id as string) || '',
-        createdAt: data.created_at as string,
-        updatedAt: (data.updated_at as string) || (data.created_at as string),
-      },
-      tenantId: '',
-      createdAt: data.created_at as string,
-      updatedAt: (data.updated_at as string) || (data.created_at as string),
-    };
-  }
 
   if (user && designation) {
     return {
@@ -225,15 +104,16 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
         (user?.profile_pic as string) || (data.profile_picture as string),
       cnic_picture: data.cnic_picture as string,
       cnic_back_picture: data.cnic_back_picture as string,
+      gender: (user?.gender as string) || (data.gender as string),
       department: department
         ? {
-          id: department.id,
-          name: department.name,
-          description: department.description ?? '',
-          tenantId: department.tenant_id,
-          createdAt: department.created_at,
-          updatedAt: department.updated_at ?? department.created_at,
-        }
+            id: department.id,
+            name: department.name,
+            description: department.description ?? '',
+            tenantId: department.tenant_id,
+            createdAt: department.created_at,
+            updatedAt: department.updated_at ?? department.created_at,
+          }
         : null,
       designation: {
         id: designation.id,
@@ -264,6 +144,7 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
     profile_picture: data.profile_picture as string,
     cnic_picture: data.cnic_picture as string,
     cnic_back_picture: data.cnic_back_picture as string,
+    gender: (user?.gender as string) || (data.gender as string),
     department: null,
     designation: null,
     tenantId: (data.tenant_id as string) || '',
@@ -278,6 +159,54 @@ function normalizeEmployee(raw: unknown): BackendEmployee {
 class EmployeeApiService {
   private baseUrl = '/employees';
 
+  private buildFormData(employeeData: EmployeeDto): FormData {
+    const formData = new FormData();
+    formData.append('first_name', employeeData.first_name);
+    formData.append('last_name', employeeData.last_name);
+    formData.append('email', employeeData.email);
+    formData.append('phone', employeeData.phone);
+    if (employeeData.password)
+      formData.append('password', employeeData.password);
+    formData.append('designation_id', employeeData.designationId);
+    formData.append('gender', employeeData.gender);
+    if (employeeData.role_name)
+      formData.append('role_name', employeeData.role_name);
+    if (employeeData.role_id) formData.append('role_id', employeeData.role_id);
+    if (employeeData.team_id) formData.append('team_id', employeeData.team_id);
+    if (employeeData.cnicNumber)
+      formData.append('cnic_number', employeeData.cnicNumber);
+    if (employeeData.profilePicture)
+      formData.append(
+        'profile_picture',
+        employeeData.profilePicture,
+        employeeData.profilePicture.name
+      );
+    if (employeeData.cnicFrontPicture)
+      formData.append(
+        'cnic_picture',
+        employeeData.cnicFrontPicture,
+        employeeData.cnicFrontPicture.name
+      );
+    if (employeeData.cnicBackPicture)
+      formData.append(
+        'cnic_back_picture',
+        employeeData.cnicBackPicture,
+        employeeData.cnicBackPicture.name
+      );
+    return formData;
+  }
+
+  private async createByEndpoint(
+    endpoint: string,
+    employeeData: EmployeeDto
+  ): Promise<BackendEmployee> {
+    const response = await axiosInstance.post<RawEmployee>(
+      endpoint,
+      this.buildFormData(employeeData)
+    );
+    return normalizeEmployee(response.data);
+  }
+
   async getAllEmployees(
     filters: EmployeeFilters = {},
     page: number | null = 1
@@ -289,20 +218,15 @@ class EmployeeApiService {
     totalPages: number;
   }> {
     try {
-      const params = new URLSearchParams();
-      // Only add page parameter if it's not null (for dropdowns, pass null to get all records)
+      const params: Record<string, string | number> = {};
       if (page !== null) {
-        params.append('page', page.toString());
-        params.append('limit', '25'); // Backend returns 25 records per page
+        params.page = page;
+        params.limit = 25;
       }
+      if (filters.departmentId) params.department_id = filters.departmentId;
+      if (filters.designationId) params.designation_id = filters.designationId;
 
-      if (filters.departmentId)
-        params.append('department_id', filters.departmentId);
-      if (filters.designationId)
-        params.append('designation_id', filters.designationId);
-
-      const url = `${this.baseUrl}?${params.toString()}`;
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get(this.baseUrl, { params });
 
       const itemsArray = Array.isArray(response.data.items)
         ? response.data.items
@@ -367,191 +291,15 @@ class EmployeeApiService {
     // NOTE: We intentionally do NOT wrap/transform errors here.
     // The caller (UI) needs access to `error.response.data` for special flows
     // like `requiresPayment` + `checkoutUrl` returned by the backend.
-
-    // Create FormData for multipart/form-data submission
-    const formData = new FormData();
-
-    // Add text fields
-    formData.append('first_name', employeeData.first_name);
-    formData.append('last_name', employeeData.last_name);
-    formData.append('email', employeeData.email);
-    formData.append('phone', employeeData.phone);
-    if (employeeData.password) {
-      formData.append('password', employeeData.password);
-    }
-    formData.append('designation_id', employeeData.designationId);
-    formData.append('gender', employeeData.gender);
-    if (employeeData.role_name) {
-      formData.append('role_name', employeeData.role_name);
-    }
-    if (employeeData.role_id) {
-      formData.append('role_id', employeeData.role_id);
-    }
-    if (employeeData.team_id) {
-      formData.append('team_id', employeeData.team_id);
-    }
-    if (employeeData.cnicNumber) {
-      formData.append('cnic_number', employeeData.cnicNumber);
-    }
-
-    // Add image files if they exist
-    if (employeeData.profilePicture) {
-      formData.append(
-        'profile_picture',
-        employeeData.profilePicture,
-        employeeData.profilePicture.name
-      );
-    }
-    if (employeeData.cnicFrontPicture) {
-      formData.append(
-        'cnic_picture',
-        employeeData.cnicFrontPicture,
-        employeeData.cnicFrontPicture.name
-      );
-    }
-    if (employeeData.cnicBackPicture) {
-      formData.append(
-        'cnic_back_picture',
-        employeeData.cnicBackPicture,
-        employeeData.cnicBackPicture.name
-      );
-    }
-
-    const response = await axiosInstance.post<RawEmployee>(
-      this.baseUrl,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return normalizeEmployee(response.data);
+    return this.createByEndpoint(this.baseUrl, employeeData);
   }
 
   async createManager(employeeData: EmployeeDto): Promise<BackendEmployee> {
-    // Create FormData for multipart/form-data submission
-    const formData = new FormData();
-
-    // Add text fields
-    formData.append('first_name', employeeData.first_name);
-    formData.append('last_name', employeeData.last_name);
-    formData.append('email', employeeData.email);
-    formData.append('phone', employeeData.phone);
-    if (employeeData.password) {
-      formData.append('password', employeeData.password);
-    }
-    formData.append('designation_id', employeeData.designationId);
-    formData.append('gender', employeeData.gender);
-    if (employeeData.role_name) {
-      formData.append('role_name', employeeData.role_name);
-    }
-    if (employeeData.role_id) {
-      formData.append('role_id', employeeData.role_id);
-    }
-    if (employeeData.team_id) {
-      formData.append('team_id', employeeData.team_id);
-    }
-    if (employeeData.cnicNumber) {
-      formData.append('cnic_number', employeeData.cnicNumber);
-    }
-
-    // Add image files if they exist
-    if (employeeData.profilePicture) {
-      formData.append(
-        'profile_picture',
-        employeeData.profilePicture,
-        employeeData.profilePicture.name
-      );
-    }
-    if (employeeData.cnicFrontPicture) {
-      formData.append(
-        'cnic_picture',
-        employeeData.cnicFrontPicture,
-        employeeData.cnicFrontPicture.name
-      );
-    }
-    if (employeeData.cnicBackPicture) {
-      formData.append(
-        'cnic_back_picture',
-        employeeData.cnicBackPicture,
-        employeeData.cnicBackPicture.name
-      );
-    }
-
-    const response = await axiosInstance.post<RawEmployee>(
-      `${this.baseUrl}/manager`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return normalizeEmployee(response.data);
+    return this.createByEndpoint(`${this.baseUrl}/manager`, employeeData);
   }
 
-  // Create a new HR admin employee
   async createHrAdmin(employeeData: EmployeeDto): Promise<BackendEmployee> {
-    // Create FormData for multipart/form-data submission
-    const formData = new FormData();
-
-    // Add text fields
-    formData.append('first_name', employeeData.first_name);
-    formData.append('last_name', employeeData.last_name);
-    formData.append('email', employeeData.email);
-    formData.append('phone', employeeData.phone);
-    if (employeeData.password) {
-      formData.append('password', employeeData.password);
-    }
-    formData.append('designation_id', employeeData.designationId);
-    formData.append('gender', employeeData.gender);
-    if (employeeData.role_name) {
-      formData.append('role_name', employeeData.role_name);
-    }
-    if (employeeData.role_id) {
-      formData.append('role_id', employeeData.role_id);
-    }
-    if (employeeData.team_id) {
-      formData.append('team_id', employeeData.team_id);
-    }
-    if (employeeData.cnicNumber) {
-      formData.append('cnic_number', employeeData.cnicNumber);
-    }
-
-    // Add image files if they exist
-    if (employeeData.profilePicture) {
-      formData.append(
-        'profile_picture',
-        employeeData.profilePicture,
-        employeeData.profilePicture.name
-      );
-    }
-    if (employeeData.cnicFrontPicture) {
-      formData.append(
-        'cnic_picture',
-        employeeData.cnicFrontPicture,
-        employeeData.cnicFrontPicture.name
-      );
-    }
-    if (employeeData.cnicBackPicture) {
-      formData.append(
-        'cnic_back_picture',
-        employeeData.cnicBackPicture,
-        employeeData.cnicBackPicture.name
-      );
-    }
-
-    const response = await axiosInstance.post<RawEmployee>(
-      `${this.baseUrl}/hr-admin`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return normalizeEmployee(response.data);
+    return this.createByEndpoint(`${this.baseUrl}/hr-admin`, employeeData);
   }
 
   async updateEmployee(
@@ -618,21 +366,12 @@ class EmployeeApiService {
 
       const response = await axiosInstance.put<RawEmployee>(
         `${this.baseUrl}/${id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return normalizeEmployee(response.data);
     } catch (error) {
-      const err = handleApiError(error, {
-        operation: 'update',
-        resource: 'employee',
-        isGlobal: false,
-      });
-      throw new Error(err.message);
+      const result = extractErrorMessage(error);
+      throw new Error(result.message);
     }
   }
 
@@ -643,7 +382,10 @@ class EmployeeApiService {
     return response.data;
   }
 
-  async deleteDocument(id: string, documentUrl: string): Promise<{ success: boolean }> {
+  async deleteDocument(
+    id: string,
+    documentUrl: string
+  ): Promise<{ success: boolean }> {
     const response = await axiosInstance.delete<{ success: boolean }>(
       `${this.baseUrl}/${id}/documents`,
       { data: { documentUrl } }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import { useUser } from '../../hooks/useUser';
 import {
   Box,
   Typography,
@@ -31,6 +32,7 @@ const EmployeeProfileView: React.FC = () => {
   const { employeeId } = useParams<{ employeeId: string }>();
   const location = useLocation();
   const stateUserId = location.state?.userId as string | undefined;
+  const { user: contextUser } = useUser();
   const [profile, setProfile] = useState<EmployeeFullProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,16 +79,8 @@ const EmployeeProfileView: React.FC = () => {
   const resolveUserId = (): string | null => {
     const fromToken = resolveUserIdFromToken();
     if (fromToken) return fromToken;
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const parsed = JSON.parse(storedUser);
-        return parsed?.id || parsed?.user?.id || null;
-      }
-    } catch {
-      // ignore
-    }
-    return null;
+    // Fall back to UserContext (avoids direct localStorage access)
+    return contextUser?.id ?? null;
   };
 
   // Fetch leave types on component mount
@@ -148,7 +142,9 @@ const EmployeeProfileView: React.FC = () => {
         }
 
         if (!targetUserId) {
-          setError('Unable to resolve user id from token or parameter. Please re-login.');
+          setError(
+            'Unable to resolve user id from token or parameter. Please re-login.'
+          );
           setIsLoading(false);
           return;
         }
@@ -251,8 +247,8 @@ const EmployeeProfileView: React.FC = () => {
                 mr: 1,
                 mb: 1,
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#fff',
-                '& .MuiChip-icon': { color: '#fff' },
+                color: 'common.white',
+                '& .MuiChip-icon': { color: 'common.white' },
               }}
             />
             <Chip
@@ -261,8 +257,8 @@ const EmployeeProfileView: React.FC = () => {
               sx={{
                 mb: 1,
                 backgroundColor: 'var(--primary-dark-color)',
-                color: '#fff',
-                '& .MuiChip-icon': { color: '#fff' },
+                color: 'common.white',
+                '& .MuiChip-icon': { color: 'common.white' },
               }}
             />
             <Typography variant='body2' color='text.secondary' mt={1}>
@@ -283,8 +279,7 @@ const EmployeeProfileView: React.FC = () => {
                   color: 'var(--primary-dark-color)',
                 }}
               />{' '}
-              Joined:{' '}
-              {new Date(profile.joinedAt).toLocaleDateString()}
+              Joined: {new Date(profile.joinedAt).toLocaleDateString()}
             </Typography>
           </Box>
         </Box>
@@ -411,7 +406,7 @@ const EmployeeProfileView: React.FC = () => {
                               : lv.status === 'Pending'
                                 ? 'primary.dark'
                                 : 'error.main',
-                          color: '#fff',
+                          color: 'common.white',
                           fontWeight: 600,
                         }}
                         size='small'

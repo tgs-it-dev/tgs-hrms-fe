@@ -4,7 +4,7 @@ import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { isSameDay } from 'date-fns';
-import type { Holiday } from '../../type/Holiday';
+import type { Holiday } from '../../types/holiday';
 
 interface HolidayCalendarViewProps {
   holidays: Holiday[];
@@ -30,10 +30,10 @@ const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
               return {
                 sx: holiday
                   ? {
-                      backgroundColor: '#1976d2',
-                      color: '#fff',
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                       borderRadius: '50%',
-                      '&:hover': { backgroundColor: '#1565c0' },
+                      '&:hover': { backgroundColor: 'primary.dark' },
                     }
                   : undefined,
                 children: holiday ? (

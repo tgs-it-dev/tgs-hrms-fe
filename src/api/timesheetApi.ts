@@ -1,16 +1,8 @@
 // timesheetApi.ts
 import axiosInstance from './axiosInstance';
+import type { TimesheetEntry } from '../types/timesheet';
 
-export interface TimesheetEntry {
-  id: string;
-  user_id: string;
-  employee_full_name: string;
-  created_at: string;
-  start_time: string | null;
-  end_time: string | null;
-  duration_hours: number | null;
-  durationHours?: number | null; // Additional field from backend
-}
+export type { TimesheetEntry } from '../types/timesheet';
 
 interface TimesheetEmployee {
   userId: string;
@@ -49,27 +41,17 @@ class TimesheetApiService {
   private baseUrl = '/timesheet';
 
   async startWork(): Promise<TimesheetEntry> {
-    try {
-      const response = await axiosInstance.post<TimesheetEntry>(
-        `${this.baseUrl}/start`
-      );
-
-      return response.data;
-    } catch (err) {
-      throw err;
-    }
+    const response = await axiosInstance.post<TimesheetEntry>(
+      `${this.baseUrl}/start`
+    );
+    return response.data;
   }
 
   async endWork(): Promise<TimesheetEntry> {
-    try {
-      const response = await axiosInstance.post<TimesheetEntry>(
-        `${this.baseUrl}/end`
-      );
-
-      return response.data;
-    } catch (err) {
-      throw err;
-    }
+    const response = await axiosInstance.post<TimesheetEntry>(
+      `${this.baseUrl}/end`
+    );
+    return response.data;
   }
 
   async getUserTimesheet(page: number = 1): Promise<TimesheetResponse> {

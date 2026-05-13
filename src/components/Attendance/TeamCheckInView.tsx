@@ -51,7 +51,7 @@ interface TeamMemberAttendance {
   totalHoursWorked: number;
 }
 
-interface TeamCheckInViewProps {
+export interface TeamCheckInViewProps {
   onBack: () => void;
 }
 

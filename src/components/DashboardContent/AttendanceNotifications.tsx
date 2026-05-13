@@ -7,6 +7,7 @@ import {
   IconButton,
   Alert,
   Collapse,
+  useTheme,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -14,7 +15,10 @@ import {
   CheckCircle as CheckInIcon,
   ExitToApp as CheckOutIcon,
 } from '@mui/icons-material';
-import { useWebSocketNotifications, type Notification } from '../../hooks/useWebSocketNotifications';
+import {
+  useWebSocketNotifications,
+  type Notification,
+} from '../../hooks/useWebSocketNotifications';
 import { format } from 'date-fns';
 
 const AttendanceNotifications: React.FC = () => {
@@ -97,7 +101,7 @@ const AttendanceNotifications: React.FC = () => {
           </Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {notifications.map((notification) => (
+            {notifications.map(notification => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -120,6 +124,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onRemove,
 }) => {
+  const theme = useTheme();
   const isCheckIn = notification.type === 'check-in';
   const timestamp = new Date(notification.timestamp);
 
@@ -131,7 +136,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         alignItems: 'flex-start',
         gap: 1,
         backgroundColor: 'background.default',
-        borderLeft: `4px solid ${isCheckIn ? '#4caf50' : '#ff9800'}`,
+        borderLeft: `4px solid ${isCheckIn ? theme.palette.success.main : theme.palette.warning.main}`,
       }}
     >
       <Box sx={{ mt: 0.5 }}>
@@ -182,4 +187,3 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 export default AttendanceNotifications;
-

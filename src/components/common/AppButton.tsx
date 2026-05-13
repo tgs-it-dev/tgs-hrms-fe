@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   useTheme,
@@ -12,21 +12,24 @@ type AppButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 interface AppButtonProps extends Omit<ButtonProps, 'children'> {
   variantType?: AppButtonVariant;
   text?: string;
+  loading?: boolean;
   children?: React.ReactNode;
-  // Allow forwarding arbitrary props (e.g. `to` when using react-router Link)
-  [key: string]: any;
+  /** Accessible label override — used when button content is not descriptive enough */
+  'aria-label'?: string;
 }
 
-export function AppButton({
+export const AppButton = React.memo(function AppButton({
   variantType = 'primary',
   sx,
   text,
+  loading = false,
   children,
+  disabled,
   ...rest
 }: AppButtonProps) {
   const theme = useTheme();
 
-  const getVariantStyles = (): SxProps<Theme> => {
+  const baseSx = useMemo((): SxProps<Theme> => {
     const isDark = theme.palette.mode === 'dark';
 
     const common: SxProps<Theme> = {
@@ -41,6 +44,7 @@ export function AppButton({
       minHeight: { xs: 40, sm: 44 },
       px: { xs: 2, sm: 3 },
       py: { xs: 0.75, sm: 1 },
+      position: 'relative',
       // Keep icon sizing aligned with text scale
       '& .MuiButton-startIcon, & .MuiButton-endIcon': {
         '& > *:nth-of-type(1)': {
@@ -58,8 +62,8 @@ export function AppButton({
           backgroundColor: 'primary.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       secondary: {
@@ -74,8 +78,8 @@ export function AppButton({
           backgroundColor: 'action.hover',
         },
         '&:disabled': {
-          borderColor: isDark ? '#555555' : '#ccc',
-          color: isDark ? '#555555' : '#ccc',
+          borderColor: 'action.disabledBackground',
+          color: 'action.disabled',
         },
       },
       danger: {
@@ -86,8 +90,8 @@ export function AppButton({
           backgroundColor: 'error.dark',
         },
         '&:disabled': {
-          backgroundColor: isDark ? '#5a3a3a' : '#f2b8b5',
-          color: isDark ? '#888888' : '#999999',
+          backgroundColor: 'error.light',
+          color: 'action.disabled',
         },
       },
       ghost: {
@@ -95,7 +99,7 @@ export function AppButton({
         borderColor: 'transparent',
         color: 'text.primary',
         '&:disabled': {
-          color: isDark ? '#555555' : '#ccc',
+          color: 'action.disabled',
         },
         '&:hover': {
           backgroundColor: 'action.hover',
@@ -104,16 +108,32 @@ export function AppButton({
       },
     };
 
-    return baseStyles[variantType] || {};
-  };
-
-  const baseSx = getVariantStyles();
+    return baseStyles[variantType] ?? {};
+  }, [
+    theme.palette.mode,
+    theme.palette.divider,
+    theme.palette.text.primary,
+    variantType,
+  ]);
+  const finalSx = React.useMemo(() => {
+    if (!sx) return baseSx;
+    if (typeof sx === 'function' || Array.isArray(sx)) {
+      return [baseSx, sx] as SxProps<Theme>;
+    }
+    return { ...baseSx, ...sx } as SxProps<Theme>;
+  }, [baseSx, sx]);
 
   return (
-    <Button {...rest} sx={[baseSx as SxProps<Theme>, sx as SxProps<Theme>]}>
+    <Button
+      type={rest.type || 'button'}
+      {...rest}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      sx={finalSx}
+    >
       {text || children}
     </Button>
   );
-}
+});
 
 export default AppButton;

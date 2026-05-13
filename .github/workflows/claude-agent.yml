@@ -1,0 +1,84 @@
+name: Claude Frontend Engineer Agent
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  # pull_request_target runs with base-repo secrets even on fork PRs,
+  # but we gate write access below to same-repo PRs only.
+  pull_request_target:
+    types: [opened, synchronize]
+    branches: [dev, main]
+
+# Minimal read-only permissions at workflow level.
+# The claude-code-action step gets pull-requests: write via GITHUB_TOKEN
+# only for same-repo PRs (see the job condition below).
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  claude-agent:
+    # Security gate 1 — never run on fork PRs for pull_request_target
+    # (fork PRs cannot be trusted with write access to the base repo).
+    # Security gate 2 — @claude comments only execute for repo collaborators
+    # (OWNER / MEMBER / COLLABORATOR), blocking prompt injection from strangers.
+    if: |
+      (
+        github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      ) ||
+      (
+        github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) ||
+      (
+        github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    # Elevated permissions scoped to this job only, not the whole workflow.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # For pull_request_target, always check out the base branch —
+          # never the PR head from a fork, which is untrusted code.
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Claude Frontend Engineer Agent
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.FE_ANTHROPIC_API_KEY }}
+          # claude-sonnet-4-5 is the latest model slug supported by claude-code-action@beta.
+          # Update to claude-sonnet-4-6 once the action documents support for it.
+          model: claude-sonnet-4-5
+          direct_prompt: |
+            You are acting as the frontend-engineer agent defined in .claude/agents/frontend-engineer.md.
+
+            ${{ github.event_name == 'pull_request_target' &&
+              'Review this PR as a senior frontend engineer. Check for: hardcoded colors, missing theme tokens, direct fetch calls outside src/api/, missing Zod validation, TypeScript errors, and lint issues. Post a concise review comment with specific line references.' ||
+              'A trusted collaborator asked: review this PR and respond to their request.' }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

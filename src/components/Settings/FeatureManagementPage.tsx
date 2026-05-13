@@ -10,68 +10,86 @@ import {
 import AppPageTitle from '../common/AppPageTitle';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
-import { useIsDarkMode } from '../../theme';
 import { useUser } from '../../hooks/useUser';
-import { isSystemAdmin } from '../../utils/roleUtils';
+import { isAdmin, isSystemAdmin } from '../../utils/roleUtils';
 import {
   useFeatureToggles,
   type FeatureKey,
 } from '../../context/FeatureToggleContext';
+import workflowApi, { type WorkflowRequestType } from '../../api/workflowApi';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 
 const featureDefinitions: {
   key: FeatureKey;
   label: string;
   description: string;
 }[] = [
+  // {
+  //   key: 'attendance',
+  //   label: 'Attendance & Leaves',
+  //   description:
+  //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+  // },
+  // {
+  //   key: 'leaveAnalytics',
+  //   label: 'Leave Analytics',
+  //   description:
+  //     'View leave analytics, reports, and cross-tenant leave metrics.',
+  // },
+  // {
+  //   key: 'performance',
+  //   label: 'Performance',
+  //   description:
+  //     'Enable performance dashboards and insights for employees and teams.',
+  // },
+  // {
+  //   key: 'announcements',
+  //   label: 'Announcements',
+  //   description: 'Company-wide announcements module.',
+  // },
   {
-    key: 'payroll',
-    label: 'Payroll',
-    description:
-      'Run payroll, manage employee salaries, and view payroll reports.',
+    key: 'leave_workflow_enabled',
+    label: 'Leave Approval',
+    description: 'Enable leave request approval workflows.',
   },
   {
-    key: 'attendance',
-    label: 'Attendance & Leaves',
-    description:
-      'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+    key: 'wfh_workflow_enabled',
+    label: 'WFH Request',
+    description: 'Display work from home request in the sidebar.',
   },
   {
-    key: 'leaveAnalytics',
-    label: 'Leave Analytics',
-    description:
-      'View leave analytics, reports, and cross-tenant leave metrics.',
-  },
-  {
-    key: 'benefits',
-    label: 'Benefits',
-    description:
-      'Configure benefits, assign employee benefits, and view benefit reports.',
-  },
-  {
-    key: 'performance',
-    label: 'Performance',
-    description:
-      'Enable performance dashboards and insights for employees and teams.',
-  },
-  {
-    key: 'recruitment',
-    label: 'Recruitment',
-    description: 'Manage job requisitions and hiring-related workflows.',
-  },
-  {
-    key: 'announcements',
-    label: 'Announcements',
-    description: 'Company-wide announcements module.',
+    key: 'overtime_workflow_enabled',
+    label: 'Overtime Request',
+    description: 'Display overtime request in the sidebar.',
   },
 ];
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
-  const darkMode = useIsDarkMode();
   const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
+  const { showError } = useErrorHandler();
 
-  const isSystemAdminUser = isSystemAdmin(user?.role);
+  const isSystemAdminUser = isSystemAdmin(user?.role) || isAdmin(user?.role);
+
+  const handleFeatureToggle = async (key: FeatureKey, checked: boolean) => {
+    let requestType: WorkflowRequestType | null = null;
+    if (key === 'leave_workflow_enabled') requestType = 'leave';
+    else if (key === 'wfh_workflow_enabled') requestType = 'wfh';
+    else if (key === 'overtime_workflow_enabled') requestType = 'overtime';
+
+    try {
+      if (requestType) {
+        await workflowApi.updateWorkflowSettings({
+          request_type: requestType,
+          enabled: checked,
+        });
+      }
+      setFeatureEnabled(key, checked);
+    } catch (error) {
+      showError(error);
+    }
+  };
 
   if (!isSystemAdminUser) {
     return (
@@ -91,7 +109,7 @@ const FeatureManagementPage: React.FC = () => {
       <AppPageTitle
         sx={{
           mb: 2,
-          color: darkMode ? '#8f8f8f' : theme.palette.text.primary,
+          color: theme.palette.text.secondary,
         }}
       >
         Feature Management
@@ -117,10 +135,8 @@ const FeatureManagementPage: React.FC = () => {
                 px: { xs: 1, sm: 1.5 },
                 py: { xs: 1, sm: 1.5 },
                 borderRadius: 2,
-                backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
-                border: `1px solid ${
-                  darkMode ? '#333' : 'rgba(0,0,0,0.04)'
-                }`,
+                backgroundColor: 'background.default',
+                border: `1px solid ${theme.palette.divider}`,
                 flexWrap: 'wrap',
               }}
             >
@@ -138,7 +154,7 @@ const FeatureManagementPage: React.FC = () => {
                 <Typography
                   variant='body2'
                   sx={{
-                    color: darkMode ? '#a0a0a0' : '#666',
+                    color: 'text.secondary',
                   }}
                 >
                   {feature.description}
@@ -149,7 +165,7 @@ const FeatureManagementPage: React.FC = () => {
                   <Switch
                     checked={features[feature.key]}
                     onChange={(_, checked) =>
-                      setFeatureEnabled(feature.key, checked)
+                      handleFeatureToggle(feature.key, checked)
                     }
                     color='primary'
                   />
@@ -186,4 +202,3 @@ const FeatureManagementPage: React.FC = () => {
 };
 
 export default FeatureManagementPage;
-

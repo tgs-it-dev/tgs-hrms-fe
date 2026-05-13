@@ -24,20 +24,20 @@ import {
 import { FilterList as FilterIcon } from '@mui/icons-material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import type { Dayjs } from 'dayjs';
+import { format as dateFnsFormat } from 'date-fns';
 import Chart from 'react-apexcharts';
-import { TenantLeaveApi } from '../../api/TenantLeaveApi';
+import { TenantLeaveApi } from '../../api/tenantLeaveApi';
 import type {
   Department as ApiDepartment,
   SystemLeaveFilters,
   SystemLeaveResponse,
   SystemLeaveSummary,
-} from '../../api/TenantLeaveApi';
+} from '../../api/tenantLeaveApi';
 import { departmentApiService } from '../../api/departmentApi';
 import { SystemTenantApi } from '../../api/systemTenantApi';
-import type { SystemTenant } from '../../api/systemTenantApi';
+import type { SystemTenant } from '../../types/tenant';
 import { useUser } from '../../hooks/useUser';
 import { isSystemAdmin } from '../../utils/auth';
 import { formatDate } from '../../utils/dateUtils';
@@ -55,8 +55,8 @@ type FiltersState = {
   tenantId: string;
   departmentId: string;
   status: LeaveStatus;
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
 type DepartmentOption = Pick<ApiDepartment, 'id' | 'name' | 'tenant_id'>;
@@ -66,35 +66,13 @@ const CrossTenantLeaveManagement: React.FC = () => {
   const isSystemAdminUser = isSystemAdmin();
 
   const getTenantIdFromStorage = useCallback((): string => {
-    try {
-      const storedTenantId = localStorage.getItem('tenant_id');
-      if (storedTenantId) {
-        return String(storedTenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to other sources
-    }
-
-    // Fallback: Get from user object in localStorage (login response format)
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userFromStorage = JSON.parse(userStr);
-        const tenantId = userFromStorage?.tenant_id || '';
-        if (tenantId) return String(tenantId).trim();
-      }
-    } catch {
-      // Ignore; fall through to user context
-    }
-
-    // Last fallback: Get from user context
     if (user) {
       const userWithTenant = user as { tenant_id?: string; tenant?: string };
       const tenantId = userWithTenant.tenant_id || userWithTenant.tenant || '';
       if (tenantId) return String(tenantId).trim();
     }
-
-    return '';
+    const storedTenantId = localStorage.getItem('tenant_id');
+    return storedTenantId ? String(storedTenantId).trim() : '';
   }, [user]);
 
   const userTenantId = getTenantIdFromStorage();
@@ -255,12 +233,12 @@ const CrossTenantLeaveManagement: React.FC = () => {
 
       try {
         const tenantIdStr = String(tenantId).trim();
-        const res = await departmentApiService.getAllTenantsWithDepartments(
-          tenantIdStr
-        );
+        const res =
+          await departmentApiService.getAllTenantsWithDepartments(tenantIdStr);
 
         const tenantData = res?.tenants?.find(
-          t => t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
+          t =>
+            t.tenant_id === tenantIdStr || String(t.tenant_id) === tenantIdStr
         );
 
         const deptList = tenantData?.departments ?? [];
@@ -387,10 +365,10 @@ const CrossTenantLeaveManagement: React.FC = () => {
             : undefined,
         status: filters.status ? filters.status : undefined,
         startDate: filters.startDate
-          ? filters.startDate.format('YYYY-MM-DD')
+          ? dateFnsFormat(filters.startDate, 'yyyy-MM-dd')
           : undefined,
         endDate: filters.endDate
-          ? filters.endDate.format('YYYY-MM-DD')
+          ? dateFnsFormat(filters.endDate, 'yyyy-MM-dd')
           : undefined,
         page: currentPage,
         limit: itemsPerPage,
@@ -423,7 +401,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
       const hasDepartmentFilter =
         apiFilters.departmentId && apiFilters.departmentId.trim() !== '';
       if (hasDepartmentFilter) {
-        const departmentIdToFilter = apiFilters.departmentId!.trim();
+        const departmentIdToFilter = apiFilters.departmentId?.trim() ?? '';
         mappedLeaves = mappedLeaves.filter(
           leave => String(leave.departmentId).trim() === departmentIdToFilter
         );
@@ -539,7 +517,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
   useEffect(() => {
     if (!filters.tenantId) return;
 
-    const paramsKey = `${filters.tenantId}-${filters.status}-${filters.startDate?.format('YYYY-MM-DD') || ''}-${filters.endDate?.format('YYYY-MM-DD') || ''}-${filters.departmentId}-${currentPage}`;
+    const paramsKey = `${filters.tenantId}-${filters.status}-${filters.startDate ? dateFnsFormat(filters.startDate, 'yyyy-MM-dd') : ''}-${filters.endDate ? dateFnsFormat(filters.endDate, 'yyyy-MM-dd') : ''}-${filters.departmentId}-${currentPage}`;
 
     if (paramsKey !== lastFetchedLeavesParams.current) {
       lastFetchedLeavesParams.current = paramsKey;
@@ -581,7 +559,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
         },
       },
       dataLabels: { enabled: false },
-      stroke: { show: true, width: 1, colors: ['#fff'] },
+      stroke: { show: true, width: 1, colors: [theme.palette.common.white] },
       xaxis: { categories: summary.map(item => item.tenantName) },
       yaxis: { labels: { formatter: val => `${val}` } },
       legend: { position: 'top', horizontalAlign: 'right' },
@@ -624,7 +602,6 @@ const CrossTenantLeaveManagement: React.FC = () => {
       departments,
       currentPage,
       totalPages,
-      totalRecords,
       isMobile,
       handleFilterChange,
       handlePageChange,
@@ -707,7 +684,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
             label='Start Date'
             value={filters.startDate}
             onChange={date =>
-              handleFilterChange('startDate', date as Dayjs | null)
+              handleFilterChange('startDate', date as Date | null)
             }
             slotProps={{ textField: { size: 'small' } }}
           />
@@ -715,7 +692,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
             label='End Date'
             value={filters.endDate}
             onChange={date =>
-              handleFilterChange('endDate', date as Dayjs | null)
+              handleFilterChange('endDate', date as Date | null)
             }
             slotProps={{ textField: { size: 'small' } }}
           />
@@ -756,7 +733,9 @@ const CrossTenantLeaveManagement: React.FC = () => {
             {tableLoading ? (
               <TableRow>
                 <TableCell colSpan={8} align='center'>
-                  <CircularProgress sx={{ color: 'var(--primary-dark-color)' }} />
+                  <CircularProgress
+                    sx={{ color: 'var(--primary-dark-color)' }}
+                  />
                 </TableCell>
               </TableRow>
             ) : leaves.length > 0 ? (
@@ -782,8 +761,8 @@ const CrossTenantLeaveManagement: React.FC = () => {
                             ? 'red'
                             : leave.status === 'withdrawn' ||
                                 leave.status === 'cancelled'
-                              ? '#607d8b'
-                              : '#ff9800',
+                              ? theme.palette.text.secondary
+                              : theme.palette.warning.main,
                     }}
                   >
                     {leave.status === 'cancelled' ? 'withdrawn' : leave.status}
@@ -831,7 +810,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
                 },
                 '& .MuiPaginationItem-root.Mui-selected': {
                   backgroundColor: 'var(--primary-dark-color)',
-                  color: '#FFFFFF',
+                  color: 'common.white',
                   '&:hover': {
                     backgroundColor: 'var(--primary-dark-color)',
                   },
@@ -867,7 +846,7 @@ const CrossTenantLeaveManagement: React.FC = () => {
     );
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ minHeight: '100vh' }} onKeyDown={handleKeyDown}>
         <Paper
           sx={{

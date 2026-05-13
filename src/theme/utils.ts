@@ -1,4 +1,5 @@
 import type { SxProps, Theme } from '@mui/material/styles';
+import { colorTokens } from './tokens';
 
 // Theme-aware styling utilities
 export const themeStyles = {
@@ -148,6 +149,12 @@ export const themeStyles = {
   }),
 };
 
+/**
+ * Returns a hex string for a given index in the chart color palette.
+ * Import colorTokens.chart directly if you need the full array.
+ */
+export { colorTokens } from './tokens';
+
 // CSS Custom Properties for theme values
 export const cssVars = {
   // Get CSS custom property value
@@ -187,7 +194,9 @@ export const themeColors = {
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 128 ? '#000000' : '#ffffff';
+    return brightness > 128
+      ? colorTokens.neutral.black
+      : colorTokens.neutral.white;
   },
 };
 

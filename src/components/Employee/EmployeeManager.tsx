@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-} from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box,
   Dialog,
@@ -23,24 +17,25 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import WarningIcon from '@mui/icons-material/Warning';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
-import type { AppOutletContext } from '../../types/outletContexts';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AddEmployeeForm from './AddEmployeeForm';
 import EmployeeList from './EmployeeList';
 import EmployeeViewModal from './EmployeeViewModal';
 import employeeApi from '../../api/employeeApi';
-import type { BackendEmployee, EmployeeDto } from '../../api/employeeApi';
-import {
-  departmentApiService,
-  type BackendDepartment,
-} from '../../api/departmentApi';
-import {
-  designationApiService,
-  type BackendDesignation,
-} from '../../api/designationApi';
+import type { BackendEmployee, EmployeeDto } from '../../types/employee';
+import type { BackendDepartment } from '../../api/departmentApi';
+import type { BackendDesignation } from '../../api/designationApi';
 import { extractErrorMessage } from '../../utils/errorHandler';
+import {
+  useDepartmentList,
+  useDesignationList,
+  useEmployeeListForRole,
+  useEmployeeListPaginated,
+  EMPLOYEE_KEYS,
+} from './useEmployeeQueries';
+import { useUser } from '../../hooks/useUser';
+import { isManager as checkIsManager } from '../../utils/roleUtils';
 import { exportCSV } from '../../api/exportApi';
-import { env } from '../../config/env';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import ErrorSnackbar from '../common/ErrorSnackbar';
 import AppButton from '../common/AppButton';
@@ -48,6 +43,8 @@ import AppDropdown from '../common/AppDropdown';
 import AppFormModal from '../common/AppFormModal';
 import AppPageTitle from '../common/AppPageTitle';
 import { PAGINATION } from '../../constants/appConstants';
+import { useQueryClient } from '@tanstack/react-query';
+
 interface Employee {
   id: string;
   user_id?: string; // User ID for fetching profile pictures
@@ -64,6 +61,7 @@ interface Employee {
   profile_picture?: string;
   cnic_picture?: string;
   cnic_back_picture?: string;
+  gender?: string;
   department: {
     id: string;
     name: string;
@@ -85,26 +83,58 @@ interface Employee {
   updatedAt: string;
 }
 
-
-import { useUser } from '../../hooks/useUser';
-import { isManager } from '../../utils/roleUtils';
-import { teamApiService, type TeamMember } from '../../api/teamApi';
-
-// ... existing imports
+// Helper function to convert BackendEmployee to local Employee shape.
+// Defined outside the component so it is stable (no re-creation on render).
+function convertToEmployee(emp: BackendEmployee): Employee {
+  return {
+    id: emp.id,
+    user_id: emp.user_id,
+    name: emp.name,
+    firstName: emp.firstName,
+    lastName: emp.lastName,
+    email: emp.email,
+    phone: emp.phone,
+    departmentId: emp.departmentId,
+    designationId: emp.designationId,
+    role_name: emp.role_name,
+    status: emp.status,
+    cnic_number: emp.cnic_number,
+    profile_picture: emp.profile_picture,
+    cnic_picture: emp.cnic_picture,
+    cnic_back_picture: emp.cnic_back_picture,
+    gender: emp.gender,
+    department: emp.department || {
+      id: '',
+      name: '',
+      description: '',
+      tenantId: '',
+      createdAt: '',
+      updatedAt: '',
+    },
+    designation: emp.designation || {
+      id: '',
+      title: '',
+      tenantId: '',
+      departmentId: '',
+      createdAt: '',
+      updatedAt: '',
+    },
+    tenantId: emp.tenantId,
+    createdAt: emp.createdAt,
+    updatedAt: emp.updatedAt,
+  };
+}
 
 const EmployeeManager: React.FC = () => {
   const theme = useTheme();
   const direction = theme.direction;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery('(min-width:601px) and (max-width:786px)');
-  const { darkMode } = useOutletContext<AppOutletContext>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useUser(); // Get user context
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<null | Employee>(null);
-  const [allEmployees, setAllEmployees] = useState<Employee[]>([]); // Store all employees
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { snackbar, showError, showSuccess, closeSnackbar } = useErrorHandler();
 
@@ -125,59 +155,103 @@ const EmployeeManager: React.FC = () => {
           replace: true,
         }
       );
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[EmployeeManager] Stripe redirect handling failed:', err);
     }
   }, [location.search, navigate]);
 
-  // Pagination state - now for client-side pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginationLimit, setPaginationLimit] = useState<number>(
-    PAGINATION.DEFAULT_PAGE_SIZE
-  ); // Backend limit
-
-  // Calculate pagination from all employees using backend limit
-  const totalItems = allEmployees.length;
-  const itemsPerPage = paginationLimit || PAGINATION.DEFAULT_PAGE_SIZE; // Use backend limit
-
-  // Calculate total pages - only count pages that have actual data
-  // For example: 50 records / 25 limit = 2 pages (not 3)
-  // Ensure we only show pages with actual data - no empty pages
-  let totalPages = 1;
-  if (totalItems > 0 && itemsPerPage > 0) {
-    totalPages = Math.ceil(totalItems / itemsPerPage);
-    // Ensure totalPages is at least 1
-    totalPages = Math.max(1, totalPages);
-  }
-
-  // Get paginated employees for current page
-  const employees = useMemo(() => {
-    // Ensure current page doesn't exceed total pages
-    const validPage = Math.min(
-      currentPage,
-      Math.max(1, Math.ceil(allEmployees.length / itemsPerPage))
-    );
-    if (validPage !== currentPage && allEmployees.length > 0) {
-      // Reset to valid page if current page is invalid
-      setCurrentPage(validPage);
-      return [];
-    }
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return allEmployees.slice(startIndex, endIndex);
-  }, [allEmployees, currentPage, itemsPerPage]);
-
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [designationFilter, setDesignationFilter] = useState('');
-  const [departments, setDepartments] = useState<Record<string, string>>({});
-  const [designations, setDesignations] = useState<Record<string, string>>({});
-  const [departmentList, setDepartmentList] = useState<BackendDepartment[]>([]);
-  const [designationList, setDesignationList] = useState<BackendDesignation[]>(
-    []
-  );
-  // const [loadingFilters, setLoadingFilters] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
+
+  // Determine role so we can choose the correct data path
+  const { user } = useUser();
+  const currentUserRole =
+    user?.role || (user as { role_name?: string } | undefined)?.role_name;
+  const isManagerRole = checkIsManager(currentUserRole as string);
+
+  // Manager path — useEmployeeListForRole already fetches team members across all pages.
+  // Team lists are small enough that client-side pagination is acceptable here.
+  const managerQuery = useEmployeeListForRole({
+    departmentId: departmentFilter || undefined,
+    designationId: designationFilter || undefined,
+  });
+
+  // Admin / HR path — server-side pagination; only the current page is fetched.
+  const adminQuery = useEmployeeListPaginated({
+    page: currentPage,
+    limit: itemsPerPage,
+    departmentId: departmentFilter || undefined,
+    designationId: designationFilter || undefined,
+  });
+
+  // Unify data shapes for rendering below
+  const loading = isManagerRole ? managerQuery.isLoading : adminQuery.isLoading;
+
+  // Manager: full list in memory → slice client-side
+  const allManagerEmployees: Employee[] = useMemo(
+    () =>
+      isManagerRole ? (managerQuery.data ?? []).map(convertToEmployee) : [],
+
+    [isManagerRole, managerQuery.data]
+  );
+
+  // Server-side pagination response (admin/HR path)
+  const serverPage = adminQuery.data;
+
+  // For manager: client-side pagination over the full in-memory list
+  const managerTotalItems = allManagerEmployees.length;
+  const managerTotalPages = Math.max(
+    1,
+    Math.ceil(managerTotalItems / itemsPerPage)
+  );
+  const managerPageEmployees = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return allManagerEmployees.slice(start, start + itemsPerPage);
+  }, [allManagerEmployees, currentPage, itemsPerPage]);
+
+  // Merged values used by the render section
+  const employees: Employee[] = isManagerRole
+    ? managerPageEmployees
+    : (serverPage?.items ?? []).map(convertToEmployee);
+
+  const totalItems = isManagerRole
+    ? managerTotalItems
+    : (serverPage?.total ?? 0);
+
+  const totalPages = isManagerRole
+    ? managerTotalPages
+    : (serverPage?.totalPages ?? 1);
+
+  // Correct current page when data changes (both paths)
+  useEffect(() => {
+    const maxPage = Math.max(1, totalPages);
+    if (currentPage > maxPage) {
+      setCurrentPage(maxPage);
+    }
+  }, [totalPages, currentPage]);
+
+  // For the navigation-state "view employee" fallback we still need all loaded employees
+  const allEmployees: Employee[] = isManagerRole
+    ? allManagerEmployees
+    : employees;
+
+  // MIGRATED: department and designation data now owned by TanStack Query
+  const { data: departmentListData = [] } = useDepartmentList();
+  const { data: designationListData = [] } = useDesignationList();
+
+  const departmentList: BackendDepartment[] = departmentListData;
+  const designationList: BackendDesignation[] = designationListData;
+
+  const departments: Record<string, string> = Object.fromEntries(
+    departmentList.map(dept => [dept.id, dept.name])
+  );
+  const designations: Record<string, string> = Object.fromEntries(
+    designationList.map(desig => [desig.id, desig.title])
+  );
   // Delete confirmation dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -187,252 +261,23 @@ const EmployeeManager: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewingEmployee, setViewingEmployee] = useState<Employee | null>(null);
 
-  // Track initial mount to prevent duplicate API calls
-  const isInitialMount = useRef(true);
-  const isLoadingRef = useRef(false);
-
-  // Dark mode
-  const bgColor = darkMode ? '#111' : '#fff';
-  const textColor = darkMode ? '#8f8f8f' : '#000';
-  const borderColor = darkMode ? '#333' : '#ddd';
   // Match Designation page dropdown background (AppDropdown default)
+  const bgColor = theme.palette.background.paper;
+  const textColor = theme.palette.text.secondary;
+  const borderColor = theme.palette.divider;
   const controlBg = theme.palette.background.paper;
-  
+
   const designationsForSelectedDepartment = useMemo(() => {
     if (!departmentFilter || departmentFilter === 'all') return [];
-    return designationList.filter(
-      des => des.departmentId === departmentFilter
-    );
+    return designationList.filter(des => des.departmentId === departmentFilter);
   }, [departmentFilter, designationList]);
 
-  const loadDepartmentsAndDesignations = useCallback(async () => {
-    try {
-      // setLoadingFilters(true);
-      // Load all departments
-      const deptData = await departmentApiService.getAllDepartments();
-      const deptMap: Record<string, string> = {};
-      deptData.forEach(dept => {
-        deptMap[dept.id] = dept.name;
-      });
-      setDepartments(deptMap);
-      setDepartmentList(deptData);
-
-      // Load all designations
-      const desigData = await designationApiService.getAllDesignations();
-      const desigMap: Record<string, string> = {};
-      desigData.forEach(desig => {
-        desigMap[desig.id] = desig.title;
-      });
-      setDesignations(desigMap);
-      setDesignationList(desigData);
-    } catch {
-      // Handle error silently
-    } finally {
-      // setLoadingFilters(false);
-    }
-  }, []);
-
-  // Helper function to convert BackendEmployee to Employee
-  const convertToEmployee = (emp: BackendEmployee): Employee => ({
-    id: emp.id,
-    user_id: emp.user_id,
-    name: emp.name,
-    firstName: emp.firstName,
-    lastName: emp.lastName,
-    email: emp.email,
-    phone: emp.phone,
-    departmentId: emp.departmentId,
-    designationId: emp.designationId,
-    role_name: emp.role_name,
-    status: emp.status,
-    cnic_number: emp.cnic_number,
-    profile_picture: emp.profile_picture,
-    cnic_picture: emp.cnic_picture,
-    cnic_back_picture: emp.cnic_back_picture,
-    department: emp.department || {
-      id: '',
-      name: '',
-      description: '',
-      tenantId: '',
-      createdAt: '',
-      updatedAt: '',
-    },
-    designation: emp.designation || {
-      id: '',
-      title: '',
-      tenantId: '',
-      departmentId: '',
-      createdAt: '',
-      updatedAt: '',
-    },
-    tenantId: emp.tenantId,
-    createdAt: emp.createdAt,
-    updatedAt: emp.updatedAt,
-  });
-
-  const convertTeamMemberToEmployee = (member: TeamMember): Employee => ({
-    id: member.id,
-    user_id: member.user.id,
-    name: `${member.user.first_name || ''} ${member.user.last_name || ''}`.trim(),
-    firstName: member.user.first_name,
-    lastName: member.user.last_name,
-    email: member.user.email,
-    phone: '', // Not available in TeamMember
-    departmentId: member.department?.id || member.designation.department?.id || '',
-    designationId: member.designation.id,
-    role_name: 'Employee', // Default
-    status: 'Active', // Default or fetch if available
-    profile_picture: member.user.profile_pic || undefined,
-    department: member.department
-      ? {
-          id: member.department.id,
-          name: member.department.name,
-          description: '',
-          tenantId: '',
-          createdAt: '',
-          updatedAt: '',
-        }
-      : member.designation.department
-      ? {
-          id: member.designation.department.id,
-          name: member.designation.department.name,
-          description: '',
-          tenantId: '',
-          createdAt: '',
-          updatedAt: '',
-        }
-      : null,
-    designation: {
-      id: member.designation.id,
-      title: member.designation.title,
-      tenantId: '', // Not available
-      departmentId: member.department?.id || member.designation.department?.id || '',
-      createdAt: '',
-      updatedAt: '',
-    },
-    tenantId: '', // Not available
-    createdAt: member.created_at || new Date().toISOString(),
-    updatedAt: member.updated_at || new Date().toISOString(),
-  });
-
-  // Fetch all employees from all pages
-  const loadEmployees = useCallback(async () => {
-    // Prevent duplicate calls
-    if (isLoadingRef.current) {
-      return;
-    }
-
-    try {
-      isLoadingRef.current = true;
-      setLoading(true);
-
-      // Check current user role
-      // Note: user object might trigger re-renders, but ref/checking inside callback is safer
-      const currentUserRole =
-        user?.role || (user as { role_name?: string })?.role_name;
-
-      if (isManager(currentUserRole)) {
-        // Fetch manager's team members
-        const allMembers: TeamMember[] = [];
-        let page = 1;
-        let hasMore = true;
-
-        while (hasMore) {
-          const res = await teamApiService.getMyTeamMembers(page);
-          if (res.items && res.items.length > 0) {
-            allMembers.push(...res.items);
-            if (page >= res.totalPages) hasMore = false;
-            else page++;
-          } else {
-            hasMore = false;
-          }
-        }
-
-        const mappedEmployees = allMembers.map(convertTeamMemberToEmployee);
-        setAllEmployees(mappedEmployees);
-        setPaginationLimit(mappedEmployees.length > 0 ? mappedEmployees.length : 25);
-        setCurrentPage(1);
-
-      } else {
-        // Admin/HR Admin logic - fetch full list
-        const filters = {
-          departmentId: departmentFilter || undefined,
-          designationId: designationFilter || undefined,
-        };
-
-        // Fetch all pages sequentially
-        const allEmployeesData: Employee[] = [];
-        let page = 1;
-        let hasMorePages = true;
-        let backendLimit = 25; // Default limit
-
-        while (hasMorePages) {
-          const response = await employeeApi.getAllEmployees(filters, page);
-
-          // Extract limit from first page response
-          if (page === 1 && response.limit) {
-            backendLimit = response.limit;
-            setPaginationLimit(backendLimit);
-          }
-
-          // Convert and add employees
-          const convertedEmployees: Employee[] =
-            response.items.map(convertToEmployee);
-          allEmployeesData.push(...convertedEmployees);
-
-          // Check if there are more pages
-          if (response.totalPages) {
-            // Use backend pagination info
-            hasMorePages = page < response.totalPages;
-            page++;
-          } else {
-            // Estimate: if we got less than backend limit, it's the last page
-            hasMorePages = convertedEmployees.length >= backendLimit;
-            page++;
-          }
-        }
-
-        setAllEmployees(allEmployeesData);
-        // Reset to page 1 when data is loaded
-        setCurrentPage(1);
-      }
-    } catch (error: unknown) {
-      const errorResult = extractErrorMessage(error);
-      showError(errorResult.message);
-      setAllEmployees([]);
-    } finally {
-      setLoading(false);
-      isLoadingRef.current = false;
-    }
-  }, [departmentFilter, designationFilter, showError, user]);
-
-  // Mark initial mount as complete after first render
+  // Reset to page 1 when filters change so we don't land on a non-existent page
   useEffect(() => {
-    isInitialMount.current = false;
-  }, []);
+    setCurrentPage(1);
+  }, [departmentFilter, designationFilter]);
 
-  // Load employees on component mount
-  useEffect(() => {
-    loadDepartmentsAndDesignations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Load employees when filters change (fetches all records)
-  useEffect(() => {
-    // Skip on initial mount to prevent duplicate API call
-    if (isInitialMount.current) {
-      return;
-    }
-    setCurrentPage(1); // Reset to page 1 when filters change
-    loadEmployees();
-  }, [departmentFilter, designationFilter, loadEmployees]);
-
-  // Load employees on initial mount
-  useEffect(() => {
-    loadEmployees();
-  }, [loadEmployees]);
-
-  // Handle page change (client-side pagination, no API call needed)
+  // Handle page change (client-side pagination over TanStack Query cached data)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -491,23 +336,23 @@ const EmployeeManager: React.FC = () => {
         cnic_back_picture: completeEmployee.cnic_back_picture,
         department: completeEmployee.department
           ? {
-            id: completeEmployee.department.id,
-            name: completeEmployee.department.name,
-            description: completeEmployee.department.description,
-            tenantId: completeEmployee.department.tenantId,
-            createdAt: completeEmployee.department.createdAt,
-            updatedAt: completeEmployee.department.updatedAt,
-          }
+              id: completeEmployee.department.id,
+              name: completeEmployee.department.name,
+              description: completeEmployee.department.description,
+              tenantId: completeEmployee.department.tenantId,
+              createdAt: completeEmployee.department.createdAt,
+              updatedAt: completeEmployee.department.updatedAt,
+            }
           : {
-            id: completeEmployee.departmentId,
-            name:
-              departments[completeEmployee.departmentId] ||
-              'Unknown Department',
-            description: '',
-            tenantId: completeEmployee.tenantId,
-            createdAt: completeEmployee.createdAt,
-            updatedAt: completeEmployee.updatedAt,
-          },
+              id: completeEmployee.departmentId,
+              name:
+                departments[completeEmployee.departmentId] ||
+                'Unknown Department',
+              description: '',
+              tenantId: completeEmployee.tenantId,
+              createdAt: completeEmployee.createdAt,
+              updatedAt: completeEmployee.updatedAt,
+            },
         designation: completeEmployee.designation || {
           id: completeEmployee.designationId,
           title:
@@ -523,11 +368,10 @@ const EmployeeManager: React.FC = () => {
         updatedAt: completeEmployee.updatedAt,
       };
 
-      // Add to the beginning of the list (most recent first)
-      setAllEmployees(prev => [convertedEmployee, ...prev]);
-
-      // Reload department and designation mappings
-      await loadDepartmentsAndDesignations();
+      // Invalidate the employee list so TanStack Query re-fetches fresh data
+      void queryClient.invalidateQueries({ queryKey: EMPLOYEE_KEYS.lists() });
+      // convertedEmployee is declared but used only to confirm the fetch succeeded
+      void convertedEmployee;
 
       showSuccess(
         'Employee added successfully! A password reset link has been sent to their email.'
@@ -552,21 +396,21 @@ const EmployeeManager: React.FC = () => {
         ) || false;
       const checkoutUrl =
         typeof (data as Record<string, unknown> | null)?.checkoutUrl ===
-          'string'
+        'string'
           ? ((data as Record<string, unknown>).checkoutUrl as string)
           : typeof (data as Record<string, unknown> | null)?.checkout_url ===
-            'string'
+              'string'
             ? ((data as Record<string, unknown>).checkout_url as string)
             : null;
       const checkoutSessionId =
         typeof (data as Record<string, unknown> | null)?.checkoutSessionId ===
-          'string'
+        'string'
           ? ((data as Record<string, unknown>).checkoutSessionId as string)
           : typeof (data as Record<string, unknown> | null)
-            ?.checkout_session_id === 'string'
+                ?.checkout_session_id === 'string'
             ? ((data as Record<string, unknown>).checkout_session_id as string)
             : typeof (data as Record<string, unknown> | null)?.session_id ===
-              'string'
+                'string'
               ? ((data as Record<string, unknown>).session_id as string)
               : null;
 
@@ -615,10 +459,12 @@ const EmployeeManager: React.FC = () => {
           const lower = msg.toLowerCase();
           if (lower.includes('cnic')) fieldErrors.cnicNumber = msg;
           else if (lower.includes('phone')) fieldErrors.phone = msg;
-          else if (lower.includes('email') || lower.includes('user')) fieldErrors.email = msg;
+          else if (lower.includes('email') || lower.includes('user'))
+            fieldErrors.email = msg;
           else if (lower.includes('first')) fieldErrors.first_name = msg;
           else if (lower.includes('last')) fieldErrors.last_name = msg;
-          else if (lower.includes('designation')) fieldErrors.designationId = msg;
+          else if (lower.includes('designation'))
+            fieldErrors.designationId = msg;
           else if (lower.includes('password')) fieldErrors.password = msg;
           else fieldErrors.general = msg;
         }
@@ -669,6 +515,7 @@ const EmployeeManager: React.FC = () => {
       profilePicture?: File | null;
       cnicFrontPicture?: File | null;
       cnicBackPicture?: File | null;
+      gender?: string;
     }
   ) => {
     if (!editing)
@@ -702,81 +549,13 @@ const EmployeeManager: React.FC = () => {
         profilePicture: updates.profilePicture,
         cnicFrontPicture: updates.cnicFrontPicture,
         cnicBackPicture: updates.cnicBackPicture,
+        gender: updates.gender || editing.gender,
       });
 
-      // Update the employee in the list without reloading
-      const designationName =
-        designations[nextDesignationId] ||
-        designations[editing.designationId] ||
-        'Unknown Designation';
-
-      // Get the department ID for the new designation from the designation list
-      const newDesignation = designationList.find(
-        desig => desig.id === nextDesignationId
-      );
-      const newDepartmentId =
-        newDesignation?.departmentId ||
-        updatedEmployee.departmentId ||
-        editing.departmentId;
-      const departmentName =
-        departments[newDepartmentId] || 'Unknown Department';
-
-      setAllEmployees(prev =>
-        prev.map(emp =>
-          emp.id === editing.id
-            ? {
-              ...emp,
-              user_id: updatedEmployee.user_id || emp.user_id,
-              name: updatedEmployee.name,
-              firstName: updatedEmployee.firstName,
-              lastName: updatedEmployee.lastName,
-              email: updatedEmployee.email,
-              phone: updatedEmployee.phone,
-              departmentId: newDepartmentId,
-              designationId: nextDesignationId,
-              role_name:
-                updatedEmployee.role_name || nextRoleName || emp.role_name,
-              status: updatedEmployee.status || emp.status,
-              cnic_number: updatedEmployee.cnic_number || emp.cnic_number,
-              profile_picture:
-                updatedEmployee.profile_picture || emp.profile_picture,
-              cnic_picture: updatedEmployee.cnic_picture || emp.cnic_picture,
-              cnic_back_picture:
-                updatedEmployee.cnic_back_picture || emp.cnic_back_picture,
-              department: emp.department
-                ? {
-                  ...emp.department,
-                  id: newDepartmentId,
-                  name: departmentName,
-                }
-                : {
-                  id: newDepartmentId,
-                  name: departmentName,
-                  description: '',
-                  tenantId: emp.tenantId,
-                  createdAt: emp.createdAt,
-                  updatedAt: emp.updatedAt,
-                },
-              designation: emp.designation
-                ? {
-                  ...emp.designation,
-                  id: nextDesignationId,
-                  title: designationName,
-                  departmentId: newDepartmentId,
-                }
-                : {
-                  id: nextDesignationId,
-                  title: designationName,
-                  tenantId: emp.tenantId,
-                  departmentId: newDepartmentId,
-                  createdAt: emp.createdAt,
-                  updatedAt: emp.updatedAt,
-                },
-              updatedAt: updatedEmployee.updatedAt,
-            }
-            : emp
-        )
-      );
+      // Invalidate the employee list so TanStack Query re-fetches fresh data
+      void queryClient.invalidateQueries({ queryKey: EMPLOYEE_KEYS.lists() });
+      // updatedEmployee confirms the update succeeded; unused reference suppressed
+      void updatedEmployee;
 
       showSuccess('Employee updated successfully!');
       setOpen(false);
@@ -791,20 +570,31 @@ const EmployeeManager: React.FC = () => {
     }
   };
 
-  const handleDeleteDocument = async (type: 'profile' | 'cnicFront' | 'cnicBack', url: string) => {
+  const handleDeleteDocument = async (
+    type: 'profile' | 'cnicFront' | 'cnicBack',
+    url: string
+  ) => {
     if (!editing) return;
+
+    // 🚫 Restrict deletion of required documents in edit mode
+    if (type === 'cnicFront' || type === 'cnicBack') {
+      showError('CNIC documents are required and cannot be deleted.');
+      return;
+    }
 
     try {
       await employeeApi.deleteDocument(editing.id, url);
 
-      // Update local state to remove the image from the editing employee and allEmployees list
+      // Update editing state so the form reflects the deletion immediately
       const updatedEditing = { ...editing };
       if (type === 'profile') updatedEditing.profile_picture = undefined;
       else if (type === 'cnicFront') updatedEditing.cnic_picture = undefined;
-      else if (type === 'cnicBack') updatedEditing.cnic_back_picture = undefined;
+      else if (type === 'cnicBack')
+        updatedEditing.cnic_back_picture = undefined;
 
       setEditing(updatedEditing);
-      setAllEmployees(prev => prev.map(emp => emp.id === editing.id ? updatedEditing : emp));
+      // Invalidate the employee list so TanStack Query re-fetches fresh data
+      void queryClient.invalidateQueries({ queryKey: EMPLOYEE_KEYS.lists() });
 
       showSuccess('Document deleted successfully!');
     } catch (err: unknown) {
@@ -817,7 +607,8 @@ const EmployeeManager: React.FC = () => {
   const handleDeleteEmployee = async (id: string) => {
     try {
       await employeeApi.deleteEmployee(id);
-      setAllEmployees(prev => prev.filter(emp => emp.id !== id));
+      // Invalidate so TanStack Query re-fetches the employee list
+      void queryClient.invalidateQueries({ queryKey: EMPLOYEE_KEYS.lists() });
       showSuccess('Employee deleted successfully!');
     } catch (error: unknown) {
       const errorResult = extractErrorMessage(error);
@@ -856,28 +647,16 @@ const EmployeeManager: React.FC = () => {
   const handleResendInvite = useCallback(
     async (employee: Employee) => {
       try {
-        // Immediately update the status to "Invite Sent" in the local state
-        setAllEmployees(prev =>
-          prev.map(emp =>
-            emp.id === employee.id ? { ...emp, status: 'Invite Sent' } : emp
-          )
-        );
-
         await employeeApi.resendInvite(employee.id);
         showSuccess(`Invite resent successfully to ${employee.name}!`);
+        // Re-fetch so the updated invite status is reflected
+        void queryClient.invalidateQueries({ queryKey: EMPLOYEE_KEYS.lists() });
       } catch (error: unknown) {
-        // If API call fails, revert the status back to "Invite Expired"
-        setAllEmployees(prev =>
-          prev.map(emp =>
-            emp.id === employee.id ? { ...emp, status: 'Invite Expired' } : emp
-          )
-        );
-
         const errorResult = extractErrorMessage(error);
         showError(errorResult.message);
       }
     },
-    [showSuccess, showError]
+    [showSuccess, showError, queryClient]
   );
 
   const handleViewEmployee = useCallback((employee: Employee) => {
@@ -908,6 +687,7 @@ const EmployeeManager: React.FC = () => {
       const fetchAndViewEmployee = async () => {
         try {
           const employeeData = await employeeApi.getEmployeeById(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- employeeId is checked truthy in the parent condition
             state.employeeId!
           );
           const employeeToView: Employee = {
@@ -956,31 +736,21 @@ const EmployeeManager: React.FC = () => {
   const deleteTitle = getLabel('Confirm Delete', 'تأكيد الحذف');
   const deleteMessage = pendingDeleteName
     ? getLabel(
-      `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
-      `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
-    )
+        `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
+        `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
+      )
     : getLabel(
-      'Are you sure you want to delete this employee? This action cannot be undone.',
-      'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
-    );
+        'Are you sure you want to delete this employee? This action cannot be undone.',
+        'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
+      );
 
+  // MIGRATED: was direct localStorage access — kept for exportCSV which requires the raw token string
   const token = localStorage.getItem('token');
   const filters: Record<string, string> = {};
-  if (departmentFilter && departmentFilter !== 'all') filters.department_id = departmentFilter;
-  if (designationFilter && designationFilter !== 'all') filters.designation_id = designationFilter;
-
-  // Build absolute media URL from backend path
-  const API_BASE_URL = env.apiBaseUrl;
-  const toAbsoluteUrl = (path?: string | null) => {
-    if (!path) return '';
-    const trimmed = path.trim();
-    const isAbsolute = /^https?:\/\//i.test(trimmed);
-    const base = API_BASE_URL.replace(/\/$/, '');
-    const url = isAbsolute
-      ? trimmed
-      : `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-    return `${url}?t=${Date.now()}`;
-  };
+  if (departmentFilter && departmentFilter !== 'all')
+    filters.department_id = departmentFilter;
+  if (designationFilter && designationFilter !== 'all')
+    filters.designation_id = designationFilter;
 
   return (
     <Box>
@@ -1343,21 +1113,22 @@ const EmployeeManager: React.FC = () => {
           initialData={
             editing
               ? {
-                id: editing.id,
-                firstName: editing.firstName,
-                lastName: editing.lastName,
-                email: editing.email,
-                phone: editing.phone,
-                designationId: editing.designationId,
-                departmentId: editing.departmentId,
-                gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
-                role: (editing.role_name || '').trim() || 'Employee',
-                role_name: editing.role_name,
-                cnicNumber: editing.cnic_number,
-                profilePicture: editing.profile_picture,
-                cnicFrontPicture: editing.cnic_picture,
-                cnicBackPicture: editing.cnic_back_picture,
-              }
+                  id: editing.id,
+                  firstName: editing.firstName,
+                  lastName: editing.lastName,
+                  email: editing.email,
+                  phone: editing.phone,
+                  designationId: editing.designationId,
+                  departmentId: editing.departmentId,
+                  // gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
+                  gender: editing.gender,
+                  role: (editing.role_name || '').trim() || 'Employee',
+                  role_name: editing.role_name,
+                  cnicNumber: editing.cnic_number,
+                  profilePicture: editing.profile_picture,
+                  cnicFrontPicture: editing.cnic_picture,
+                  cnicBackPicture: editing.cnic_back_picture,
+                }
               : null
           }
         />

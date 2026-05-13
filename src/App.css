@@ -101,11 +101,46 @@
     sans-serif !important;
 }
 
+/* ── Accessibility utilities ──────────────────────────────────────────────── */
+
+/* Visually-hidden helper — hides content from sighted users while keeping it
+   available to screen readers. Apply via className="sr-only". */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-main-content link — shown only on keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #3083dc;
+  color: #ffffff;
+  border-radius: 0 0 4px 0;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
 .loginpage {
   max-width: 1060px;
   margin: 0 auto;
   overflow: hidden;
 }
+
 body {
   padding: 0;
   margin: 0;
@@ -121,14 +156,6 @@ body {
   line-height: var(--body-line-height);
   letter-spacing: var(--body-letter-spacing);
   color: var(--text-color);
-}
-body.dark-mode {
-  background-color: #1e1f20;
-}
-
-body.light-mode {
-  background-color: #efefef;
-  color: #000000;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -147,6 +174,9 @@ html {
   }
 
   :root {
+    --dialog-width: 527px;
+    --dialog-height: 693px;
+    --dialog-radius: 30px;
     /* Headings */
     --h1-font-size: 32px;
     --h1-line-height: 38px;
@@ -178,6 +208,7 @@ html {
     font-size: 13px;
   }
 }
+
 :root {
   font-family:
     'SF Pro Rounded',
@@ -192,9 +223,29 @@ html {
   --text-color: #2d3748;
   --border-radius: 4px;
   --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
+  --border-radius-2xl: 20px;
+
+  /* Pending */
+  --status-pending-bg: #fffae5;
+  --status-pending-text: #ffcc00;
+
+  /* Approved */
+  --status-approved-bg: #ebfaef;
+  --status-approved-text: #34c759;
+
+  /* Rejected */
+  --status-rejected-bg: #ffe5e6;
+  --status-rejected-text: #ff383c;
+
+  /* Review */
+  --status-review-bg: #c55ee82f;
+  --status-review-text: #4f0a65;
 
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
+  --primary-focus-color: #1976d2;
+  --primary-hover-color: #1565c0;
   --primary-color: #e0ecfa;
   --dark-black-color: #001218;
   --black-color: #2c2c2c;
@@ -210,7 +261,10 @@ html {
   --text-color: #000000;
 
   --secondary-color: #c61952;
-  --border-radius: 12px;
+  --success-color: #43a047;
+  --success-dark-color: #388e3c;
+  --error-color: #e53935;
+  --error-dark-color: #b71c1c;
 
   --h1-font-weight: 700;
   --h1-font-style: normal;
@@ -253,6 +307,22 @@ html {
   --label-font-size: 14px;
   --label-line-height: 20px;
   --label-letter-spacing: -1%;
+}
+
+body.dark-mode {
+  background-color: #1e1f20;
+  --white-color: #ffffff;
+  --primary-dark-color: #3083dc;
+  --success-color: #66bb6a;
+  --success-dark-color: #43a047;
+  --error-color: #ef5350;
+  --error-dark-color: #e53935;
+  --primary-hover-color: #64b5f6;
+}
+
+body.light-mode {
+  background-color: var(--light-grey-200-color);
+  color: var(--text-color);
 }
 
 h1 {
@@ -319,7 +389,7 @@ h3 {
 }
 
 .MuiTooltip-arrow {
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Pagination — use app primary dark color for items & selected state */
@@ -329,7 +399,7 @@ h3 {
 
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected {
   background-color: var(--primary-dark-color);
-  color: #ffffff;
+  color: var(--white-color);
 }
 
 /* Prevent pagination hover from changing colors — keep consistent primary color */
@@ -343,7 +413,7 @@ h3 {
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:hover,
 .MuiPagination-root .MuiPaginationItem-root.Mui-selected:focus {
   background-color: var(--primary-dark-color) !important;
-  color: #ffffff !important;
+  color: var(--white-color) !important;
 }
 
 /* Also prevent active/focus state from changing pagination item color */

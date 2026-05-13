@@ -1,4 +1,5 @@
 import axiosInstance from './axiosInstance';
+import type { UserProfile } from '../types/user';
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -26,8 +27,8 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   refreshToken?: string;
-  user?: Record<string, unknown>;
-  permissions?: unknown[];
+  user?: UserProfile;
+  permissions?: string[];
   employee?: { id?: string | number } | null;
   requiresPayment?: boolean;
   session_id?: string;
@@ -79,7 +80,5 @@ class AuthApiService {
   }
 }
 
-export const authApiService = new AuthApiService();
-
-export const authApi = authApiService;
+const authApi = new AuthApiService();
 export default authApi;

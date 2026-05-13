@@ -7,22 +7,16 @@ import {
   isManager as roleIsManager,
   isNetworkAdmin as roleIsNetworkAdmin,
   isSystemAdmin as roleIsSystemAdmin,
-  type UserRole,
 } from './roleUtils';
+import type { UserProfile } from '../types/user';
 
-export interface User {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: UserRole;
-  tenant_id?: string;
-}
+/** @deprecated Import UserProfile from src/types/user instead. */
+export type User = UserProfile;
 
 const getCurrentRole = () =>
   (getCurrentUser()?.role ?? undefined) as Parameters<typeof roleIsAdmin>[0];
 
-export const getCurrentUser = (): User | null => {
+export const getCurrentUser = (): UserProfile | null => {
   try {
     const userStr = localStorage.getItem('user');
     if (userStr) {

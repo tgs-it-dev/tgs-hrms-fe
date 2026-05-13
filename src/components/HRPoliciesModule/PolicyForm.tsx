@@ -11,9 +11,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import type { Policy } from '../../type/Hrtypes';
+import type { Policy } from '../../types/policy';
 import AppButton from '../common/AppButton';
-import { COLORS } from '../../constants/appConstants';
 
 interface PolicyFormProps {
   open: boolean;
@@ -64,13 +63,55 @@ const PolicyForm: React.FC<PolicyFormProps> = ({
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  const ALLOWED_TYPES = [
+    'hr',
+    'leave',
+    'attendance',
+    'code_of_conduct',
+    'other',
+  ];
+
   const validate = () => {
     const newErrors = {
-      name: formData.name ? '' : 'Policy name is required',
-      description: formData.description ? '' : 'Description is required',
-      type: formData.type ? '' : 'Type is required',
-      effectiveDate: formData.effectiveDate ? '' : 'Effective date is required',
+      name: '',
+      description: '',
+      type: '',
+      effectiveDate: '',
     };
+
+    if (!formData.name) {
+      newErrors.name = 'Policy name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Policy name must be at least 2 characters';
+    } else if (formData.name.trim().length > 100) {
+      newErrors.name = 'Policy name must be 100 characters or less';
+    }
+
+    if (!formData.description) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    } else if (formData.description.trim().length > 500) {
+      newErrors.description = 'Description must be 500 characters or less';
+    }
+
+    if (!formData.type) {
+      newErrors.type = 'Type is required';
+    } else if (!ALLOWED_TYPES.includes(formData.type.toLowerCase())) {
+      newErrors.type = `Type must be one of: ${ALLOWED_TYPES.join(', ')}`;
+    }
+
+    if (!formData.effectiveDate) {
+      newErrors.effectiveDate = 'Effective date is required';
+    } else if (!initialData) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const effectiveDate = new Date(formData.effectiveDate);
+      if (effectiveDate < today) {
+        newErrors.effectiveDate =
+          'Effective date cannot be in the past for new policies';
+      }
+    }
 
     setErrors(newErrors);
     return !Object.values(newErrors).some(err => err !== '');
@@ -173,7 +214,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({
           variant='contained'
           text={initialData ? 'Update' : 'Add'}
           onClick={handleSubmit}
-          sx={{ backgroundColor: COLORS.PRIMARY }}
+          sx={{ backgroundColor: 'primary.main' }}
         />
       </DialogActions>
     </Dialog>
