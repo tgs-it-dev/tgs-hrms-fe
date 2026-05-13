@@ -364,36 +364,36 @@ function RequestModal({
         label: '',
         component: datesComponent,
         value: '',
-        onChange: () => { },
+        onChange: () => {},
       },
       ...(reqType === 'overtime' && overtimeMode === 'hours'
         ? [
-          {
-            name: 'hours',
-            label: getLabel('Hours', 'الساعات'),
-            type: 'text' as const,
-            value: hours,
-            onChange: (val: string | number) => setHours(String(val)),
-            required: true,
-          },
-        ]
+            {
+              name: 'hours',
+              label: getLabel('Hours', 'الساعات'),
+              type: 'text' as const,
+              value: hours,
+              onChange: (val: string | number) => setHours(String(val)),
+              required: true,
+            },
+          ]
         : []),
       ...(reqType === 'leave'
         ? [
-          {
-            name: 'leaveTypeId',
-            label: getLabel('Leave Type', 'نوع الإجازة'),
-            type: 'dropdown' as const,
-            placeholder: getLabel('Select', 'اختر النوع'),
-            options: leaveTypes.map(lt => ({
-              value: lt.id,
-              label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
-            })),
-            value: leaveTypeId,
-            onChange: (val: string | number) => setLeaveTypeId(String(val)),
-            required: true,
-          },
-        ]
+            {
+              name: 'leaveTypeId',
+              label: getLabel('Leave Type', 'نوع الإجازة'),
+              type: 'dropdown' as const,
+              placeholder: getLabel('Select', 'اختر النوع'),
+              options: leaveTypes.map(lt => ({
+                value: lt.id,
+                label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
+              })),
+              value: leaveTypeId,
+              onChange: (val: string | number) => setLeaveTypeId(String(val)),
+              required: true,
+            },
+          ]
         : []),
       {
         name: 'reason',
@@ -457,18 +457,18 @@ function RequestModal({
           />
         ),
         value: '',
-        onChange: () => { },
+        onChange: () => {},
       },
       ...(reqType === 'wfh'
         ? [
-          {
-            name: 'wfhInfo',
-            label: '',
-            component: wfhInfoComponent,
-            value: '',
-            onChange: () => { },
-          },
-        ]
+            {
+              name: 'wfhInfo',
+              label: '',
+              component: wfhInfoComponent,
+              value: '',
+              onChange: () => {},
+            },
+          ]
         : []),
     ],
     [
@@ -715,19 +715,19 @@ function RequestModal({
           if (newDocuments.length > 0)
             overtimePayload.attachments = newDocuments;
 
-          const response = await overtimeApi.updateOvertimeRequest(String(id), overtimePayload);
+          await overtimeApi.updateOvertimeRequest(String(id), overtimePayload);
         }
       } else {
         // CREATE MODE
         if (reqType === 'wfh') {
-          const response = await wfhApi.createWFHRequest({
+          await wfhApi.createWFHRequest({
             start_date: fromDate.format('YYYY-MM-DD'),
             end_date: toDate!.format('YYYY-MM-DD'),
             reason: reason,
             attachments: newDocuments,
           });
         } else if (reqType === 'leave') {
-          const response = await leaveApi.createLeave({
+          await leaveApi.createLeave({
             leaveTypeId: leaveTypeId,
             startDate: fromDate.format('YYYY-MM-DD'),
             endDate: toDate!.format('YYYY-MM-DD'),

@@ -113,8 +113,6 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch {
       // Ignore invalid storage
     }
-
-
   }, []);
 
   useEffect(() => {
@@ -134,7 +132,7 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
     fetchWorkflowFlag();
-  }, [])
+  }, []);
 
   // Persist feature toggles to localStorage only in DEV mode.
   // In production, flags come from VITE_* env vars and are never user-editable.

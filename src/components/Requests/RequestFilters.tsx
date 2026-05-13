@@ -2,7 +2,12 @@ import React from 'react';
 import { Box, useTheme } from '@mui/material';
 import AppDropdown from '../common/AppDropdown';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
-import { isAdmin, isEmployee, isHRAdmin, isManager } from '../../utils/roleUtils';
+import {
+  isAdmin,
+  isEmployee,
+  isHRAdmin,
+  isManager,
+} from '../../utils/roleUtils';
 
 interface RequestFiltersProps {
   statusFilter: string;
@@ -26,9 +31,8 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
   const manager = isManager(role);
   const admin = isAdmin(role);
   const hrAdmin = isHRAdmin(role);
-  const statusOptions: { value: string; label: string }[] =
-    employee
-      ? [
+  const statusOptions: { value: string; label: string }[] = employee
+    ? [
         { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
         {
           value: 'pending',
@@ -38,8 +42,8 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
         { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
         { value: 'cancelled', label: getLabel('Cancelled', 'ملغى') },
       ]
-      : manager || admin || hrAdmin
-        ? [
+    : manager || admin || hrAdmin
+      ? [
           { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
           {
             value: 'history',
@@ -50,7 +54,7 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
             label: getLabel('Pending', 'قيد الانتظار'),
           },
         ]
-        : [];
+      : [];
   return (
     <Box
       sx={{

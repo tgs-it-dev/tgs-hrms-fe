@@ -37,7 +37,6 @@ import { leaveApi } from '../../api';
 import type { LeaveType } from '../../api/leaveApi';
 import { mapWorkflowStatus } from '../../utils/requestUtils';
 
-
 function ReviewRequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
@@ -299,19 +298,19 @@ function ReviewRequestPage() {
                   {...buildCardProps(request)}
                   actions={
                     !employee &&
-                      !(
-                        (manager &&
-                          [
-                            'rejected',
-                            'cancelled',
-                            'approved',
-                            'in_review',
-                          ].includes(request.status)) ||
-                        ((admin || hrAdmin) &&
-                          ['rejected', 'cancelled', 'approved'].includes(
-                            request.status
-                          ))
-                      ) ? (
+                    !(
+                      (manager &&
+                        [
+                          'rejected',
+                          'cancelled',
+                          'approved',
+                          'in_review',
+                        ].includes(request.status)) ||
+                      ((admin || hrAdmin) &&
+                        ['rejected', 'cancelled', 'approved'].includes(
+                          request.status
+                        ))
+                    ) ? (
                       <Box>
                         <AppTextarea
                           label={getLabel('Remarks', 'ملاحظات')}
