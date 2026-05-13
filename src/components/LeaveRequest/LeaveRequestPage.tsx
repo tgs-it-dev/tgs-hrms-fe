@@ -58,6 +58,7 @@ const LeaveRequestPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [leaveTypeModalOpen, setLeaveTypeModalOpen] = useState(false);
   const [savingLeaveType, setSavingLeaveType] = useState(false);
+  const role = normalizeRole(getUserRole());
 
   const [viewMode, setViewMode] = useState<'team' | 'you'>('you');
   // Default dateFilter is empty so admin users can see ALL leaves by default.
@@ -66,7 +67,6 @@ const LeaveRequestPage = () => {
 
   const { user: currentUser } = useUser();
   const currentUserId = currentUser?.id ?? '';
-  const role = normalizeRole(getUserRole());
   const userName = getUserName();
 
   // MIGRATED: employees list now owned by TanStack Query

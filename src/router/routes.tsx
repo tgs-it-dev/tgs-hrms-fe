@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 import type React from 'react';
+import type { FeatureKey } from '../context/FeatureToggleContext';
 
 export interface RouteConfig {
   path: string;
@@ -14,6 +15,7 @@ export interface ProtectedRouteConfig {
   /** When false, the route skips RouteErrorBoundary; defaults to true */
   withErrorBoundary?: boolean;
   requiredRole?: string[];
+  requiredFeature?: FeatureKey | FeatureKey[];
 }
 
 // ── Public lazy imports ──────────────────────────────────────────────────────
@@ -106,6 +108,10 @@ const GeofencingManagement = lazy(
 const FeatureManagementPage = lazy(
   () => import('../components/Settings/FeatureManagementPage')
 );
+const RequestPage = lazy(() => import('../components/Requests/RequestPage'));
+const ReviewRequestsPage = lazy(
+  () => import('../components/ReviewRequests/ReviewRequestsPage')
+);
 
 // ── Public routes ────────────────────────────────────────────────────────────
 export const publicRoutes: RouteConfig[] = [
@@ -159,4 +165,22 @@ export const protectedRoutes: ProtectedRouteConfig[] = [
   { path: 'audit-logs', component: AuditLogs },
   { path: 'announcements', component: AnnouncementsPage },
   { path: 'geofencing', component: GeofencingManagement },
+  {
+    path: 'requests',
+    component: RequestPage,
+    requiredFeature: [
+      'leave_workflow_enabled',
+      'wfh_workflow_enabled',
+      'overtime_workflow_enabled',
+    ],
+  },
+  {
+    path: 'review-requests',
+    component: ReviewRequestsPage,
+    requiredFeature: [
+      'leave_workflow_enabled',
+      'wfh_workflow_enabled',
+      'overtime_workflow_enabled',
+    ],
+  },
 ];

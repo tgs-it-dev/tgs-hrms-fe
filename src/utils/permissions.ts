@@ -60,6 +60,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'performance',
     'recruitment',
     'feature-management',
+    'review-requests',
   ],
   'network-admin': [
     'dashboard',
@@ -68,6 +69,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'teams',
     'attendance',
     'recruitment',
+    'review-requests',
   ],
   'hr-admin': [
     'attendance',
@@ -77,6 +79,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'leave-analytics',
     'employees',
     'recruitment',
+    'review-requests',
   ],
   admin: [
     'dashboard',
@@ -88,10 +91,24 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'leave-analytics',
     'recruitment',
+    'review-requests',
   ],
-  manager: ['teams', 'attendance', 'report', 'leave-analytics', 'recruitment'],
-  employee: ['attendance', 'leave-analytics', 'teams', 'recruitment'],
-  user: ['attendance', 'teams', 'recruitment'],
+  manager: [
+    'teams',
+    'attendance',
+    'report',
+    'leave-analytics',
+    'recruitment',
+    'review-requests',
+  ],
+  employee: [
+    'attendance',
+    'leave-analytics',
+    'teams',
+    'recruitment',
+    'requests',
+  ],
+  user: ['attendance', 'teams', 'recruitment', 'requests'],
   unknown: ['recruitment'],
 };
 
@@ -114,6 +131,8 @@ const MENU_KEY_MATCHERS: Array<{ key: string; patterns: string[] }> = [
     key: 'feature-management',
     patterns: ['feature management', 'feature-management'],
   },
+  { key: 'requests', patterns: ['request', 'requests'] },
+  { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 
 const getMenuKey = (label: string) => {
@@ -138,6 +157,8 @@ type ParentKey =
   | 'teams'
   | 'audit logs'
   | 'recruitment'
+  | 'request'
+  | 'review-requests'
   | 'misc';
 
 const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
@@ -148,6 +169,8 @@ const PARENT_KEY_MATCHERS: Array<{ key: ParentKey; patterns: string[] }> = [
   { key: 'teams', patterns: ['team'] },
   { key: 'audit logs', patterns: ['audit logs'] },
   { key: 'recruitment', patterns: ['recruitment'] },
+  { key: 'request', patterns: ['request'] },
+  { key: 'review-requests', patterns: ['review-requests', 'approval'] },
 ];
 
 const getParentKey = (label: string): ParentKey => {
@@ -257,6 +280,7 @@ export const isSubMenuVisibleForRole = (
   }
 
   const policy = ROLE_SUBMENU_POLICIES[r]?.[parentKey];
+
   if (!policy) return true;
   if (policy.denyAll) return false;
   if (policy.allowOnly) {
@@ -291,6 +315,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'tenant-employees',
     'performance-dashboard',
     'feature-management',
+    'review-requests',
   ],
   'network-admin': [
     '',
@@ -307,6 +332,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-profile-view',
     'attendance-summary',
     'settings',
+    'review-requests',
   ],
   'hr-admin': [
     'departments',
@@ -325,6 +351,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'leaves',
     'reports',
     'employee-salary',
+    'review-requests',
   ],
   admin: [
     '',
@@ -347,6 +374,8 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'attendance-summary',
     'settings',
     'employee-salary',
+    'review-requests',
+    'feature-management',
   ],
   manager: [
     'employee-manager',
@@ -364,6 +393,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'employee-salary',
     'my-salary',
     'employee-profile-view',
+    'review-requests',
   ],
   employee: [
     'attendance-check',
@@ -374,6 +404,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
+    'requests',
   ],
   user: [
     'attendance-check',
@@ -384,6 +415,7 @@ const DASHBOARD_ALLOWLIST_ENTRIES: Record<NormalizedRole, readonly string[]> = {
     'user-profile',
     'settings',
     'my-salary',
+    'requests',
   ],
   unknown: [],
 };
