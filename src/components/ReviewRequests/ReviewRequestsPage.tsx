@@ -26,7 +26,7 @@ import { PAGINATION } from '../../constants/appConstants';
 import { normalizeRole } from '../../utils/permissions';
 import { getUserRole } from '../../utils/auth';
 import RequestFilters from '../Requests/RequestFilters';
-import { AppTextarea } from '../common';
+import { AppTextarea, ErrorSnackbar } from '../common';
 import {
   isEmployee,
   isManager,
@@ -37,15 +37,16 @@ import { leaveApi } from '../../api';
 import type { LeaveType } from '../../api/leaveApi';
 import { mapWorkflowStatus } from '../../utils/requestUtils';
 
+
 function ReviewRequestPage() {
   const theme = useTheme();
   const getLabel = useDirectionLabel();
-  const { showError } = useErrorHandler();
   const userRole = normalizeRole(getUserRole() || '');
   const employee = isEmployee(userRole);
   const manager = isManager(userRole);
   const admin = isAdmin(userRole);
   const hrAdmin = isHRAdmin(userRole);
+  const { showError, showSuccess, snackbar, closeSnackbar } = useErrorHandler();
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -143,6 +144,11 @@ function ReviewRequestPage() {
           delete next[requestId];
           return next;
         });
+        if (action === 'approved') {
+          showSuccess('Request approved successfully');
+        } else {
+          showSuccess('Request rejected successfully');
+        }
         loadRequests({ page: currentPage, skipFullPageLoader: true });
       } catch (error) {
         showError(error);
@@ -293,19 +299,19 @@ function ReviewRequestPage() {
                   {...buildCardProps(request)}
                   actions={
                     !employee &&
-                    !(
-                      (manager &&
-                        [
-                          'rejected',
-                          'cancelled',
-                          'approved',
-                          'in_review',
-                        ].includes(request.status)) ||
-                      ((admin || hrAdmin) &&
-                        ['rejected', 'cancelled', 'approved'].includes(
-                          request.status
-                        ))
-                    ) ? (
+                      !(
+                        (manager &&
+                          [
+                            'rejected',
+                            'cancelled',
+                            'approved',
+                            'in_review',
+                          ].includes(request.status)) ||
+                        ((admin || hrAdmin) &&
+                          ['rejected', 'cancelled', 'approved'].includes(
+                            request.status
+                          ))
+                      ) ? (
                       <Box>
                         <AppTextarea
                           label={getLabel('Remarks', 'ملاحظات')}
@@ -450,6 +456,12 @@ function ReviewRequestPage() {
           )}
         </Box>
       </Box>
+      <ErrorSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={closeSnackbar}
+      />
     </LocalizationProvider>
   );
 }

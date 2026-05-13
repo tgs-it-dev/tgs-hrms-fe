@@ -81,8 +81,8 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
     },
     in_review: {
       label: getLabel('In Review', 'قيد المراجعة'),
-      bg: 'var(--status-pending-bg)',
-      color: 'var(--status-pending-text)',
+      bg: 'var(--status-review-bg)',
+      color: 'var(--status-review-text)',
     },
   };
 

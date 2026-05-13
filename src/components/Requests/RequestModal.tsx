@@ -44,8 +44,8 @@ function RequestModal({
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [leaveTypeId, setLeaveTypeId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [overtimeMode, setOvertimeMode] = useState<'hours' | 'range'>('hours');
-
+  const [overtimeMode, setOvertimeMode] = useState<'hours' | 'range'>('range');
+  // types dropdown
   const availableRequestTypes = useMemo(() => {
     const types = [];
     if (isFeatureEnabled('wfh_workflow_enabled')) {
@@ -162,7 +162,7 @@ function RequestModal({
         setHours('');
         setLeaveTypeId('');
         setNewDocuments([]);
-        setOvertimeMode('hours');
+        setOvertimeMode('range');
         setInitialSnapshot(null);
       }
       // Initialize state when editing
@@ -195,7 +195,7 @@ function RequestModal({
         setLeaveTypeId('');
         setExistingDocuments([]);
         setNewDocuments([]);
-        setOvertimeMode('hours');
+        setOvertimeMode('range');
       }
     }
   }, [initialData, open]);
@@ -316,84 +316,84 @@ function RequestModal({
           const type = String(val);
           setReqType(type);
           if (type === 'overtime') {
-            setOvertimeMode('hours');
+            setOvertimeMode('range');
             setToDate(null);
           }
         },
         disabled: !!initialData,
         required: true,
       },
-      ...(reqType === 'overtime'
-        ? [
-            {
-              name: 'overtimeMode',
-              label: getLabel('Overtime Mode', 'وضع العمل الإضافي'),
-              type: 'dropdown' as const,
-              options: [
-                {
-                  value: 'hours',
-                  label: getLabel(
-                    'Hours Mode (Single Day)',
-                    'وضع الساعات (يوم واحد)'
-                  ),
-                },
-                {
-                  value: 'range',
-                  label: getLabel(
-                    'Range Mode (Date Range)',
-                    'وضع النطاق (نطاق تاريخ)'
-                  ),
-                },
-              ],
-              value: overtimeMode,
-              onChange: (val: string | number) => {
-                const mode = val as 'hours' | 'range';
-                setOvertimeMode(mode);
-                if (mode === 'hours') {
-                  setToDate(null);
-                } else {
-                  setHours('');
-                }
-              },
-              required: true,
-            },
-          ]
-        : []),
+      // ...(reqType === 'overtime'
+      //   ? [
+      //     {
+      //       name: 'overtimeMode',
+      //       label: getLabel('Overtime Mode', 'وضع العمل الإضافي'),
+      //       type: 'dropdown' as const,
+      //       options: [
+      //         {
+      //           value: 'hours',
+      //           label: getLabel(
+      //             'Hours Mode (Single Day)',
+      //             'وضع الساعات (يوم واحد)'
+      //           ),
+      //         },
+      //         {
+      //           value: 'range',
+      //           label: getLabel(
+      //             'Range Mode (Date Range)',
+      //             'وضع النطاق (نطاق تاريخ)'
+      //           ),
+      //         },
+      //       ],
+      //       value: overtimeMode,
+      //       onChange: (val: string | number) => {
+      //         const mode = val as 'hours' | 'range';
+      //         setOvertimeMode(mode);
+      //         if (mode === 'hours') {
+      //           setToDate(null);
+      //         } else {
+      //           setHours('');
+      //         }
+      //       },
+      //       required: true,
+      //     },
+      //   ]
+      //   : []),
       {
         name: 'dates',
         label: '',
         component: datesComponent,
         value: '',
-        onChange: () => {},
+        onChange: () => { },
       },
       ...(reqType === 'overtime' && overtimeMode === 'hours'
         ? [
-            {
-              name: 'hours',
-              label: getLabel('Hours', 'الساعات'),
-              type: 'text' as const,
-              value: hours,
-              onChange: (val: string | number) => setHours(String(val)),
-              required: true,
-            },
-          ]
+          {
+            name: 'hours',
+            label: getLabel('Hours', 'الساعات'),
+            type: 'text' as const,
+            value: hours,
+            onChange: (val: string | number) => setHours(String(val)),
+            required: true,
+          },
+        ]
         : []),
       ...(reqType === 'leave'
         ? [
-            {
-              name: 'leaveTypeId',
-              label: getLabel('Leave Type', 'نوع الإجازة'),
-              type: 'dropdown' as const,
-              placeholder: getLabel('Select', 'اختر النوع'),
-              options: leaveTypes.map(lt => ({
-                value: lt.id,
-                label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
-              })),
-              value: leaveTypeId,
-              onChange: (val: string | number) => setLeaveTypeId(String(val)),
-              required: true,
-            },
-          ]
+          {
+            name: 'leaveTypeId',
+            label: getLabel('Leave Type', 'نوع الإجازة'),
+            type: 'dropdown' as const,
+            placeholder: getLabel('Select', 'اختر النوع'),
+            options: leaveTypes.map(lt => ({
+              value: lt.id,
+              label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
+            })),
+            value: leaveTypeId,
+            onChange: (val: string | number) => setLeaveTypeId(String(val)),
+            required: true,
+          },
+        ]
         : []),
       {
         name: 'reason',
@@ -403,6 +403,7 @@ function RequestModal({
         value: reason,
         onChange: (val: string | number) => setReason(String(val)),
         required: true,
+        minLength: 10,
       },
       {
         name: 'documents',
@@ -456,18 +457,18 @@ function RequestModal({
           />
         ),
         value: '',
-        onChange: () => {},
+        onChange: () => { },
       },
       ...(reqType === 'wfh'
         ? [
-            {
-              name: 'wfhInfo',
-              label: '',
-              component: wfhInfoComponent,
-              value: '',
-              onChange: () => {},
-            },
-          ]
+          {
+            name: 'wfhInfo',
+            label: '',
+            component: wfhInfoComponent,
+            value: '',
+            onChange: () => { },
+          },
+        ]
         : []),
     ],
     [
@@ -574,6 +575,15 @@ function RequestModal({
         );
         return;
       }
+      if (reason?.length < 6) {
+        showError(
+          getLabel(
+            'Reason must be at least 6 characters long.',
+            'السبب يجب أن يكون 6 أحرف على الأقل.'
+          )
+        );
+        return;
+      }
     }
 
     if (!reason || (reqType === 'leave' && !leaveTypeId)) {
@@ -645,6 +655,7 @@ function RequestModal({
             wfhPayload.end_date = currentTo;
           }
           if (reason !== initialSnapshot?.reason) wfhPayload.reason = reason;
+
           if (newDocuments.length > 0) wfhPayload.attachments = newDocuments;
 
           await wfhApi.updateWFHRequest(String(id), wfhPayload);
@@ -704,19 +715,19 @@ function RequestModal({
           if (newDocuments.length > 0)
             overtimePayload.attachments = newDocuments;
 
-          await overtimeApi.updateOvertimeRequest(String(id), overtimePayload);
+          const response = await overtimeApi.updateOvertimeRequest(String(id), overtimePayload);
         }
       } else {
         // CREATE MODE
         if (reqType === 'wfh') {
-          await wfhApi.createWFHRequest({
+          const response = await wfhApi.createWFHRequest({
             start_date: fromDate.format('YYYY-MM-DD'),
             end_date: toDate!.format('YYYY-MM-DD'),
             reason: reason,
             attachments: newDocuments,
           });
         } else if (reqType === 'leave') {
-          await leaveApi.createLeave({
+          const response = await leaveApi.createLeave({
             leaveTypeId: leaveTypeId,
             startDate: fromDate.format('YYYY-MM-DD'),
             endDate: toDate!.format('YYYY-MM-DD'),

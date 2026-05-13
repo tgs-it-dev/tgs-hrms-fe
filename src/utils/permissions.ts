@@ -91,6 +91,7 @@ const ROLE_MENU_ALLOWLIST: Record<NormalizedRole, readonly string[]> = {
     'report',
     'leave-analytics',
     'recruitment',
+    'feature-management',
     'review-requests',
   ],
   manager: [

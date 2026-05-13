@@ -48,9 +48,9 @@ const defaultFeatures: FeatureState = {
   accounts: true,
   app: true,
   leaveAnalytics: true,
-  leave_workflow_enabled: false,
-  wfh_workflow_enabled: false,
-  overtime_workflow_enabled: false,
+  leave_workflow_enabled: true,
+  wfh_workflow_enabled: true,
+  overtime_workflow_enabled: true,
 };
 
 /**
@@ -114,6 +114,10 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
       // Ignore invalid storage
     }
 
+
+  }, []);
+
+  useEffect(() => {
     // Fetch server-side workflow flag
     const fetchWorkflowFlag = async () => {
       try {
@@ -130,7 +134,7 @@ export const FeatureToggleProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
     fetchWorkflowFlag();
-  }, []);
+  }, [])
 
   // Persist feature toggles to localStorage only in DEV mode.
   // In production, flags come from VITE_* env vars and are never user-editable.

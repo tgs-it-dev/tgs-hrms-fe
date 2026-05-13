@@ -238,6 +238,10 @@ html {
   --status-rejected-bg: #ffe5e6;
   --status-rejected-text: #ff383c;
 
+  /* Review */
+  --status-review-bg: #c55ee82f;
+  --status-review-text: #4f0a65;
+
   --primary-light-color: #2462a5;
   --primary-dark-color: #3083dc;
   --primary-focus-color: #1976d2;
