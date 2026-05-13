@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-
+import { env } from '../config/env';
 export interface WorkflowFeatureFlagRequest {
   enabled: boolean;
 }
@@ -18,9 +18,7 @@ export type WorkflowRequestStatus =
   | 'approved'
   | 'rejected'
   | 'cancelled'
-  | 'withdrawn'
-  | 'all'
-  | 'history';
+  | 'withdrawn';
 
 export interface WorkflowRequest {
   request_data: RequestData;
@@ -103,7 +101,7 @@ export interface UpdateWorkflowSettingsRequest {
 }
 
 class WorkflowApiService {
-  private baseUrl = 'https://tgs-hrms.onrender.com/workflow';
+  private baseUrl = `${env.apiBaseUrl}/workflow`;
 
   /**
    * Get workflow feature flag status

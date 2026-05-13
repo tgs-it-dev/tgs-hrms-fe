@@ -1,10 +1,11 @@
 import axiosInstance from './axiosInstance';
+import { env } from '../config/env';
 
 export interface CreateWFHRequest {
   start_date: string;
   end_date: string;
   reason: string;
-  attachments?: File[];
+  attachments?: (File | string)[];
 }
 
 /**
@@ -93,7 +94,7 @@ export interface DeleteWFHAttachmentResponse {
 }
 
 class WFHApiService {
-  private baseUrl = 'https://tgs-hrms.onrender.com/wfh';
+  private baseUrl = `${env.apiBaseUrl}/wfh`;
 
   /**
    * Create Work From Home request

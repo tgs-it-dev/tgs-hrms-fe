@@ -2,6 +2,12 @@ import React from 'react';
 import { Box, useTheme } from '@mui/material';
 import AppDropdown from '../common/AppDropdown';
 import { useDirectionLabel } from '../../hooks/useDirectionLabel';
+import {
+  isAdmin,
+  isEmployee,
+  isHRAdmin,
+  isManager,
+} from '../../utils/roleUtils';
 
 interface RequestFiltersProps {
   statusFilter: string;
@@ -21,31 +27,34 @@ const RequestFilters: React.FC<RequestFiltersProps> = ({
   const theme = useTheme();
   const getLabel = useDirectionLabel();
   const controlBg = theme.palette.background.paper;
-  const statusOptions: { value: string; label: string }[] =
-    role === 'employee'
+  const employee = isEmployee(role);
+  const manager = isManager(role);
+  const admin = isAdmin(role);
+  const hrAdmin = isHRAdmin(role);
+  const statusOptions: { value: string; label: string }[] = employee
+    ? [
+        { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
+        {
+          value: 'pending',
+          label: getLabel('Pending', 'قيد الانتظار'),
+        },
+        { value: 'approved', label: getLabel('Approved', 'مقبول') },
+        { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
+        { value: 'cancelled', label: getLabel('Cancelled', 'ملغى') },
+      ]
+    : manager || admin || hrAdmin
       ? [
           { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
+          {
+            value: 'history',
+            label: getLabel('History', 'السجل'),
+          },
           {
             value: 'pending',
             label: getLabel('Pending', 'قيد الانتظار'),
           },
-          { value: 'approved', label: getLabel('Approved', 'مقبول') },
-          { value: 'rejected', label: getLabel('Rejected', 'مرفوض') },
-          { value: 'cancelled', label: getLabel('Cancelled', 'ملغى') },
         ]
-      : role === 'manager'
-        ? [
-            { value: 'all', label: getLabel('All Statuses', 'كل الحالات') },
-            {
-              value: 'history',
-              label: getLabel('History', 'السجل'),
-            },
-            {
-              value: 'pending',
-              label: getLabel('Pending', 'قيد الانتظار'),
-            },
-          ]
-        : [];
+      : [];
   return (
     <Box
       sx={{

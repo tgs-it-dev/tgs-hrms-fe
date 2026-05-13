@@ -20,6 +20,7 @@ import {
 import { clearAuthData } from '../../utils/authValidation';
 import {
   getRoleName,
+  isAdmin,
   isSystemAdmin as isSystemAdminRole,
 } from '../../utils/roleUtils';
 import { translations } from '../../utils/i18n';
@@ -440,6 +441,7 @@ export default function Sidebar({
     const userRole = getRoleName(role);
 
     const isSystemAdmin = isSystemAdminRole(role);
+    const Admin = isAdmin(role);
 
     const filtered = menuItems
       .filter(item => {
@@ -468,7 +470,7 @@ export default function Sidebar({
           return isSubVisible;
         }),
       }));
-    if (isSystemAdmin) {
+    if (isSystemAdmin || Admin) {
       const withFeatureManagement: MenuItem[] = [
         ...filtered,
         {

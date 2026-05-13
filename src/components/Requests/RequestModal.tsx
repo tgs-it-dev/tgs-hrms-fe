@@ -44,8 +44,8 @@ function RequestModal({
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [leaveTypeId, setLeaveTypeId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [overtimeMode, setOvertimeMode] = useState<'hours' | 'range'>('hours');
-
+  const [overtimeMode, setOvertimeMode] = useState<'hours' | 'range'>('range');
+  // types dropdown
   const availableRequestTypes = useMemo(() => {
     const types = [];
     if (isFeatureEnabled('wfh_workflow_enabled')) {
@@ -162,7 +162,7 @@ function RequestModal({
         setHours('');
         setLeaveTypeId('');
         setNewDocuments([]);
-        setOvertimeMode('hours');
+        setOvertimeMode('range');
         setInitialSnapshot(null);
       }
       // Initialize state when editing
@@ -195,7 +195,7 @@ function RequestModal({
         setLeaveTypeId('');
         setExistingDocuments([]);
         setNewDocuments([]);
-        setOvertimeMode('hours');
+        setOvertimeMode('range');
       }
     }
   }, [initialData, open]);
@@ -316,49 +316,49 @@ function RequestModal({
           const type = String(val);
           setReqType(type);
           if (type === 'overtime') {
-            setOvertimeMode('hours');
+            setOvertimeMode('range');
             setToDate(null);
           }
         },
         disabled: !!initialData,
         required: true,
       },
-      ...(reqType === 'overtime'
-        ? [
-            {
-              name: 'overtimeMode',
-              label: getLabel('Overtime Mode', 'وضع العمل الإضافي'),
-              type: 'dropdown' as const,
-              options: [
-                {
-                  value: 'hours',
-                  label: getLabel(
-                    'Hours Mode (Single Day)',
-                    'وضع الساعات (يوم واحد)'
-                  ),
-                },
-                {
-                  value: 'range',
-                  label: getLabel(
-                    'Range Mode (Date Range)',
-                    'وضع النطاق (نطاق تاريخ)'
-                  ),
-                },
-              ],
-              value: overtimeMode,
-              onChange: (val: string | number) => {
-                const mode = val as 'hours' | 'range';
-                setOvertimeMode(mode);
-                if (mode === 'hours') {
-                  setToDate(null);
-                } else {
-                  setHours('');
-                }
-              },
-              required: true,
-            },
-          ]
-        : []),
+      // ...(reqType === 'overtime'
+      //   ? [
+      //     {
+      //       name: 'overtimeMode',
+      //       label: getLabel('Overtime Mode', 'وضع العمل الإضافي'),
+      //       type: 'dropdown' as const,
+      //       options: [
+      //         {
+      //           value: 'hours',
+      //           label: getLabel(
+      //             'Hours Mode (Single Day)',
+      //             'وضع الساعات (يوم واحد)'
+      //           ),
+      //         },
+      //         {
+      //           value: 'range',
+      //           label: getLabel(
+      //             'Range Mode (Date Range)',
+      //             'وضع النطاق (نطاق تاريخ)'
+      //           ),
+      //         },
+      //       ],
+      //       value: overtimeMode,
+      //       onChange: (val: string | number) => {
+      //         const mode = val as 'hours' | 'range';
+      //         setOvertimeMode(mode);
+      //         if (mode === 'hours') {
+      //           setToDate(null);
+      //         } else {
+      //           setHours('');
+      //         }
+      //       },
+      //       required: true,
+      //     },
+      //   ]
+      //   : []),
       {
         name: 'dates',
         label: '',
@@ -403,6 +403,7 @@ function RequestModal({
         value: reason,
         onChange: (val: string | number) => setReason(String(val)),
         required: true,
+        minLength: 10,
       },
       {
         name: 'documents',
@@ -574,6 +575,15 @@ function RequestModal({
         );
         return;
       }
+      if (reason?.length < 6) {
+        showError(
+          getLabel(
+            'Reason must be at least 6 characters long.',
+            'السبب يجب أن يكون 6 أحرف على الأقل.'
+          )
+        );
+        return;
+      }
     }
 
     if (!reason || (reqType === 'leave' && !leaveTypeId)) {
@@ -645,6 +655,7 @@ function RequestModal({
             wfhPayload.end_date = currentTo;
           }
           if (reason !== initialSnapshot?.reason) wfhPayload.reason = reason;
+
           if (newDocuments.length > 0) wfhPayload.attachments = newDocuments;
 
           await wfhApi.updateWFHRequest(String(id), wfhPayload);
