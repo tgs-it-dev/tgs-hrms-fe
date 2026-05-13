@@ -26,19 +26,10 @@ def get_env(key: str, default: str = "") -> str:
 
 def fetch_pr_metadata(pr_number: str) -> dict:
     result = subprocess.run(
-        ["gh", "pr", "view", pr_number, "--json", "title,body,baseRefName,additions,deletions,changedFiles"],
+        ["gh", "pr", "view", pr_number, "--json", "title,body,baseRefName,additions,deletions,changedFiles,files"],
         capture_output=True, text=True, check=True,
     )
     return json.loads(result.stdout)
-
-
-def fetch_changed_files(pr_number: str) -> list[str]:
-    """Return list of filenames changed in the PR."""
-    result = subprocess.run(
-        ["gh", "pr", "diff", pr_number, "--name-only"],
-        capture_output=True, text=True, check=True,
-    )
-    return [f.strip() for f in result.stdout.splitlines() if f.strip()]
 
 
 def fetch_diff(pr_number: str, base_ref: str) -> str:
@@ -213,8 +204,8 @@ def main() -> None:
 
     print(f"PR stats: +{additions} -{deletions} across {changed_files} file(s)")
 
-    print(f"Fetching changed file list for PR #{pr_number}...")
-    file_list = fetch_changed_files(pr_number)
+    file_list = [f["path"] for f in meta.get("files", []) if f.get("path")]
+    print(f"Changed files: {len(file_list)}")
 
     print(f"Fetching diff for PR #{pr_number} (base: {base_ref})...")
     raw_diff = fetch_diff(pr_number, base_ref)
