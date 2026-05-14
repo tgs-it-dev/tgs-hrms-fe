@@ -383,44 +383,44 @@ function RequestModal({
         label: '',
         component: datesComponent,
         value: '',
-        onChange: () => { },
+        onChange: () => {},
       },
       ...(reqType === 'overtime' && overtimeMode === 'hours'
         ? [
-          {
-            name: 'hours',
-            label: getLabel('Hours', 'الساعات'),
-            type: 'text' as const,
-            value: hours,
-            onChange: (val: string | number) => {
-              setHours(String(val));
-              setErrors(prev => ({ ...prev, hours: undefined }));
+            {
+              name: 'hours',
+              label: getLabel('Hours', 'الساعات'),
+              type: 'text' as const,
+              value: hours,
+              onChange: (val: string | number) => {
+                setHours(String(val));
+                setErrors(prev => ({ ...prev, hours: undefined }));
+              },
+              error: errors.hours,
+              required: true,
             },
-            error: errors.hours,
-            required: true,
-          },
-        ]
+          ]
         : []),
       ...(reqType === 'leave'
         ? [
-          {
-            name: 'leaveTypeId',
-            label: getLabel('Leave Type', 'نوع الإجازة'),
-            type: 'dropdown' as const,
-            placeholder: getLabel('Select', 'اختر النوع'),
-            options: leaveTypes.map(lt => ({
-              value: lt.id,
-              label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
-            })),
-            value: leaveTypeId,
-            onChange: (val: string | number) => {
-              setLeaveTypeId(String(val));
-              setErrors(prev => ({ ...prev, leaveTypeId: undefined }));
+            {
+              name: 'leaveTypeId',
+              label: getLabel('Leave Type', 'نوع الإجازة'),
+              type: 'dropdown' as const,
+              placeholder: getLabel('Select', 'اختر النوع'),
+              options: leaveTypes.map(lt => ({
+                value: lt.id,
+                label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
+              })),
+              value: leaveTypeId,
+              onChange: (val: string | number) => {
+                setLeaveTypeId(String(val));
+                setErrors(prev => ({ ...prev, leaveTypeId: undefined }));
+              },
+              error: errors.leaveTypeId,
+              required: true,
             },
-            error: errors.leaveTypeId,
-            required: true,
-          },
-        ]
+          ]
         : []),
       {
         name: 'reason',
@@ -488,18 +488,18 @@ function RequestModal({
           />
         ),
         value: '',
-        onChange: () => { },
+        onChange: () => {},
       },
       ...(reqType === 'wfh'
         ? [
-          {
-            name: 'wfhInfo',
-            label: '',
-            component: wfhInfoComponent,
-            value: '',
-            onChange: () => { },
-          },
-        ]
+            {
+              name: 'wfhInfo',
+              label: '',
+              component: wfhInfoComponent,
+              value: '',
+              onChange: () => {},
+            },
+          ]
         : []),
     ],
     [
