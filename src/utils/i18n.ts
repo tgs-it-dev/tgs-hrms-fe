@@ -284,6 +284,8 @@ export const translations = {
     account: { en: 'Account', ar: 'الحساب' },
     security: { en: 'Security', ar: 'الأمان' },
     features: { en: 'Feature Management', ar: 'إدارة الميزات' },
+    workflow: { en: 'Workflow', ar: 'سير العمل' },
+    company: { en: 'Company', ar: 'الشركة' },
   },
 
   // ── Tenants ──────────────────────────────────────────────────────────────
@@ -369,6 +371,26 @@ export const translations = {
     holidayName: { en: 'Holiday Name', ar: 'اسم الإجازة' },
     holidayDate: { en: 'Date', ar: 'التاريخ' },
     upcoming: { en: 'Upcoming Holidays', ar: 'الإجازات الرسمية القادمة' },
+  },
+  // ── Workflow ─────────────────────────────────────────────────────────────
+  workflow: {
+    title: { en: 'Workflow Configuration', ar: 'إعدادات سير العمل' },
+    requestType: { en: 'Request Type', ar: 'نوع الطلب' },
+    steps: { en: 'Workflow Steps', ar: 'خطوات سير العمل' },
+    addStep: { en: 'Add Step', ar: 'إضافة خطوة' },
+    editStep: { en: 'Edit Step', ar: 'تعديل الخطوة' },
+    approverRole: { en: 'Approver Role', ar: 'دور المعتمد' },
+    stepLabel: { en: 'Step Label', ar: 'تسمية الخطوة' },
+    active: { en: 'Active', ar: 'نشط' },
+    stepOrder: { en: 'Order', ar: 'الترتيب' },
+    confirmDelete: {
+      en: 'Are you sure you want to delete this workflow step?',
+      ar: 'هل أنت متأكد أنك تريد حذف هذه الخطوة من سير العمل؟',
+    },
+    noSteps: {
+      en: 'No workflow steps configured.',
+      ar: 'لا توجد خطوات سير عمل معدة.',
+    },
   },
 } as const;
 

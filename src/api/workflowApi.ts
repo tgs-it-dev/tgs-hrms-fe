@@ -10,7 +10,7 @@ export interface WorkflowFeatureFlagResponse {
   overtime_workflow_enabled: boolean;
 }
 
-export type WorkflowRequestType = 'leave' | 'wfh' | 'overtime';
+export type WorkflowRequestType = 'leave' | 'wfh' | 'overtime' | undefined;
 
 export type WorkflowRequestStatus =
   | 'pending'
@@ -58,7 +58,7 @@ export interface WorkflowStep {
 }
 
 export interface RequestData {
-  id: string;
+  id?: string;
   start_date: string;
   end_date: string;
   reason: string;
@@ -81,7 +81,7 @@ export interface WorkflowRequestListResponse {
   limit: number;
 }
 
-export type WorkflowApprovalView = 'pending' | 'history' | 'all';
+export type WorkflowApprovalView = 'pending' | 'history' | 'all' | undefined;
 
 export interface GetWorkflowApprovalsParams {
   status?: WorkflowApprovalView;
@@ -98,6 +98,41 @@ export interface WorkflowDecisionRequest {
 export interface UpdateWorkflowSettingsRequest {
   request_type: WorkflowRequestType;
   enabled: boolean;
+}
+
+export interface WorkflowConfigStep {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  tenant_id: string;
+
+  request_type: Exclude<WorkflowRequestType, undefined>;
+
+  step_order: number;
+
+  approver_role: 'manager' | 'hr-admin' | string;
+
+  step_label: string;
+
+  is_active: boolean;
+}
+
+export interface GetWorkflowConfigStepsParams {
+  type?: WorkflowRequestType;
+}
+
+export interface CreateWorkflowConfigStepRequest {
+  request_type: Exclude<WorkflowRequestType, undefined>;
+  approver_role: string;
+  step_label: string;
+  is_active: boolean;
+}
+
+export interface UpdateWorkflowConfigStepRequest {
+  approver_role?: string;
+  step_label?: string;
+  is_active?: boolean;
 }
 
 class WorkflowApiService {
@@ -194,6 +229,68 @@ class WorkflowApiService {
     const response = await axiosInstance.patch<WorkflowFeatureFlagResponse>(
       `${this.baseUrl}/settings`,
       data
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get workflow config steps
+   */
+  async getWorkflowConfigSteps(
+    params?: GetWorkflowConfigStepsParams
+  ): Promise<WorkflowConfigStep[]> {
+    const response = await axiosInstance.get<WorkflowConfigStep[]>(
+      `${this.baseUrl}/configs`,
+      {
+        params: {
+          type: params?.type,
+        },
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Create workflow config step
+   */
+  async createWorkflowConfigStep(
+    data: CreateWorkflowConfigStepRequest
+  ): Promise<WorkflowConfigStep> {
+    const response = await axiosInstance.post<WorkflowConfigStep>(
+      `${this.baseUrl}/configs/steps`,
+      data
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Update workflow config step
+   */
+  async updateWorkflowConfigStep(
+    requestType: Exclude<WorkflowRequestType, undefined>,
+    stepOrder: number,
+    data: UpdateWorkflowConfigStepRequest
+  ): Promise<WorkflowConfigStep> {
+    const response = await axiosInstance.patch<WorkflowConfigStep>(
+      `${this.baseUrl}/configs/${requestType}/steps/${stepOrder}`,
+      data
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Delete workflow config step
+   */
+  async deleteWorkflowConfigStep(
+    requestType: Exclude<WorkflowRequestType, undefined>,
+    stepOrder: number
+  ): Promise<WorkflowConfigStep[]> {
+    const response = await axiosInstance.delete<WorkflowConfigStep[]>(
+      `${this.baseUrl}/configs/${requestType}/steps/${stepOrder}`
     );
 
     return response.data;
