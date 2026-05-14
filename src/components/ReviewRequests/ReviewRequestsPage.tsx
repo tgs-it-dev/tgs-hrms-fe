@@ -96,15 +96,11 @@ function ReviewRequestPage() {
           status:
             statusFilter !== 'all'
               ? (statusFilter as WorkflowApprovalView)
-              : undefined,
-          type:
-            typeFilter !== 'all'
-              ? (typeFilter as WorkflowRequestType)
-              : undefined,
+              : 'all',
+          type: typeFilter !== 'all' ? (typeFilter as WorkflowRequestType) : '',
           page: pageToFetch,
           limit: ITEMS_PER_PAGE,
         };
-        console.log(params);
         const response = await workflowApi.getWorkflowApprovals(params);
         setRequests(response.items || []);
         setTotalItems(response.total || 0);
@@ -319,7 +315,6 @@ function ReviewRequestPage() {
                             'أضف ملاحظاتك...'
                           )}
                           rows={2}
-                          maxLength={200}
                           fullWidth
                           sx={{ mb: 2 }}
                           value={remarksMap[request.id] || ''}

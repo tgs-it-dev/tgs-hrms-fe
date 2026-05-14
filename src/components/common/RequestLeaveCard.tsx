@@ -18,6 +18,7 @@ import { getDocumentUrl } from '../../utils/fileUtils';
 import { getIcon } from '../../assets/icons';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { isEmployee, isManager } from '../../utils/roleUtils';
 
 export interface RequestLeaveCardProps {
   title: string;
@@ -34,7 +35,7 @@ export interface RequestLeaveCardProps {
   actions?: React.ReactNode;
   role?: string;
   attachments?: string[];
-  leaveType?: string;
+  leaveType?: string | undefined;
 }
 
 const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
@@ -88,6 +89,8 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
   const currentStatus = statusConfig[status] || statusConfig.pending;
   const isPending = status === 'pending';
+  const manager = isManager(userRole);
+  const employee = isEmployee(userRole);
 
   // Controls whether the delete confirmation dialog is visible
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -166,7 +169,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
 
           {/* Content */}
           <Box display='flex' flexDirection='column' gap={1.5}>
-            {userRole === 'manager' && (
+            {manager && (
               <Box display='flex' gap={2}>
                 <Typography
                   sx={{
@@ -468,7 +471,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
                       </Box>
                     ) : (
                       //waiting message for employee
-                      userRole === 'employee' && (
+                      employee && (
                         <Box
                           sx={{
                             backgroundColor: 'var(--app-table-header-bg)',
@@ -532,9 +535,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
             <Box
               display='flex'
               justifyContent={
-                isPending && userRole !== 'manager'
-                  ? 'space-between'
-                  : 'flex-start'
+                isPending && !manager ? 'space-between' : 'flex-start'
               }
               alignItems='center'
             >
@@ -548,7 +549,7 @@ const RequestLeaveCard: React.FC<RequestLeaveCardProps> = props => {
               </Typography>
 
               {/* Edit / Delete — only visible to employees on pending requests */}
-              {userRole === 'employee' && isPending ? (
+              {employee && isPending ? (
                 <Box display='flex' gap={0.5}>
                   <IconButton size='small' onClick={onEdit}>
                     <img

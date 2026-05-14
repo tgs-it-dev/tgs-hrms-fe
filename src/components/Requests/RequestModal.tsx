@@ -14,6 +14,7 @@ import type { RequestData, WorkflowRequest } from '../../api/workflowApi';
 import overtimeApi from '../../api/overtimeApi';
 import { useFeatureToggles } from '../../context/FeatureToggleContext';
 import { getDocumentUrl } from '../../utils/fileUtils';
+import { AxiosError } from 'axios';
 
 function RequestModal({
   open,
@@ -45,6 +46,7 @@ function RequestModal({
   const [leaveTypeId, setLeaveTypeId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [overtimeMode, setOvertimeMode] = useState<'hours' | 'range'>('range');
+  const [errors, setErrors] = useState({});
   // types dropdown
   const availableRequestTypes = useMemo(() => {
     const types = [];
@@ -164,6 +166,7 @@ function RequestModal({
         setNewDocuments([]);
         setOvertimeMode('range');
         setInitialSnapshot(null);
+        setErrors({});
       }
       // Initialize state when editing
       if (initialData) {
@@ -185,6 +188,7 @@ function RequestModal({
         setExistingDocuments(docs);
         // New documents are empty on edit
         setNewDocuments([]);
+        setErrors({});
       } else {
         // Reset for new request
         setReqType(availableRequestTypes[0]?.value || 'wfh');
@@ -196,6 +200,7 @@ function RequestModal({
         setExistingDocuments([]);
         setNewDocuments([]);
         setOvertimeMode('range');
+        setErrors({});
       }
     }
   }, [initialData, open]);
@@ -230,16 +235,28 @@ function RequestModal({
           label={getLabel('From Date', 'تاريخ البدء')}
           value={fromDate}
           labelClassName='label'
-          onChange={handleFromDateChange}
+          onChange={date => {
+            handleFromDateChange(date);
+            setErrors(prev => ({ ...prev, start_date: undefined }));
+          }}
           placeholder={getLabel('Select date', 'اختر التاريخ')}
+          disablePast={reqType === 'leave' ? false : true}
+          error={!!errors.start_date}
+          helperText={errors.start_date}
         />
         {(reqType !== 'overtime' || overtimeMode === 'range') && (
           <BasicDatePicker
             label={getLabel('To Date', 'تاريخ الانتهاء')}
             value={toDate}
             labelClassName='label'
-            onChange={handleToDateChange}
+            onChange={date => {
+              handleToDateChange(date);
+              setErrors(prev => ({ ...prev, end_date: undefined }));
+            }}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
+            disablePast={reqType === 'leave' ? false : true}
+            error={!!errors.end_date}
+            helperText={errors.end_date}
           />
         )}
       </Box>
@@ -252,6 +269,7 @@ function RequestModal({
       getLabel,
       reqType,
       overtimeMode,
+      errors,
     ]
   );
 
@@ -315,6 +333,7 @@ function RequestModal({
         onChange: val => {
           const type = String(val);
           setReqType(type);
+          setErrors({});
           if (type === 'overtime') {
             setOvertimeMode('range');
             setToDate(null);
@@ -373,7 +392,11 @@ function RequestModal({
               label: getLabel('Hours', 'الساعات'),
               type: 'text' as const,
               value: hours,
-              onChange: (val: string | number) => setHours(String(val)),
+              onChange: (val: string | number) => {
+                setHours(String(val));
+                setErrors(prev => ({ ...prev, hours: undefined }));
+              },
+              error: errors.hours,
               required: true,
             },
           ]
@@ -390,7 +413,11 @@ function RequestModal({
                 label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
               })),
               value: leaveTypeId,
-              onChange: (val: string | number) => setLeaveTypeId(String(val)),
+              onChange: (val: string | number) => {
+                setLeaveTypeId(String(val));
+                setErrors(prev => ({ ...prev, leaveTypeId: undefined }));
+              },
+              error: errors.leaveTypeId,
               required: true,
             },
           ]
@@ -401,7 +428,11 @@ function RequestModal({
         type: 'textarea' as const,
         placeholder: getLabel('Enter reason', 'أدخل السبب'),
         value: reason,
-        onChange: (val: string | number) => setReason(String(val)),
+        onChange: (val: string | number) => {
+          setReason(String(val));
+          setErrors(prev => ({ ...prev, reason: undefined }));
+        },
+        error: errors.reason,
         required: true,
         minLength: 10,
       },
@@ -482,11 +513,11 @@ function RequestModal({
       wfhInfoComponent,
       existingDocuments,
       newDocuments,
-      getLabel,
       initialData,
       overtimeMode,
       showError,
       showSuccess,
+      errors,
     ]
   );
 
@@ -575,15 +606,6 @@ function RequestModal({
         );
         return;
       }
-      if (reason?.length < 6) {
-        showError(
-          getLabel(
-            'Reason must be at least 6 characters long.',
-            'السبب يجب أن يكون 6 أحرف على الأقل.'
-          )
-        );
-        return;
-      }
     }
 
     if (!reason || (reqType === 'leave' && !leaveTypeId)) {
@@ -591,6 +613,15 @@ function RequestModal({
         getLabel(
           'Please fill all required fields.',
           'يرجى ملء جميع الحقول المطلوبة.'
+        )
+      );
+      return;
+    }
+    if (reason?.length < 6) {
+      showError(
+        getLabel(
+          'Reason must be at least 6 characters long.',
+          'السبب يجب أن يكون 6 أحرف على الأقل.'
         )
       );
       return;
@@ -759,8 +790,33 @@ function RequestModal({
         onSuccess?.();
         onClose();
       }, 500);
-    } catch (error) {
-      showError(error);
+    } catch (error: unknown) {
+      let handledAsFieldErrors = false;
+      if (error instanceof AxiosError && error.response?.data) {
+        const data = error.response.data;
+        // Handle the flat object format: { reason: "...", start_date: "..." }
+        if (
+          data.errors &&
+          typeof data.errors === 'object' &&
+          !Array.isArray(data.errors)
+        ) {
+          setErrors(data.errors);
+        } else {
+          // Fallback if it's still an array or other format
+          const apiErrors = data.errors;
+          if (Array.isArray(apiErrors)) {
+            const formattedErrors = apiErrors.reduce((acc, curr) => {
+              acc[curr.field] = curr.message;
+              return acc;
+            }, {});
+            setErrors(formattedErrors);
+          }
+        }
+        handledAsFieldErrors = true;
+      }
+      if (!handledAsFieldErrors) {
+        showError(error);
+      }
     } finally {
       setIsSubmitting(false);
     }

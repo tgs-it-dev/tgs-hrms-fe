@@ -7,7 +7,6 @@ import {
   Switch,
   FormControlLabel,
 } from '@mui/material';
-import AppPageTitle from '../common/AppPageTitle';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
 import { useUser } from '../../hooks/useUser';
@@ -105,16 +104,7 @@ const FeatureManagementPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ py: 2 }}>
-      <AppPageTitle
-        sx={{
-          mb: 2,
-          color: theme.palette.text.secondary,
-        }}
-      >
-        Feature Management
-      </AppPageTitle>
-
+    <Box>
       <AppCard
         elevation={1}
         sx={{
