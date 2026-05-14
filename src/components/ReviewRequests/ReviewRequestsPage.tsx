@@ -96,11 +96,11 @@ function ReviewRequestPage() {
           status:
             statusFilter !== 'all'
               ? (statusFilter as WorkflowApprovalView)
-              : undefined,
+              : 'all',
           type:
             typeFilter !== 'all'
               ? (typeFilter as WorkflowRequestType)
-              : undefined,
+              : '',
           page: pageToFetch,
           limit: ITEMS_PER_PAGE,
         };
@@ -297,19 +297,19 @@ function ReviewRequestPage() {
                   {...buildCardProps(request)}
                   actions={
                     !employee &&
-                    !(
-                      (manager &&
-                        [
-                          'rejected',
-                          'cancelled',
-                          'approved',
-                          'in_review',
-                        ].includes(request.status)) ||
-                      ((admin || hrAdmin) &&
-                        ['rejected', 'cancelled', 'approved'].includes(
-                          request.status
-                        ))
-                    ) ? (
+                      !(
+                        (manager &&
+                          [
+                            'rejected',
+                            'cancelled',
+                            'approved',
+                            'in_review',
+                          ].includes(request.status)) ||
+                        ((admin || hrAdmin) &&
+                          ['rejected', 'cancelled', 'approved'].includes(
+                            request.status
+                          ))
+                      ) ? (
                       <Box>
                         <AppTextarea
                           label={getLabel('Remarks', 'ملاحظات')}

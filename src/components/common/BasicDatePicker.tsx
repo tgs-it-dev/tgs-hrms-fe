@@ -12,7 +12,7 @@ export interface BasicDatePickerProps {
   error?: boolean;
   helperText?: string;
   labelClassName?: string;
-  disabledPastDates?: boolean;
+  disablePast?: boolean;
 }
 
 // Extract field as a named component to avoid re-mounting on every render
@@ -80,7 +80,7 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
   error,
   helperText,
   labelClassName = '',
-  disabledPastDates = false,
+  disablePast = false,
 }) => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -184,7 +184,7 @@ const BasicDatePicker: React.FC<BasicDatePickerProps> = ({
           onOpen={handleOpen}
           onClose={handleClose}
           value={value}
-          disablePast={disabledPastDates}
+          disablePast={disablePast}
           onChange={handleChange}
           slots={{
             field: CustomDatePickerField,

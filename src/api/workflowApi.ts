@@ -10,7 +10,7 @@ export interface WorkflowFeatureFlagResponse {
   overtime_workflow_enabled: boolean;
 }
 
-export type WorkflowRequestType = 'leave' | 'wfh' | 'overtime' | undefined;
+export type WorkflowRequestType = 'leave' | 'wfh' | 'overtime' | '';
 
 export type WorkflowRequestStatus =
   | 'pending'
@@ -58,7 +58,7 @@ export interface WorkflowStep {
 }
 
 export interface RequestData {
-  id?: string;
+  id: string;
   start_date: string;
   end_date: string;
   reason: string;
@@ -81,7 +81,7 @@ export interface WorkflowRequestListResponse {
   limit: number;
 }
 
-export type WorkflowApprovalView = 'pending' | 'history' | 'all' | undefined;
+export type WorkflowApprovalView = 'pending' | 'history' | 'all';
 
 export interface GetWorkflowApprovalsParams {
   status?: WorkflowApprovalView;

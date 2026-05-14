@@ -240,7 +240,7 @@ function RequestModal({
             setErrors(prev => ({ ...prev, start_date: undefined }));
           }}
           placeholder={getLabel('Select date', 'اختر التاريخ')}
-          disabledPastDates={reqType === 'leave' ? false : true}
+          disablePast={reqType === 'leave' ? false : true}
           error={!!errors.start_date}
           helperText={errors.start_date}
         />
@@ -254,7 +254,7 @@ function RequestModal({
               setErrors(prev => ({ ...prev, end_date: undefined }));
             }}
             placeholder={getLabel('Select date', 'اختر التاريخ')}
-            disabledPastDates={reqType === 'leave' ? false : true}
+            disablePast={reqType === 'leave' ? false : true}
             error={!!errors.end_date}
             helperText={errors.end_date}
           />
@@ -383,44 +383,44 @@ function RequestModal({
         label: '',
         component: datesComponent,
         value: '',
-        onChange: () => {},
+        onChange: () => { },
       },
       ...(reqType === 'overtime' && overtimeMode === 'hours'
         ? [
-            {
-              name: 'hours',
-              label: getLabel('Hours', 'الساعات'),
-              type: 'text' as const,
-              value: hours,
-              onChange: (val: string | number) => {
-                setHours(String(val));
-                setErrors(prev => ({ ...prev, hours: undefined }));
-              },
-              error: errors.hours,
-              required: true,
+          {
+            name: 'hours',
+            label: getLabel('Hours', 'الساعات'),
+            type: 'text' as const,
+            value: hours,
+            onChange: (val: string | number) => {
+              setHours(String(val));
+              setErrors(prev => ({ ...prev, hours: undefined }));
             },
-          ]
+            error: errors.hours,
+            required: true,
+          },
+        ]
         : []),
       ...(reqType === 'leave'
         ? [
-            {
-              name: 'leaveTypeId',
-              label: getLabel('Leave Type', 'نوع الإجازة'),
-              type: 'dropdown' as const,
-              placeholder: getLabel('Select', 'اختر النوع'),
-              options: leaveTypes.map(lt => ({
-                value: lt.id,
-                label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
-              })),
-              value: leaveTypeId,
-              onChange: (val: string | number) => {
-                setLeaveTypeId(String(val));
-                setErrors(prev => ({ ...prev, leaveTypeId: undefined }));
-              },
-              error: errors.leaveTypeId,
-              required: true,
+          {
+            name: 'leaveTypeId',
+            label: getLabel('Leave Type', 'نوع الإجازة'),
+            type: 'dropdown' as const,
+            placeholder: getLabel('Select', 'اختر النوع'),
+            options: leaveTypes.map(lt => ({
+              value: lt.id,
+              label: lt.name.charAt(0).toUpperCase() + lt.name.slice(1),
+            })),
+            value: leaveTypeId,
+            onChange: (val: string | number) => {
+              setLeaveTypeId(String(val));
+              setErrors(prev => ({ ...prev, leaveTypeId: undefined }));
             },
-          ]
+            error: errors.leaveTypeId,
+            required: true,
+          },
+        ]
         : []),
       {
         name: 'reason',
@@ -488,18 +488,18 @@ function RequestModal({
           />
         ),
         value: '',
-        onChange: () => {},
+        onChange: () => { },
       },
       ...(reqType === 'wfh'
         ? [
-            {
-              name: 'wfhInfo',
-              label: '',
-              component: wfhInfoComponent,
-              value: '',
-              onChange: () => {},
-            },
-          ]
+          {
+            name: 'wfhInfo',
+            label: '',
+            component: wfhInfoComponent,
+            value: '',
+            onChange: () => { },
+          },
+        ]
         : []),
     ],
     [
@@ -606,15 +606,6 @@ function RequestModal({
         );
         return;
       }
-      // if (reason?.length < 6) {
-      //   showError(
-      //     getLabel(
-      //       'Reason must be at least 6 characters long.',
-      //       'السبب يجب أن يكون 6 أحرف على الأقل.'
-      //     )
-      //   );
-      //   return;
-      // }
     }
 
     if (!reason || (reqType === 'leave' && !leaveTypeId)) {
@@ -800,6 +791,7 @@ function RequestModal({
         onClose();
       }, 500);
     } catch (error: unknown) {
+      let handledAsFieldErrors = false;
       if (error instanceof AxiosError && error.response?.data) {
         const data = error.response.data;
         // Handle the flat object format: { reason: "...", start_date: "..." }
@@ -820,8 +812,11 @@ function RequestModal({
             setErrors(formattedErrors);
           }
         }
+        handledAsFieldErrors = true;
       }
-      showError(error);
+      if (!handledAsFieldErrors) {
+        showError(error);
+      }
     } finally {
       setIsSubmitting(false);
     }
