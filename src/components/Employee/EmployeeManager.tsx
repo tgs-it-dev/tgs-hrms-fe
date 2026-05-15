@@ -44,6 +44,7 @@ import AppFormModal from '../common/AppFormModal';
 import AppPageTitle from '../common/AppPageTitle';
 import { PAGINATION } from '../../constants/appConstants';
 import { useQueryClient } from '@tanstack/react-query';
+import { formatValidationErrors } from '../../utils/formErrorFormatter';
 
 interface Employee {
   id: string;
@@ -336,23 +337,23 @@ const EmployeeManager: React.FC = () => {
         cnic_back_picture: completeEmployee.cnic_back_picture,
         department: completeEmployee.department
           ? {
-              id: completeEmployee.department.id,
-              name: completeEmployee.department.name,
-              description: completeEmployee.department.description,
-              tenantId: completeEmployee.department.tenantId,
-              createdAt: completeEmployee.department.createdAt,
-              updatedAt: completeEmployee.department.updatedAt,
-            }
+            id: completeEmployee.department.id,
+            name: completeEmployee.department.name,
+            description: completeEmployee.department.description,
+            tenantId: completeEmployee.department.tenantId,
+            createdAt: completeEmployee.department.createdAt,
+            updatedAt: completeEmployee.department.updatedAt,
+          }
           : {
-              id: completeEmployee.departmentId,
-              name:
-                departments[completeEmployee.departmentId] ||
-                'Unknown Department',
-              description: '',
-              tenantId: completeEmployee.tenantId,
-              createdAt: completeEmployee.createdAt,
-              updatedAt: completeEmployee.updatedAt,
-            },
+            id: completeEmployee.departmentId,
+            name:
+              departments[completeEmployee.departmentId] ||
+              'Unknown Department',
+            description: '',
+            tenantId: completeEmployee.tenantId,
+            createdAt: completeEmployee.createdAt,
+            updatedAt: completeEmployee.updatedAt,
+          },
         designation: completeEmployee.designation || {
           id: completeEmployee.designationId,
           title:
@@ -396,21 +397,21 @@ const EmployeeManager: React.FC = () => {
         ) || false;
       const checkoutUrl =
         typeof (data as Record<string, unknown> | null)?.checkoutUrl ===
-        'string'
+          'string'
           ? ((data as Record<string, unknown>).checkoutUrl as string)
           : typeof (data as Record<string, unknown> | null)?.checkout_url ===
-              'string'
+            'string'
             ? ((data as Record<string, unknown>).checkout_url as string)
             : null;
       const checkoutSessionId =
         typeof (data as Record<string, unknown> | null)?.checkoutSessionId ===
-        'string'
+          'string'
           ? ((data as Record<string, unknown>).checkoutSessionId as string)
           : typeof (data as Record<string, unknown> | null)
-                ?.checkout_session_id === 'string'
+            ?.checkout_session_id === 'string'
             ? ((data as Record<string, unknown>).checkout_session_id as string)
             : typeof (data as Record<string, unknown> | null)?.session_id ===
-                'string'
+              'string'
               ? ((data as Record<string, unknown>).session_id as string)
               : null;
 
@@ -442,17 +443,8 @@ const EmployeeManager: React.FC = () => {
 
       if (errorResponse?.response?.data) {
         const responseData = errorResponse.response.data;
-        const fieldErrors: Record<string, string> = {};
-
-        // Handle validation errors array format (common in NestJS)
-        if (responseData.errors && typeof responseData.errors === 'object') {
-          Object.entries(responseData.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0) {
-              fieldErrors[field] = messages[0]; // Take first error message
-            }
-          });
-        }
-
+        let fieldErrors: Record<string, string> = {};
+        fieldErrors = formatValidationErrors(responseData.errors!)
         // Handle single message format — show API message as-is, only decide which field
         if (responseData.message) {
           const msg = responseData.message;
@@ -736,13 +728,13 @@ const EmployeeManager: React.FC = () => {
   const deleteTitle = getLabel('Confirm Delete', 'تأكيد الحذف');
   const deleteMessage = pendingDeleteName
     ? getLabel(
-        `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
-        `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
-      )
+      `Are you sure you want to delete employee "${pendingDeleteName}"? This action cannot be undone.`,
+      `هل أنت متأكد أنك تريد حذف الموظف "${pendingDeleteName}"؟ لا يمكن التراجع عن هذا الإجراء.`
+    )
     : getLabel(
-        'Are you sure you want to delete this employee? This action cannot be undone.',
-        'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
-      );
+      'Are you sure you want to delete this employee? This action cannot be undone.',
+      'هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.'
+    );
 
   // MIGRATED: was direct localStorage access — kept for exportCSV which requires the raw token string
   const token = localStorage.getItem('token');
@@ -1113,22 +1105,22 @@ const EmployeeManager: React.FC = () => {
           initialData={
             editing
               ? {
-                  id: editing.id,
-                  firstName: editing.firstName,
-                  lastName: editing.lastName,
-                  email: editing.email,
-                  phone: editing.phone,
-                  designationId: editing.designationId,
-                  departmentId: editing.departmentId,
-                  // gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
-                  gender: editing.gender,
-                  role: (editing.role_name || '').trim() || 'Employee',
-                  role_name: editing.role_name,
-                  cnicNumber: editing.cnic_number,
-                  profilePicture: editing.profile_picture,
-                  cnicFrontPicture: editing.cnic_picture,
-                  cnicBackPicture: editing.cnic_back_picture,
-                }
+                id: editing.id,
+                firstName: editing.firstName,
+                lastName: editing.lastName,
+                email: editing.email,
+                phone: editing.phone,
+                designationId: editing.designationId,
+                departmentId: editing.departmentId,
+                // gender: editing.status === 'Active' ? 'male' : 'female', // Default/estimate since not in employee
+                gender: editing.gender,
+                role: (editing.role_name || '').trim() || 'Employee',
+                role_name: editing.role_name,
+                cnicNumber: editing.cnic_number,
+                profilePicture: editing.profile_picture,
+                cnicFrontPicture: editing.cnic_picture,
+                cnicBackPicture: editing.cnic_back_picture,
+              }
               : null
           }
         />

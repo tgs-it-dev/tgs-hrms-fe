@@ -6,14 +6,16 @@ import {
   Avatar,
   CircularProgress,
   useMediaQuery,
+  Switch,
 } from '@mui/material';
 import { useCompany } from '../../context/CompanyContext';
 import { useUser } from '../../hooks/useUser';
 import { isManager, isEmployee } from '../../utils/roleUtils';
 import companyApi from '../../api/companyApi';
+import { SystemTenantApi } from '../../api/systemTenantApi';
 import BusinessIcon from '@mui/icons-material/Business';
 import LanguageIcon from '@mui/icons-material/Language';
-import { CameraAlt, BusinessCenter } from '@mui/icons-material';
+import { CameraAlt, BusinessCenter, Smartphone, Lock } from '@mui/icons-material';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 import AppFormModal from '../common/AppFormModal';
@@ -54,6 +56,8 @@ const CompanyPage: React.FC = () => {
     company_name?: string;
     domain?: string;
   }>({});
+
+  const [mobileLoginLoading, setMobileLoginLoading] = useState(false);
 
   const isModalOpenRef = useRef(false);
 
@@ -174,6 +178,33 @@ const CompanyPage: React.FC = () => {
     []
   );
 
+  // Mobile Login Settings 
+  const handleToggleMobileLogin = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const tenantId = contextCompanyDetails?.tenant_id;
+
+    if (!tenantId) {
+      showError('Tenant ID not found');
+      return;
+    }
+
+    setMobileLoginLoading(true);
+    try {
+      const response = await SystemTenantApi.updateMobileLogin(tenantId, {
+        enabled: event.target.checked
+      });
+      if (response?.mobileLoginEnabled) {
+        showSuccess("Mobile login enabled successfully.");
+      } else if (!response?.mobileLoginEnabled) {
+        showSuccess("Mobile login disabled successfully.");
+      }
+      await refreshCompanyDetails();
+    } catch (err) {
+      showError(err);
+    } finally {
+      setMobileLoginLoading(false);
+    }
+  }, [user, refreshCompanyDetails, showError, showSuccess]);
+
   useEffect(() => {
     if (companyLogo && companyModalOpen && !logoUploading) {
       setModalCompanyLogo(companyLogo);
@@ -268,7 +299,7 @@ const CompanyPage: React.FC = () => {
       {/* Company Info Card */}
       <AppCard
         elevation={1}
-        sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
+        sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 }, mb: 3 }}
       >
         {contextLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -433,6 +464,72 @@ const CompanyPage: React.FC = () => {
           </Box>
         )}
       </AppCard>
+
+      <Box display={'flex'} flexDirection={{ xs: 'column', md: 'row' }} gap={4} >
+        {/* Mobile Login Settings */}
+        {!isManager(user?.role) && !isEmployee(user?.role) && (
+          <AppCard
+            elevation={1}
+            sx={{ flex: 1, borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    width: { xs: 42, sm: 50 },
+                    height: { xs: 42, sm: 50 },
+                    borderRadius: '50%',
+                    backgroundColor: 'background.default',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: { xs: 2, sm: 3 },
+                  }}
+                >
+                  <Smartphone
+                    sx={{
+                      fontSize: { xs: 22, sm: 28 },
+                      color: theme.palette.text.disabled,
+                    }}
+                  />
+                </Box>
+                <Box>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      color: theme.palette.text.primary,
+                      fontWeight: 600,
+                      fontSize: { xs: '14px', sm: '16px' },
+                    }}
+                  >
+                    Mobile Application Login
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      fontSize: { xs: '12px', sm: '13px' },
+                    }}
+                  >
+                    Allow tenant to log in using the mobile app
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {mobileLoginLoading && <CircularProgress size={20} sx={{ mr: 1 }} />}
+                <Switch
+                  checked={contextCompanyDetails?.mobile_login_enabled || false}
+                  onChange={handleToggleMobileLogin}
+                  disabled={mobileLoginLoading}
+                  color='primary'
+                />
+              </Box>
+            </Box>
+          </AppCard>
+        )}
+
+
+      </Box>
 
       {/* Company Details Modal */}
       <AppFormModal

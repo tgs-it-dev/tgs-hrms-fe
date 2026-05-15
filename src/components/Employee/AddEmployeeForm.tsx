@@ -241,36 +241,36 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   // Check if form has changes
   const hasChanges = initialData
     ? values.first_name !== originalValues.first_name ||
-      values.last_name !== originalValues.last_name ||
-      values.email !== originalValues.email ||
-      values.phone !== originalValues.phone ||
-      values.designationId !== originalValues.designationId ||
-      values.departmentId !== originalValues.departmentId ||
-      values.gender !== originalValues.gender ||
-      values.role !== originalValues.role ||
-      values.role_name !== originalValues.role_name ||
-      // values.role_id !== originalValues.role_id ||
-      values.team_id !== originalValues.team_id ||
-      values.cnicNumber !== originalValues.cnicNumber ||
-      values.profilePicture !== null ||
-      values.cnicFrontPicture !== null ||
-      values.cnicBackPicture !== null ||
-      hasDeletedDocument
+    values.last_name !== originalValues.last_name ||
+    values.email !== originalValues.email ||
+    values.phone !== originalValues.phone ||
+    values.designationId !== originalValues.designationId ||
+    values.departmentId !== originalValues.departmentId ||
+    values.gender !== originalValues.gender ||
+    values.role !== originalValues.role ||
+    values.role_name !== originalValues.role_name ||
+    // values.role_id !== originalValues.role_id ||
+    values.team_id !== originalValues.team_id ||
+    values.cnicNumber !== originalValues.cnicNumber ||
+    values.profilePicture !== null ||
+    values.cnicFrontPicture !== null ||
+    values.cnicBackPicture !== null ||
+    hasDeletedDocument
     : values.first_name.trim() !== '' ||
-      values.last_name.trim() !== '' ||
-      values.email.trim() !== '' ||
-      values.phone.trim() !== '' ||
-      values.designationId !== '' ||
-      values.departmentId !== '' ||
-      values.gender !== '' ||
-      values.role !== 'Employee' ||
-      values.role_name !== '' ||
-      // values.role_id !== '' ||
-      values.team_id !== '' ||
-      values.cnicNumber !== '' ||
-      values.profilePicture !== null ||
-      values.cnicFrontPicture !== null ||
-      values.cnicBackPicture !== null;
+    values.last_name.trim() !== '' ||
+    values.email.trim() !== '' ||
+    values.phone.trim() !== '' ||
+    values.designationId !== '' ||
+    values.departmentId !== '' ||
+    values.gender !== '' ||
+    values.role !== 'Employee' ||
+    values.role_name !== '' ||
+    // values.role_id !== '' ||
+    values.team_id !== '' ||
+    values.cnicNumber !== '' ||
+    values.profilePicture !== null ||
+    values.cnicFrontPicture !== null ||
+    values.cnicBackPicture !== null;
 
   // Remove filtering: always show all designations in the dropdown
   // const filteredDesignations = designations;
@@ -359,9 +359,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
 
   const handleChange =
     (field: keyof FormValues) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setFieldValue(field, (e.target.value ?? '').toString());
-    };
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFieldValue(field, (e.target.value ?? '').toString());
+      };
 
   const handlePhoneChange = (value: string | undefined) => {
     const phoneValue = value || '';
@@ -378,52 +378,52 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   // Handle image uploads
   const handleImageUpload =
     (type: 'profile' | 'cnicFront' | 'cnicBack') =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          setErrors(prev => ({
-            ...prev,
-            general: 'Please select a valid image file',
-          }));
-          return;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setErrors(prev => ({
-            ...prev,
-            general: 'Image size should not exceed 5MB',
-          }));
-          return;
-        }
-
-        setValues(prev => ({
-          ...prev,
-          [type === 'profile'
-            ? 'profilePicture'
-            : type === 'cnicFront'
-              ? 'cnicFrontPicture'
-              : 'cnicBackPicture']: file,
-        }));
-
-        // Clear errors
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.general;
-          // Clear the specific picture error
-          if (type === 'profile') {
-            delete newErrors.profilePicture;
-          } else if (type === 'cnicFront') {
-            delete newErrors.cnicFrontPicture;
-          } else if (type === 'cnicBack') {
-            delete newErrors.cnicBackPicture;
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            setErrors(prev => ({
+              ...prev,
+              general: 'Please select a valid image file',
+            }));
+            return;
           }
-          return newErrors;
-        });
-      }
-    };
+
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            setErrors(prev => ({
+              ...prev,
+              general: 'Image size should not exceed 5MB',
+            }));
+            return;
+          }
+
+          setValues(prev => ({
+            ...prev,
+            [type === 'profile'
+              ? 'profilePicture'
+              : type === 'cnicFront'
+                ? 'cnicFrontPicture'
+                : 'cnicBackPicture']: file,
+          }));
+
+          // Clear errors
+          setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.general;
+            // Clear the specific picture error
+            if (type === 'profile') {
+              delete newErrors.profilePicture;
+            } else if (type === 'cnicFront') {
+              delete newErrors.cnicFrontPicture;
+            } else if (type === 'cnicBack') {
+              delete newErrors.cnicBackPicture;
+            }
+            return newErrors;
+          });
+        }
+      };
 
   // Handle CNIC number formatting
   const handleCnicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -910,9 +910,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               ...(roleOptions.length === 0
                 ? []
                 : roleOptions.map(name => ({
-                    value: name,
-                    label: name.charAt(0).toUpperCase() + name.slice(1),
-                  }))),
+                  value: name,
+                  label: name.charAt(0).toUpperCase() + name.slice(1),
+                }))),
             ]}
           />
         </Box>
@@ -1193,252 +1193,252 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
           initialData?.profilePicture ||
           initialData?.cnicFrontPicture ||
           initialData?.cnicBackPicture) && (
-          <Box flex='1 1 100%' sx={{ mt: 2 }}>
-            <Box display='flex' flexWrap='wrap' gap={2} justifyContent='center'>
-              {(values.profilePicture || initialData?.profilePicture) && (
-                <Box sx={{ textAlign: 'center', position: 'relative' }}>
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: 150,
-                      height: 150,
-                      mb: 1,
-                    }}
-                  >
+            <Box flex='1 1 100%' sx={{ mt: 2 }}>
+              <Box display='flex' flexWrap='wrap' gap={2} justifyContent='center'>
+                {(values.profilePicture || initialData?.profilePicture) && (
+                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
                     <Box
-                      component='img'
-                      src={
-                        values.profilePicture
-                          ? URL.createObjectURL(values.profilePicture)
-                          : toAbsoluteUrl(initialData?.profilePicture)
-                      }
-                      alt='Profile Preview'
                       sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: 2,
-                        border: '2px solid',
-                        borderColor: 'primary.main',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          opacity: 0.8,
-                          transform: 'scale(1.05)',
-                          transition: 'all 0.3s ease',
-                        },
+                        position: 'relative',
+                        width: 150,
+                        height: 150,
+                        mb: 1,
                       }}
-                      onClick={() =>
-                        handleImagePreviewClick(
+                    >
+                      <Box
+                        component='img'
+                        src={
                           values.profilePicture
                             ? URL.createObjectURL(values.profilePicture)
-                            : toAbsoluteUrl(initialData?.profilePicture ?? ''),
-                          'Profile Picture'
-                        )
-                      }
-                    />
-                    <IconButton
-                      size='small'
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (values.profilePicture) {
-                          handleClearUploadedPicture('profile');
-                        } else if (initialData?.profilePicture) {
-                          handleDeleteExistingDocument(
-                            'profile',
-                            initialData.profilePicture
-                          );
+                            : toAbsoluteUrl(initialData?.profilePicture)
                         }
-                      }}
-                      disabled={deletingType === 'profile'}
+                        alt='Profile Preview'
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                          border: '2px solid',
+                          borderColor: 'primary.main',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            opacity: 0.8,
+                            transform: 'scale(1.05)',
+                            transition: 'all 0.3s ease',
+                          },
+                        }}
+                        onClick={() =>
+                          handleImagePreviewClick(
+                            values.profilePicture
+                              ? URL.createObjectURL(values.profilePicture)
+                              : toAbsoluteUrl(initialData?.profilePicture ?? ''),
+                            'Profile Picture'
+                          )
+                        }
+                      />
+                      <IconButton
+                        size='small'
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (values.profilePicture) {
+                            handleClearUploadedPicture('profile');
+                          } else if (initialData?.profilePicture) {
+                            handleDeleteExistingDocument(
+                              'profile',
+                              initialData.profilePicture
+                            );
+                          }
+                        }}
+                        disabled={deletingType === 'profile'}
+                        sx={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 4,
+                          bgcolor: 'rgba(255, 255, 255, 0.9)',
+                          color: 'error.main',
+                          '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 1)',
+                            transform: 'scale(1.1)',
+                          },
+                        }}
+                      >
+                        {deletingType === 'profile' ? (
+                          <CircularProgress size={16} color='inherit' />
+                        ) : (
+                          <CloseIcon fontSize='small' />
+                        )}
+                      </IconButton>
+                    </Box>
+                    <Typography variant='caption' sx={{ display: 'block' }}>
+                      {label('Profile Picture', 'الصورة الشخصية')}
+                    </Typography>
+                  </Box>
+                )}
+
+                {(values.cnicFrontPicture || initialData?.cnicFrontPicture) && (
+                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                    <Box
                       sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                        color: 'error.main',
-                        '&:hover': {
-                          bgcolor: 'rgba(255, 255, 255, 1)',
-                          transform: 'scale(1.1)',
-                        },
+                        position: 'relative',
+                        width: 150,
+                        height: 150,
+                        mb: 1,
                       }}
                     >
-                      {deletingType === 'profile' ? (
-                        <CircularProgress size={16} color='inherit' />
-                      ) : (
-                        <CloseIcon fontSize='small' />
-                      )}
-                    </IconButton>
-                  </Box>
-                  <Typography variant='caption' sx={{ display: 'block' }}>
-                    {label('Profile Picture', 'الصورة الشخصية')}
-                  </Typography>
-                </Box>
-              )}
-
-              {(values.cnicFrontPicture || initialData?.cnicFrontPicture) && (
-                <Box sx={{ textAlign: 'center', position: 'relative' }}>
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: 150,
-                      height: 150,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      component='img'
-                      src={
-                        values.cnicFrontPicture
-                          ? URL.createObjectURL(values.cnicFrontPicture)
-                          : toAbsoluteUrl(initialData?.cnicFrontPicture)
-                      }
-                      alt='CNIC Front Preview'
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: 2,
-                        border: '2px solid',
-                        borderColor: 'primary.main',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          opacity: 0.8,
-                          transform: 'scale(1.1)',
-                          transition: 'all 0.3s ease',
-                        },
-                      }}
-                      onClick={() =>
-                        handleImagePreviewClick(
+                      <Box
+                        component='img'
+                        src={
                           values.cnicFrontPicture
                             ? URL.createObjectURL(values.cnicFrontPicture)
-                            : toAbsoluteUrl(
+                            : toAbsoluteUrl(initialData?.cnicFrontPicture)
+                        }
+                        alt='CNIC Front Preview'
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                          border: '2px solid',
+                          borderColor: 'primary.main',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            opacity: 0.8,
+                            transform: 'scale(1.1)',
+                            transition: 'all 0.3s ease',
+                          },
+                        }}
+                        onClick={() =>
+                          handleImagePreviewClick(
+                            values.cnicFrontPicture
+                              ? URL.createObjectURL(values.cnicFrontPicture)
+                              : toAbsoluteUrl(
                                 initialData?.cnicFrontPicture ?? ''
                               ),
-                          'CNIC Front'
-                        )
-                      }
-                    />
-                    <IconButton
-                      size='small'
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (values.cnicFrontPicture) {
-                          handleClearUploadedPicture('cnicFront');
-                        } else if (initialData?.cnicFrontPicture) {
-                          handleDeleteExistingDocument(
-                            'cnicFront',
-                            initialData.cnicFrontPicture
-                          );
+                            'CNIC Front'
+                          )
                         }
-                      }}
-                      disabled={deletingType === 'cnicFront'}
+                      />
+                      <IconButton
+                        size='small'
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (values.cnicFrontPicture) {
+                            handleClearUploadedPicture('cnicFront');
+                          } else if (initialData?.cnicFrontPicture) {
+                            handleDeleteExistingDocument(
+                              'cnicFront',
+                              initialData.cnicFrontPicture
+                            );
+                          }
+                        }}
+                        disabled={deletingType === 'cnicFront'}
+                        sx={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 4,
+                          bgcolor: 'rgba(255, 255, 255, 0.9)',
+                          color: 'error.main',
+                          '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 1)',
+                            transform: 'scale(1.1)',
+                          },
+                        }}
+                      >
+                        {deletingType === 'cnicFront' ? (
+                          <CircularProgress size={16} color='inherit' />
+                        ) : (
+                          <CloseIcon fontSize='small' />
+                        )}
+                      </IconButton>
+                    </Box>
+                    <Typography variant='caption' sx={{ display: 'block' }}>
+                      {label('CNIC Front', 'الوجه الأمامي للهوية')}
+                    </Typography>
+                  </Box>
+                )}
+
+                {(values.cnicBackPicture || initialData?.cnicBackPicture) && (
+                  <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                    <Box
                       sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                        color: 'error.main',
-                        '&:hover': {
-                          bgcolor: 'rgba(255, 255, 255, 1)',
-                          transform: 'scale(1.1)',
-                        },
+                        position: 'relative',
+                        width: 150,
+                        height: 150,
+                        mb: 1,
                       }}
                     >
-                      {deletingType === 'cnicFront' ? (
-                        <CircularProgress size={16} color='inherit' />
-                      ) : (
-                        <CloseIcon fontSize='small' />
-                      )}
-                    </IconButton>
-                  </Box>
-                  <Typography variant='caption' sx={{ display: 'block' }}>
-                    {label('CNIC Front', 'الوجه الأمامي للهوية')}
-                  </Typography>
-                </Box>
-              )}
-
-              {(values.cnicBackPicture || initialData?.cnicBackPicture) && (
-                <Box sx={{ textAlign: 'center', position: 'relative' }}>
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: 150,
-                      height: 150,
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      component='img'
-                      src={
-                        values.cnicBackPicture
-                          ? URL.createObjectURL(values.cnicBackPicture)
-                          : toAbsoluteUrl(initialData?.cnicBackPicture)
-                      }
-                      alt='CNIC Back Preview'
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: 2,
-                        border: '2px solid',
-                        borderColor: 'primary.main',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          opacity: 0.8,
-                          transform: 'scale(1.1)',
-                          transition: 'all 0.3s ease',
-                        },
-                      }}
-                      onClick={() =>
-                        handleImagePreviewClick(
+                      <Box
+                        component='img'
+                        src={
                           values.cnicBackPicture
                             ? URL.createObjectURL(values.cnicBackPicture)
-                            : toAbsoluteUrl(initialData?.cnicBackPicture ?? ''),
-                          'CNIC Back'
-                        )
-                      }
-                    />
-                    <IconButton
-                      size='small'
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (values.cnicBackPicture) {
-                          handleClearUploadedPicture('cnicBack');
-                        } else if (initialData?.cnicBackPicture) {
-                          handleDeleteExistingDocument(
-                            'cnicBack',
-                            initialData.cnicBackPicture
-                          );
+                            : toAbsoluteUrl(initialData?.cnicBackPicture)
                         }
-                      }}
-                      disabled={deletingType === 'cnicBack'}
-                      sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                        color: 'error.main',
-                        '&:hover': {
-                          bgcolor: 'rgba(255, 255, 255, 1)',
-                          transform: 'scale(1.1)',
-                        },
-                      }}
-                    >
-                      {deletingType === 'cnicBack' ? (
-                        <CircularProgress size={16} color='inherit' />
-                      ) : (
-                        <CloseIcon fontSize='small' />
-                      )}
-                    </IconButton>
+                        alt='CNIC Back Preview'
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                          border: '2px solid',
+                          borderColor: 'primary.main',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            opacity: 0.8,
+                            transform: 'scale(1.1)',
+                            transition: 'all 0.3s ease',
+                          },
+                        }}
+                        onClick={() =>
+                          handleImagePreviewClick(
+                            values.cnicBackPicture
+                              ? URL.createObjectURL(values.cnicBackPicture)
+                              : toAbsoluteUrl(initialData?.cnicBackPicture ?? ''),
+                            'CNIC Back'
+                          )
+                        }
+                      />
+                      <IconButton
+                        size='small'
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (values.cnicBackPicture) {
+                            handleClearUploadedPicture('cnicBack');
+                          } else if (initialData?.cnicBackPicture) {
+                            handleDeleteExistingDocument(
+                              'cnicBack',
+                              initialData.cnicBackPicture
+                            );
+                          }
+                        }}
+                        disabled={deletingType === 'cnicBack'}
+                        sx={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 4,
+                          bgcolor: 'rgba(255, 255, 255, 0.9)',
+                          color: 'error.main',
+                          '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 1)',
+                            transform: 'scale(1.1)',
+                          },
+                        }}
+                      >
+                        {deletingType === 'cnicBack' ? (
+                          <CircularProgress size={16} color='inherit' />
+                        ) : (
+                          <CloseIcon fontSize='small' />
+                        )}
+                      </IconButton>
+                    </Box>
+                    <Typography variant='caption' sx={{ display: 'block' }}>
+                      {label('CNIC Back', 'الوجه الخلفي للهوية')}
+                    </Typography>
                   </Box>
-                  <Typography variant='caption' sx={{ display: 'block' }}>
-                    {label('CNIC Back', 'الوجه الخلفي للهوية')}
-                  </Typography>
-                </Box>
-              )}
+                )}
+              </Box>
             </Box>
-          </Box>
-        )}
+          )}
 
         {/* Password reset info - show only on create (no initialData) */}
         {!initialData && (
@@ -1510,29 +1510,29 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
             text={
               submitting
                 ? label(
-                    initialData
-                      ? 'Updating...'
-                      : values.role === ROLES.MANAGER
-                        ? 'Adding Manager...'
-                        : 'Adding Employee...',
-                    initialData
-                      ? 'جاري التحديث...'
-                      : values.role === ROLES.MANAGER
-                        ? 'جاري إضافة المدير...'
-                        : 'جاري إضافة الموظف...'
-                  )
+                  initialData
+                    ? 'Updating...'
+                    : values.role === ROLES.MANAGER
+                      ? 'Adding Manager...'
+                      : 'Adding Employee...',
+                  initialData
+                    ? 'جاري التحديث...'
+                    : values.role === ROLES.MANAGER
+                      ? 'جاري إضافة المدير...'
+                      : 'جاري إضافة الموظف...'
+                )
                 : label(
-                    initialData
-                      ? 'Update Employee'
-                      : values.role === ROLES.MANAGER
-                        ? 'Add Manager'
-                        : 'Add Employee',
-                    initialData
-                      ? 'تحديث الموظف'
-                      : values.role === ROLES.MANAGER
-                        ? 'إضافة مدير'
-                        : 'إضافة موظف'
-                  )
+                  initialData
+                    ? 'Update Employee'
+                    : values.role === ROLES.MANAGER
+                      ? 'Add Manager'
+                      : 'Add Employee',
+                  initialData
+                    ? 'تحديث الموظف'
+                    : values.role === ROLES.MANAGER
+                      ? 'إضافة مدير'
+                      : 'إضافة موظف'
+                )
             }
           />
         </Box>

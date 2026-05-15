@@ -18,6 +18,9 @@ export interface CompanyDetails {
   tenant_id: string;
   created_at: string;
   updated_at: string;
+  ip_restriction_enabled: boolean;
+  mobile_login_enabled: boolean;
+  current_ip: string;
 }
 
 // Create/Update DTO interface

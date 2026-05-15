@@ -5,6 +5,8 @@ import type {
   SystemTenant,
   SystemTenantDetail,
   SystemTenantFilters,
+  UpdateTenantMobileLoginRequest,
+  UpdateTenantMobileLoginResponse,
 } from '../types/tenant';
 
 export type {
@@ -284,4 +286,18 @@ export const SystemTenantApi = {
       return [];
     }
   },
+
+  updateMobileLogin: async (
+    id: string,
+    data: UpdateTenantMobileLoginRequest
+  ): Promise<UpdateTenantMobileLoginResponse> => {
+    const response: AxiosResponse<UpdateTenantMobileLoginResponse> =
+      await axiosInstance.put(
+        `/system/tenants/${id}/mobile-login`,
+        data
+      );
+
+    return response.data;
+  },
+
 };

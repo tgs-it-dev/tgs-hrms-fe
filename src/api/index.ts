@@ -43,3 +43,5 @@ export * from './tenantLeaveApi';
 export * from './workflowApi';
 export * from './wfhApi';
 export * from './overtimeApi';
+export * from './ipWhitelistApi';
+

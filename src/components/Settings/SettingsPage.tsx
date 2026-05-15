@@ -5,6 +5,7 @@ import FeatureManagementPage from './FeatureManagementPage';
 import AppPageTitle from '../common/AppPageTitle';
 import { useScopedTranslations } from '../../hooks/useScopedTranslations';
 import WorkflowPage from './WorkflowPage';
+import IpManagement from './IpManagement';
 
 const SettingsPage: React.FC = () => {
   const theme = useTheme();
@@ -50,6 +51,7 @@ const SettingsPage: React.FC = () => {
         >
           <Tab label={t.workflow} />
           <Tab label={t.company} />
+          <Tab label={t.ipManagement} />
         </Tabs>
       </Box>
 
@@ -61,6 +63,7 @@ const SettingsPage: React.FC = () => {
           </Box>
         )}
         {activeTab === 1 && <CompanyPage />}
+        {activeTab === 2 && <IpManagement />}
       </Box>
     </Box>
   );

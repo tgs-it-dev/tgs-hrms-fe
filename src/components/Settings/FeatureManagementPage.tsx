@@ -23,45 +23,45 @@ const featureDefinitions: {
   label: string;
   description: string;
 }[] = [
-  // {
-  //   key: 'attendance',
-  //   label: 'Attendance & Leaves',
-  //   description:
-  //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
-  // },
-  // {
-  //   key: 'leaveAnalytics',
-  //   label: 'Leave Analytics',
-  //   description:
-  //     'View leave analytics, reports, and cross-tenant leave metrics.',
-  // },
-  // {
-  //   key: 'performance',
-  //   label: 'Performance',
-  //   description:
-  //     'Enable performance dashboards and insights for employees and teams.',
-  // },
-  // {
-  //   key: 'announcements',
-  //   label: 'Announcements',
-  //   description: 'Company-wide announcements module.',
-  // },
-  {
-    key: 'leave_workflow_enabled',
-    label: 'Leave Approval',
-    description: 'Enable leave request approval workflows.',
-  },
-  {
-    key: 'wfh_workflow_enabled',
-    label: 'WFH Request',
-    description: 'Display work from home request in the sidebar.',
-  },
-  {
-    key: 'overtime_workflow_enabled',
-    label: 'Overtime Request',
-    description: 'Display overtime request in the sidebar.',
-  },
-];
+    // {
+    //   key: 'attendance',
+    //   label: 'Attendance & Leaves',
+    //   description:
+    //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+    // },
+    // {
+    //   key: 'leaveAnalytics',
+    //   label: 'Leave Analytics',
+    //   description:
+    //     'View leave analytics, reports, and cross-tenant leave metrics.',
+    // },
+    // {
+    //   key: 'performance',
+    //   label: 'Performance',
+    //   description:
+    //     'Enable performance dashboards and insights for employees and teams.',
+    // },
+    // {
+    //   key: 'announcements',
+    //   label: 'Announcements',
+    //   description: 'Company-wide announcements module.',
+    // },
+    {
+      key: 'leave_workflow_enabled',
+      label: 'Leave Approval',
+      description: 'Enable leave request approval workflows.',
+    },
+    {
+      key: 'wfh_workflow_enabled',
+      label: 'WFH Request',
+      description: 'Display work from home request in the sidebar.',
+    },
+    {
+      key: 'overtime_workflow_enabled',
+      label: 'Overtime Request',
+      description: 'Display overtime request in the sidebar.',
+    },
+  ];
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
@@ -95,7 +95,8 @@ const FeatureManagementPage: React.FC = () => {
       <Box sx={{ py: 4 }}>
         <Typography
           variant='h6'
-          sx={{ color: theme.palette.text.secondary, textAlign: 'center' }}
+          color='text.secondary'
+          textAlign='center'
         >
           You do not have permission to access Feature Management.
         </Typography>
@@ -117,35 +118,29 @@ const FeatureManagementPage: React.FC = () => {
           {featureDefinitions.map(feature => (
             <Box
               key={feature.key}
-              sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                gap: 2,
-                px: { xs: 1, sm: 1.5 },
-                py: { xs: 1, sm: 1.5 },
-                borderRadius: 2,
-                backgroundColor: 'background.default',
-                border: `1px solid ${theme.palette.divider}`,
-                flexWrap: 'wrap',
-              }}
+              display={'flex'}
+              alignItems={'flex-start'}
+              justifyContent={'space-between'}
+              gap={2}
+              px={{ xs: 1, sm: 1.5 }}
+              py={{ xs: 1, sm: 1.5 }}
+              borderRadius={2}
+              border={`1px solid ${theme.palette.divider}`}
+              flexWrap={'wrap'}
+              bgcolor={theme.palette.background.default}
             >
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography
                   variant='subtitle1'
-                  sx={{
-                    fontWeight: 600,
-                    color: theme.palette.text.primary,
-                    mb: 0.5,
-                  }}
+                  fontWeight={600}
+                  color='text.primary'
+                  mb={0.5}
                 >
                   {feature.label}
                 </Typography>
                 <Typography
                   variant='body2'
-                  sx={{
-                    color: 'text.secondary',
-                  }}
+                  color='text.secondary'
                 >
                   {feature.description}
                 </Typography>
@@ -172,11 +167,9 @@ const FeatureManagementPage: React.FC = () => {
         </Stack>
 
         <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            mt: 3,
-          }}
+          display={'flex'}
+          justifyContent={'flex-end'}
+          mt={3}
         >
           <AppButton
             onClick={resetToDefaults}
