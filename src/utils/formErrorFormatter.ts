@@ -1,6 +1,6 @@
 type ValidationError = {
   field: string;
-  message: string | string[]
+  message: string | string[];
 };
 
 export const formatValidationErrors = (

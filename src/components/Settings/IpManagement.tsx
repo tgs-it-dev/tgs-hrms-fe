@@ -147,27 +147,28 @@ const IpManagement: React.FC = () => {
     fetchIps(currentPage);
   }, [fetchIps, currentPage]);
 
-  const handleToggleRestriction = useCallback(async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const checked = event.target.checked;
-    setToggleLoading(true);
-    try {
-      if (checked) {
-        await ipWhitelistApi.enableIPRestriction();
-        showSuccess('IP restriction enabled successfully');
-      } else {
-        await ipWhitelistApi.disableIPRestriction();
-        showSuccess('IP restriction disabled successfully');
+  const handleToggleRestriction = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const checked = event.target.checked;
+      setToggleLoading(true);
+      try {
+        if (checked) {
+          await ipWhitelistApi.enableIPRestriction();
+          showSuccess('IP restriction enabled successfully');
+        } else {
+          await ipWhitelistApi.disableIPRestriction();
+          showSuccess('IP restriction disabled successfully');
+        }
+        setIsRestrictionEnabled(checked);
+        await refreshCompanyDetails();
+      } catch (error) {
+        showError(error);
+      } finally {
+        setToggleLoading(false);
       }
-      setIsRestrictionEnabled(checked);
-      await refreshCompanyDetails();
-    } catch (error) {
-      showError(error);
-    } finally {
-      setToggleLoading(false);
-    }
-  }, [showError, refreshCompanyDetails])
+    },
+    [showError, refreshCompanyDetails]
+  );
 
   const handleAddIp = useCallback(async () => {
     if (!validateForm()) return;
@@ -195,7 +196,7 @@ const IpManagement: React.FC = () => {
     } finally {
       setAddLoading(false);
     }
-  }, [formData, showError])
+  }, [formData, showError]);
 
   const handleClose = () => {
     setIsAddModalOpen(false);
