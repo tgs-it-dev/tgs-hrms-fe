@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Stack,
+  Pagination,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -44,6 +45,12 @@ const IpManagement: React.FC = () => {
   const [ips, setIps] = useState<IPWhitelistItem[]>([]);
   const [isRestrictionEnabled, setIsRestrictionEnabled] = useState(false);
   const [toggleLoading, setToggleLoading] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const limit = 10;
   //error states
   const [errors, setErrors] = useState({
     ip_address: '',
@@ -115,23 +122,32 @@ const IpManagement: React.FC = () => {
     return !newErrors.ip_address && !newErrors.description;
   };
 
-  const fetchIps = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await ipWhitelistApi.getWhitelistedIPs();
-      setIps(response.items);
-    } catch (error) {
-      showError(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
+  const fetchIps = useCallback(
+    async (page: number = 1) => {
+      try {
+        setLoading(true);
+        const response = await ipWhitelistApi.getWhitelistedIPs({
+          page,
+          limit,
+        });
+        setIps(response.items);
+        setTotalPages(response.totalPages);
+        setTotalItems(response.total);
+        setCurrentPage(response.page);
+      } catch (error) {
+        showError(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [showError]
+  );
 
   useEffect(() => {
-    fetchIps();
-  }, [fetchIps]);
+    fetchIps(currentPage);
+  }, [fetchIps, currentPage]);
 
-  const handleToggleRestriction = async (
+  const handleToggleRestriction = useCallback(async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const checked = event.target.checked;
@@ -151,9 +167,9 @@ const IpManagement: React.FC = () => {
     } finally {
       setToggleLoading(false);
     }
-  };
+  }, [showError, refreshCompanyDetails])
 
-  const handleAddIp = async () => {
+  const handleAddIp = useCallback(async () => {
     if (!validateForm()) return;
     setAddLoading(true);
     try {
@@ -161,7 +177,8 @@ const IpManagement: React.FC = () => {
       showSuccess('IP address added to whitelist');
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
-      fetchIps();
+      await fetchIps(1);
+      setCurrentPage(1);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const formattedError = formatValidationErrors(
@@ -178,7 +195,7 @@ const IpManagement: React.FC = () => {
     } finally {
       setAddLoading(false);
     }
-  };
+  }, [formData, showError])
 
   const handleClose = () => {
     setIsAddModalOpen(false);
@@ -197,7 +214,7 @@ const IpManagement: React.FC = () => {
       await ipWhitelistApi.removeIPFromWhitelist(deleteIp);
       showSuccess('IP address removed from whitelist');
       setDeleteIp(null);
-      fetchIps();
+      await fetchIps(currentPage);
     } catch (error) {
       showError(error);
     } finally {
@@ -384,6 +401,41 @@ const IpManagement: React.FC = () => {
               )}
             </TableBody>
           </AppTable>
+        )}
+
+        {!loading && totalPages > 1 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 2,
+              mt: 3,
+            }}
+          >
+            <Typography variant='body2' color='text.secondary'>
+              Showing page {currentPage} of {totalPages} ({totalItems} records)
+            </Typography>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={(_e, page) => setCurrentPage(page)}
+              color='primary'
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  fontWeight: 600,
+                },
+                '& .MuiPaginationItem-root.Mui-selected': {
+                  backgroundColor: 'var(--primary-dark-color)',
+                  color: 'common.white',
+                  '&:hover': {
+                    backgroundColor: 'var(--primary-dark-color)',
+                  },
+                },
+              }}
+            />
+          </Box>
         )}
       </AppCard>
 

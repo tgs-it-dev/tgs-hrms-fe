@@ -1,6 +1,6 @@
 type ValidationError = {
   field: string;
-  message: string | string[];
+  message: string | string[]
 };
 
 export const formatValidationErrors = (
@@ -8,12 +8,7 @@ export const formatValidationErrors = (
 ): Record<string, string> => {
   return errors.reduce(
     (acc, error) => {
-      const firstMessage = Array.isArray(error.message)
-        ? error.message[0]
-        : error.message;
-
-      acc[error.field] = firstMessage ?? '';
-
+      acc[error.field] = error.message;
       return acc;
     },
     {} as Record<string, string>
