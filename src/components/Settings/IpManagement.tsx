@@ -34,7 +34,6 @@ export interface ValidationErrorItem {
   message: string;
 }
 
-
 const IpManagement: React.FC = () => {
   const theme = useTheme();
   const t = useScopedTranslations('settings');
@@ -132,7 +131,9 @@ const IpManagement: React.FC = () => {
     fetchIps();
   }, [fetchIps]);
 
-  const handleToggleRestriction = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToggleRestriction = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const checked = event.target.checked;
     setToggleLoading(true);
     try {
@@ -167,15 +168,14 @@ const IpManagement: React.FC = () => {
           error.response?.data?.errors || []
         );
 
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
           ...formattedError,
         }));
       } else {
         showError(error);
       }
-    }
-    finally {
+    } finally {
       setAddLoading(false);
     }
   };
@@ -185,9 +185,9 @@ const IpManagement: React.FC = () => {
     setErrors({
       ip_address: '',
       description: '',
-    })
+    });
     setFormData({ ip_address: '', description: '' });
-  }
+  };
 
   const handleDeleteIp = async () => {
     if (!deleteIp) return;
@@ -206,24 +206,24 @@ const IpManagement: React.FC = () => {
   };
 
   const handleIpChange = (value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       ip_address: value,
     }));
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       ip_address: validateIpAddress(value),
     }));
   };
 
   const handleDescriptionChange = (value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       description: value,
     }));
 
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       description: validateDescription(value),
     }));
@@ -232,12 +232,26 @@ const IpManagement: React.FC = () => {
   return (
     <Box display={'flex'} flexDirection={'column'} gap={3}>
       {/* IP Restriction Toggle Card */}
-      <Typography variant='h5' fontWeight={600} color={theme.palette.text.secondary}>Current IP Address: <span style={{ color: theme.palette.text.primary }}>{companyDetails?.current_ip}</span></Typography>
+      <Typography
+        variant='h5'
+        fontWeight={600}
+        color={theme.palette.text.secondary}
+      >
+        Current IP Address:{' '}
+        <span style={{ color: theme.palette.text.primary }}>
+          {companyDetails?.current_ip}
+        </span>
+      </Typography>
       <AppCard
         elevation={1}
         sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
       >
-        <Box display={'flex'} flexDirection={'row'} gap={2} justifyContent={'space-between'} >
+        <Box
+          display={'flex'}
+          flexDirection={'row'}
+          gap={2}
+          justifyContent={'space-between'}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box
               sx={{
@@ -326,7 +340,7 @@ const IpManagement: React.FC = () => {
         </Box>
 
         {loading ? (
-          <Box display={'flex'} justifyContent={'center'} py={4} >
+          <Box display={'flex'} justifyContent={'center'} py={4}>
             <CircularProgress />
           </Box>
         ) : (
@@ -342,16 +356,20 @@ const IpManagement: React.FC = () => {
               {ips.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} align='center' sx={{ py: 4 }}>
-                    <Typography color='text.secondary'>No Results Found</Typography>
+                    <Typography color='text.secondary'>
+                      No Results Found
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                ips.map((item) => (
+                ips.map(item => (
                   <TableRow key={item.id}>
-                    <TableCell sx={{ fontWeight: 500 }}>{item.ip_address}</TableCell>
+                    <TableCell sx={{ fontWeight: 500 }}>
+                      {item.ip_address}
+                    </TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell align='right'>
-                      <Tooltip title={"Delete Ip"}>
+                      <Tooltip title={'Delete Ip'}>
                         <IconButton
                           color='error'
                           onClick={() => setDeleteIp(item.ip_address)}
@@ -378,12 +396,12 @@ const IpManagement: React.FC = () => {
         submitLabel={t.addIp}
         isSubmitting={addLoading}
       >
-        <Stack spacing={3} mt={1} >
+        <Stack spacing={3} mt={1}>
           <AppInputField
             label={t.ipAddress}
             placeholder='e.g. 192.168.1.1'
             value={formData.ip_address}
-            onChange={(e) => handleIpChange(e.target.value)}
+            onChange={e => handleIpChange(e.target.value)}
             error={!!errors.ip_address}
             helperText={errors.ip_address}
             required
@@ -392,7 +410,7 @@ const IpManagement: React.FC = () => {
             label={t.ipDescription}
             placeholder='e.g. Office Network'
             value={formData.description}
-            onChange={(e) => handleDescriptionChange(e.target.value)}
+            onChange={e => handleDescriptionChange(e.target.value)}
             error={!!errors.description}
             helperText={errors.description}
             required

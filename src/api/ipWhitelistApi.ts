@@ -104,10 +104,9 @@ class IPWhitelistApiService {
   async removeIPFromWhitelist(
     ipAddress: string
   ): Promise<DeleteIPWhitelistResponse> {
-    const response =
-      await axiosInstance.delete<DeleteIPWhitelistResponse>(
-        `${this.baseUrl}/${encodeURIComponent(ipAddress)}`
-      );
+    const response = await axiosInstance.delete<DeleteIPWhitelistResponse>(
+      `${this.baseUrl}/${encodeURIComponent(ipAddress)}`
+    );
 
     return response.data;
   }

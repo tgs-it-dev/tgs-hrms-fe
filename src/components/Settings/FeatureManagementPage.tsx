@@ -23,45 +23,45 @@ const featureDefinitions: {
   label: string;
   description: string;
 }[] = [
-    // {
-    //   key: 'attendance',
-    //   label: 'Attendance & Leaves',
-    //   description:
-    //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
-    // },
-    // {
-    //   key: 'leaveAnalytics',
-    //   label: 'Leave Analytics',
-    //   description:
-    //     'View leave analytics, reports, and cross-tenant leave metrics.',
-    // },
-    // {
-    //   key: 'performance',
-    //   label: 'Performance',
-    //   description:
-    //     'Enable performance dashboards and insights for employees and teams.',
-    // },
-    // {
-    //   key: 'announcements',
-    //   label: 'Announcements',
-    //   description: 'Company-wide announcements module.',
-    // },
-    {
-      key: 'leave_workflow_enabled',
-      label: 'Leave Approval',
-      description: 'Enable leave request approval workflows.',
-    },
-    {
-      key: 'wfh_workflow_enabled',
-      label: 'WFH Request',
-      description: 'Display work from home request in the sidebar.',
-    },
-    {
-      key: 'overtime_workflow_enabled',
-      label: 'Overtime Request',
-      description: 'Display overtime request in the sidebar.',
-    },
-  ];
+  // {
+  //   key: 'attendance',
+  //   label: 'Attendance & Leaves',
+  //   description:
+  //     'Track attendance, geofencing, daily attendance, reports, and leave requests.',
+  // },
+  // {
+  //   key: 'leaveAnalytics',
+  //   label: 'Leave Analytics',
+  //   description:
+  //     'View leave analytics, reports, and cross-tenant leave metrics.',
+  // },
+  // {
+  //   key: 'performance',
+  //   label: 'Performance',
+  //   description:
+  //     'Enable performance dashboards and insights for employees and teams.',
+  // },
+  // {
+  //   key: 'announcements',
+  //   label: 'Announcements',
+  //   description: 'Company-wide announcements module.',
+  // },
+  {
+    key: 'leave_workflow_enabled',
+    label: 'Leave Approval',
+    description: 'Enable leave request approval workflows.',
+  },
+  {
+    key: 'wfh_workflow_enabled',
+    label: 'WFH Request',
+    description: 'Display work from home request in the sidebar.',
+  },
+  {
+    key: 'overtime_workflow_enabled',
+    label: 'Overtime Request',
+    description: 'Display overtime request in the sidebar.',
+  },
+];
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
@@ -93,11 +93,7 @@ const FeatureManagementPage: React.FC = () => {
   if (!isSystemAdminUser) {
     return (
       <Box sx={{ py: 4 }}>
-        <Typography
-          variant='h6'
-          color='text.secondary'
-          textAlign='center'
-        >
+        <Typography variant='h6' color='text.secondary' textAlign='center'>
           You do not have permission to access Feature Management.
         </Typography>
       </Box>
@@ -138,10 +134,7 @@ const FeatureManagementPage: React.FC = () => {
                 >
                   {feature.label}
                 </Typography>
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                >
+                <Typography variant='body2' color='text.secondary'>
                   {feature.description}
                 </Typography>
               </Box>
@@ -166,11 +159,7 @@ const FeatureManagementPage: React.FC = () => {
           ))}
         </Stack>
 
-        <Box
-          display={'flex'}
-          justifyContent={'flex-end'}
-          mt={3}
-        >
+        <Box display={'flex'} justifyContent={'flex-end'} mt={3}>
           <AppButton
             onClick={resetToDefaults}
             variant='outlined'

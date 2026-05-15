@@ -15,7 +15,7 @@ import companyApi from '../../api/companyApi';
 import { SystemTenantApi } from '../../api/systemTenantApi';
 import BusinessIcon from '@mui/icons-material/Business';
 import LanguageIcon from '@mui/icons-material/Language';
-import { CameraAlt, BusinessCenter, Smartphone, Lock } from '@mui/icons-material';
+import { CameraAlt, BusinessCenter, Smartphone } from '@mui/icons-material';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 import AppFormModal from '../common/AppFormModal';
@@ -178,32 +178,35 @@ const CompanyPage: React.FC = () => {
     []
   );
 
-  // Mobile Login Settings 
-  const handleToggleMobileLogin = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const tenantId = contextCompanyDetails?.tenant_id;
+  // Mobile Login Settings
+  const handleToggleMobileLogin = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const tenantId = contextCompanyDetails?.tenant_id;
 
-    if (!tenantId) {
-      showError('Tenant ID not found');
-      return;
-    }
-
-    setMobileLoginLoading(true);
-    try {
-      const response = await SystemTenantApi.updateMobileLogin(tenantId, {
-        enabled: event.target.checked
-      });
-      if (response?.mobileLoginEnabled) {
-        showSuccess("Mobile login enabled successfully.");
-      } else if (!response?.mobileLoginEnabled) {
-        showSuccess("Mobile login disabled successfully.");
+      if (!tenantId) {
+        showError('Tenant ID not found');
+        return;
       }
-      await refreshCompanyDetails();
-    } catch (err) {
-      showError(err);
-    } finally {
-      setMobileLoginLoading(false);
-    }
-  }, [user, refreshCompanyDetails, showError, showSuccess]);
+
+      setMobileLoginLoading(true);
+      try {
+        const response = await SystemTenantApi.updateMobileLogin(tenantId, {
+          enabled: event.target.checked,
+        });
+        if (response?.mobileLoginEnabled) {
+          showSuccess('Mobile login enabled successfully.');
+        } else if (!response?.mobileLoginEnabled) {
+          showSuccess('Mobile login disabled successfully.');
+        }
+        await refreshCompanyDetails();
+      } catch (err) {
+        showError(err);
+      } finally {
+        setMobileLoginLoading(false);
+      }
+    },
+    [user, refreshCompanyDetails, showError, showSuccess]
+  );
 
   useEffect(() => {
     if (companyLogo && companyModalOpen && !logoUploading) {
@@ -299,7 +302,12 @@ const CompanyPage: React.FC = () => {
       {/* Company Info Card */}
       <AppCard
         elevation={1}
-        sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 }, mb: 3 }}
+        sx={{
+          borderRadius: 3,
+          border: 'none',
+          p: { xs: 2, sm: 3, lg: 4 },
+          mb: 3,
+        }}
       >
         {contextLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -465,14 +473,25 @@ const CompanyPage: React.FC = () => {
         )}
       </AppCard>
 
-      <Box display={'flex'} flexDirection={{ xs: 'column', md: 'row' }} gap={4} >
+      <Box display={'flex'} flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
         {/* Mobile Login Settings */}
         {!isManager(user?.role) && !isEmployee(user?.role) && (
           <AppCard
             elevation={1}
-            sx={{ flex: 1, borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
+            sx={{
+              flex: 1,
+              borderRadius: 3,
+              border: 'none',
+              p: { xs: 2, sm: 3, lg: 4 },
+            }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box
                   sx={{
@@ -516,7 +535,9 @@ const CompanyPage: React.FC = () => {
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                {mobileLoginLoading && <CircularProgress size={20} sx={{ mr: 1 }} />}
+                {mobileLoginLoading && (
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                )}
                 <Switch
                   checked={contextCompanyDetails?.mobile_login_enabled || false}
                   onChange={handleToggleMobileLogin}
@@ -527,8 +548,6 @@ const CompanyPage: React.FC = () => {
             </Box>
           </AppCard>
         )}
-
-
       </Box>
 
       {/* Company Details Modal */}

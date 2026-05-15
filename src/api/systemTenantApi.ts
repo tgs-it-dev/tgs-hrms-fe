@@ -292,12 +292,8 @@ export const SystemTenantApi = {
     data: UpdateTenantMobileLoginRequest
   ): Promise<UpdateTenantMobileLoginResponse> => {
     const response: AxiosResponse<UpdateTenantMobileLoginResponse> =
-      await axiosInstance.put(
-        `/system/tenants/${id}/mobile-login`,
-        data
-      );
+      await axiosInstance.put(`/system/tenants/${id}/mobile-login`, data);
 
     return response.data;
   },
-
 };
