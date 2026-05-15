@@ -8,7 +8,9 @@ export const formatValidationErrors = (
 ): Record<string, string> => {
   return errors.reduce(
     (acc, error) => {
-      acc[error.field] = error.message;
+      acc[error.field] = Array.isArray(error.message)
+        ? error.message[0] || ''
+        : error.message || '';
       return acc;
     },
     {} as Record<string, string>

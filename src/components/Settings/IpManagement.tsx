@@ -30,11 +30,6 @@ import { useCompany } from '../../context/CompanyContext';
 import { formatValidationErrors } from '../../utils/formErrorFormatter';
 import axios from 'axios';
 
-export interface ValidationErrorItem {
-  field: string;
-  message: string;
-}
-
 const IpManagement: React.FC = () => {
   const theme = useTheme();
   const t = useScopedTranslations('settings');
@@ -178,7 +173,7 @@ const IpManagement: React.FC = () => {
       showSuccess('IP address added to whitelist');
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
-      await fetchIps(1);
+      // await fetchIps(1);
       setCurrentPage(1);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -196,7 +191,7 @@ const IpManagement: React.FC = () => {
     } finally {
       setAddLoading(false);
     }
-  }, [formData, showError]);
+  }, [validateForm, formData, showError]);
 
   const handleClose = () => {
     setIsAddModalOpen(false);

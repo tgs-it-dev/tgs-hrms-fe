@@ -195,7 +195,7 @@ const CompanyPage: React.FC = () => {
         });
         if (response?.mobileLoginEnabled) {
           showSuccess('Mobile login enabled successfully.');
-        } else if (!response?.mobileLoginEnabled) {
+        } else {
           showSuccess('Mobile login disabled successfully.');
         }
         await refreshCompanyDetails();
