@@ -60,19 +60,20 @@ export const formatValidationErrors = (
   }
 
   // Safe fallback for Record<string, string> or other object shapes
-  if (typeof errors === 'object' && !Array.isArray(errors)) {
-    const obj = errors as Record<string, unknown>;
-    const fallbackEntries = Object.entries(obj).map(([k, v]) => {
-      if (typeof v === 'string') {
-        return [k, v];
-      }
-      if (Array.isArray(v) && typeof v[0] === 'string') {
-        return [k, v[0]];
-      }
-      return [k, ''];
-    });
-    return Object.fromEntries(fallbackEntries);
-  }
+  // if (typeof errors === 'object' && !Array.isArray(errors)) {
+  //   const obj = errors as Record<string, unknown>;
+  //   const fallbackEntries = Object.entries(obj).map(([k, v]) => {
+  //     if (typeof v === 'string') {
+  //       return [k, v];
+  //     }
+  //     if (Array.isArray(v) && typeof v[0] === 'string') {
+  //       return [k, v[0]];
+  //     }
+  //     return [k, ''];
+  //   });
+  //   return Object.fromEntries(fallbackEntries);
+  // }
+  console.error('Unknown validation error format:', errors);
 
   return {};
 };

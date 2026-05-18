@@ -58,6 +58,7 @@ const CompanyPage: React.FC = () => {
   }>({});
 
   const [mobileLoginLoading, setMobileLoginLoading] = useState(false);
+  const tenantId = contextCompanyDetails?.tenant_id;
 
   const isModalOpenRef = useRef(false);
 
@@ -181,8 +182,6 @@ const CompanyPage: React.FC = () => {
   // Mobile Login Settings
   const handleToggleMobileLogin = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const tenantId = contextCompanyDetails?.tenant_id;
-
       if (!tenantId) {
         showError('Tenant ID not found');
         return;

@@ -185,7 +185,7 @@ const IpManagement: React.FC = () => {
         setToggleLoading(false);
       }
     },
-    [showSuccess, showError, refreshCompanyDetails]
+    [showSuccess, showError, refreshCompanyDetails, contextCompanyDetails]
   );
 
   const handleAddIp = useCallback(async () => {
@@ -196,10 +196,8 @@ const IpManagement: React.FC = () => {
       showSuccess('IP address added to whitelist');
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
-      setCurrentPage(prev => {
-        if (prev === 1) fetchIps(1);
-        return 1;
-      });
+      setCurrentPage(1);
+      if (currentPage === 1) fetchIps(1);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Validation errors
