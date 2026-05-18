@@ -84,7 +84,7 @@ const CompanyPage: React.FC = () => {
       setModalLogoLoading(false);
       isModalOpenRef.current = false;
     }
-  }, [contextCompanyDetails, companyLogo, user]);
+  }, [contextCompanyDetails, refreshCompanyDetails, companyLogo, user]);
 
   const handleCloseCompanyModal = useCallback(() => {
     setCompanyModalOpen(false);

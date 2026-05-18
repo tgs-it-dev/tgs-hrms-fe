@@ -89,7 +89,8 @@ const IpManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const limit = 10;
+  const PAGE_SIZE = 10 as const;
+
   //error states
   const [errors, setErrors] = useState({
     ip_address: '',
@@ -136,7 +137,7 @@ const IpManagement: React.FC = () => {
         setLoading(true);
         const response = await ipWhitelistApi.getWhitelistedIPs({
           page,
-          limit,
+          limit: PAGE_SIZE,
         });
         setIps(response.items);
         setTotalPages(response.totalPages);
@@ -195,11 +196,10 @@ const IpManagement: React.FC = () => {
       showSuccess('IP address added to whitelist');
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
-      if (currentPage === 1) {
-        await fetchIps(1);
-      } else {
-        setCurrentPage(1);
-      }
+      setCurrentPage(prev => {
+        if (prev === 1) fetchIps(1);
+        return 1;
+      });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Validation errors
@@ -242,13 +242,17 @@ const IpManagement: React.FC = () => {
       await ipWhitelistApi.removeIPFromWhitelist(deleteIp);
       showSuccess('IP address removed from whitelist');
       setDeleteIp(null);
-      await fetchIps(currentPage);
+
+      const newPage =
+        ips.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+      setCurrentPage(newPage);
+      if (newPage === currentPage) await fetchIps(currentPage);
     } catch (error) {
       showError(error);
     } finally {
       setDeleteLoading(false);
     }
-  }, [deleteIp, fetchIps, currentPage, showSuccess, showError]);
+  }, [deleteIp, fetchIps, currentPage, ips.length, showSuccess, showError]);
 
   const handleIpChange = (value: string) => {
     setFormData(prev => ({

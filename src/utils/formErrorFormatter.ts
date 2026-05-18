@@ -28,8 +28,11 @@ export const isNestJSErrors = (errors: unknown): errors is NestJSErrors => {
     return false;
   }
   const obj = errors as Record<string, unknown>;
-  return Object.values(obj).every(
-    v => Array.isArray(v) && v.every((m: unknown) => typeof m === 'string')
+  return (
+    Object.keys(obj).length > 0 &&
+    Object.values(obj).every(
+      v => Array.isArray(v) && v.every((m: unknown) => typeof m === 'string')
+    )
   );
 };
 
