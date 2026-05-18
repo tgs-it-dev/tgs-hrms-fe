@@ -29,11 +29,12 @@ import ipWhitelistApi, { type IPWhitelistItem } from '../../api/ipWhitelistApi';
 import { useCompany } from '../../context/CompanyContext';
 import { formatValidationErrors } from '../../utils/formErrorFormatter';
 import axios from 'axios';
+import { ErrorSnackbar } from '../common/ErrorSnackbar';
 
 const IpManagement: React.FC = () => {
   const theme = useTheme();
   const t = useScopedTranslations('settings');
-  const { showError, showSuccess } = useErrorHandler();
+  const { showError, showSuccess, snackbar, closeSnackbar } = useErrorHandler();
   const { companyDetails, refreshCompanyDetails } = useCompany();
 
   const [loading, setLoading] = useState(true);
@@ -130,7 +131,11 @@ const IpManagement: React.FC = () => {
         setTotalItems(response.total);
         setCurrentPage(response.page);
       } catch (error) {
-        showError(error);
+        if (axios.isAxiosError(error)) {
+          showError(error.response?.data?.message || 'Failed to fetch IPs');
+        } else {
+          showError('Unexpected error occurred');
+        }
       } finally {
         setLoading(false);
       }
@@ -162,7 +167,7 @@ const IpManagement: React.FC = () => {
         setToggleLoading(false);
       }
     },
-    [showError, refreshCompanyDetails]
+    [showSuccess, showError, refreshCompanyDetails]
   );
 
   const handleAddIp = useCallback(async () => {
@@ -173,20 +178,27 @@ const IpManagement: React.FC = () => {
       showSuccess('IP address added to whitelist');
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
-      // await fetchIps(1);
-      setCurrentPage(1);
+      await fetchIps(currentPage === 1 ? 1 : 1); // always refetch
+      setCurrentPage(1); // won't re-trigger effect if already 1
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const formattedError = formatValidationErrors(
-          error.response?.data?.errors || []
-        );
+        // Validation errors
+        if (error.response?.data?.errors) {
+          const formattedError = formatValidationErrors(
+            error.response.data.errors || []
+          );
 
-        setErrors(prev => ({
-          ...prev,
-          ...formattedError,
-        }));
+          setErrors(prev => ({
+            ...prev,
+            ...formattedError,
+          }));
+        } else {
+          // General API message
+          showError(error.response?.data?.message || 'Something went wrong');
+        }
       } else {
-        showError(error);
+        // Non-axios errors
+        showError('Unexpected error occurred');
       }
     } finally {
       setAddLoading(false);
@@ -474,6 +486,13 @@ const IpManagement: React.FC = () => {
         title={t.confirmDelete}
         message={t.confirmDeleteIp}
         loading={deleteLoading}
+      />
+      <ErrorSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={closeSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       />
     </Box>
   );

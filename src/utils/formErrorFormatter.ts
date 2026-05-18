@@ -1,18 +1,22 @@
-type ValidationError = {
-  field: string;
-  message: string | string[];
-};
+type NestJSErrors = Record<string, string[]>;
+type StandardErrors = Array<{ field: string; message: string | string[] }>;
 
 export const formatValidationErrors = (
-  errors: ValidationError[]
+  errors: NestJSErrors | StandardErrors | undefined | null
 ): Record<string, string> => {
-  return errors.reduce(
-    (acc, error) => {
-      acc[error.field] = Array.isArray(error.message)
-        ? error.message[0] || ''
-        : error.message || '';
-      return acc;
-    },
-    {} as Record<string, string>
+  if (!errors) return {};
+  if (Array.isArray(errors)) {
+    return errors.reduce(
+      (acc, e) => {
+        acc[e.field] = Array.isArray(e.message)
+          ? (e.message[0] ?? '')
+          : e.message;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }
+  return Object.fromEntries(
+    Object.entries(errors).map(([k, v]) => [k, v[0] ?? ''])
   );
 };

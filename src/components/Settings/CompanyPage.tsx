@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useCompany } from '../../context/CompanyContext';
 import { useUser } from '../../hooks/useUser';
-import { isManager, isEmployee } from '../../utils/roleUtils';
+import { isAdmin } from '../../utils/roleUtils';
 import companyApi from '../../api/companyApi';
 import { SystemTenantApi } from '../../api/systemTenantApi';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -248,7 +248,7 @@ const CompanyPage: React.FC = () => {
         >
           Company Information
         </AppPageTitle>
-        {!isManager(user?.role) && !isEmployee(user?.role) && (
+        {isAdmin(user?.role) && (
           <AppButton
             onClick={handleEditCompanyDetails}
             variant='contained'
@@ -475,7 +475,7 @@ const CompanyPage: React.FC = () => {
 
       <Box display={'flex'} flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
         {/* Mobile Login Settings */}
-        {!isManager(user?.role) && !isEmployee(user?.role) && (
+        {isAdmin(user?.role) && (
           <AppCard
             elevation={1}
             sx={{
