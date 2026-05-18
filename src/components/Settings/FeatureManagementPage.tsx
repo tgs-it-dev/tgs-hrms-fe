@@ -9,8 +9,6 @@ import {
 } from '@mui/material';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
-import { useUser } from '../../hooks/useUser';
-import { isAdmin, isSystemAdmin } from '../../utils/roleUtils';
 import {
   useFeatureToggles,
   type FeatureKey,
@@ -65,11 +63,8 @@ const featureDefinitions: {
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
-  const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
   const { showError } = useErrorHandler();
-
-  const isSystemAdminUser = isSystemAdmin(user?.role) || isAdmin(user?.role);
 
   const handleFeatureToggle = async (key: FeatureKey, checked: boolean) => {
     let requestType: WorkflowRequestType | null = null;
@@ -89,16 +84,6 @@ const FeatureManagementPage: React.FC = () => {
       showError(error);
     }
   };
-
-  if (!isSystemAdminUser) {
-    return (
-      <Box sx={{ py: 4 }}>
-        <Typography variant='h6' color='text.secondary' textAlign='center'>
-          You do not have permission to access Feature Management.
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
     <Box>

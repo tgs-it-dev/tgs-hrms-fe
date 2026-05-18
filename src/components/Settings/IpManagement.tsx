@@ -185,7 +185,7 @@ const IpManagement: React.FC = () => {
         setToggleLoading(false);
       }
     },
-    [showSuccess, showError, refreshCompanyDetails, contextCompanyDetails]
+    [showSuccess, showError, refreshCompanyDetails]
   );
 
   const handleAddIp = useCallback(async () => {
