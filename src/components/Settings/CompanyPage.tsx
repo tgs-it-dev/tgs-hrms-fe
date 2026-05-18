@@ -205,7 +205,7 @@ const CompanyPage: React.FC = () => {
         setMobileLoginLoading(false);
       }
     },
-    [user, refreshCompanyDetails, showError, showSuccess]
+    [refreshCompanyDetails, showError, showSuccess]
   );
 
   useEffect(() => {

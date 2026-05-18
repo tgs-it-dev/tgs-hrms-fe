@@ -27,7 +27,7 @@ export interface IPWhitelistListResponse {
 
 export interface CreateIPWhitelistRequest {
   ip_address: string;
-  description: string;
+  description?: string;
 }
 
 export interface DeleteIPWhitelistResponse {

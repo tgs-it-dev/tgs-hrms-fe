@@ -6,11 +6,14 @@ import AppPageTitle from '../common/AppPageTitle';
 import { useScopedTranslations } from '../../hooks/useScopedTranslations';
 import WorkflowPage from './WorkflowPage';
 import IpManagement from './IpManagement';
+import { isAdmin } from '../../utils/roleUtils';
+import { useUser } from '../../hooks/useUser';
 
 const SettingsPage: React.FC = () => {
   const theme = useTheme();
   const t = useScopedTranslations('settings');
   const [activeTab, setActiveTab] = useState(0);
+  const { user } = useUser();
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -55,16 +58,18 @@ const SettingsPage: React.FC = () => {
         </Tabs>
       </Box>
 
-      <Box sx={{ mt: 2 }}>
-        {activeTab === 0 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <FeatureManagementPage />
-            <WorkflowPage />
-          </Box>
-        )}
-        {activeTab === 1 && <CompanyPage />}
-        {activeTab === 2 && <IpManagement />}
-      </Box>
+      {isAdmin(user?.role) && (
+        <Box sx={{ mt: 2 }}>
+          {activeTab === 0 && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <FeatureManagementPage />
+              <WorkflowPage />
+            </Box>
+          )}
+          {activeTab === 1 && <CompanyPage />}
+          {activeTab === 2 && <IpManagement />}
+        </Box>
+      )}
     </Box>
   );
 };
