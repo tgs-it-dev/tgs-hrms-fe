@@ -355,6 +355,7 @@ const AttendanceTable = () => {
           timestamp: string;
           near_boundary?: boolean;
           user?: { first_name?: string; last_name?: string };
+          approvalStatus?: string | null;
         };
         checkOut: {
           id: string;
@@ -424,6 +425,9 @@ const AttendanceTable = () => {
           checkIn: toDisplayTime(session.checkIn.timestamp),
           checkOut: checkOutDisplay || '-',
           workedHours,
+          user: session.checkIn.user,
+          approvalStatus: session.checkIn.approvalStatus,
+          near_boundary: session.checkIn.near_boundary,
         });
       }
     }
