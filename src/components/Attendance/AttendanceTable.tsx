@@ -426,10 +426,10 @@ const AttendanceTable = () => {
           checkOut: checkOutDisplay || '-',
           workedHours,
           user: {
-            first_name: session.checkIn.user?.first_name,
-            last_name: session.checkIn.user?.last_name,
+            first_name: session.checkIn.user?.first_name ?? '',
+            last_name: session.checkIn.user?.last_name ?? '',
           },
-          approvalStatus: session.checkIn.approvalStatus,
+          approvalStatus: session.checkIn.approvalStatus ?? null,
         });
       }
     }
