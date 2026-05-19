@@ -6,7 +6,7 @@ import AppPageTitle from '../common/AppPageTitle';
 import { useScopedTranslations } from '../../hooks/useScopedTranslations';
 import WorkflowPage from './WorkflowPage';
 import IpManagement from './IpManagement';
-import { isAdmin } from '../../utils/roleUtils';
+import { isAdmin, isSystemAdmin } from '../../utils/roleUtils';
 import { useUser } from '../../hooks/useUser';
 
 const SettingsPage: React.FC = () => {
@@ -29,7 +29,7 @@ const SettingsPage: React.FC = () => {
       >
         {t.title}
       </AppPageTitle>
-      {isAdmin(user?.role) ? (
+      {isAdmin(user?.role) || isSystemAdmin(user?.role) ? (
         <>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs

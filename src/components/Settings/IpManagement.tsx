@@ -197,7 +197,7 @@ const IpManagement: React.FC = () => {
       setIsAddModalOpen(false);
       setFormData({ ip_address: '', description: '' });
       setCurrentPage(1);
-      if (currentPage === 1) fetchIps(1);
+      if (currentPage === 1) await fetchIps(1);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Validation errors
