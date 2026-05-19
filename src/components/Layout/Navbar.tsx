@@ -12,6 +12,8 @@ import {
   getRoleName,
   isManager,
   isEmployee,
+  isSystemAdmin,
+  isAdmin,
 } from '../../utils/roleUtils';
 
 import {
@@ -1577,33 +1579,36 @@ const Navbar: React.FC<NavbarProps> = ({
             {t.profile}
           </Typography>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleMenuClose();
-            navigate('/dashboard/settings');
-          }}
-          aria-label='Navigate to settings'
-          sx={{
-            px: { xs: 1, sm: 1.25 },
-            py: { xs: 0.75, sm: 1 },
-            borderRadius: 1.5,
-            minHeight: { xs: 40, sm: 44 },
-          }}
-        >
-          <ListItemIcon sx={{ minWidth: { xs: 34, sm: 36 } }}>
-            <SettingsIcon
-              fontSize='small'
-              sx={{ color: theme.palette.text.primary }}
-              aria-hidden='true'
-            />
-          </ListItemIcon>
-          <Typography
-            color={theme.palette.text.primary}
-            sx={{ fontSize: { xs: '12px', sm: '14px' } }}
+        {(isSystemAdmin(currentUserRole) || isAdmin(currentUserRole)) && (
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              navigate('/dashboard/settings');
+            }}
+            aria-label='Navigate to settings'
+            sx={{
+              px: { xs: 1, sm: 1.25 },
+              py: { xs: 0.75, sm: 1 },
+              borderRadius: 1.5,
+              minHeight: { xs: 40, sm: 44 },
+            }}
           >
-            {t.settings}
-          </Typography>
-        </MenuItem>
+            <ListItemIcon sx={{ minWidth: { xs: 34, sm: 36 } }}>
+              <SettingsIcon
+                fontSize='small'
+                sx={{ color: theme.palette.text.primary }}
+                aria-hidden='true'
+              />
+            </ListItemIcon>
+
+            <Typography
+              color={theme.palette.text.primary}
+              sx={{ fontSize: { xs: '12px', sm: '14px' } }}
+            >
+              {t.settings}
+            </Typography>
+          </MenuItem>
+        )}
         <MenuItem
           onClick={handleLogout}
           aria-label='Log out'
