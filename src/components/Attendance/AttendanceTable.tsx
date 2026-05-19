@@ -425,9 +425,11 @@ const AttendanceTable = () => {
           checkIn: toDisplayTime(session.checkIn.timestamp),
           checkOut: checkOutDisplay || '-',
           workedHours,
-          user: session.checkIn.user,
+          user: {
+            first_name: session.checkIn.user?.first_name,
+            last_name: session.checkIn.user?.last_name,
+          },
           approvalStatus: session.checkIn.approvalStatus,
-          near_boundary: session.checkIn.near_boundary,
         });
       }
     }
