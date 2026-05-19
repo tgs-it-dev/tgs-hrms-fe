@@ -44,6 +44,7 @@ import AppFormModal from '../common/AppFormModal';
 import AppPageTitle from '../common/AppPageTitle';
 import { PAGINATION } from '../../constants/appConstants';
 import { useQueryClient } from '@tanstack/react-query';
+import { formatValidationErrors } from '../../utils/formErrorFormatter';
 
 interface Employee {
   id: string;
@@ -442,17 +443,7 @@ const EmployeeManager: React.FC = () => {
 
       if (errorResponse?.response?.data) {
         const responseData = errorResponse.response.data;
-        const fieldErrors: Record<string, string> = {};
-
-        // Handle validation errors array format (common in NestJS)
-        if (responseData.errors && typeof responseData.errors === 'object') {
-          Object.entries(responseData.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0) {
-              fieldErrors[field] = messages[0]; // Take first error message
-            }
-          });
-        }
-
+        const fieldErrors = formatValidationErrors(responseData.errors);
         // Handle single message format — show API message as-is, only decide which field
         if (responseData.message) {
           const msg = responseData.message;

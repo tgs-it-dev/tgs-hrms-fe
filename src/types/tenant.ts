@@ -54,3 +54,12 @@ export interface SystemTenantFilters {
   limit?: number;
   includeDeleted?: boolean;
 }
+
+export interface UpdateTenantMobileLoginRequest {
+  enabled: boolean;
+}
+
+export interface UpdateTenantMobileLoginResponse {
+  tenantId: string;
+  mobileLoginEnabled: boolean;
+}

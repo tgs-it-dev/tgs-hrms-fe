@@ -286,6 +286,22 @@ export const translations = {
     features: { en: 'Feature Management', ar: 'إدارة الميزات' },
     workflow: { en: 'Workflow', ar: 'سير العمل' },
     company: { en: 'Company', ar: 'الشركة' },
+    ipManagement: { en: 'IP Management', ar: 'إدارة بروتوكول الإنترنت' },
+    ipRestriction: { en: 'IP Restriction', ar: 'تقييد بروتوكول الإنترنت' },
+    ipRestrictionDesc: {
+      en: 'Enable to restrict access to the system only from whitelisted IP addresses.',
+      ar: 'تمكين لتقييد الوصول إلى النظام فقط من عناوين بروتوكول الإنترنت المسموح بها.',
+    },
+    whitelistedIps: { en: 'Whitelisted IPs', ar: 'عناوين IP المسموح بها' },
+    addIp: { en: 'Add IP Address', ar: 'إضافة عنوان IP' },
+    ipAddress: { en: 'IP Address', ar: 'عنوان IP' },
+    ipDescription: { en: 'Description', ar: 'الوصف' },
+    actions: { en: 'Actions', ar: 'الإجراءات' },
+    confirmDelete: { en: 'Confirm Delete', ar: 'تأكيد الحذف' },
+    confirmDeleteIp: {
+      en: 'Are you sure you want to remove this IP address from the whitelist?',
+      ar: 'هل أنت متأكد أنك تريد إزالة عنوان IP هذا من القائمة البيضاء؟',
+    },
   },
 
   // ── Tenants ──────────────────────────────────────────────────────────────

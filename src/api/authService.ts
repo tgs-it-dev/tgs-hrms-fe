@@ -53,7 +53,7 @@ class AuthService {
     }
 
     const response = await axios.post<TokenRefreshResponse>(
-      `${env.apiBaseUrl}/auth/refresh-token`,
+      `${env.apiBaseUrl}/auth/refresh`,
       { refreshToken }
     );
 

@@ -526,9 +526,16 @@ export default function DesignationManager() {
           }}
         >
           {isSystemAdmin ? (
-            <>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                alignItems: 'end',
+                justifyContent: 'center',
+              }}
+            >
               <AppDropdown
-                label={getText('Tenant', 'المستأجر')}
+                label={''}
                 showLabel={false}
                 options={
                   loadingTenants
@@ -583,7 +590,8 @@ export default function DesignationManager() {
                 }}
               />
               <AppDropdown
-                label={getText('Filter by department', 'تصفية حسب القسم')}
+                // label={getText('Filter by department', 'تصفية حسب القسم')}
+                label=''
                 showLabel={true}
                 options={[
                   {
@@ -625,7 +633,7 @@ export default function DesignationManager() {
                     },
                 }}
               />
-            </>
+            </Box>
           ) : !isHRAdmin ? (
             <>
               <AppButton

@@ -9,8 +9,6 @@ import {
 } from '@mui/material';
 import AppCard from '../common/AppCard';
 import AppButton from '../common/AppButton';
-import { useUser } from '../../hooks/useUser';
-import { isAdmin, isSystemAdmin } from '../../utils/roleUtils';
 import {
   useFeatureToggles,
   type FeatureKey,
@@ -65,11 +63,8 @@ const featureDefinitions: {
 
 const FeatureManagementPage: React.FC = () => {
   const theme = useTheme();
-  const { user } = useUser();
   const { features, setFeatureEnabled, resetToDefaults } = useFeatureToggles();
   const { showError } = useErrorHandler();
-
-  const isSystemAdminUser = isSystemAdmin(user?.role) || isAdmin(user?.role);
 
   const handleFeatureToggle = async (key: FeatureKey, checked: boolean) => {
     let requestType: WorkflowRequestType | null = null;
@@ -90,19 +85,6 @@ const FeatureManagementPage: React.FC = () => {
     }
   };
 
-  if (!isSystemAdminUser) {
-    return (
-      <Box sx={{ py: 4 }}>
-        <Typography
-          variant='h6'
-          sx={{ color: theme.palette.text.secondary, textAlign: 'center' }}
-        >
-          You do not have permission to access Feature Management.
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box>
       <AppCard
@@ -117,36 +99,27 @@ const FeatureManagementPage: React.FC = () => {
           {featureDefinitions.map(feature => (
             <Box
               key={feature.key}
-              sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                gap: 2,
-                px: { xs: 1, sm: 1.5 },
-                py: { xs: 1, sm: 1.5 },
-                borderRadius: 2,
-                backgroundColor: 'background.default',
-                border: `1px solid ${theme.palette.divider}`,
-                flexWrap: 'wrap',
-              }}
+              display={'flex'}
+              alignItems={'flex-start'}
+              justifyContent={'space-between'}
+              gap={2}
+              px={{ xs: 1, sm: 1.5 }}
+              py={{ xs: 1, sm: 1.5 }}
+              borderRadius={2}
+              border={`1px solid ${theme.palette.divider}`}
+              flexWrap={'wrap'}
+              bgcolor={theme.palette.background.default}
             >
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography
                   variant='subtitle1'
-                  sx={{
-                    fontWeight: 600,
-                    color: theme.palette.text.primary,
-                    mb: 0.5,
-                  }}
+                  fontWeight={600}
+                  color='text.primary'
+                  mb={0.5}
                 >
                   {feature.label}
                 </Typography>
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: 'text.secondary',
-                  }}
-                >
+                <Typography variant='body2' color='text.secondary'>
                   {feature.description}
                 </Typography>
               </Box>
@@ -171,13 +144,7 @@ const FeatureManagementPage: React.FC = () => {
           ))}
         </Stack>
 
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            mt: 3,
-          }}
-        >
+        <Box display={'flex'} justifyContent={'flex-end'} mt={3}>
           <AppButton
             onClick={resetToDefaults}
             variant='outlined'

@@ -6,14 +6,15 @@ import {
   Avatar,
   CircularProgress,
   useMediaQuery,
+  Switch,
 } from '@mui/material';
 import { useCompany } from '../../context/CompanyContext';
 import { useUser } from '../../hooks/useUser';
-import { isManager, isEmployee } from '../../utils/roleUtils';
 import companyApi from '../../api/companyApi';
+import { SystemTenantApi } from '../../api/systemTenantApi';
 import BusinessIcon from '@mui/icons-material/Business';
 import LanguageIcon from '@mui/icons-material/Language';
-import { CameraAlt, BusinessCenter } from '@mui/icons-material';
+import { CameraAlt, BusinessCenter, Smartphone } from '@mui/icons-material';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 import AppFormModal from '../common/AppFormModal';
@@ -54,6 +55,9 @@ const CompanyPage: React.FC = () => {
     company_name?: string;
     domain?: string;
   }>({});
+
+  const [mobileLoginLoading, setMobileLoginLoading] = useState(false);
+  const tenantId = contextCompanyDetails?.tenant_id;
 
   const isModalOpenRef = useRef(false);
 
@@ -174,6 +178,34 @@ const CompanyPage: React.FC = () => {
     []
   );
 
+  // Mobile Login Settings
+  const handleToggleMobileLogin = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!tenantId) {
+        showError('Tenant ID not found');
+        return;
+      }
+
+      setMobileLoginLoading(true);
+      try {
+        const response = await SystemTenantApi.updateMobileLogin(tenantId, {
+          enabled: event.target.checked,
+        });
+        if (response?.mobileLoginEnabled) {
+          showSuccess('Mobile login enabled successfully.');
+        } else {
+          showSuccess('Mobile login disabled successfully.');
+        }
+        await refreshCompanyDetails();
+      } catch (err) {
+        showError(err);
+      } finally {
+        setMobileLoginLoading(false);
+      }
+    },
+    [refreshCompanyDetails, showError, showSuccess, tenantId]
+  );
+
   useEffect(() => {
     if (companyLogo && companyModalOpen && !logoUploading) {
       setModalCompanyLogo(companyLogo);
@@ -214,61 +246,59 @@ const CompanyPage: React.FC = () => {
         >
           Company Information
         </AppPageTitle>
-        {!isManager(user?.role) && !isEmployee(user?.role) && (
-          <AppButton
-            onClick={handleEditCompanyDetails}
-            variant='contained'
-            variantType='primary'
-            startIcon={
-              <Box
-                component='img'
-                src={Icons.edit}
-                alt=''
-                aria-hidden='true'
-                sx={{
-                  width: { xs: 16, sm: 20 },
-                  height: { xs: 16, sm: 20 },
-                  filter: 'brightness(0) invert(1)',
-                }}
-              />
-            }
-            sx={{
-              fontSize: 'var(--body-font-size)',
-              lineHeight: 'var(--body-line-height)',
-              letterSpacing: 'var(--body-letter-spacing)',
-              boxShadow: 'none',
-              minWidth: { xs: 'auto', sm: 200 },
-              px: { xs: 2, sm: 2 },
-              py: { xs: 1, sm: 1 },
-              width: { xs: '100%', sm: 'auto' },
-              mt: { xs: 2, sm: 0 },
-              '& .MuiButton-startIcon': {
-                marginRight: { xs: 0.5, sm: 1 },
-                display: 'flex',
-                alignItems: 'center',
-              },
-            }}
-          >
+
+        <AppButton
+          onClick={handleEditCompanyDetails}
+          variant='contained'
+          variantType='primary'
+          startIcon={
             <Box
-              component='span'
-              sx={{ display: { xs: 'none', sm: 'inline' } }}
-            >
-              Edit Company Details
-            </Box>
-            <Box
-              component='span'
-              sx={{ display: { xs: 'inline', sm: 'none' } }}
-            >
-              Edit
-            </Box>
-          </AppButton>
-        )}
+              component='img'
+              src={Icons.edit}
+              alt=''
+              aria-hidden='true'
+              sx={{
+                width: { xs: 16, sm: 20 },
+                height: { xs: 16, sm: 20 },
+                filter: 'brightness(0) invert(1)',
+              }}
+            />
+          }
+          sx={{
+            fontSize: 'var(--body-font-size)',
+            lineHeight: 'var(--body-line-height)',
+            letterSpacing: 'var(--body-letter-spacing)',
+            boxShadow: 'none',
+            minWidth: { xs: 'auto', sm: 200 },
+            px: { xs: 2, sm: 2 },
+            py: { xs: 1, sm: 1 },
+            width: { xs: '100%', sm: 'auto' },
+            mt: { xs: 2, sm: 0 },
+            '& .MuiButton-startIcon': {
+              marginRight: { xs: 0.5, sm: 1 },
+              display: 'flex',
+              alignItems: 'center',
+            },
+          }}
+        >
+          <Box component='span' sx={{ display: { xs: 'none', sm: 'inline' } }}>
+            Edit Company Details
+          </Box>
+          <Box component='span' sx={{ display: { xs: 'inline', sm: 'none' } }}>
+            Edit
+          </Box>
+        </AppButton>
       </Box>
 
       {/* Company Info Card */}
       <AppCard
         elevation={1}
-        sx={{ borderRadius: 3, border: 'none', p: { xs: 2, sm: 3, lg: 4 } }}
+        sx={{
+          borderRadius: 3,
+          border: 'none',
+          p: { xs: 2, sm: 3, lg: 4 },
+          mb: 3,
+        }}
       >
         {contextLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -433,6 +463,82 @@ const CompanyPage: React.FC = () => {
           </Box>
         )}
       </AppCard>
+
+      <Box display={'flex'} flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
+        {/* Mobile Login Settings */}
+
+        <AppCard
+          elevation={1}
+          sx={{
+            flex: 1,
+            borderRadius: 3,
+            border: 'none',
+            p: { xs: 2, sm: 3, lg: 4 },
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  width: { xs: 42, sm: 50 },
+                  height: { xs: 42, sm: 50 },
+                  borderRadius: '50%',
+                  backgroundColor: 'background.default',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: { xs: 2, sm: 3 },
+                }}
+              >
+                <Smartphone
+                  sx={{
+                    fontSize: { xs: 22, sm: 28 },
+                    color: theme.palette.text.disabled,
+                  }}
+                />
+              </Box>
+              <Box>
+                <Typography
+                  variant='body1'
+                  sx={{
+                    color: theme.palette.text.primary,
+                    fontWeight: 600,
+                    fontSize: { xs: '14px', sm: '16px' },
+                  }}
+                >
+                  Mobile Application Login
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    fontSize: { xs: '12px', sm: '13px' },
+                  }}
+                >
+                  Allow tenant to log in using the mobile app
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {mobileLoginLoading && (
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+              )}
+              <Switch
+                checked={contextCompanyDetails?.mobile_login_enabled || false}
+                onChange={handleToggleMobileLogin}
+                disabled={mobileLoginLoading}
+                color='primary'
+              />
+            </Box>
+          </Box>
+        </AppCard>
+      </Box>
 
       {/* Company Details Modal */}
       <AppFormModal
